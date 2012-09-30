@@ -1,0 +1,15 @@
+[header]
+title = a paper cli for organizing papers notes, finding files, generating bibtex
+id = c33d5528f107277e1248a4534ad6d1a01986daf7
+status = open
+type = feature
+author = Fabien Benureau
+mail = fabien.benureau+git@gmail.com
+date = 2012-09-30 at 22:41 UCT
+
+[eventlog]
+opened[0] = opened the 2012-09-30 at 22:41 UCT by Fabien Benureau
+
+[discussion]
+desc = # enter your description here
+
