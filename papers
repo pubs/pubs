@@ -6,6 +6,8 @@ import shutil
 import tempfile
 import textwrap
 from subprocess import call
+import webbrowser
+import urllib
 
 try:
     import pybtex
@@ -88,3 +90,31 @@ def install_cmd():
                 return
         shutil.copy(__file__, path)
 
+def websearch_cmd(search_string):
+    url = 'https://scholar.google.fr/scholar?hl=fr&q={}&lr='.format(urllib.quote_plus(search_string))
+    webbrowser.open(url)
+    
+
+# argument parsing (old school)
+
+cmds = {'init': init_cmd,
+        'install': install_cmd,
+        'websearch': websearch_cmd,
+       }
+
+
+error_msg = "{}banana {}banana {}banana{}".format(purple, yellow, cyan, end)
+
+if len(sys.argv) == 1:
+    print error_msg    
+else:
+    cmd = sys.argv[1]
+    if cmd in cmds and cmd not in ['init', 'install', 'websearch']:
+        find_papersdir()
+
+    try:
+        args = sys.argv[2:]
+        cmds[cmd](*args)
+    except KeyError, TypeError:
+        print error_msg    
+        
