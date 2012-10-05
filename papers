@@ -71,7 +71,35 @@ def find_papersdir():
     if papersdir is None:
         print '{}error{} : no papers repo found in this directory or in any parent directory.{}'.format(red, grey, end)
         exit(0)
+
+
+def write_configfile(config, filepath):
+    try:
+        with open(filepath, 'w') as f:
+            config.write(f)
+    except IOError as e:
+        print '{}error{} : impossible to write on file {}{:s}{}'.format(red, grey, cyan, filepath, end)
+        print 'Verify permissions'
+        exit(-1)
+
+def write_papers(config):
+    write_configfile(config, papersdir + os.sep + 'papers')
+
+def read_configfile(filepath):
+    try:
+        with open(filepath, 'r') as f:
+            config = ConfigParser.ConfigParser()
+            config.readfp(f)
+            return config
+    except IOError as e:
+        print '{}error{} : impossible to read file {}{:s}{}'.format(red, grey, cyan, filepath, end)
+        print 'Verify permissions'
+        exit(-1)
         
+def read_papers():
+    return read_configfile(papersdir + os.sep + 'papers')
+
+
 def vim_input(initial = ""):
     """Use an editor to get input"""    
 
@@ -135,7 +163,7 @@ def person_repr(p):
                                 ' '.join(p.last(abbr = False)),
                                 ' '.join(p.lineage(abbr = True))] if s)
 
-def bib_desc(bib_data):
+def bib_oneliner(bib_data):
     article = bib_data.entries[list(bib_data.entries.keys())[0]]    
     authors = ', '.join(person_repr(p) for p in article.persons['author'])
     title = article.fields['title']
@@ -143,10 +171,18 @@ def bib_desc(bib_data):
     journal = article.fields['journal']
     return '{}{}{} \"{}{}{}\" {}{}{} {}({}{}{}){}'.format(green, authors, grey, bcyan, title, grey, yellow, journal, end, grey, end, year, grey, end)
 
+def bib_desc(bib_data):
+    article = bib_data.entries[list(bib_data.entries.keys())[0]]    
+    s  = '\n'.join('author: {}'.format(person_repr(p)) for p in article.persons['author'])
+    s += '\n'
+    s += '\n'.join('{}: {}'.format(k, v) for k, v in article.fields.items())
+    return s
+
 # commands
 
 def init_cmd():
     """Create a .papers directory"""
+    global papersdir
     # create dir
     papersdir = os.getcwd() + '/.papers'
     if not os.path.exists(papersdir):
@@ -154,6 +190,11 @@ def init_cmd():
         os.makedirs(papersdir)
         os.makedirs(papersdir+os.sep+'bibdata')
         os.makedirs(papersdir+os.sep+'meta')
+        papers = ConfigParser.ConfigParser()
+        papers.add_section('header')
+        papers.set('header', 'count', 0)
+        papers.add_section('papers')
+        write_papers(papers)
     else:
         print '{}error{} : papers already present in {}{}{}'.format(red, grey, cyan, papersdir, end)
         exit(-1)
@@ -204,23 +245,34 @@ def add_cmd(pdffilepath, bibtex = None):
     
     if bibtex is not None:
         bib_data = load_externalbibfile(fullbibpath)
+        print '{}bibliographic data present in {}{}{}'.format(grey, cyan, bibtex, end)
+        print bib_desc(bib_data)
         write_bibfile(bib_data, filename)
         
+    papers = read_papers()
+    count = papers.get('header', 'count')
+    papers.set('header', 'count', int(count) + 1)
+    papers.set('papers', 'p' + count, filename)
+    write_papers(papers)
+    
     write_meta(meta, filename)
     
 def list_cmd():
-    files = os.listdir(papersdir + os.sep + 'bibdata')
+    papers = read_papers()
+    
     articles = []
-    for filename in files:
-        bibdata = load_bibfile(filename)
-        bibdesc = bib_desc(bibdata)
-        articles.append(str(bibdesc))
+    for p in papers.options('papers'):
+        filename = papers.get('papers', p)
+        number = p[1:]
+        bibdata = load_bibfile(filename + '.bibyaml')
+        bibdesc = bib_oneliner(bibdata)
+        articles.append('{:3d}   {}'.format(int(number), bibdesc))
     
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=True) as tmpf:
         tmpf.write('\n'.join(articles))
         tmpf.flush()
         call(['less', '-XRF', tmpf.name])
-
+        
     
 # argument parsing (old school)
 
@@ -240,9 +292,11 @@ else:
     if cmd in cmds and cmd not in ['init', 'install', 'websearch']:
         find_papersdir()
         
-    try:
-        args = sys.argv[2:]
-        cmds[cmd](*args)
-    except KeyError, TypeError:
-        print error_msg     
-        
+    args = sys.argv[2:]
+    cmds[cmd](*args)
+    # try:
+    #     args = sys.argv[2:]
+    #     cmds[cmd](*args)
+    # except KeyError, TypeError:
+    #     print error_msg     
+    #     
