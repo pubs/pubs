@@ -9,6 +9,7 @@ from subprocess import call
 import webbrowser
 import urllib
 import ConfigParser
+import yaml
 
 try:
     import pybtex
@@ -104,6 +105,10 @@ def load_externalbibfile(fullbibpath):
 
     return bib_data
 
+def load_bibfile(filename):
+    fullbibpath = papersdir + os.sep + 'bibdata' + os.sep + filename
+    return load_externalbibfile(fullbibpath)
+
 def write_bibfile(bib_data, filename):
     filepath = papersdir + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
     with open(filepath, 'w') as f:
@@ -122,6 +127,21 @@ def check_file(filepath):
     if not os.path.isfile(filepath):
         print '{}error{}: {}{}{} is not a file{}'.format(red, grey, cyan, filepath, grey, end)
         exit(-1)
+
+def person_repr(p):
+    return ' '.join(s for s in [' '.join(p.first(abbr = True)), 
+                                ' '.join(p.middle(abbr = True)),
+                                ' '.join(p.prelast(abbr = False)),
+                                ' '.join(p.last(abbr = False)),
+                                ' '.join(p.lineage(abbr = True))] if s)
+
+def bib_desc(bib_data):
+    article = bib_data.entries[list(bib_data.entries.keys())[0]]    
+    authors = ', '.join(person_repr(p) for p in article.persons['author'])
+    title = article.fields['title']
+    year = article.fields['year']
+    journal = article.fields['journal']
+    return '{}{}{} \"{}{}{}\" {}{}{} {}({}{}{}){}'.format(green, authors, grey, bcyan, title, grey, yellow, journal, end, grey, end, year, grey, end)
 
 # commands
 
@@ -188,12 +208,27 @@ def add_cmd(pdffilepath, bibtex = None):
         
     write_meta(meta, filename)
     
+def list_cmd():
+    files = os.listdir(papersdir + os.sep + 'bibdata')
+    articles = []
+    for filename in files:
+        bibdata = load_bibfile(filename)
+        bibdesc = bib_desc(bibdata)
+        articles.append(str(bibdesc))
+    
+    with tempfile.NamedTemporaryFile(suffix=".tmp", delete=True) as tmpf:
+        tmpf.write('\n'.join(articles))
+        tmpf.flush()
+        call(['less', '-XRF', tmpf.name])
+
+    
 # argument parsing (old school)
 
 cmds = {'init': init_cmd,
         'install': install_cmd,
         'websearch': websearch_cmd,
         'add': add_cmd,
+        'list': list_cmd,
        }
 
 error_msg = "{}banana {}banana {}banana{}".format(purple, yellow, cyan, end)
