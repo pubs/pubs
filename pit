@@ -1,0 +1,370 @@
+#!/usr/bin/env python
+
+"""
+pit : python issue tracker.
+
+pit is a simple issue tracker written in python
+"""
+__version__ = '0.3'
+
+import sys, os
+import shutil
+import ConfigParser
+from hashlib import sha1
+import StringIO
+import subprocess
+import datetime
+
+# Searching for the pit dir
+
+pitdir = None
+
+def find_pitdir():
+    global pitdir
+    curdir = os.path.abspath(os.getcwd())
+    while curdir != '':
+        if os.path.exists(curdir + '/.pit') and os.path.isdir(curdir + '/.pit'):
+            pitdir = curdir + '/.pit'
+            curdir = ''
+        if curdir == '/':
+            curdir = ''
+        else:
+            curdir = os.path.split(curdir)[0]
+    
+    if pitdir is None:
+        print 'No pit repo found in this directory or in any parent directory.'
+        exit(0)
+
+# Reading Writing issues
+
+sha1_length = 16
+
+def sha1digest(s):
+    m = sha1()
+    m.update(s)
+    m = m.hexdigest()
+    return m
+
+def get_author():
+    """Get the git author (if git installed)"""
+    try:
+        author = subprocess.check_output(['git','config', '--get', 'user.name'])
+        mail   = subprocess.check_output(['git','config', '--get', 'user.email'])
+        author = author.strip('\n')
+        mail   = mail.strip('\n')
+        return author, mail
+    except OSError, subprocess.CalledProcessError:
+        return 'anonymous', 'unknow'
+
+def get_issue_date(issue):
+    try:
+        return datetime.datetime.strptime(issue.get('header', 'date'), '%Y-%m-%d at %H:%M UCT')
+    except ConfigParser.NoOptionError:
+        return datetime.datetime(2012, 8, 7, 0, 36, 32, 0)
+
+def issue_file(digest):
+    return pitdir + '/pit-{}'.format(digest[:sha1_length])
+
+def find_issue_file(digest):
+    """Find the file even if the digest is partial"""
+    prefix = 'pit-'+digest[:sha1_length]
+    if len(digest) >= sha1_length:
+        return pitdir + '/' + prefix
+    # else list all issues file in pit dir
+    else:
+        files = os.listdir(pitdir)
+        for filename in files:
+            if filename.startswith(prefix):
+                return pitdir + '/' + filename
+
+def read_issue(digest):
+    f = find_issue_file(digest)
+    if os.path.exists(f):
+        issue = ConfigParser.ConfigParser()
+        issue.read(f)
+        return issue
+    else:
+        return None
+
+def setup_issue(digest, title, t):
+    issue = ConfigParser.ConfigParser()
+    author, mail = get_author()
+    now = datetime.datetime.utcnow()
+    issue.add_section('header')
+    issue.set('header', 'title', title)
+    issue.set('header', 'id', digest)
+    issue.set('header', 'status', 'open')
+    issue.set('header', 'type', t)
+    issue.set('header', 'author', author)
+    issue.set('header', 'mail', mail)
+    issue.set('header', 'date', '{} at {} UCT'.format(now.date().isoformat(), now.time().strftime("%H:%M"), author))
+    issue.add_section('eventlog')
+    issue.add_section('discussion')
+    issue.set('discussion', 'desc', '# enter your description here')
+    return issue
+
+# Displaying
+
+bold    = '\033[1m'
+end     = '\033[0m'
+
+black   = '\033[0;30m'
+red     = '\033[0;31m'
+green   = '\033[0;32m'
+yellow  = '\033[0;33m'
+blue    = '\033[0;34m'
+purple  = '\033[0;35m'
+cyan    = '\033[0;36m'
+grey    = '\033[0;37m'
+
+# Bold
+bblack  = '\033[1;30m'
+bred    = '\033[1;31m'
+bgreen  = '\033[1;32m'
+byellow = '\033[1;33m'     
+bblue   = '\033[1;34m'
+bpurple = '\033[1;35m'
+bcyan   = '\033[1;36m'
+bgrey   = '\033[1;37m'
+
+format_type = {'t': bblue+'t'+end,
+               'b': bred+'b'+end,
+               'f': bpurple+'f'+end}
+format_status = {'open'   :    red+' open '+end,
+                 'closed' :  green+'closed'+end}
+
+def oneline(issue):
+    """Formating in one line an issue on one line."""
+    uid    = issue.get('header', 'id')[:10]
+    status = issue.get('header', 'status')
+    typ    = issue.get('header', 'type')
+    title  = issue.get('header', 'title')
+    return '{:s}{:s} {:s} {:s}[{:s}{:s}]{:s}    {:s}'.format(grey, uid, format_type[typ[:1]], grey, format_status[status], grey, end, title)
+
+def show_issues(filtered_status):
+    """show issue filtered by status"""
+    files = os.listdir(pitdir)
+    relevant_issues = []
+    for filename in files:
+        if filename.startswith('pit-'):
+            issue = read_issue(filename[4:])
+            status = issue.get('header', 'status')
+            if filtered_status is None or status in filtered_status:  
+                relevant_issues.append((get_issue_date(issue), oneline(issue)))
+    relevant_issues.sort()
+    for _, line in relevant_issues:
+        #print _
+        print line
+        
+# Commands
+
+def init_cmd():
+    """Create a .pit directory"""
+    pitdir = os.getcwd() + '/.pit'
+    print "initializing pit in %s" % (pitdir,)
+    if not os.path.exists(pitdir):
+        os.makedirs(pitdir)
+
+def add_cmd(title):
+    """Create a new issue"""
+    # finding type
+    t = None
+    while t not in set(['b', 'f', 't', '', 'bug', 'feature', 'task']):
+        print "bug (b), feature (f) or task (t) ? [b]: ",
+        sys.stdout.flush()
+        t = raw_input()
+    if t == '':
+        t = 'b'
+    extend = {'b':'bug', 'f':'feature', 't':'task'}
+    if t in extend:
+        t = extend[t]
+
+    # finding the digest    
+    issue = setup_issue('', title, t)
+    s = StringIO.StringIO()
+    issue.write(s)
+    digest = sha1digest(s.getvalue())
+
+    # creating the issue values
+    filepath = issue_file(digest)
+    if os.path.exists(filepath):
+        print '{}error{}: an issue by this name already exists; exiting.'.format(red, end)
+        exit(1)
+    issue.set('header', 'id', digest)
+    issue.set('eventlog', 'opened[0]', 'opened the {} by {}'.format(issue.get('header', 'date'), 
+                                                                    issue.get('header', 'author')))
+    
+    # writing the issue on file
+    try:
+       with open(filepath, 'w') as f: 
+           issue.write(f)
+    except IOError as e:
+       print 'IOError : impossible to write on issue file {:s}'.format(issue_file(digest))
+       print 'Verify file permissions'
+    print oneline(issue)
+
+def close_cmd(digest):
+    """Close issue n"""
+    issue = read_issue(digest)
+    status = issue.get('header', 'status')
+    digest = issue.get('header', 'id')[:sha1_length]
+    if status == 'closed':
+        print "{}warning{}: issue {}{}{} already closed".format(red, end, bold, digest, end)
+    else:
+        issue.set('header','status','closed')
+        now = datetime.datetime.utcnow()
+        
+        author, mail = get_author()
+        try:
+            issue.add_section('eventlog')
+        except ConfigParser.DuplicateSectionError:
+            pass
+        issue.set('eventlog', 
+                   'closed[{}]'.format(len(issue.options('eventlog'))), 
+                   'closed the {} at {}(UCT) by {}'.format(now.date().isoformat(), now.time().strftime("%H:%M"), author))
+        try:
+           with open(issue_file(digest), 'w') as f: 
+               issue.write(f)
+        except IOError as e:
+           print 'IOError : impossible to write on issue file {:s}'.format(issue_file(digest))
+           print 'Verify file permissions'
+
+def open_cmd():
+    """Show opened issues"""
+    show_issues(['open'])
+
+def closed_cmd():
+    """Show closed issues"""
+    show_issues(['closed'])
+
+def all_cmd():
+    """Show closed issues"""
+    show_issues(None)
+
+def install_cmd():
+    
+    """Install command on the system"""
+    print 'File to install :', __file__
+    default = '/usr/local/bin'
+    print "Folder to install the pit command [{:s}] : ".format(default),
+    sys.stdout.flush()
+    path = raw_input()
+    if path == '':
+        path = default
+        
+    if not os.path.exists(path):
+        print "error: {:s} does not exist. Installation aborted.".format(path)
+    else:
+        if os.path.exists(path+'/pit'):
+            if os.path.samefile(path+'/pit', __file__):
+                return
+        shutil.copy(__file__, path)
+
+def update_cmd():
+    files = os.listdir(pitdir)
+    # old style filename
+    for filename in files:
+        if filename.startswith('pit00'):
+            issue = ConfigParser.ConfigParser()
+            issue.read(pitdir + '/' + filename)
+            s = StringIO.StringIO()
+            issue.write(s)
+            digest = sha1digest(s.getvalue())
+
+            filepath = issue_file(digest)
+            assert not os.path.exists(filepath)
+            issue.set('header', 'id', digest)
+
+            with open(filepath, 'w') as f: 
+                issue.write(f)
+
+# Handling command line arguments
+
+usage = """pit, python issue tracker v{}
+usage: pit cmd [arg]
+commands:
+  init         creates the .pit folder
+  install      install the pit command on the system
+  man          display the manual
+  version      display pit version
+
+  add "title"  add an issue
+  close n      close issue n
+  open         list open issues.
+  closed       list closed issues.
+  all          list  all issues.
+""".format(__version__)
+
+manual = """pit manual
+
+pit is designed to be simple, self-contained, and compatible with git branching.
+
+{b}BASIC USAGE{e}  
+    $ {b}pit init{e}
+    initializing pit in /Users/fabien/Perso/sync/projects/pit/.pit
+    $ {b}pit add{e} 'bug description'
+    bug (b, default), feature (f) or task (t) ? :  b
+    0001 b [ open ]    bug description
+    $ {b}pit open{e}
+    0001 b [ open ]    bug description
+    $ {b}pit close 1{e}
+    $ {b}pit open{e}
+    $ {b}pit closed{e} 
+    0001 b [closed]    bug description
+
+{b}DISTRIBUTION{e}
+    You can either install the pit file on your system :
+    $ {b}pit install{e}
+    or include it in your repository.
+
+{b}IMPLEMENTATION{e}
+    Each issue is stored in its own file in the .pit directory.
+    At creation, the checksum of the file is computed, and it designates the issue
+    for there on. This is particularly useful when using pit under git : collision
+    between issues created in different branch are vanishingly unlikely, and when 
+    they happen, overwhelming chances are the bug are exactly the same.
+
+    "If all 6.5 billion humans on Earth were programming, and every second, each one
+     was producing code that was the equivalent of the entire Linux kernel history 
+     (1 million Git objects) and pushing it into one enormous Git repository, it 
+     would take 5 years until that repository contained enough objects to have a 50%%
+     probability of a single SHA-1 object collision." -- Pro Git book.
+""".format(b=bold, e=end)
+
+if len(sys.argv) == 1 or len(sys.argv) > 3:
+    print usage
+    exit(0)
+
+cmd = sys.argv[1]
+if cmd not in ['init', 'install', 'man', 'version']:
+    find_pitdir()
+
+if len(sys.argv) == 2:
+    if cmd not in ['init', 'open', 'install', 'man', 'version', 'closed', 'all', 'update']:
+        print usage
+    elif cmd == 'init':
+        init_cmd()
+    elif cmd == 'install':
+        install_cmd()
+    elif cmd == 'man':
+        print manual
+    elif cmd == 'version':
+        print __version__
+    elif cmd == 'open':
+        open_cmd()
+    elif cmd == 'closed':
+        closed_cmd()
+    elif cmd == 'all':
+        all_cmd()
+    elif cmd == 'update':
+        update_cmd()
+if len(sys.argv) == 3:
+    if cmd not in ['add', 'close']:
+        print usage
+    elif cmd == 'add':
+        title = sys.argv[2]        
+        add_cmd(title)
+    elif cmd == 'close':
+        digest = sys.argv[2]
+        close_cmd(digest)
+      

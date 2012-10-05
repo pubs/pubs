@@ -56,6 +56,10 @@ bgrey   = '\033[1;37m'
 
 currentdir = os.getcwd()
 papersdir = None
+try:
+    EDITOR = os.environ['EDITOR']
+except KeyError:
+    EDITOR = 'nano'
 
 def find_papersdir():
     global papersdir

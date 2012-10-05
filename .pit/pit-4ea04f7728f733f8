@@ -1,0 +1,15 @@
+[header]
+title = url support when adding
+id = 4ea04f7728f733f8f2bfb8579b086a27d389625b
+status = open
+type = feature
+author = Fabien Benureau
+mail = fabien.benureau+git@gmail.com
+date = 2012-10-05 at 14:59 UCT
+
+[eventlog]
+opened[0] = opened the 2012-10-05 at 14:59 UCT by Fabien Benureau
+
+[discussion]
+desc = # enter your description here
+
