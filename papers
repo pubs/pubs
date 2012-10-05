@@ -8,12 +8,22 @@ import textwrap
 from subprocess import call
 import webbrowser
 import urllib
+import ConfigParser
 
 try:
     import pybtex
+    import pybtex.database
+    import pybtex.database.input
+    import pybtex.database.input.bibtex
+    import pybtex.database.input.bibtexml
+    import pybtex.database.input.bibyaml
+    import pybtex.database.output
+    import pybtex.database.output.bibtex
+    import pybtex.database.output.bibtexml
+    import pybtex.database.output.bibyaml
+
 except ImportError:
     print '{}error{}: you need to install Pybtex; try running \'pip install pybtex\'.'.format(red, end)
-    
     
 # display 
 
@@ -42,6 +52,7 @@ bgrey   = '\033[1;37m'
 
 # utility functions
 
+currentdir = os.getcwd()
 papersdir = None
 
 def find_papersdir():
@@ -60,6 +71,57 @@ def find_papersdir():
         print '{}error{} : no papers repo found in this directory or in any parent directory.{}'.format(red, grey, end)
         exit(0)
         
+def vim_input(initial = ""):
+    """Use an editor to get input"""    
+
+    with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as temp_file:
+        tfile_name = temp_file.name
+        temp_file.write(initial)
+        temp_file.flush()
+        call([EDITOR, tfile_name])
+
+    with open(tfile_name) as temp_file:
+        content = temp_file.read()
+        os.remove(tfile_name)
+
+    return content
+
+def load_externalbibfile(fullbibpath):
+    check_file(fullbibpath)
+
+    filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
+    if ext == '.bib':
+        parser = pybtex.database.input.bibtex.Parser()
+        bib_data = parser.parse_file(fullbibpath)
+    elif ext == '.xml' or ext == '.bibtexml':
+        parser = pybtex.database.input.bibtexml.Parser()
+        bib_data = parser.parse_file(fullbibpath)
+    elif ext == '.yaml' or ext == '.bibyaml':
+        parser = pybtex.database.input.bibyaml.Parser()
+        bib_data = parser.parse_file(fullbibpath)
+    else:
+        print '{}error{}: {}{}{} not recognized format for bibliography{}'.format(red, grey, cyan, ext, grey, end)
+
+    return bib_data
+
+def write_bibfile(bib_data, filename):
+    filepath = papersdir + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
+    with open(filepath, 'w') as f:
+        parser = pybtex.database.output.bibyaml.Writer()
+        parser.write_stream(bib_data, f)
+
+def write_meta(meta_data, filename):
+    filepath = papersdir + os.sep + 'meta' + os.sep + filename + '.meta'
+    with open(filepath, 'w') as f:
+        meta_data.write(f)
+
+def check_file(filepath):
+    if not os.path.exists(filepath):
+        print '{}error{}: {}{}{} does not exists{}'.format(red, grey, cyan, filepath, grey, end)
+        exit(-1)
+    if not os.path.isfile(filepath):
+        print '{}error{}: {}{}{} is not a file{}'.format(red, grey, cyan, filepath, grey, end)
+        exit(-1)
 
 # commands
 
@@ -70,8 +132,11 @@ def init_cmd():
     if not os.path.exists(papersdir):
         print '{}initializing papers in {}{}{}'.format(grey, cyan, papersdir, end)
         os.makedirs(papersdir)
+        os.makedirs(papersdir+os.sep+'bibdata')
+        os.makedirs(papersdir+os.sep+'meta')
     else:
         print '{}error{} : papers already present in {}{}{}'.format(red, grey, cyan, papersdir, end)
+        exit(-1)
 
 def install_cmd():
     """Install command on the system"""
@@ -93,15 +158,43 @@ def install_cmd():
 def websearch_cmd(search_string):
     url = 'https://scholar.google.fr/scholar?hl=fr&q={}&lr='.format(urllib.quote_plus(search_string))
     webbrowser.open(url)
-    
 
+def add_cmd(pdffilepath, bibtex = None):
+    """
+    :param pdffilepath  path (no url yet) to a pdf or ps file
+    :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
+    """
+    fullpdfpath = os.path.abspath(pdffilepath)
+    fullbibpath = os.path.abspath(bibtex)
+    check_file(fullpdfpath)
+    check_file(fullbibpath)
+        
+    filename, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
+    if ext != '.pdf' and ext != '.ps':
+        print '{}warning{}: extention {}{}{} not recognized{}'.format(yellow, grey, cyan, ext, grey, end)        
+    
+    meta = ConfigParser.ConfigParser()
+    meta.add_section('metadata')
+    
+    meta.set('metadata', 'filename', filename)
+    meta.set('metadata', 'extension', ext)
+    meta.set('metadata', 'path', os.path.normpath(fullpdfpath))
+
+    meta.add_section('notes')
+    
+    if bibtex is not None:
+        bib_data = load_externalbibfile(fullbibpath)
+        write_bibfile(bib_data, filename)
+        
+    write_meta(meta, filename)
+    
 # argument parsing (old school)
 
 cmds = {'init': init_cmd,
         'install': install_cmd,
         'websearch': websearch_cmd,
+        'add': add_cmd,
        }
-
 
 error_msg = "{}banana {}banana {}banana{}".format(purple, yellow, cyan, end)
 
@@ -111,10 +204,10 @@ else:
     cmd = sys.argv[1]
     if cmd in cmds and cmd not in ['init', 'install', 'websearch']:
         find_papersdir()
-
+        
     try:
         args = sys.argv[2:]
         cmds[cmd](*args)
     except KeyError, TypeError:
-        print error_msg    
+        print error_msg     
         
