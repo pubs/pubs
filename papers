@@ -10,6 +10,7 @@ import webbrowser
 import urllib
 import ConfigParser
 import yaml
+import subprocess
 
 try:
     import pybtex
@@ -145,8 +146,11 @@ def write_bibfile(bib_data, filename):
 
 def write_meta(meta_data, filename):
     filepath = papersdir + os.sep + 'meta' + os.sep + filename + '.meta'
-    with open(filepath, 'w') as f:
-        meta_data.write(f)
+    write_configfile(meta_data, filepath)
+
+def load_meta(filename):
+    filepath = papersdir + os.sep + 'meta' + os.sep + filename + '.meta'
+    return read_configfile(filepath)
 
 def check_file(filepath):
     if not os.path.exists(filepath):
@@ -273,7 +277,14 @@ def list_cmd():
         tmpf.flush()
         call(['less', '-XRF', tmpf.name])
         
-    
+def open_cmd(number):
+    papers = read_papers()
+    filename = papers.get('papers', 'p' + str(number))
+    meta_data = load_meta(filename)
+    filepath = meta_data.get('metadata', 'path')
+    p = subprocess.Popen(['open', filepath])
+    print '{}{}{} opened.{}'.format(cyan, filepath, grey, end)
+            
 # argument parsing (old school)
 
 cmds = {'init': init_cmd,
@@ -281,6 +292,7 @@ cmds = {'init': init_cmd,
         'websearch': websearch_cmd,
         'add': add_cmd,
         'list': list_cmd,
+        'open': open_cmd,
        }
 
 error_msg = "{}banana {}banana {}banana{}".format(purple, yellow, cyan, end)
