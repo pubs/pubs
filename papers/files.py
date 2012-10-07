@@ -106,7 +106,7 @@ def load_externalbibfile(fullbibpath):
 def write_papers(config):
     write_configfile(config, find_papersdir() + os.sep + 'papers')
 
-def read_papers():
+def load_papers():
     return read_configfile(find_papersdir() + os.sep + 'papers')
 
 def load_bibdata(filename):

@@ -15,7 +15,6 @@ def parser(subparsers, config):
     parser.add_argument('bibfile', help='bibtex, bibtexml or bibyaml file')
     return parser
 
-
 def command(config, pdffile, bibfile):
     """
     :param pdffilepath  path (no url yet) to a pdf or ps file
@@ -49,10 +48,13 @@ def command(config, pdffile, bibfile):
         print(pretty.bib_desc(bib_data))
         files.write_bibdata(bib_data, filename)
 
-    papers = files.read_papers()
+    papers = files.load_papers()
     count = papers.get('header', 'count')
     papers.set('header', 'count', int(count) + 1)
-    papers.set('papers', 'p' + count, filename)
+    
+    citekey = pretty.create_citekey(bib_data)
+    papers.set('papers', citekey, filename)
+    papers.set('citekeys', 'ck' + count, citekey)
 
     files.write_papers(papers)
     files.write_meta(meta, filename)

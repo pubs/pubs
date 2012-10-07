@@ -30,6 +30,7 @@ def command(config):
         papers.add_section('header')
         papers.set('header', 'count', 0)
         papers.add_section('papers')
+        papers.add_section('citekeys')
         files.write_papers(papers)
 
     else:

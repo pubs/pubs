@@ -13,13 +13,17 @@ def parser(subparsers, config):
     return parser
 
 def command(config, citekey):
-    papers = files.read_papers()
+    papers = files.load_papers()
     try:
-        filename = papers.get('papers', 'p' + str(citekey))
+        filename = papers.get('papers', str(citekey))
     except configparser.NoOptionError:
-        print('{}error{}: paper with citekey {}{}{} not found{}'.format(
+        try:
+            ck = papers.get('citekeys', 'ck'+str(citekey))
+            filename = papers.get('papers', str(ck))
+        except configparser.NoOptionError:
+            print('{}error{}: paper with citekey or number {}{}{} not found{}'.format(
                 color.red, color.grey, color.cyan, citekey, color.grey, color.end))
-        exit(-1)
+            exit(-1)
     meta_data = files.load_meta(filename)
     filepath = meta_data.get('metadata', 'path')
     p = subprocess.Popen(['open', filepath])
