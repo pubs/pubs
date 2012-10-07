@@ -1,5 +1,6 @@
 # init command
 
+import os
 try:
     import ConfigParser as configparser
 except ImportError:

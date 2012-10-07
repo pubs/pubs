@@ -1,11 +1,12 @@
-from .. import color
-from .. import files
-
+import os
 try:
     import ConfigParser as configparser
 except ImportError:
     import configparser
 
+from .. import color
+from .. import files
+from .. import pretty
 
 
 def parser(subparsers, config):
@@ -23,7 +24,7 @@ def command(config, pdffile, bibfile):
     papersdir = files.find_papersdir()
 
     fullpdfpath = os.path.abspath(pdffile)
-    fullbibpath = os.path.abspath(bibtex)
+    fullbibpath = os.path.abspath(bibfile)
     files.check_file(fullpdfpath)
     files.check_file(fullbibpath)
 
@@ -41,12 +42,12 @@ def command(config, pdffile, bibfile):
 
     meta.add_section('notes')
 
-    if bibtex is not None:
+    if bibfile is not None:
         bib_data = files.load_externalbibfile(fullbibpath)
         print('{}bibliographic data present in {}{}{}'.format(
-               color.grey, color.cyan, bibtex, color.end))
-        print(bib_desc(bib_data))
-        files.write_bibfile(bib_data, filename)
+               color.grey, color.cyan, bibfile, color.end))
+        print(pretty.bib_desc(bib_data))
+        files.write_bibdata(bib_data, filename)
 
     papers = files.read_papers()
     count = papers.get('header', 'count')

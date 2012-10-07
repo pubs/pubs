@@ -1,7 +1,11 @@
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
+import subprocess
+
 from .. import files
 from .. import color
-
-import subprocess
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('open', help="open the paper in a pdf viewer")
@@ -10,7 +14,12 @@ def parser(subparsers, config):
 
 def command(config, citekey):
     papers = files.read_papers()
-    filename = papers.get('papers', 'p' + str(citekey))
+    try:
+        filename = papers.get('papers', 'p' + str(citekey))
+    except configparser.NoOptionError:
+        print('{}error{}: paper with citekey {}{}{} not found{}'.format(
+                color.red, color.grey, color.cyan, citekey, color.grey, color.end))
+        exit(-1)
     meta_data = files.load_meta(filename)
     filepath = meta_data.get('metadata', 'path')
     p = subprocess.Popen(['open', filepath])
