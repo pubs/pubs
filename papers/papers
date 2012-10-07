@@ -1,0 +1,30 @@
+#!/usr/bin/env python2
+
+import argparse
+import collections
+
+import papers
+from papers import commands
+
+cmds = collections.OrderedDict([
+        ('init', commands.init_cmd),
+        ('add' , commands.add_cmd),
+        ('list', commands.list_cmd),
+        ('open', commands.open_cmd),
+        ('websearch', commands.websearch_cmd)
+        ])
+
+config = None
+
+parser = argparse.ArgumentParser(description="research papers repository")
+subparsers = parser.add_subparsers(title="valid commands", dest="command")
+
+for cmd_mod in cmds.values():
+    subparser = cmd_mod.parser(subparsers, config)
+
+args = parser.parse_args()
+args.config = config
+cmd = args.command
+del args.command
+
+cmds[cmd].command(**vars(args))
