@@ -21,3 +21,9 @@ bblue   = '\033[1;34m'
 bpurple = '\033[1;35m'
 bcyan   = '\033[1;36m'
 bgrey   = '\033[1;37m'
+
+# application specific
+error    = red
+normal   = grey
+citekey  = purple
+filepath = cyan
