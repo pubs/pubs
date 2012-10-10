@@ -29,8 +29,8 @@ def command(config):
         papers = configparser.ConfigParser()
         papers.add_section('header')
         papers.set('header', 'count', 0)
-        papers.add_section('papers')
         papers.add_section('citekeys')
+        papers.add_section('numbers')
         files.write_papers(papers)
 
     else:

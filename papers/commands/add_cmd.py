@@ -7,6 +7,7 @@ except ImportError:
 from .. import color
 from .. import files
 from .. import pretty
+from .. import repo
 
 
 def parser(subparsers, config):
@@ -28,7 +29,7 @@ def command(config, pdffile, bibfile):
     files.check_file(fullbibpath)
 
     filename, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
-    if ext != '.pdf' and ext != '.ps':
+    if ext != '.pdf' and ext !=   '.ps':
         print('{}warning{}: extention {}{}{} not recognized{}'.format(
                color.yellow, color.grey, color.cyan, ext, color.grey, color.end))
 
@@ -53,8 +54,8 @@ def command(config, pdffile, bibfile):
     papers.set('header', 'count', int(count) + 1)
     
     citekey = pretty.create_citekey(bib_data)
-    papers.set('papers', citekey, filename)
-    papers.set('citekeys', 'ck' + count, citekey)
+    papers.set('citekeys', citekey, filename)
+    papers.set('numbers', 'ck' + count, citekey)
 
     files.write_papers(papers)
     files.write_meta(meta, filename)

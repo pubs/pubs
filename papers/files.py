@@ -110,7 +110,7 @@ def load_papers():
     return read_configfile(find_papersdir() + os.sep + 'papers')
 
 def load_bibdata(filename):
-    fullbibpath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename
+    fullbibpath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
     return load_externalbibfile(fullbibpath)
 
 def write_bibdata(bib_data, filename):
