@@ -26,12 +26,11 @@ def command(config):
         os.makedirs(papersdir+os.sep+'bibdata')
         os.makedirs(papersdir+os.sep+'meta')
         
-        papers = configparser.ConfigParser()
-        papers.add_section('header')
-        papers.set('header', 'count', 0)
-        papers.add_section('citekeys')
-        papers.add_section('numbers')
-        files.write_papers(papers)
+        papers = {}
+        papers['count'] = 0
+        papers['citekeys'] = {}
+        papers['numbers'] = {}
+        files.save_papers(papers)
 
     else:
         print('{}error {} : papers already present in {}{}{}'.format(

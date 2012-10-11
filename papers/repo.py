@@ -1,8 +1,3 @@
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
 import files
 import color
 from paper import Paper
@@ -15,16 +10,18 @@ class Repository(object):
     def __init__(self):
         self.paperdir = files.find_papersdir()
         self.papers_config = files.load_papers()
-        self.citekeys = dict((ck, name) for ck, name in self.papers_config.items('citekeys'))
-        self.numbers = sorted(n[2:] for n in self.papers_config.options('numbers'))
+        self.citekeys = self.papers_config['citekeys']
+        self.numbers  = self.papers_config['numbers']
 
     # loading existing papers
 
     def paper_from_number(self, number, fatal = True):
         try:
-            citekey = self.papers_config.get('numbers', 'ck'+number)
-            return self.paper_from_citekey(citekey)
-        except configparser.NoOptionError:
+            citekey = self.numbers[int(number)]
+            paper = self.paper_from_citekey(citekey)
+            paper.number = int(number)
+            return paper
+        except KeyError:
             if fatal:
                 print('{}error{}: no paper with number {}{}{}'.format(
                     color.error, color.normal, color.citekey, citekey, color.end))
@@ -34,11 +31,9 @@ class Repository(object):
     def paper_from_citekey(self, citekey, fatal = True):
         """Load a paper by its citekey from disk, if necessary."""
         try:
-            paper = self.citekeys[citekey]
-            if paper is None:
-                name = self.papers_config.get('citekeys', citekey)
-            paper =  Paper.from_disc(name, citekey = citekey)
-            self.citekeys[citekey] = paper
+            name = self.citekeys[citekey]
+            paper = Paper.from_disc(name, citekey = citekey)
+            paper.citekey = citekey
             return paper
         except KeyError:
             if fatal:
@@ -70,15 +65,14 @@ class Repository(object):
         p.citekey = self.create_citekey(p.bib_data)
         p.number  = self.create_number()
 
-        self.papers_config.set('citekeys', p.citekey, p.name)
-        self.papers_config.set('numbers', 'ck' + str(p.number), p.citekey)
+        self.papers_config['citekeys'][p.citekey] = p.name
+        self.papers_config['numbers'][p.number] = p.citekey
 
         self.citekeys[p.citekey] = p.name
-        self.numbers.append(str(p.number))
-        self.numbers.sort()
+        self.numbers[p.number] = p.citekey
                
         # writing all to disk
-        files.write_papers(self.papers_config)
+        files.save_papers(self.papers_config)
         p.save_to_disc()
 
         return p
@@ -101,6 +95,6 @@ class Repository(object):
         return citekey
         
     def create_number(self):
-        count = self.papers_config.getint('header', 'count')
-        self.papers_config.set('header', 'count', count + 1)
+        count = int(self.papers_config['count'])
+        self.papers_config['count'] = count + 1
         return count

@@ -1,7 +1,7 @@
 [header]
 title = remove configparser for internal mapping
 id = ac8c05c020d251c6fa9ac5fc239038837b636b3b
-status = open
+status = closed
 type = bug
 author = Fabien Benureau
 mail = fabien.benureau+git@gmail.com
@@ -9,6 +9,7 @@ date = 2012-10-11 at 07:25 UCT
 
 [eventlog]
 opened[0] = opened the 2012-10-11 at 07:25 UCT by Fabien Benureau
+closed[1] = closed the 2012-10-11 at 17:57(UCT) by Fabien Benureau
 
 [discussion]
 desc = # enter your description here

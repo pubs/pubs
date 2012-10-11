@@ -11,7 +11,7 @@ def parser(subparsers, config):
 def command(config, citekey):
     rp = repo.Repository()
     paper = rp.paper_from_any(citekey, fatal = True)
-    filepath = paper.metadata.get('metadata', 'path')
+    filepath = paper.metadata['path']
 
     p = subprocess.Popen(['open', filepath])
     print('{}{}{} opened.{}'.format(color.filepath, filepath, color.normal, color.end))

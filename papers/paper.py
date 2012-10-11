@@ -1,8 +1,4 @@
 import os
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
     
 import files
 import color
@@ -15,8 +11,8 @@ class Paper(object):
 
     @classmethod
     def from_disc(cls, name, citekey = None, number = None):
-        bib_data = files.load_bibdata(self.name)
-        metadata = files.load_meta(self.name)
+        bib_data = files.load_bibdata(name)
+        metadata = files.load_meta(name)
         p = Paper(name, bib_data = bib_data, metadata = metadata, 
                         citekey = citekey, number = number)
         return p
@@ -24,7 +20,7 @@ class Paper(object):
     @classmethod
     def from_bibpdffiles(cls, pdfpath, bibpath):
         bib_data = cls.import_bibdata(bibpath)
-        name, meta = cls.import_meta(pdfpath, bib_data)
+        name, meta = cls.create_meta(pdfpath, bib_data)
         p = Paper(name, bib_data = bib_data, metadata = meta)
         
         return p            
@@ -38,14 +34,13 @@ class Paper(object):
         self.number   = number
                 
     def save_to_disc(self):
-        files.write_bibdata(self.bib_data, self.name)
-        files.write_meta(self.metadata, self.name)
+        files.save_bibdata(self.bib_data, self.name)
+        files.save_meta(self.metadata, self.name)
 
     @classmethod
     def import_bibdata(cls, bibfile):        
         """Import bibligraphic data from a .bibyaml, .bib or .bibtex file"""
         fullbibpath = os.path.abspath(bibfile)
-        files.check_file(fullbibpath)
         
         bib_data = files.load_externalbibfile(fullbibpath)
         print('{}bibliographic data present in {}{}{}'.format(
@@ -55,20 +50,19 @@ class Paper(object):
         return bib_data
 
     @classmethod
-    def import_meta(cls, pdfpath, bib_data):
+    def create_meta(cls, pdfpath, bib_data):
     
         fullpdfpath = os.path.abspath(pdfpath)
         files.check_file(fullpdfpath)
     
         name, ext = files.name_from_path(pdfpath)
     
-        meta = configparser.ConfigParser()
-        meta.add_section('metadata')
+        meta = {}
     
-        meta.set('metadata', 'name', name)
-        meta.set('metadata', 'extension', ext)
-        meta.set('metadata', 'path', os.path.normpath(fullpdfpath))
+        meta['name'] = name
+        meta['extension'] = ext
+        meta['path'] = fullpdfpath
     
-        meta.add_section('notes')
+        meta['notes'] = []
         
         return name, meta
