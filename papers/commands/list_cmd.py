@@ -14,9 +14,9 @@ def command(config):
     
     articles = []
     for n in rp.numbers:
-        paper = paper_from_number(n, fatal = True)
+        paper = rp.paper_from_number(n, fatal = True)
         bibdesc = pretty.bib_oneliner(paper.bibdata)
-        articles.append('{:3d} {}{}{}{}   {}'.format(int(number), color.purple, citekey, color.end, (8-len(citekey))*' ', bibdesc))
+        articles.append('{:3d} {}{}{}{}   {}'.format(int(paper.number), color.purple, citekey, color.end, (8-len(paper.citekey))*' ', bibdesc))
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=True) as tmpf:
         tmpf.write('\n'.join(articles))

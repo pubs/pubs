@@ -49,6 +49,13 @@ def find_papersdir():
 
     return _papersdir
 
+def name_from_path(fullpdfpath, verbose = False):
+    name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
+    if verbose:
+        if ext != '.pdf' and ext != '.ps':
+            print('{}warning{}: extension {}{}{} not recognized{}'.format(
+                   color.yellow, color.grey, color.cyan, ext, color.grey, color.end))
+    return name, ext    
 
 def check_file(filepath):
     if not os.path.exists(filepath):
