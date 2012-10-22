@@ -84,12 +84,12 @@ class Repository(object):
         year = article.fields['year']
         prefix = '{}{}'.format(first_author.last()[0][:6], year[2:])
 
-        letter = 0, False
+        letter = 0
         citekey = None
 
         citekey = prefix
         while citekey in self.citekeys and citekey not in allowed:
-            citekey = prefix + alphabet[letter[0]]
+            citekey = prefix + alphabet[letter]
             letter += 1
 
         return citekey
