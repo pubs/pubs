@@ -82,7 +82,7 @@ class Repository(object):
         article = bib_data.entries[list(bib_data.entries.keys())[0]]
         first_author = article.persons['author'][0]
         year = article.fields['year']
-        prefix = '{}{}'.format(first_author.last()[0][:6], year[2:])
+        prefix = '{}{}'.format(first_author.last()[0][:6], year)
 
         letter = 0
         citekey = None
