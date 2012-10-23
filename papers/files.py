@@ -8,6 +8,8 @@ try:
 except ImportError:
     import configparser
     
+import yaml
+    
 import color
 
 try:
@@ -49,6 +51,13 @@ def find_papersdir():
 
     return _papersdir
 
+def name_from_path(fullpdfpath, verbose = False):
+    name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
+    if verbose:
+        if ext != '.pdf' and ext != '.ps':
+            print('{}warning{}: extension {}{}{} not recognized{}'.format(
+                   color.yellow, color.grey, color.cyan, ext, color.grey, color.end))
+    return name, ext    
 
 def check_file(filepath):
     if not os.path.exists(filepath):
@@ -59,28 +68,45 @@ def check_file(filepath):
         print '{}error{}: {}{}{} is not a file{}'.format(
                color.red, color.grey, color.cyan, filepath, color.grey, color.end)
         exit(-1)
+        
+# yaml I/O
 
-def write_configfile(config, filepath):
+def write_yamlfile(filepath, datamap):
     try:
         with open(filepath, 'w') as f:
-            config.write(f)
-    except IOError as e:
-        print '{}error{} : impossible to write on file {}{:s}{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.end)
-        print 'Verify permissions'
-        exit(-1)
-
-def read_configfile(filepath):
-    try:
-        with open(filepath, 'r') as f:
-            config = configparser.ConfigParser()
-            config.readfp(f)
-            return config
+            yaml.dump(datamap, f)
     except IOError as e:
         print '{}error{} : impossible to read file {}{:s}{}'.format(
                color.red, color.grey, color.cyan, filepath, color.end)
-        print 'Verify permissions'
         exit(-1)
+
+def read_yamlfile(filepath):
+    check_file(filepath)
+    try:
+        with open(filepath, 'r') as f:
+            return yaml.load(f)
+    except IOError as e:
+        print '{}error{} : impossible to read file {}{:s}{}'.format(
+               color.red, color.grey, color.cyan, paperdir, color.end)
+        exit(-1)
+
+def save_papers(datamap):
+    paperyaml = find_papersdir() + os.sep + 'papers.yaml'
+    write_yamlfile(paperyaml, datamap)
+
+def load_papers():
+    paperyaml = find_papersdir() + os.sep + 'papers.yaml'
+    return read_yamlfile(paperyaml)
+
+def save_meta(meta_data, filename):
+    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
+    write_yamlfile(filepath, meta_data)
+
+def load_meta(filename):
+    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
+    return read_yamlfile(filepath)
+
+# specific to bibliography data
 
 def load_externalbibfile(fullbibpath):
     check_file(fullbibpath)
@@ -102,31 +128,17 @@ def load_externalbibfile(fullbibpath):
 
     return bib_data
 
-
-def write_papers(config):
-    write_configfile(config, find_papersdir() + os.sep + 'papers')
-
-def load_papers():
-    return read_configfile(find_papersdir() + os.sep + 'papers')
-
 def load_bibdata(filename):
-    fullbibpath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename
+    fullbibpath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
     return load_externalbibfile(fullbibpath)
 
-def write_bibdata(bib_data, filename):
+def save_bibdata(bib_data, filename):
     filepath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
     with open(filepath, 'w') as f:
         parser = pybtex.database.output.bibyaml.Writer()
         parser.write_stream(bib_data, f)
 
-def write_meta(meta_data, filename):
-    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
-    write_configfile(meta_data, filepath)
-
-def load_meta(filename):
-    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
-    return read_configfile(filepath)
-
+# vim input
 
 try:
     EDITOR = os.environ['EDITOR']

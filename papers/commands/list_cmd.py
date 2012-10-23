@@ -1,25 +1,22 @@
-from .. import files
-from .. import pretty
-from .. import color
-
 import subprocess
 import tempfile
+
+from .. import pretty
+from .. import color
+from .. import repo
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('list', help="list all papers")
     return parser
 
 def command(config):
-    papers = files.load_papers()
-
+    rp = repo.Repository()
+    
     articles = []
-    for p in papers.options('citekeys'):
-        number = p[2:]
-        citekey = papers.get('citekeys', p)
-        filename = papers.get('papers', citekey)
-        bibdata = files.load_bibdata(filename + '.bibyaml')
-        bibdesc = pretty.bib_oneliner(bibdata)
-        articles.append('{:3d} {}{}{}{}   {}'.format(int(number), color.purple, citekey, color.end, (8-len(citekey))*' ', bibdesc))
+    for n in sorted(rp.numbers.keys()):
+        paper = rp.paper_from_number(n, fatal = True)
+        bibdesc = pretty.bib_oneliner(paper.bib_data)
+        articles.append('{:3d} {}{}{}{}   {}'.format(int(paper.number), color.purple, paper.citekey, color.end, (8-len(paper.citekey))*' ', bibdesc))
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=True) as tmpf:
         tmpf.write('\n'.join(articles))

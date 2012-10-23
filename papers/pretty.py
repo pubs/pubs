@@ -26,33 +26,3 @@ def bib_desc(bib_data):
     s += '\n'
     s += '\n'.join('{}: {}'.format(k, v) for k, v in article.fields.items())
     return s
-
-alphabet = 'abcdefghijklmopqrstuvwxyz'
-
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-import files
-
-def create_citekey(bib_data):
-    """Create a cite key unique to the paper"""
-    article = bib_data.entries[list(bib_data.entries.keys())[0]]
-    first_author = article.persons['author'][0]
-    year = article.fields['year']
-    prefix = '{}{}'.format(first_author.last()[0][:6], year[2:])
-
-    papers = files.load_papers()
-    letter = 0, False
-    citekey = None
-    
-    citekey = prefix
-    while not letter[1]:
-        try:
-            papers.get('papers', citekey)
-            citekey = prefix + alphabet[letter[0]]
-            letter = letter[0]+1, False
-        except configparser.NoOptionError:
-            letter = letter[0], True
-
-    return citekey
