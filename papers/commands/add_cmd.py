@@ -1,12 +1,3 @@
-import os
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
-from .. import color
-from .. import files
-from .. import pretty
 from .. import repo
 
 
@@ -22,4 +13,4 @@ def command(config, pdffile, bibfile):
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """
     rp = repo.Repository()
-    rp.add_paper(pdffile, bibfile)
+    rp.add_paper_from_paths(pdffile, bibfile)

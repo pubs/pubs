@@ -1,5 +1,6 @@
 import files
 import color
+
 from paper import Paper
 
 alphabet = 'abcdefghijklmopqrstuvwxyz'
@@ -57,10 +58,12 @@ class Repository(object):
 
     # creating new papers
     
-    def add_paper(self, pdfpath, bibpath):
+    def add_paper_from_paths(self, pdfpath, bibpath):
         
         p = Paper.from_bibpdffiles(pdfpath, bibpath)        
+        self.add_paper(p)
 
+    def add_paper(self, p):
         # updating papersconfig
         p.citekey = self.create_citekey(p.bib_data)
         p.number  = self.create_number()
@@ -74,18 +77,40 @@ class Repository(object):
         # writing all to disk
         files.save_papers(self.papers_config)
         p.save_to_disc()
-
+        print "Added: %s" % p.citekey
         return p
 
+    def add_papers(self, bibpath):
+        bib_data = Paper.import_bibdata(bibpath)
+        for k in bib_data.entries:
+            sub_bib = type(bib_data)(preamble=bib_data._preamble)
+            sub_bib.add_entry(k, bib_data.entries[k])
+            name, meta = Paper.create_meta(sub_bib, pdfpath=None)
+            p = Paper(name, bib_data = sub_bib, metadata = meta)
+            self.add_paper(p)
+        
     def create_citekey(self, bib_data, allowed = tuple()):
-        """Create a cite key unique to a given bib_data"""
+        """Create a cite key unique to a given bib_data.
+        
+        Raises:
+            KeyError if no author is defined.
+        """
         article = bib_data.entries[list(bib_data.entries.keys())[0]]
-        first_author = article.persons['author'][0]
-        year = article.fields['year']
+        author_key = 'author'
+        if not 'author' in article.persons:
+            author_key = 'editor'
+        try:
+            first_author = article.persons[author_key][0]
+        except KeyError:
+            raise(ValueError,
+                    'No author or editor defined: cannot generate a citekey.')
+        try:
+            year = article.fields['year']
+        except KeyError:
+            year = ''
         prefix = '{}{}'.format(first_author.last()[0][:6], year)
 
         letter = 0
-        citekey = None
 
         citekey = prefix
         while citekey in self.citekeys and citekey not in allowed:
