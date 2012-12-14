@@ -22,14 +22,11 @@ def command(config):
         print('{}initializing papers in {}{}{}'.format(
                color.grey, color.cyan, papersdir, color.end))
         
-        os.makedirs(papersdir)
-        os.makedirs(papersdir+os.sep+'bibdata')
-        os.makedirs(papersdir+os.sep+'meta')
+        os.makedirs(os.path.join(papersdir, 'bibdata'))
+        os.makedirs(os.path.join(papersdir, 'meta'))
         
         papers = {}
-        papers['count'] = 0
-        papers['citekeys'] = {}
-        papers['numbers'] = {}
+        papers['citekeys'] = []
         files.save_papers(papers)
 
     else:

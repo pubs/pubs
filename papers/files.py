@@ -1,4 +1,3 @@
-
 import sys, os
 import subprocess
 import tempfile
@@ -99,11 +98,11 @@ def load_papers():
     return read_yamlfile(paperyaml)
 
 def save_meta(meta_data, filename):
-    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
+    filepath = os.path.join(find_papersdir(), 'meta', filename + '.meta')
     write_yamlfile(filepath, meta_data)
 
 def load_meta(filename):
-    filepath = find_papersdir() + os.sep + 'meta' + os.sep + filename + '.meta'
+    filepath = os.path.join(find_papersdir(), 'meta', filename + '.meta')
     return read_yamlfile(filepath)
 
 # specific to bibliography data
@@ -129,11 +128,11 @@ def load_externalbibfile(fullbibpath):
     return bib_data
 
 def load_bibdata(filename):
-    fullbibpath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
+    fullbibpath = os.path.join(find_papersdir(), 'bibdata', filename + '.bibyaml')
     return load_externalbibfile(fullbibpath)
 
 def save_bibdata(bib_data, filename):
-    filepath = find_papersdir() + os.sep + 'bibdata' + os.sep + filename + '.bibyaml'
+    filepath = os.path.join(find_papersdir(), 'bibdata', filename + '.bibyaml')
     with open(filepath, 'w') as f:
         parser = pybtex.database.output.bibyaml.Writer()
         parser.write_stream(bib_data, f)
