@@ -19,7 +19,7 @@ class Repository(object):
 
     # loading existing papers
 
-    def paper_from_number(self, number, fatal = True):
+    def paper_from_number(self, number, fatal=True):
         try:
             citekey = self.citekeys[int(number)]
             paper = self.paper_from_citekey(citekey)
@@ -27,10 +27,11 @@ class Repository(object):
         except KeyError:
             if fatal:
                 print('{}error{}: no paper with number {}{}{}'.format(
-                    color.error, color.normal, color.citekey, citekey, color.end))
+                    color.error, color.normal, color.citekey, citekey,
+                    color.end))
                 exit(-1)
-            raise IOError, 'file not found'
-            
+            raise(IOError, 'file not found')
+
     def paper_from_citekey(self, citekey, fatal=True):
         """Load a paper by its citekey from disk, if necessary."""
         try:
@@ -38,25 +39,26 @@ class Repository(object):
         except KeyError:
             if fatal:
                 print('{}error{}: no paper with citekey {}{}{}'.format(
-                       color.error, color.normal, color.citekey, citekey, color.end))
+                       color.error, color.normal, color.citekey, citekey,
+                       color.end))
                 exit(-1)
-            raise IOError, 'file not found'
+            raise(IOError, 'file not found')
 
-    def paper_from_any(self, key, fatal = True):
+    def paper_from_any(self, key, fatal=True):
         try:
-            return self.paper_from_citekey(key, fatal = False)
+            return self.paper_from_citekey(key, fatal=False)
         except IOError:
             try:
-                return self.paper_from_number(key, fatal = False)
+                return self.paper_from_number(key, fatal=False)
             except IOError:
                 if fatal:
                     print('{}error{}: paper with citekey or number {}{}{} not found{}'.format(
                         color.error, color.normal, color.citekey, key, color.normal, color.end))
                     exit(-1)
-                raise IOError, 'file not found'
+                raise(IOError, 'file not found')
 
     # creating new papers
-    
+
     def add_paper_from_paths(self, pdfpath, bibpath):
         p = Paper.from_bibpdffiles(pdfpath, bibpath)
         self.add_paper(p)
@@ -83,46 +85,42 @@ class Repository(object):
             sub_bib.add_entry(k, bib_data.entries[k])
             meta = Paper.create_meta(pdfpath=None)
             name = meta['filename']
-            p = Paper(name, bib_data = sub_bib, metadata = meta)
+            p = Paper(name, bib_data=sub_bib, metadata=meta)
             self.add_paper(p)
 
-    def get_valid_citekey(self, entry):
-        citekey = str2citekey(entry.key)
-        if citekey in self.citekeys:
-            raise(ValueError, "An entry with same citekey already exists.")
-        if len(citekey) == 0:
-            citekey = self.create_citekey(entry)
-        return citekey
-
-    def create_citekey(self, entry, allowed = tuple()):
-        """Create a cite key unique to a given bib_data.
-        
-        Raises:
-            KeyError if no author is defined.
+    def get_free_citekey(self, paper, citekey=None):
+        """Create a unique citekey for the given paper.
         """
-        author_key = 'author'
-        if not 'author' in entry.persons:
-            author_key = 'editor'
-        try:
-            first_author = entry.persons[author_key][0]
-        except KeyError:
-            raise(ValueError,
-                    'No author or editor defined: cannot generate a citekey.')
-        try:
-            year = entry.fields['year']
-        except KeyError:
-            year = ''
-        prefix = u'{}{}'.format(first_author.last()[0][:6], year)
-        prefix = str2citekey(prefix)
-        # Normalize chars and remove non-ascii
-        prefix = unicodedata.normalize('NFKD', prefix
-                ).encode('ascii', 'ignore')
-        letter = 0
-        citekey = prefix
-        while citekey in self.citekeys and citekey not in allowed:
-            citekey = prefix + ALPHABET[letter]
-            letter += 1
-        return citekey
+        if citekey is None:
+            citekey = paper.generate_citekey()
+        suffix = ''
+        while citekey + suffix in self.citekeys:
+            _str_incr(suffix)
+        return citekey + suffix
 
     def size(self):
         return len(self.citekeys)
+
+
+def _char_incr(c):
+    return chr(ord(c) + 1)
+
+
+def _str_incr(l):
+    """Increment a number in a list string representation.
+
+    Numbers are represented in base 26 with letters as digits.
+    """
+    pos = 0
+    while pos < len(l):
+        if l[pos] == 'z':
+            l[pos] = 'a'
+            pos += 1
+        else:
+            l[pos] = _char_incr(l[pos])
+            return
+    l.append('a')
+
+
+def _to_suffix(l):
+    return ''.join(l[::-1])
