@@ -1,14 +1,9 @@
-import sys, os
+import os
 import subprocess
 import tempfile
 
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-    
 import yaml
-    
+
 import color
 
 try:
@@ -24,10 +19,17 @@ try:
     import pybtex.database.output.bibyaml
 
 except ImportError:
-    print '{}error{}: you need to install Pybtex; try running \'pip install pybtex\' or \'easy_install pybtex\''.format(color.red, color.end)
+    print '{}error{}: you need to install Pybtex; try running \'pip install'
+    'pybtex\' or \'easy_install pybtex\''.format(color.red, color.end)
 
 
 _papersdir = None
+
+try:
+    EDITOR = os.environ['EDITOR']
+except KeyError:
+    EDITOR = 'nano'
+
 
 def find_papersdir():
     """Find .papers directory in this directory and the parent directories"""
@@ -35,75 +37,97 @@ def find_papersdir():
     if _papersdir is None:
         curdir = os.path.abspath(os.getcwd())
         while curdir != '':
-            if os.path.exists(curdir + '/.papers') and os.path.isdir(curdir + '/.papers'):
+            if (os.path.exists(curdir + '/.papers')
+                    and os.path.isdir(curdir + '/.papers')):
                 _papersdir = curdir + '/.papers'
                 curdir = ''
             if curdir == '/':
                 curdir = ''
             else:
                 curdir = os.path.split(curdir)[0]
-
         if _papersdir is None:
-            print '{}error{} : no papers repo found in this directory or in any parent directory.{}'.format(
-                   color.red, color.grey, color.end)
+            print '{}error{} : no papers repo found in this directory or in'
+            'any parent directory.{}'.format(color.red, color.grey, color.end)
             exit(-1)
-
     return _papersdir
 
-def name_from_path(fullpdfpath, verbose = False):
+
+def name_from_path(fullpdfpath, verbose=False):
     name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
     if verbose:
         if ext != '.pdf' and ext != '.ps':
             print('{}warning{}: extension {}{}{} not recognized{}'.format(
-                   color.yellow, color.grey, color.cyan, ext, color.grey, color.end))
-    return name, ext    
+                   color.yellow, color.grey, color.cyan, ext, color.grey,
+                   color.end))
+    return name, ext
+
 
 def check_file(filepath):
     if not os.path.exists(filepath):
         print '{}error{}: {}{}{} does not exists{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.grey, color.end)
+               color.red, color.grey, color.cyan, filepath, color.grey,
+               color.end)
         exit(-1)
     if not os.path.isfile(filepath):
         print '{}error{}: {}{}{} is not a file{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.grey, color.end)
+               color.red, color.grey, color.cyan, filepath, color.grey,
+               color.end)
         exit(-1)
-        
+
+
 # yaml I/O
 
 def write_yamlfile(filepath, datamap):
     try:
         with open(filepath, 'w') as f:
             yaml.dump(datamap, f)
-    except IOError as e:
+    except IOError:
         print '{}error{} : impossible to read file {}{:s}{}'.format(
                color.red, color.grey, color.cyan, filepath, color.end)
         exit(-1)
+
 
 def read_yamlfile(filepath):
     check_file(filepath)
     try:
         with open(filepath, 'r') as f:
             return yaml.load(f)
-    except IOError as e:
+    except IOError:
         print '{}error{} : impossible to read file {}{:s}{}'.format(
-               color.red, color.grey, color.cyan, paperdir, color.end)
+               color.red, color.grey, color.cyan, filepath, color.end)
         exit(-1)
+
 
 def save_papers(datamap):
     paperyaml = find_papersdir() + os.sep + 'papers.yaml'
     write_yamlfile(paperyaml, datamap)
 
+
 def load_papers():
-    paperyaml = find_papersdir() + os.sep + 'papers.yaml'
+    paperyaml = os.path.join(find_papersdir(), 'papers.yaml')
     return read_yamlfile(paperyaml)
 
-def save_meta(meta_data, filename):
-    filepath = os.path.join(find_papersdir(), 'meta', filename + '.meta')
+
+def path_to_paper_file(name, file_, path_to_repo=None):
+    if path_to_repo is None:
+        path_to_repo = find_papersdir()
+    if file_ == 'bib':
+        return os.path.join(path_to_repo, 'bibdata', name + '.bibyaml')
+    elif file_ == 'meta':
+        return os.path.join(path_to_repo, 'meta', name + '.meta')
+    else:
+        raise(ValueError, "%s is not a valid paper file." % file_)
+
+
+def save_meta(meta_data, filename, path=None):
+    filepath = path_to_paper_file(filename, 'meta', path_to_repo=path)
     write_yamlfile(filepath, meta_data)
 
-def load_meta(filename):
-    filepath = os.path.join(find_papersdir(), 'meta', filename + '.meta')
+
+def load_meta(filename, path=None):
+    filepath = path_to_paper_file(filename, 'meta', path_to_repo=path)
     return read_yamlfile(filepath)
+
 
 # specific to bibliography data
 
@@ -127,24 +151,22 @@ def load_externalbibfile(fullbibpath):
 
     return bib_data
 
-def load_bibdata(filename):
-    fullbibpath = os.path.join(find_papersdir(), 'bibdata', filename + '.bibyaml')
-    return load_externalbibfile(fullbibpath)
 
-def save_bibdata(bib_data, filename):
-    filepath = os.path.join(find_papersdir(), 'bibdata', filename + '.bibyaml')
+def load_bibdata(filename, path=None):
+    filepath = path_to_paper_file(filename, 'bib', path_to_repo=path)
+    return load_externalbibfile(filepath)
+
+
+def save_bibdata(bib_data, filename, path=None):
+    filepath = path_to_paper_file(filename, 'bib', path_to_repo=path)
     with open(filepath, 'w') as f:
         parser = pybtex.database.output.bibyaml.Writer()
         parser.write_stream(bib_data, f)
 
+
 # vim input
 
-try:
-    EDITOR = os.environ['EDITOR']
-except KeyError:
-    EDITOR = 'nano'
-
-def vim_input(initial = ""):
+def vim_input(initial=""):
     """Use an editor to get input"""
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as temp_file:

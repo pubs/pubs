@@ -34,7 +34,7 @@ class Repository(object):
     def paper_from_citekey(self, citekey, fatal=True):
         """Load a paper by its citekey from disk, if necessary."""
         try:
-            return Paper.from_disc(citekey)
+            return Paper.load(citekey)
         except KeyError:
             if fatal:
                 print('{}error{}: no paper with citekey {}{}{}'.format(
@@ -70,6 +70,7 @@ class Repository(object):
         self.citekeys.append(p.citekey)
 
         # writing all to disk
+        # TODO Update by giving filename (17/12/2012)
         p.save_to_disc()
         files.save_papers(self.papers_config)
         print "Added: %s" % p.citekey
@@ -80,7 +81,8 @@ class Repository(object):
         for k in bib_data.entries:
             sub_bib = type(bib_data)(preamble=bib_data._preamble)
             sub_bib.add_entry(k, bib_data.entries[k])
-            name, meta = Paper.create_meta(sub_bib, pdfpath=None)
+            meta = Paper.create_meta(pdfpath=None)
+            name = meta['filename']
             p = Paper(name, bib_data = sub_bib, metadata = meta)
             self.add_paper(p)
 
