@@ -7,8 +7,8 @@ import shutil
 import yaml
 from pybtex.database import Person
 
+import fixtures
 from papers.paper import Paper
-from papers import files
 
 
 BIB = """
@@ -64,50 +64,39 @@ class TestSaveLoad(unittest.TestCase):
         self.metafile = os.path.join(self.tmpdir, 'meta.meta')
         with open(self.metafile, 'w') as f:
             f.write(META)
-        self.turing1950 = Paper()
-        self.turing1950.bibentry.fields['title'] = u'Computing machinery and intelligence.'
-        self.turing1950.bibentry.fields['year'] = u'1950'
-        self.turing1950.bibentry.persons['author'] = [Person(u'Alan Turing')]
-        self.turing1950.citekey = self.turing1950.generate_citekey()
+        self.dest_bibfile = os.path.join(self.tmpdir, 'written_bib.yaml')
+        self.dest_metafile = os.path.join(self.tmpdir, 'written_meta.yaml')
 
     def test_load_valid(self):
         p = Paper.load(self.bibfile, self.metafile)
-        self.assertEqual(self.turing1950, p)
+        self.assertEqual(fixtures.turing1950, p)
 
     def test_save_fails_with_no_citekey(self):
         p = Paper()
         with self.assertRaises(ValueError):
-            p.save_to_disc(self.tmpdir)
+            p.save_to_disc(self.dest_bibfile, self.dest_metafile)
 
     def test_save_creates_bib(self):
-        self.turing1950.save_to_disc(self.tmpdir)
-        bibfile = files.path_to_paper_file('Turing1950', 'bib',
-                path_to_repo=self.tmpdir)
-        self.assertTrue(os.path.exists(bibfile))
+        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        self.assertTrue(os.path.exists(self.dest_bibfile))
 
     def test_save_creates_meta(self):
-        self.turing1950.save_to_disc(self.tmpdir)
-        metafile = files.path_to_paper_file('Turing1950', 'meta',
-                path_to_repo=self.tmpdir)
-        self.assertTrue(os.path.exists(metafile))
+        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        self.assertTrue(os.path.exists(self.dest_metafile))
 
     def test_save_right_bib(self):
-        self.turing1950.save_to_disc(self.tmpdir)
-        bibfile = files.path_to_paper_file('Turing1950', 'bib',
-                path_to_repo=self.tmpdir)
-        with open(bibfile, 'r') as f:
+        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        with open(self.dest_bibfile, 'r') as f:
             written = yaml.load(f)
             ok = yaml.load(BIB)
             self.assertEqual(written, ok)
 
     def test_save_right_meta(self):
-        self.turing1950.save_to_disc(self.tmpdir)
-        metafile = files.path_to_paper_file('Turing1950', 'meta',
-                path_to_repo=self.tmpdir)
-        with open(metafile, 'r') as f:
+        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        with open(self.dest_metafile, 'r') as f:
             written = yaml.load(f)
             ok = yaml.load(META)
             self.assertEqual(written, ok)
 
-    def teardown(self):
+    def tearDown(self):
         shutil.rmtree(self.tmpdir)

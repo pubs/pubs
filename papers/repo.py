@@ -1,21 +1,24 @@
-import files
 import color
+import os
 
+import files
 from paper import Paper
 
 
 ALPHABET = 'abcdefghijklmopqrstuvwxyz'
+BASE_FILE = 'papers.yaml'
+BIB_DIR = 'bibdata'
+META_DIR = 'meta'
 
 
 class Repository(object):
 
-    def __init__(self, paperdir=None):
-        if paperdir:
-            self.paperdir = paperdir
+    def __init__(self, papersdir=None):
+        if papersdir:
+            self.papersdir = papersdir
         else:
-            self.paperdir = files.find_papersdir()
-        self.papers_config = files.load_papers()
-        self.citekeys = self.papers_config['citekeys']
+            self.papersdir = files.find_papersdir()
+        self.citekeys = []
 
     # loading existing papers
 
@@ -34,9 +37,10 @@ class Repository(object):
 
     def paper_from_citekey(self, citekey, fatal=True):
         """Load a paper by its citekey from disk, if necessary."""
-        try:
-            return Paper.load(citekey)
-        except KeyError:
+        if citekey in self.citekeys:
+            return Paper.load(self.path_to_paper_file(citekey, 'bib'),
+                self.path_to_paper_file(citekey, 'meta'))
+        else:
             if fatal:
                 print('{}error{}: no paper with citekey {}{}{}'.format(
                        color.error, color.normal, color.citekey, citekey,
@@ -64,28 +68,36 @@ class Repository(object):
         self.add_paper(p)
 
     def add_paper(self, p):
-        # updating papersconfig
-        bib_data_entry = p.bib_data.entries[list(p.bib_data.entries.keys())[0]]
-        p.citekey = self.get_valid_citekey(bib_data_entry)
-
-        self.papers_config['citekeys'].append(p.citekey)
+        if p.citekey is None:  # TODO also test if citekey is valid
+            raise(ValueError, "Invalid citekey: %s." % p.citekey)
+        elif p.citekey in self.citekeys:
+            raise(ValueError, "Citekey already exists in repository: %s"
+                    % p.citekey)
         self.citekeys.append(p.citekey)
-
-        # writing all to disk
-        # TODO Update by giving filename (17/12/2012)
-        p.save_to_disc()
-        files.save_papers(self.papers_config)
+        # write paper files
+        self.save_paper(p)
+        # update repository files
+        self.save()
+        # TODO change to logging system (17/12/2012)
         print "Added: %s" % p.citekey
-        return p
+
+    def add_or_update(self, paper):
+        if not paper.citekey in self.citekeys:
+            self.add_paper(paper)
+        else:
+            paper.save_paper(paper)
+
+    def save_paper(self, paper):
+        if not paper.citekey in self.citekeys:
+            raise(ValueError, 'Paper not in repository, first add it.')
+        paper.save_to_disc(self.path_to_paper_file(paper.citekey, 'bib'),
+                self.path_to_paper_file(paper.citekey, 'meta'))
 
     def add_papers(self, bibpath):
         bib_data = Paper.import_bibdata(bibpath)
         for k in bib_data.entries:
             sub_bib = type(bib_data)(preamble=bib_data._preamble)
-            sub_bib.add_entry(k, bib_data.entries[k])
-            meta = Paper.create_meta(pdfpath=None)
-            name = meta['filename']
-            p = Paper(name, bib_data=sub_bib, metadata=meta)
+            p = Paper(bibentry=sub_bib, citekey=k)
             self.add_paper(p)
 
     def get_free_citekey(self, paper, citekey=None):
@@ -93,13 +105,43 @@ class Repository(object):
         """
         if citekey is None:
             citekey = paper.generate_citekey()
-        suffix = ''
-        while citekey + suffix in self.citekeys:
-            _str_incr(suffix)
-        return citekey + suffix
+        num = []
+        while citekey + _to_suffix(num) in self.citekeys:
+            _str_incr(num)
+        return citekey + _to_suffix(num)
+
+    def base_file_path(self):
+        return os.path.join(self.papersdir, 'papers.yaml')
 
     def size(self):
         return len(self.citekeys)
+
+    def save(self):
+        papers_config = {'citekeys': self.citekeys}
+        files.write_yamlfile(self.base_file_path(), papers_config)
+
+    def load(self):
+        papers_config = files.read_yamlfile(self.base_file_path())
+        self.citekeys = papers_config['citekeys']
+
+    def init(self):
+        os.makedirs(os.path.join(self.papersdir, BIB_DIR))
+        os.makedirs(os.path.join(self.papersdir, META_DIR))
+        self.save()
+
+    def path_to_paper_file(self, citekey, file_):
+        if file_ == 'bib':
+            return os.path.join(self.papersdir, BIB_DIR, citekey + '.bibyaml')
+        elif file_ == 'meta':
+            return os.path.join(self.papersdir, META_DIR, citekey + '.meta')
+        else:
+            raise(ValueError, "%s is not a valid paper file." % file_)
+
+    @classmethod
+    def from_directory(cls, papersdir=None):
+        repo = cls.__init__(papersdir=papersdir)
+        repo.load()
+        return repo
 
 
 def _char_incr(c):

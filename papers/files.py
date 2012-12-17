@@ -98,34 +98,21 @@ def read_yamlfile(filepath):
         exit(-1)
 
 
-def save_papers(datamap):
-    paperyaml = find_papersdir() + os.sep + 'papers.yaml'
-    write_yamlfile(paperyaml, datamap)
+def load_bibdata(filename, filepath):
+    return load_externalbibfile(filepath)
 
 
-def load_papers():
-    paperyaml = os.path.join(find_papersdir(), 'papers.yaml')
-    return read_yamlfile(paperyaml)
+def save_bibdata(bib_data, filepath):
+    with open(filepath, 'w') as f:
+        parser = pybtex.database.output.bibyaml.Writer()
+        parser.write_stream(bib_data, f)
 
 
-def path_to_paper_file(name, file_, path_to_repo=None):
-    if path_to_repo is None:
-        path_to_repo = find_papersdir()
-    if file_ == 'bib':
-        return os.path.join(path_to_repo, 'bibdata', name + '.bibyaml')
-    elif file_ == 'meta':
-        return os.path.join(path_to_repo, 'meta', name + '.meta')
-    else:
-        raise(ValueError, "%s is not a valid paper file." % file_)
-
-
-def save_meta(meta_data, filename, path=None):
-    filepath = path_to_paper_file(filename, 'meta', path_to_repo=path)
+def save_meta(meta_data, filepath):
     write_yamlfile(filepath, meta_data)
 
 
-def load_meta(filename, path=None):
-    filepath = path_to_paper_file(filename, 'meta', path_to_repo=path)
+def load_meta(filepath):
     return read_yamlfile(filepath)
 
 
@@ -150,18 +137,6 @@ def load_externalbibfile(fullbibpath):
         exit(-1)
 
     return bib_data
-
-
-def load_bibdata(filename, path=None):
-    filepath = path_to_paper_file(filename, 'bib', path_to_repo=path)
-    return load_externalbibfile(filepath)
-
-
-def save_bibdata(bib_data, filename, path=None):
-    filepath = path_to_paper_file(filename, 'bib', path_to_repo=path)
-    with open(filepath, 'w') as f:
-        parser = pybtex.database.output.bibyaml.Writer()
-        parser.write_stream(bib_data, f)
 
 
 # vim input

@@ -37,16 +37,6 @@ class Paper(object):
     biblography data and an additional dictionary to store meta data.
     """
 
-    @classmethod
-    def load(cls, bibpath, metapath):
-        bib_data = files.load_externalbibfile(bibpath)
-        metadata = files.read_yamlfile(metapath)
-        # Extract first entry (supposed to be the only one)
-        first_key = bib_data.entries.keys()[0]
-        first_entry = bib_data.entries[first_key]
-        p = Paper(bibentry=first_entry, metadata=metadata, citekey=first_key)
-        return p
-
 #    @classmethod
 #    def from_bibpdffiles(cls, pdfpath, bibpath):
 #        bib_data = cls.import_bibdata(bibpath)
@@ -62,6 +52,9 @@ class Paper(object):
         if not metadata:
             metadata = Paper.create_meta()
         self.metadata = metadata
+        # TODO This is not the right way to test that (17/12/2012)
+        if unicode(citekey) != str2citekey(citekey):
+            raise(ValueError, "Wrong citekey: %s" % citekey)
         self.citekey = citekey
 
     def __eq__(self, other):
@@ -114,7 +107,7 @@ class Paper(object):
         citekey = u'{}{}'.format(u''.join(first_author.last()), year)
         return str2citekey(citekey)
 
-    def save_to_disc(self, path):
+    def save_to_disc(self, bib_filepath, meta_filepath):
         """Creates a BibliographyData object containing a single entry and
         saves it to disc.
         """
@@ -122,9 +115,18 @@ class Paper(object):
             raise(ValueError,
                 'No valid citekey initialized. Cannot save paper')
         bibdata = BibliographyData(entries={self.citekey: self.bibentry})
-        files.save_bibdata(bibdata, self.citekey, path=path)
-        files.save_meta(self.metadata, self.citekey, path=path)
-        # TODO move to repo
+        files.save_bibdata(bibdata, bib_filepath)
+        files.save_meta(self.metadata, meta_filepath)
+
+    @classmethod
+    def load(cls, bibpath, metapath):
+        bib_data = files.load_externalbibfile(bibpath)
+        metadata = files.read_yamlfile(metapath)
+        # Extract first entry (supposed to be the only one)
+        first_key = bib_data.entries.keys()[0]
+        first_entry = bib_data.entries[first_key]
+        p = Paper(bibentry=first_entry, metadata=metadata, citekey=first_key)
+        return p
 
     @classmethod
     def import_bibdata(cls, bibfile):
