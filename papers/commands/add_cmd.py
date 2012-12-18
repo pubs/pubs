@@ -12,5 +12,5 @@ def command(config, pdffile, bibfile):
     :param pdffilepath  path (no url yet) to a pdf or ps file
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """
-    rp = repo.Repository()
+    rp = repo.Repository.from_directory()
     rp.add_paper_from_paths(pdffile, bibfile)

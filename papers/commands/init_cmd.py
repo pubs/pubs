@@ -1,17 +1,14 @@
 # init command
 
 import os
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
 
 from ..repo import Repository
 from .. import color
 
 
 def parser(subparsers, config):
-    parser = subparsers.add_parser('init', help="initialize the .papers directory")
+    parser = subparsers.add_parser('init',
+            help="initialize the .papers directory")
     return parser
 
 

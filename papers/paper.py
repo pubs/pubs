@@ -5,8 +5,6 @@ import re
 from pybtex.database import Entry, BibliographyData
 
 import files
-import color
-import pretty
 
 
 DEFAULT_TYPE = 'article'
@@ -16,6 +14,13 @@ CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/'  # '/' is OK for bibtex but forbidden
 # here since we transform citekeys into filenames
 CITEKEY_EXCLUDE_RE = re.compile('[%s]'
         % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
+
+BASE_META = {
+    'filename': None,
+    'extension': None,
+    'path': None,
+    'notes': []
+    }
 
 
 def str2citekey(s):
@@ -37,14 +42,6 @@ class Paper(object):
     biblography data and an additional dictionary to store meta data.
     """
 
-#    @classmethod
-#    def from_bibpdffiles(cls, pdfpath, bibpath):
-#        bib_data = cls.import_bibdata(bibpath)
-#        name, meta = cls.create_meta(bib_data, pdfpath=pdfpath)
-#        p = Paper(name, bib_data = bib_data, metadata = meta)
-#
-#        return p
-
     def __init__(self, bibentry=None, metadata=None, citekey=None):
         if not bibentry:
             bibentry = Entry(DEFAULT_TYPE)
@@ -54,7 +51,7 @@ class Paper(object):
         self.metadata = metadata
         # TODO This is not the right way to test that (17/12/2012)
         if unicode(citekey) != str2citekey(citekey):
-            raise(ValueError, "Wrong citekey: %s" % citekey)
+            raise(ValueError("Invalid citekey: %s" % citekey))
         self.citekey = citekey
 
     def __eq__(self, other):
@@ -84,7 +81,8 @@ class Paper(object):
             raise NoDocumentFile
 
     def check_file(self):
-        return files.check_file(self.get_file_path())
+        path = self.get_file_path()
+        return os.path.exists(path) and os.path.isfile(path)
 
     def generate_citekey(self):
         """Generate a citekey from bib_data.
@@ -98,8 +96,8 @@ class Paper(object):
         try:
             first_author = self.bibentry.persons[author_key][0]
         except KeyError:
-            raise(ValueError,
-                    'No author or editor defined: cannot generate a citekey.')
+            raise(ValueError(
+                    'No author or editor defined: cannot generate a citekey.'))
         try:
             year = self.bibentry.fields['year']
         except KeyError:
@@ -107,48 +105,44 @@ class Paper(object):
         citekey = u'{}{}'.format(u''.join(first_author.last()), year)
         return str2citekey(citekey)
 
+    def set_pdf(self, pdfpath):
+        fullpdfpath = os.path.abspath(pdfpath)
+        files.check_file(fullpdfpath)
+        name, ext = files.name_from_path(pdfpath)
+        self.metadata['filename'] = name
+        self.metadata['extension'] = ext
+        self.metadata['path'] = fullpdfpath
+
     def save_to_disc(self, bib_filepath, meta_filepath):
         """Creates a BibliographyData object containing a single entry and
         saves it to disc.
         """
         if self.citekey is None:
-            raise(ValueError,
-                'No valid citekey initialized. Cannot save paper')
+            raise(ValueError(
+                'No valid citekey initialized. Cannot save paper'))
         bibdata = BibliographyData(entries={self.citekey: self.bibentry})
         files.save_bibdata(bibdata, bib_filepath)
         files.save_meta(self.metadata, meta_filepath)
 
     @classmethod
-    def load(cls, bibpath, metapath):
-        bib_data = files.load_externalbibfile(bibpath)
-        metadata = files.read_yamlfile(metapath)
-        # Extract first entry (supposed to be the only one)
-        first_key = bib_data.entries.keys()[0]
-        first_entry = bib_data.entries[first_key]
-        p = Paper(bibentry=first_entry, metadata=metadata, citekey=first_key)
+    def load(cls, bibpath, metapath=None):
+        key, entry = cls.get_bibentry(bibpath)
+        if metapath is None:
+            metadata = None
+        else:
+            metadata = files.read_yamlfile(metapath)
+        p = Paper(bibentry=entry, metadata=metadata, citekey=key)
         return p
 
     @classmethod
-    def import_bibdata(cls, bibfile):
-        """Import bibligraphic data from a .bibyaml, .bib or .bibtex file"""
-        fullbibpath = os.path.abspath(bibfile)
-        bib_data = files.load_externalbibfile(fullbibpath)
-        print('{}bibliographic data present in {}{}{}'.format(
-               color.grey, color.cyan, bibfile, color.end))
-        print(pretty.bib_desc(bib_data))
-        return bib_data
+    def get_bibentry(cls, bibfile):
+        """Extract first entry (supposed to be the only one) from given file.
+        """
+        bib_data = files.load_externalbibfile(bibfile)
+        first_key = bib_data.entries.keys()[0]
+        first_entry = bib_data.entries[first_key]
+        return first_key, first_entry
 
     @classmethod
-    def create_meta(cls, pdfpath=None):
-        if pdfpath is None:
-            name, fullpdfpath, ext = None, None, None
-        else:
-            fullpdfpath = os.path.abspath(pdfpath)
-            files.check_file(fullpdfpath)
-            name, ext = files.name_from_path(pdfpath)
-        meta = {}
-        meta['filename'] = name  # TODO remove ?
-        meta['extension'] = ext
-        meta['path'] = fullpdfpath
-        meta['notes'] = []
-        return meta
+    def create_meta(cls):
+        return BASE_META.copy()

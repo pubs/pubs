@@ -68,7 +68,7 @@ class TestSaveLoad(unittest.TestCase):
         self.dest_metafile = os.path.join(self.tmpdir, 'written_meta.yaml')
 
     def test_load_valid(self):
-        p = Paper.load(self.bibfile, self.metafile)
+        p = Paper.load(self.bibfile, metapath=self.metafile)
         self.assertEqual(fixtures.turing1950, p)
 
     def test_save_fails_with_no_citekey(self):

@@ -33,20 +33,20 @@ class Repository(object):
                     color.error, color.normal, color.citekey, citekey,
                     color.end))
                 exit(-1)
-            raise(IOError, 'file not found')
+            raise(IOError('file not found'))
 
     def paper_from_citekey(self, citekey, fatal=True):
         """Load a paper by its citekey from disk, if necessary."""
         if citekey in self.citekeys:
             return Paper.load(self.path_to_paper_file(citekey, 'bib'),
-                self.path_to_paper_file(citekey, 'meta'))
+                metapath=self.path_to_paper_file(citekey, 'meta'))
         else:
             if fatal:
                 print('{}error{}: no paper with citekey {}{}{}'.format(
                        color.error, color.normal, color.citekey, citekey,
                        color.end))
                 exit(-1)
-            raise(IOError, 'file not found')
+            raise(IOError('file not found'))
 
     def paper_from_any(self, key, fatal=True):
         try:
@@ -59,20 +59,21 @@ class Repository(object):
                     print('{}error{}: paper with citekey or number {}{}{} not found{}'.format(
                         color.error, color.normal, color.citekey, key, color.normal, color.end))
                     exit(-1)
-                raise(IOError, 'file not found')
+                raise(IOError('file not found'))
 
     # creating new papers
 
     def add_paper_from_paths(self, pdfpath, bibpath):
-        p = Paper.from_bibpdffiles(pdfpath, bibpath)
+        p = Paper.load(bibpath)
+        p.set_pdf(pdfpath)
         self.add_paper(p)
 
     def add_paper(self, p):
         if p.citekey is None:  # TODO also test if citekey is valid
-            raise(ValueError, "Invalid citekey: %s." % p.citekey)
+            raise(ValueError("Invalid citekey: %s." % p.citekey))
         elif p.citekey in self.citekeys:
-            raise(ValueError, "Citekey already exists in repository: %s"
-                    % p.citekey)
+            raise(ValueError("Citekey already exists in repository: %s"
+                    % p.citekey))
         self.citekeys.append(p.citekey)
         # write paper files
         self.save_paper(p)
@@ -89,14 +90,14 @@ class Repository(object):
 
     def save_paper(self, paper):
         if not paper.citekey in self.citekeys:
-            raise(ValueError, 'Paper not in repository, first add it.')
+            raise(ValueError('Paper not in repository, first add it.'))
         paper.save_to_disc(self.path_to_paper_file(paper.citekey, 'bib'),
                 self.path_to_paper_file(paper.citekey, 'meta'))
 
     def add_papers(self, bibpath):
-        bib_data = Paper.import_bibdata(bibpath)
+        bib_data = files.load_externalbibfile(bibpath)
         for k in bib_data.entries:
-            sub_bib = type(bib_data)(preamble=bib_data._preamble)
+            sub_bib = bib_data.entries[k]
             p = Paper(bibentry=sub_bib, citekey=k)
             self.add_paper(p)
 
@@ -135,11 +136,11 @@ class Repository(object):
         elif file_ == 'meta':
             return os.path.join(self.papersdir, META_DIR, citekey + '.meta')
         else:
-            raise(ValueError, "%s is not a valid paper file." % file_)
+            raise(ValueError("%s is not a valid paper file." % file_))
 
     @classmethod
     def from_directory(cls, papersdir=None):
-        repo = cls.__init__(papersdir=papersdir)
+        repo = cls(papersdir=papersdir)
         repo.load()
         return repo
 

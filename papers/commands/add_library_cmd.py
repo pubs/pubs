@@ -11,5 +11,5 @@ def command(config, bibfile):
     """
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """
-    rp = repo.Repository()
+    rp = repo.Repository.from_directory()
     rp.add_papers(bibfile)
