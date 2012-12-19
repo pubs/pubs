@@ -13,11 +13,8 @@ META_DIR = 'meta'
 
 class Repository(object):
 
-    def __init__(self, papersdir=None):
-        if papersdir:
-            self.papersdir = papersdir
-        else:
-            self.papersdir = files.find_papersdir()
+    def __init__(self):
+        self.papersdir = None
         self.citekeys = []
 
     # loading existing papers
@@ -125,7 +122,8 @@ class Repository(object):
         papers_config = files.read_yamlfile(self.base_file_path())
         self.citekeys = papers_config['citekeys']
 
-    def init(self):
+    def init(self, papersdir):
+        self.papersdir = papersdir
         os.makedirs(os.path.join(self.papersdir, BIB_DIR))
         os.makedirs(os.path.join(self.papersdir, META_DIR))
         self.save()
@@ -140,7 +138,10 @@ class Repository(object):
 
     @classmethod
     def from_directory(cls, papersdir=None):
-        repo = cls(papersdir=papersdir)
+        repo = cls()
+        if papersdir is None:
+            papersdir = files.find_papersdir()
+        repo.papersdir = papersdir
         repo.load()
         return repo
 

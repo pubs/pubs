@@ -33,8 +33,8 @@ class TestAddPaper(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.repo = Repository(papersdir=self.tmpdir)
-        self.repo.init()
+        self.repo = Repository()
+        self.repo.init(self.tmpdir)
         self.repo.add_paper(fixtures.turing1950)
 
     def test_raises_value_error_on_existing_key(self):

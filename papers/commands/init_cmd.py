@@ -18,8 +18,8 @@ def command(config):
     if not os.path.exists(papersdir):
         print('{}initializing papers in {}{}{}'.format(
                color.grey, color.cyan, papersdir, color.end))
-        repo = Repository(papersdir=papersdir)
-        repo.init()  # Creates directories
+        repo = Repository()
+        repo.init(papersdir)  # Creates directories
         repo.save()  # Saves empty repository description
     else:
         print('{}error {} : papers already present in {}{}{}'.format(

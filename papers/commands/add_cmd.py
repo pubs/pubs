@@ -7,6 +7,7 @@ def parser(subparsers, config):
     parser.add_argument('bibfile', help='bibtex, bibtexml or bibyaml file')
     return parser
 
+
 def command(config, pdffile, bibfile):
     """
     :param pdffilepath  path (no url yet) to a pdf or ps file
