@@ -22,12 +22,9 @@ class TestCitekeyGeneration(unittest.TestCase):
 
     def test_generated_key_is_unique(self):
         repo = Repository()
-        repo.add_paper(fixtures.turing1950)
-        repo.add_paper(fixtures.doe2013)
+        repo.citekeys = ['Turing1950', 'Doe2003']
         c = repo.get_free_citekey(fixtures.turing1950)
-        self.assertEqual(c, 'Turing1950a')
-        fixtures.turing1950.citekey = 'Turing1950a'
-        repo.add_paper(fixtures.turing1950)
+        repo.citekeys.append('Turing1950a')
         c = repo.get_free_citekey(fixtures.turing1950)
         self.assertEqual(c, 'Turing1950b')
 
