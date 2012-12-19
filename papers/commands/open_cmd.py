@@ -4,18 +4,22 @@ from .. import color
 from .. import repo
 from ..paper import NoDocumentFile
 
+
 def parser(subparsers, config):
     parser = subparsers.add_parser('open', help='{}open the paper in a pdf viewer{}'.format(color.normal, color.end))
     parser.add_argument('citekey', help='{}the paper associated citekey{}'.format(color.normal, color.end))
     return parser
 
+
 def command(config, citekey):
+    print config.get('papers', 'open-cmd')
     rp = repo.Repository.from_directory()
     paper = rp.paper_from_any(citekey, fatal=True)
     try:
         if paper.check_file():
             filepath = paper.get_file_path()
-            subprocess.Popen(['open', filepath])
+            subprocess.Popen([config.get('papers', 'open-cmd'),
+                filepath])
             print('{}{}{} opened.{}'.format(
                 color.filepath, filepath, color.normal, color.end))
         else:
