@@ -1,4 +1,5 @@
 from .. import repo
+from ..paper import Paper
 
 
 def parser(subparsers, config):
@@ -7,9 +8,11 @@ def parser(subparsers, config):
     parser.add_argument('bibfile', help='bibtex, bibtexml or bibyaml file')
     return parser
 
+
 def command(config, bibfile):
     """
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """
     rp = repo.Repository.from_directory()
-    rp.add_papers(bibfile)
+    for p in Paper.many_from_bib(bibfile):
+        rp.add_paper(p)

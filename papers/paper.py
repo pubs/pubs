@@ -146,3 +146,9 @@ class Paper(object):
     @classmethod
     def create_meta(cls):
         return BASE_META.copy()
+
+    @classmethod
+    def many_from_bib(cls, bibpath):
+        bib_data = files.load_externalbibfile(bibpath)
+        return [Paper(bibentry=bib_data.entries[k], citekey=k)
+                for k in bib_data.entries]

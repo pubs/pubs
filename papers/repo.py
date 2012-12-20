@@ -91,13 +91,6 @@ class Repository(object):
         paper.save_to_disc(self.path_to_paper_file(paper.citekey, 'bib'),
                 self.path_to_paper_file(paper.citekey, 'meta'))
 
-    def add_papers(self, bibpath):
-        bib_data = files.load_externalbibfile(bibpath)
-        for k in bib_data.entries:
-            sub_bib = bib_data.entries[k]
-            p = Paper(bibentry=sub_bib, citekey=k)
-            self.add_paper(p)
-
     def get_free_citekey(self, paper, citekey=None):
         """Create a unique citekey for the given paper.
         """
