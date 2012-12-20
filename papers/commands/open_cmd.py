@@ -12,7 +12,6 @@ def parser(subparsers, config):
 
 
 def command(config, citekey):
-    print config.get('papers', 'open-cmd')
     rp = repo.Repository.from_directory()
     paper = rp.paper_from_any(citekey, fatal=True)
     try:

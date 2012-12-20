@@ -9,6 +9,7 @@ ALPHABET = 'abcdefghijklmopqrstuvwxyz'
 BASE_FILE = 'papers.yaml'
 BIB_DIR = 'bibdata'
 META_DIR = 'meta'
+DOC_DIR = 'doc'
 
 
 class Repository(object):
@@ -60,9 +61,9 @@ class Repository(object):
 
     # creating new papers
 
-    def add_paper_from_paths(self, pdfpath, bibpath):
+    def add_paper_from_paths(self, docpath, bibpath):
         p = Paper.load(bibpath)
-        p.set_pdf(pdfpath)
+        p.set_document(docpath)
         self.add_paper(p)
 
     def add_paper(self, p):
@@ -83,7 +84,7 @@ class Repository(object):
         if not paper.citekey in self.citekeys:
             self.add_paper(paper)
         else:
-            paper.save_paper(paper)
+            self.save_paper(paper)
 
     def save_paper(self, paper):
         if not paper.citekey in self.citekeys:
@@ -128,6 +129,12 @@ class Repository(object):
             return os.path.join(self.papersdir, META_DIR, citekey + '.meta')
         else:
             raise(ValueError("%s is not a valid paper file." % file_))
+
+    def get_document_directory(self, config):
+        if config.has_option('papers', 'document-directory'):
+            return config.get('papers', 'document-directory')
+        else:
+            return os.path.join(self.papersdir, DOC_DIR)
 
     @classmethod
     def from_directory(cls, papersdir=None):

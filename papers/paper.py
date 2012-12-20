@@ -105,10 +105,10 @@ class Paper(object):
         citekey = u'{}{}'.format(u''.join(first_author.last()), year)
         return str2citekey(citekey)
 
-    def set_pdf(self, pdfpath):
-        fullpdfpath = os.path.abspath(pdfpath)
+    def set_document(self, docpath):
+        fullpdfpath = os.path.abspath(docpath)
         files.check_file(fullpdfpath)
-        name, ext = files.name_from_path(pdfpath)
+        name, ext = files.name_from_path(docpath)
         self.metadata['filename'] = name
         self.metadata['extension'] = ext
         self.metadata['path'] = fullpdfpath
@@ -123,6 +123,30 @@ class Paper(object):
         bibdata = BibliographyData(entries={self.citekey: self.bibentry})
         files.save_bibdata(bibdata, bib_filepath)
         files.save_meta(self.metadata, meta_filepath)
+
+    def get_document_file_from_bibdata(self, remove=False):
+        """Try extracting document file from bib data.
+        Raises NoDocumentFile if not found.
+
+        Parameters:
+        -----------
+        remove: default: False
+            remove field after extracting information
+        """
+        try:
+            field = self.bibentry.fields['file']
+            # Check if this is mendeley specific
+            for f in field.split(':'):
+                if len(f) > 0:
+                    break
+            if remove:
+                self.bibentry.fields.pop('file')
+            # This is a hck for Mendeley. Make clean
+            if f[0] != '/':
+                f = '/' + f
+            return f
+        except (KeyError, IndexError):
+            raise(NoDocumentFile('No file found in bib data.'))
 
     @classmethod
     def load(cls, bibpath, metapath=None):
@@ -148,7 +172,15 @@ class Paper(object):
         return BASE_META.copy()
 
     @classmethod
-    def many_from_bib(cls, bibpath):
-        bib_data = files.load_externalbibfile(bibpath)
-        return [Paper(bibentry=bib_data.entries[k], citekey=k)
-                for k in bib_data.entries]
+    def many_from_path(cls, bibpath):
+        """Extract list of papers found in bibliographic files in path.
+        """
+        bibpath = files.clean_path(bibpath)
+        if os.path.isdir(bibpath):
+            all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
+                    if os.path.splitext(f)[-1] in files.BIB_EXTENSIONS]
+        else:
+            all_files = [bibpath]
+        bib_data = [files.load_externalbibfile(f) for f in all_files]
+        return [Paper(bibentry=b.entries[k], citekey=k)
+                for b in bib_data for k in b.entries]

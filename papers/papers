@@ -6,24 +6,21 @@ import os
 
 import argparse
 import collections
-import ConfigParser
 
+from papers import configs
 from papers import commands
 
 cmds = collections.OrderedDict([
         ('init', commands.init_cmd),
         ('add', commands.add_cmd),
         ('add_library', commands.add_library_cmd),
+        ('import', commands.import_cmd),
         ('list', commands.list_cmd),
         ('open', commands.open_cmd),
         ('websearch', commands.websearch_cmd)
         ])
 
-config = ConfigParser.SafeConfigParser()
-config.add_section('papers')
-config.set('papers', 'open-cmd', 'open')
-config.set('papers', 'edit-cmd', 'vim')
-config.read(os.path.expanduser('~/.papersrc'))
+config = configs.read_config()
 
 parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")

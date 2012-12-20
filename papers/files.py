@@ -29,13 +29,18 @@ try:
     EDITOR = os.environ['EDITOR']
 except KeyError:
     EDITOR = 'nano'
+BIB_EXTENSIONS = ['.bib', '.bibyaml', '.bibml', '.yaml']
+
+
+def clean_path(path):
+    return os.path.abspath(os.path.expanduser(path))
 
 
 def find_papersdir():
     """Find .papers directory in this directory and the parent directories"""
     global _papersdir
     if _papersdir is None:
-        curdir = os.path.abspath(os.getcwd())
+        curdir = os.path.abspath('')
         while curdir != '':
             if (os.path.exists(curdir + '/.papers')
                     and os.path.isdir(curdir + '/.papers')):
