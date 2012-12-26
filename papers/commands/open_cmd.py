@@ -1,13 +1,15 @@
 import subprocess
 
-from .. import color
+from ..color import colored
 from .. import repo
 from ..paper import NoDocumentFile
 
 
 def parser(subparsers, config):
-    parser = subparsers.add_parser('open', help='{}open the paper in a pdf viewer{}'.format(color.normal, color.end))
-    parser.add_argument('citekey', help='{}the paper associated citekey{}'.format(color.normal, color.end))
+    parser = subparsers.add_parser('open',
+            help=colored('open the paper in a pdf viewer', 'normal'))
+    parser.add_argument('citekey',
+            help=colored('the paper associated citekey', 'normal'))
     return parser
 
 
@@ -19,11 +21,10 @@ def command(config, citekey):
             filepath = paper.get_file_path()
             subprocess.Popen([config.get('papers', 'open-cmd'),
                 filepath])
-            print('{}{}{} opened.{}'.format(
-                color.filepath, filepath, color.normal, color.end))
+            print('{} opened.'.format(colored(filepath, 'filepath')))
         else:
             raise NoDocumentFile
     except NoDocumentFile:
-        print('{}error{}: No document associated to this entry {}{}{}'.format(
-            color.error, color.normal, color.citekey, citekey, color.end))
+        print('{}: No document associated to this entry {}{}{}'.format(
+            colored('error', 'error'), colored('citekey', 'citekey')))
         exit(-1)

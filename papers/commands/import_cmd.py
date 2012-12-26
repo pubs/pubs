@@ -4,6 +4,7 @@ import shutil
 
 from .. import repo
 from ..paper import Paper, NoDocumentFile
+from .. import files
 
 
 def parser(subparsers, config):
@@ -27,12 +28,12 @@ def command(config, bibpath, copy):
         copy = config.get('papers', 'import-copy')
     rp = repo.Repository.from_directory()
     # Get directory for document
-    doc_path = rp.get_document_directory(config)
+    doc_path = files.clean_path(rp.get_document_directory(config))
     if not (os.path.exists(doc_path) and os.path.isdir(doc_path)):
         print "Document directory %s, does not exist." % doc_path
         sys.exit(1)
     # Extract papers from bib
-    papers = Paper.many_from_path(bibpath)
+    papers = Paper.many_from_path(bibpath, fatal=False)
     for p in papers:
         doc_file = None
         try:

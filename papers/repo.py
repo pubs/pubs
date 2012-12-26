@@ -1,4 +1,4 @@
-import color
+from .color import colored
 import os
 
 import files
@@ -25,11 +25,11 @@ class Repository(object):
             citekey = self.citekeys[int(number)]
             paper = self.paper_from_citekey(citekey)
             return paper
-        except KeyError:
+        except (IndexError, ValueError):
             if fatal:
-                print('{}error{}: no paper with number {}{}{}'.format(
-                    color.error, color.normal, color.citekey, citekey,
-                    color.end))
+                print(colored('error', 'error')
+                        + ': no paper with number {}'.format(
+                    colored(number, 'citekey')))
                 exit(-1)
             raise(IOError('file not found'))
 
@@ -40,9 +40,9 @@ class Repository(object):
                 metapath=self.path_to_paper_file(citekey, 'meta'))
         else:
             if fatal:
-                print('{}error{}: no paper with citekey {}{}{}'.format(
-                       color.error, color.normal, color.citekey, citekey,
-                       color.end))
+                print(colored('error', 'error')
+                        + ': no paper with citekey {}'.format(
+                       colored(citekey, 'citekey')))
                 exit(-1)
             raise(IOError('file not found'))
 
@@ -54,8 +54,9 @@ class Repository(object):
                 return self.paper_from_number(key, fatal=False)
             except IOError:
                 if fatal:
-                    print('{}error{}: paper with citekey or number {}{}{} not found{}'.format(
-                        color.error, color.normal, color.citekey, key, color.normal, color.end))
+                    print(colored('error', 'error')
+                            + (': paper with citekey or number %s not found'
+                                % colored(key, 'citekey')))
                     exit(-1)
                 raise(IOError('file not found'))
 
@@ -141,7 +142,7 @@ class Repository(object):
         repo = cls()
         if papersdir is None:
             papersdir = files.find_papersdir()
-        repo.papersdir = papersdir
+        repo.papersdir = files.clean_path(papersdir)
         repo.load()
         return repo
 

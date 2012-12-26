@@ -4,7 +4,7 @@ import tempfile
 
 import yaml
 
-import color
+from .color import colored
 
 try:
     import pybtex
@@ -19,8 +19,9 @@ try:
     import pybtex.database.output.bibyaml
 
 except ImportError:
-    print '{}error{}: you need to install Pybtex; try running \'pip install'
-    'pybtex\' or \'easy_install pybtex\''.format(color.red, color.end)
+    print(colored('error', 'error')
+            + ': you need to install Pybtex; try running \'pip install'
+            'pybtex\' or \'easy_install pybtex\'')
 
 
 _papersdir = None
@@ -42,17 +43,20 @@ def find_papersdir():
     if _papersdir is None:
         curdir = os.path.abspath('')
         while curdir != '':
-            if (os.path.exists(curdir + '/.papers')
-                    and os.path.isdir(curdir + '/.papers')):
+            curdir_path = os.path.join(clean_path(curdir), '.papers')
+            if (os.path.exists(curdir_path) and os.path.isdir(curdir_path)):
                 _papersdir = curdir + '/.papers'
                 curdir = ''
             if curdir == '/':
+                curdir = '~'
+            elif curdir == '~':
                 curdir = ''
             else:
                 curdir = os.path.split(curdir)[0]
         if _papersdir is None:
-            print '{}error{} : no papers repo found in this directory or in'
-            'any parent directory.{}'.format(color.red, color.grey, color.end)
+            print (colored('error', 'error')
+                    + ': no papers repo found in this directory or in '
+                    'any parent directory.')
             exit(-1)
     return _papersdir
 
@@ -61,22 +65,22 @@ def name_from_path(fullpdfpath, verbose=False):
     name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
     if verbose:
         if ext != '.pdf' and ext != '.ps':
-            print('{}warning{}: extension {}{}{} not recognized{}'.format(
-                   color.yellow, color.grey, color.cyan, ext, color.grey,
-                   color.end))
+            print(colored('warning', 'yellow')
+                    + '{: extension {ext} not recognized'.format(
+                        ext=colored(ext, 'cyan')))
     return name, ext
 
 
 def check_file(filepath):
     if not os.path.exists(filepath):
-        print '{}error{}: {}{}{} does not exists{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.grey,
-               color.end)
+        print(colored('error', 'error') +
+                ': {} does not exists'.format(
+               colored(filepath, 'filepath')))
         exit(-1)
     if not os.path.isfile(filepath):
-        print '{}error{}: {}{}{} is not a file{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.grey,
-               color.end)
+        print(colored('error', 'error')
+                + ': {} is not a file'.format(
+                    colored(filepath, 'filepath')))
         exit(-1)
 
 
@@ -87,8 +91,9 @@ def write_yamlfile(filepath, datamap):
         with open(filepath, 'w') as f:
             yaml.dump(datamap, f)
     except IOError:
-        print '{}error{} : impossible to read file {}{:s}{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.end)
+        print(colored('error', 'error')
+                + ': impossible to read file {}'.format(
+                    colored(filepath, 'filepath')))
         exit(-1)
 
 
@@ -98,8 +103,9 @@ def read_yamlfile(filepath):
         with open(filepath, 'r') as f:
             return yaml.load(f)
     except IOError:
-        print '{}error{} : impossible to read file {}{:s}{}'.format(
-               color.red, color.grey, color.cyan, filepath, color.end)
+        print(colored('error', 'error')
+                + ': impossible to read file {}'.format(
+                    colored(filepath, 'filepath')))
         exit(-1)
 
 
@@ -137,8 +143,9 @@ def load_externalbibfile(fullbibpath):
         parser = pybtex.database.input.bibyaml.Parser()
         bib_data = parser.parse_file(fullbibpath)
     else:
-        print '{}error{}: {}{}{} not recognized format for bibliography{}'.format(
-               color.red, color.grey, color.cyan, ext, color.grey, color.end)
+        print(colored('error', 'error')
+                + ': {} not recognized format for bibliography'.format(
+                    colored(ext, 'cyan')))
         exit(-1)
 
     return bib_data

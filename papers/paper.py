@@ -172,7 +172,7 @@ class Paper(object):
         return BASE_META.copy()
 
     @classmethod
-    def many_from_path(cls, bibpath):
+    def many_from_path(cls, bibpath, fatal=True):
         """Extract list of papers found in bibliographic files in path.
         """
         bibpath = files.clean_path(bibpath)
@@ -182,5 +182,15 @@ class Paper(object):
         else:
             all_files = [bibpath]
         bib_data = [files.load_externalbibfile(f) for f in all_files]
-        return [Paper(bibentry=b.entries[k], citekey=k)
-                for b in bib_data for k in b.entries]
+        if fatal:
+            return [Paper(bibentry=b.entries[k], citekey=k)
+                    for b in bib_data for k in b.entries]
+        else:
+            papers = []
+            for b in bib_data:
+                for k in b.entries:
+                    try:
+                        papers.append(Paper(bibentry=b.entries[k], citekey=k))
+                    except ValueError, e:
+                        print "Warning, skipping paper (%s)." % e
+            return papers

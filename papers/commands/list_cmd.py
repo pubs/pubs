@@ -2,7 +2,7 @@ import subprocess
 import tempfile
 
 from .. import pretty
-from .. import color
+from ..color import colored
 from .. import repo
 
 
@@ -17,7 +17,11 @@ def command(config):
     for n in range(rp.size()):
         paper = rp.paper_from_number(n, fatal=True)
         bibdesc = pretty.bib_oneliner(paper.bibentry)
-        articles.append((u'{:3d} {}{}{}{}   {}'.format(int(n), color.purple, rp.citekeys[n], color.end, (10 - len(paper.citekey))*' ', bibdesc)).encode('utf-8'))
+        articles.append((u'{num:d}: [{citekey}] {descr}'.format(
+            num=int(n),
+            citekey=colored(rp.citekeys[n], 'purple'),
+            descr=bibdesc,
+            )).encode('utf-8'))
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=True) as tmpf:
         tmpf.write('\n'.join(articles))

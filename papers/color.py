@@ -1,29 +1,55 @@
 # display
 
-bold    = '\033[1m'
-end     = '\033[0m'
+BOLD = '\033[1m'
+END  = '\033[0m'
 
-black   = '\033[0;30m'
-red     = '\033[0;31m'
-green   = '\033[0;32m'
-yellow  = '\033[0;33m'
-blue    = '\033[0;34m'
-purple  = '\033[0;35m'
-cyan    = '\033[0;36m'
-grey    = '\033[0;37m'
+COLORS = {
+    'black' : '\033[0;30m',
+    'red'   : '\033[0;31m',
+    'green' : '\033[0;32m',
+    'yellow': '\033[0;33m',
+    'blue'  : '\033[0;34m',
+    'purple': '\033[0;35m',
+    'cyan'  : '\033[0;36m',
+    'grey'  : '\032[0;37m',
+    }
 
 # Bold
-bblack  = '\033[1;30m'
-bred    = '\033[1;31m'
-bgreen  = '\033[1;32m'
-byellow = '\033[1;33m'
-bblue   = '\033[1;34m'
-bpurple = '\033[1;35m'
-bcyan   = '\033[1;36m'
-bgrey   = '\033[1;37m'
+BCOLORS = {
+    'black' : '\033[1;30m',
+    'red'   : '\033[1;31m',
+    'green' : '\033[1;32m',
+    'yellow': '\033[1;33m',
+    'blue'  : '\033[1;34m',
+    'purple': '\033[1;35m',
+    'cyan'  : '\033[1;36m',
+    'grey'  : '\033[1;37m',
+    }
 
 # application specific
-error    = red
-normal   = grey
-citekey  = purple
-filepath = cyan
+ALIASES = {
+    'error'   : 'red',
+    'normal'  : 'grey',
+    'citekey' : 'purple',
+    'filepath': 'cyan',
+    }
+
+
+def colored(s, color=None, bold=False):
+    if color in ALIASES:
+        color = ALIASES[color]
+    try:
+        if bold:
+            color_code = BCOLORS[color]
+        else:
+            color_code = COLORS[color]
+    except KeyError:
+        if bold:
+            color_code = CODE
+        else:
+            color_code = ''
+    if color_code != '':
+        end_code = END
+    else:
+        end_code = ''
+    return color_code + s + end_code
