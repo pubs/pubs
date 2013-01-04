@@ -1,15 +1,16 @@
 # display formatting
 
 from color import colored
+from pybtex.bibtex.utils import bibtex_purify
 
 
 def person_repr(p):
-    return ' '.join(s for s in [
+    return bibtex_purify(' '.join(s for s in [
         ' '.join(p.first(abbr=True)),
         ' '.join(p.middle(abbr=True)),
         ' '.join(p.prelast(abbr=False)),
         ' '.join(p.last(abbr=False)),
-        ' '.join(p.lineage(abbr=True))] if s)
+        ' '.join(p.lineage(abbr=True))] if s))
 
 
 def short_authors(bibentry):
@@ -22,13 +23,13 @@ def short_authors(bibentry):
 
 def bib_oneliner(bibentry):
     authors = short_authors(bibentry)
-    title = bibentry.fields['title']
-    year = bibentry.fields.get('year', '')
+    title = bibtex_purify(bibentry.fields['title'])
+    year = bibtex_purify(bibentry.fields.get('year', ''))
     journal = ''
     field = 'journal'
     if bibentry.type == 'inproceedings':
         field = 'booktitle'
-    journal = bibentry.fields.get(field, '')
+    journal = bibtex_purify(bibentry.fields.get(field, ''))
     return u'{authors} \"{title}\" {journal} ({year})'.format(
             authors=colored(authors, 'green'),
             title=title,
