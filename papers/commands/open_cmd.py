@@ -15,7 +15,7 @@ def parser(subparsers, config):
 
 def command(config, citekey):
     rp = repo.Repository.from_directory()
-    paper = rp.paper_from_any(citekey, fatal=True)
+    paper = rp.paper_from_ref(citekey, fatal=True)
     try:
         if paper.check_file():
             filepath = paper.get_file_path()

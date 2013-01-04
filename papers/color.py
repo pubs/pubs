@@ -28,6 +28,7 @@ BCOLORS = {
 
 # application specific
 ALIASES = {
+    'ok'      : 'green',
     'error'   : 'red',
     'normal'  : 'grey',
     'citekey' : 'purple',

@@ -3,7 +3,10 @@ import ConfigParser
 
 
 DEFAULT_OPEN_CMD = 'open'
-DEFAULT_EDIT_CMD = 'vim'
+try:
+    DEFAULT_EDIT_CMD = os.environ['EDITOR']
+except KeyError:
+    DEFAULT_EDIT_CMD = 'vi'
 
 DEFAULT_IMPORT_COPY = 'yes'
 DEFAULT_IMPORT_MOVE = 'no'

@@ -2,8 +2,6 @@
 # -*- coding:utf-8 -*-
 
 
-import os
-
 import argparse
 import collections
 
@@ -16,6 +14,7 @@ cmds = collections.OrderedDict([
         ('add_library', commands.add_library_cmd),
         ('import', commands.import_cmd),
         ('list', commands.list_cmd),
+        ('edit', commands.edit_cmd),
         ('open', commands.open_cmd),
         ('websearch', commands.websearch_cmd)
         ])

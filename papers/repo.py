@@ -20,45 +20,31 @@ class Repository(object):
 
     # loading existing papers
 
-    def paper_from_number(self, number, fatal=True):
-        try:
-            citekey = self.citekeys[int(number)]
-            paper = self.paper_from_citekey(citekey)
-            return paper
-        except (IndexError, ValueError):
-            if fatal:
-                print(colored('error', 'error')
-                        + ': no paper with number {}'.format(
-                    colored(number, 'citekey')))
-                exit(-1)
-            raise(IOError('file not found'))
-
-    def paper_from_citekey(self, citekey, fatal=True):
+    def paper_from_citekey(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        if citekey in self.citekeys:
-            return Paper.load(self.path_to_paper_file(citekey, 'bib'),
-                metapath=self.path_to_paper_file(citekey, 'meta'))
-        else:
-            if fatal:
-                print(colored('error', 'error')
-                        + ': no paper with citekey {}'.format(
-                       colored(citekey, 'citekey')))
-                exit(-1)
-            raise(IOError('file not found'))
+        return Paper.load(self.path_to_paper_file(citekey, 'bib'),
+            metapath=self.path_to_paper_file(citekey, 'meta'))
 
-    def paper_from_any(self, key, fatal=True):
-        try:
-            return self.paper_from_citekey(key, fatal=False)
-        except IOError:
+    def citekey_from_ref(self, ref, fatal=True):
+        """Tries to get citekey from given ref.
+        Ref can be a citekey or a number.
+        """
+        if ref in self.citekeys:
+            return ref
+        else:
             try:
-                return self.paper_from_number(key, fatal=False)
-            except IOError:
+                return self.citekeys[int(ref)]
+            except (IndexError, ValueError):
                 if fatal:
                     print(colored('error', 'error')
-                            + (': paper with citekey or number %s not found'
-                                % colored(key, 'citekey')))
+                            + ': no paper with reference {}'.format(
+                        colored(ref, 'citekey')))
                     exit(-1)
                 raise(IOError('file not found'))
+
+    def paper_from_ref(self, ref, fatal=True):
+        key = self.citekey_from_ref(ref, fatal=fatal)
+        return self.paper_from_citekey(key)
 
     # creating new papers
 
@@ -136,6 +122,10 @@ class Repository(object):
             return config.get('papers', 'document-directory')
         else:
             return os.path.join(self.papersdir, DOC_DIR)
+
+    def all_papers(self):
+        for key in self.citekeys:
+            yield self.paper_from_citekey(key)
 
     @classmethod
     def from_directory(cls, papersdir=None):

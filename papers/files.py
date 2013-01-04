@@ -26,10 +26,6 @@ except ImportError:
 
 _papersdir = None
 
-try:
-    EDITOR = os.environ['EDITOR']
-except KeyError:
-    EDITOR = 'nano'
 BIB_EXTENSIONS = ['.bib', '.bibyaml', '.bibml', '.yaml']
 
 
@@ -151,16 +147,14 @@ def load_externalbibfile(fullbibpath):
     return bib_data
 
 
-# vim input
-
-def vim_input(initial=""):
+def editor_input(editor, initial=""):
     """Use an editor to get input"""
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(initial)
         temp_file.flush()
-        subprocess.call([EDITOR, tfile_name])
+        subprocess.call([editor, tfile_name])
 
     with open(tfile_name) as temp_file:
         content = temp_file.read()

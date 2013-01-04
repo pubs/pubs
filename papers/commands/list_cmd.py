@@ -14,9 +14,8 @@ def parser(subparsers, config):
 def command(config):
     rp = repo.Repository.from_directory()
     articles = []
-    for n in range(rp.size()):
-        paper = rp.paper_from_number(n, fatal=True)
-        bibdesc = pretty.bib_oneliner(paper.bibentry)
+    for n, p in enumerate(rp.all_papers()):
+        bibdesc = pretty.bib_oneliner(p.bibentry)
         articles.append((u'{num:d}: [{citekey}] {descr}'.format(
             num=int(n),
             citekey=colored(rp.citekeys[n], 'purple'),
