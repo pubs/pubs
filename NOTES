@@ -1,0 +1,23 @@
++ requires config file (default repo, open command, ...)
+- printing should include templating engine and several templates for bib types and output
+  * chose existing engine
+- tests...
+- import command for interactive import with auto bib
+  * basic title and author search in pdf
+  * online services (scholar, etc.)
+- add command does not require pdf -> add from bib
+
+About strings:
+--------------
+- pybtex seems to store entries as utf-8 (TODO: check)
+- so assumption is made that everything is utf-8
+- conversions are performed at print time
+
+Config values:
+--------------
+[papers]
+open-cmd = open
+edit-cmd = edit
+import-copy = True
+import-move = False
+terminal-encoding = from locale or utf8

@@ -11,7 +11,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config):
+def command(config, ui):
     rp = repo.Repository.from_directory()
     articles = []
     for n, p in enumerate(rp.all_papers()):

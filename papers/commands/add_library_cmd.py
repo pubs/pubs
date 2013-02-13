@@ -9,7 +9,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, bibfile):
+def command(config, ui, bibfile):
     """
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """

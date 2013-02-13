@@ -10,12 +10,15 @@ except KeyError:
 
 DEFAULT_IMPORT_COPY = 'yes'
 DEFAULT_IMPORT_MOVE = 'no'
+DEFAULT_COLOR = 'yes'
+
 
 CONFIG = ConfigParser.SafeConfigParser({
     'open-cmd': DEFAULT_OPEN_CMD,
     'edit-cmd': DEFAULT_EDIT_CMD,
     'import-copy': DEFAULT_IMPORT_COPY,
     'import-move': DEFAULT_IMPORT_MOVE,
+    'color': DEFAULT_COLOR,
     })
 CONFIG.add_section('papers')
 

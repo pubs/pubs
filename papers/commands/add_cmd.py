@@ -8,7 +8,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, pdffile, bibfile):
+def command(config, ui, pdffile, bibfile):
     """
     :param pdffilepath  path (no url yet) to a pdf or ps file
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.

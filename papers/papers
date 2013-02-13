@@ -5,6 +5,7 @@
 import argparse
 import collections
 
+from papers.ui import UI
 from papers import configs
 from papers import commands
 
@@ -20,6 +21,7 @@ cmds = collections.OrderedDict([
         ])
 
 config = configs.read_config()
+ui = UI(config)
 
 parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")
@@ -29,6 +31,7 @@ for cmd_mod in cmds.values():
 
 args = parser.parse_args()
 args.config = config
+args.ui = ui
 cmd = args.command
 del args.command
 

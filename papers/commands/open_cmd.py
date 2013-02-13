@@ -13,7 +13,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, citekey):
+def command(config, ui, citekey):
     rp = repo.Repository.from_directory()
     paper = rp.paper_from_ref(citekey, fatal=True)
     try:

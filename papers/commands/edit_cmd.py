@@ -14,7 +14,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, reference):
+def command(config, ui, reference):
     rp = repo.Repository.from_directory()
     key = rp.citekey_from_ref(reference, fatal=True)
     filepath = rp.path_to_paper_file(key, 'bib')

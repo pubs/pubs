@@ -19,7 +19,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, bibpath, copy):
+def command(config, ui, bibpath, copy):
     """
     :param pdffilepath  path (no url yet) to a pdf or ps file
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.

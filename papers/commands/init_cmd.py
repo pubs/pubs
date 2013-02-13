@@ -12,7 +12,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config):
+def command(config, ui):
     """Create a .papers directory"""
     papersdir = os.getcwd() + '/.papers'
     if not os.path.exists(papersdir):
