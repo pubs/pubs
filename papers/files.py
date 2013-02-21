@@ -27,6 +27,11 @@ except ImportError:
 _papersdir = None
 
 BIB_EXTENSIONS = ['.bib', '.bibyaml', '.bibml', '.yaml']
+FORMATS = {'bib': pybtex.database.input.bibtex,
+           'xml': pybtex.database.input.bibtexml,
+           'yml': pybtex.database.input.bibyaml,
+           'yaml': pybtex.database.input.bibyaml,
+           'bibyaml': pybtex.database.input.bibyaml}
 
 
 def clean_path(path):
@@ -129,35 +134,34 @@ def load_externalbibfile(fullbibpath):
     check_file(fullbibpath)
 
     filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
-    if ext == '.bib':
-        parser = pybtex.database.input.bibtex.Parser()
-        bib_data = parser.parse_file(fullbibpath)
-    elif ext == '.xml' or ext == '.bibtexml':
-        parser = pybtex.database.input.bibtexml.Parser()
-        bib_data = parser.parse_file(fullbibpath)
-    elif ext == '.yaml' or ext == '.bibyaml':
-        parser = pybtex.database.input.bibyaml.Parser()
-        bib_data = parser.parse_file(fullbibpath)
+    if ext[1:] in FORMATS.keys():
+        with open(fullbibpath) as f:
+            return parse_bibdata(f, ext[1:])
     else:
         print(colored('error', 'error')
                 + ': {} not recognized format for bibliography'.format(
                     colored(ext, 'cyan')))
         exit(-1)
 
-    return bib_data
+
+def parse_bibdata(content, format_):
+    """Parse bib data from string.
+
+    :content: stream
+    :param format_: (bib|xml|yml)
+    """
+    parser = FORMATS[format_].Parser()
+    return parser.parse_stream(content)
 
 
 def editor_input(editor, initial=""):
     """Use an editor to get input"""
-
     with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(initial)
         temp_file.flush()
         subprocess.call([editor, tfile_name])
-
     with open(tfile_name) as temp_file:
         content = temp_file.read()
         os.remove(tfile_name)
-
     return content
