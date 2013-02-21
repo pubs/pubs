@@ -14,12 +14,14 @@ def person_repr(p):
 
 
 def short_authors(bibentry):
-    authors = [person_repr(p) for p in bibentry.persons['author']]
-    if len(authors) < 3:
-        return ', '.join(authors)
-    else:
-        return authors[0] + (' et al.' if len(authors) > 1 else '')
-
+    try:
+        authors = [person_repr(p) for p in bibentry.persons['author']]
+        if len(authors) < 3:
+            return ', '.join(authors)
+        else:
+            return authors[0] + (' et al.' if len(authors) > 1 else '')
+    except KeyError:  # When no author is defined
+        return ''
 
 def bib_oneliner(bibentry):
     authors = short_authors(bibentry)

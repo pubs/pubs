@@ -1,8 +1,10 @@
-from .color import colored
 import os
+import shutil
 
 import files
-from paper import Paper
+from paper import Paper, PaperInRepo
+from color import colored
+import configs
 
 
 ALPHABET = 'abcdefghijklmopqrstuvwxyz'
@@ -14,16 +16,20 @@ DOC_DIR = 'doc'
 
 class Repository(object):
 
-    def __init__(self):
+    def __init__(self, config=None):
         self.papersdir = None
         self.citekeys = []
+        if config is None:
+            config = configs.CONFIG
+        self.config = config
 
     # loading existing papers
 
     def paper_from_citekey(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        return Paper.load(self.path_to_paper_file(citekey, 'bib'),
-            metapath=self.path_to_paper_file(citekey, 'meta'))
+        return PaperInRepo.load(
+                self, self.path_to_paper_file(citekey, 'bib'),
+                metapath=self.path_to_paper_file(citekey, 'meta'))
 
     def citekey_from_ref(self, ref, fatal=True):
         """Tries to get citekey from given ref.
@@ -48,9 +54,11 @@ class Repository(object):
 
     # creating new papers
 
+    # Deprecated
+    # TODO merge
     def add_paper_from_paths(self, docpath, bibpath):
         p = Paper.load(bibpath)
-        p.set_document(docpath)
+        p.set_external_document(docpath)
         self.add_paper(p)
 
     def add_paper(self, p):
@@ -72,6 +80,15 @@ class Repository(object):
             self.add_paper(paper)
         else:
             self.save_paper(paper)
+
+    def remove(self, citekey):
+        self.citetekeys.remove(citekey)
+        paper = self.paper_from_citekey(citekey)
+        for f in ('bib', 'meta'):
+            shutil.rmtree(self.path_to_paper_file(citekey, f))
+        # TODO change
+        if paper.metadata['in-repo']:
+            shutil.rmtree(self.path_to_paper_file(citekey, f))
 
     def save_paper(self, paper):
         if not paper.citekey in self.citekeys:
@@ -117,15 +134,27 @@ class Repository(object):
         else:
             raise(ValueError("%s is not a valid paper file." % file_))
 
-    def get_document_directory(self, config):
-        if config.has_option('papers', 'document-directory'):
-            return config.get('papers', 'document-directory')
+    def get_document_directory(self):
+        if self.config.has_option('papers', 'document-directory'):
+            return self.config.get('papers', 'document-directory')
         else:
             return os.path.join(self.papersdir, DOC_DIR)
 
     def all_papers(self):
         for key in self.citekeys:
             yield self.paper_from_citekey(key)
+
+    def import_document(self, citekey, doc_file):
+        if citekey not in self.citekeys:
+            raise(ValueError, "Unknown citekey: %s." % citekey)
+        else:
+            doc_path = self.get_document_directory()
+            if not (os.path.exists(doc_path) and os.path.isdir(doc_path)):
+                raise(ValueError,
+                      "Document directory %s, does not exist." % doc_path)
+            ext = os.path.splitext(doc_file)[1]
+            new_doc_file = os.path.join(doc_path, citekey + ext)
+            shutil.copy(doc_file, new_doc_file)
 
     @classmethod
     def from_directory(cls, papersdir=None):

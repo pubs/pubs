@@ -1,6 +1,9 @@
 import os
+
 import unicodedata
 import re
+from cStringIO import StringIO
+import glob
 
 from pybtex.database import Entry, BibliographyData
 
@@ -16,9 +19,7 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
         % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
 
 BASE_META = {
-    'filename': None,
-    'extension': None,
-    'path': None,
+    'external-document': None,
     'notes': []
     }
 
@@ -28,6 +29,31 @@ def str2citekey(s):
     key = CITEKEY_EXCLUDE_RE.sub('', key)
     # Normalize chars and remove non-ascii
     return key
+
+
+def get_bibentry_from_file(bibfile):
+    """Extract first entry (supposed to be the only one) from given file.
+    """
+    bib_data = files.load_externalbibfile(bibfile)
+    first_key = bib_data.entries.keys()[0]
+    first_entry = bib_data.entries[first_key]
+    return first_key, first_entry
+
+
+def get_bibentry_from_string(content):
+    """Extract first entry (supposed to be the only one) from given file.
+    """
+    bib_data = files.parse_bibdata(StringIO(content))
+    first_key = bib_data.entries.keys()[0]
+    first_entry = bib_data.entries[first_key]
+    return first_key, first_entry
+
+
+def get_safe_metadata(metapath):
+    if metapath is None:
+        return None
+    else:
+        return files.read_yamlfile(metapath)
 
 
 class NoDocumentFile(Exception):
@@ -69,20 +95,22 @@ class Paper(object):
 
     # TODO add mechanism to verify keys (15/12/2012)
 
-    def has_file(self):
-        """Whether there exist a document file for this entry.
-        """
-        return self.metadata['path'] is not None
-
-    def get_file_path(self):
-        if self.has_file():
-            return self.metadata['path']
+    def get_external_document_path(self):
+        if self.metadata['external-document'] is not None:
+            return self.metadata['external-document']
         else:
             raise NoDocumentFile
 
-    def check_file(self):
-        path = self.get_file_path()
-        return os.path.exists(path) and os.path.isfile(path)
+    def get_document_path(self):
+        return self.get_external_document_path()
+
+    def set_external_document(self, docpath):
+        fullpdfpath = os.path.abspath(docpath)
+        files.check_file(fullpdfpath, fail=True)
+        self.metadata['external-document'] = fullpdfpath
+
+    def check_document_path(self):
+        return files.check_file(self.get_external_document_path())
 
     def generate_citekey(self):
         """Generate a citekey from bib_data.
@@ -104,14 +132,6 @@ class Paper(object):
             year = ''
         citekey = u'{}{}'.format(u''.join(first_author.last()), year)
         return str2citekey(citekey)
-
-    def set_document(self, docpath):
-        fullpdfpath = os.path.abspath(docpath)
-        files.check_file(fullpdfpath)
-        name, ext = files.name_from_path(docpath)
-        self.metadata['filename'] = name
-        self.metadata['extension'] = ext
-        self.metadata['path'] = fullpdfpath
 
     def save_to_disc(self, bib_filepath, meta_filepath):
         """Creates a BibliographyData object containing a single entry and
@@ -150,22 +170,10 @@ class Paper(object):
 
     @classmethod
     def load(cls, bibpath, metapath=None):
-        key, entry = cls.get_bibentry(bibpath)
-        if metapath is None:
-            metadata = None
-        else:
-            metadata = files.read_yamlfile(metapath)
+        key, entry = get_bibentry_from_file(bibpath)
+        metadata = get_safe_metadata(metapath)
         p = Paper(bibentry=entry, metadata=metadata, citekey=key)
         return p
-
-    @classmethod
-    def get_bibentry(cls, bibfile):
-        """Extract first entry (supposed to be the only one) from given file.
-        """
-        bib_data = files.load_externalbibfile(bibfile)
-        first_key = bib_data.entries.keys()[0]
-        first_entry = bib_data.entries[first_key]
-        return first_key, first_entry
 
     @classmethod
     def create_meta(cls):
@@ -194,3 +202,32 @@ class Paper(object):
                     except ValueError, e:
                         print "Warning, skipping paper (%s)." % e
             return papers
+
+
+class PaperInRepo(Paper):
+
+    def __init__(self, repo, *args, **kwargs):
+        Paper.__init__(self, *args, **kwargs)
+        self.repo = repo
+
+    def get_document_path_in_repo(self):
+        doc_dir = files.clean_path(self.repo.get_document_directory())
+        found = glob.glob(doc_dir + "/%s.*" % self.citekey)
+        if found:
+            return found[0]
+        else:
+            raise NoDocumentFile
+
+    def get_document_path(self):
+        try:
+            return self.get_document_path_in_repo()
+        except NoDocumentFile:
+            return self.get_external_document_path()
+
+    @classmethod
+    def load(cls, repo, bibpath, metapath=None):
+        key, entry = get_bibentry_from_file(bibpath)
+        metadata = get_safe_metadata(metapath)
+        p = PaperInRepo(repo, bibentry=entry, metadata=metadata,
+                                 citekey=key)
+        return p

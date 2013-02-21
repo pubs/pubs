@@ -1,7 +1,3 @@
-import os
-import sys
-import shutil
-
 from .. import repo
 from ..paper import Paper, NoDocumentFile
 from .. import files
@@ -27,30 +23,23 @@ def command(config, ui, bibpath, copy):
     if copy is None:
         copy = config.get('papers', 'import-copy')
     rp = repo.Repository.from_directory()
-    # Get directory for document
-    doc_path = files.clean_path(rp.get_document_directory(config))
-    if not (os.path.exists(doc_path) and os.path.isdir(doc_path)):
-        print "Document directory %s, does not exist." % doc_path
-        sys.exit(1)
     # Extract papers from bib
     papers = Paper.many_from_path(bibpath, fatal=False)
     for p in papers:
         doc_file = None
         try:
             file_path = p.get_document_file_from_bibdata(remove=True)
-            if os.path.exists(file_path):
+            if files.check_file(file_path):
                 doc_file = file_path
             else:
-                print "File does not exist for %s." % p.citekey
+                print("File does not exist for %s (%s)."
+                      % (p.citekey, file_path))
         except NoDocumentFile:
             print "No file for %s." % p.citekey
         rp.add_paper(p)
         if doc_file:
             if copy:
-                ext = os.path.splitext(doc_file)[1]
-                new_doc_file = os.path.join(doc_path, p.citekey + ext)
-                shutil.copy(doc_file, new_doc_file)
+                rp.import_document(p.citekey, doc_file)
             else:
-                new_doc_file = doc_file
-            p.set_document(new_doc_file)
-            rp.add_or_update(p)
+                p.set_external_document(doc_file)
+                rp.add_or_update(p)

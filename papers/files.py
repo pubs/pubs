@@ -72,17 +72,15 @@ def name_from_path(fullpdfpath, verbose=False):
     return name, ext
 
 
-def check_file(filepath):
-    if not os.path.exists(filepath):
-        print(colored('error', 'error') +
-                ': {} does not exists'.format(
-               colored(filepath, 'filepath')))
-        exit(-1)
-    if not os.path.isfile(filepath):
-        print(colored('error', 'error')
-                + ': {} is not a file'.format(
-                    colored(filepath, 'filepath')))
-        exit(-1)
+def check_file(path, fail=False):
+    if fail:
+        if not os.path.exists(path):
+            raise(IOError, "File does not exist: %s." % path)
+        if not os.path.isfile(path):
+            raise(IOError, "%s is not a file." % path)
+        return True
+    else:
+        return os.path.exists(path) and os.path.isfile(path)
 
 
 # yaml I/O
@@ -99,7 +97,7 @@ def write_yamlfile(filepath, datamap):
 
 
 def read_yamlfile(filepath):
-    check_file(filepath)
+    check_file(filepath, fail=True)
     try:
         with open(filepath, 'r') as f:
             return yaml.load(f)
@@ -131,8 +129,7 @@ def load_meta(filepath):
 # specific to bibliography data
 
 def load_externalbibfile(fullbibpath):
-    check_file(fullbibpath)
-
+    check_file(fullbibpath, fail=True)
     filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
     if ext[1:] in FORMATS.keys():
         with open(fullbibpath) as f:
