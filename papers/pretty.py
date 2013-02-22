@@ -4,13 +4,15 @@ from color import colored
 from pybtex.bibtex.utils import bibtex_purify
 
 
+# A bug in pybtex makes the abbreviation wrong here
+# (Submitted with racker ID: ID: 3605659)
+# The purification should also be applied to names but unfortunately
+# it removes dots which is annoying on abbreviations.
 def person_repr(p):
-    return bibtex_purify(' '.join(s for s in [
+    return ' '.join(s for s in [
         ' '.join(p.first(abbr=True)),
-        ' '.join(p.middle(abbr=True)),
-        ' '.join(p.prelast(abbr=False)),
         ' '.join(p.last(abbr=False)),
-        ' '.join(p.lineage(abbr=True))] if s))
+        ' '.join(p.lineage(abbr=True))] if s)
 
 
 def short_authors(bibentry):
@@ -22,6 +24,7 @@ def short_authors(bibentry):
             return authors[0] + (' et al.' if len(authors) > 1 else '')
     except KeyError:  # When no author is defined
         return ''
+
 
 def bib_oneliner(bibentry):
     authors = short_authors(bibentry)
