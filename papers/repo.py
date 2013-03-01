@@ -1,8 +1,9 @@
 import os
 import shutil
+import glob
 
 import files
-from paper import Paper, PaperInRepo
+from paper import Paper, PaperInRepo, NoDocumentFile
 from color import colored
 import configs
 
@@ -23,7 +24,8 @@ class Repository(object):
             config = configs.CONFIG
         self.config = config
 
-    # loading existing papers
+    def has_paper(self, citekey):
+        return citekey in self.citekeys
 
     def paper_from_citekey(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
@@ -64,7 +66,7 @@ class Repository(object):
     def add_paper(self, p):
         if p.citekey is None:  # TODO also test if citekey is valid
             raise(ValueError("Invalid citekey: %s." % p.citekey))
-        elif p.citekey in self.citekeys:
+        elif self.has_paper(p.citekey):
             raise(ValueError("Citekey already exists in repository: %s"
                     % p.citekey))
         self.citekeys.append(p.citekey)
@@ -76,22 +78,57 @@ class Repository(object):
         print "Added: %s" % p.citekey
 
     def add_or_update(self, paper):
-        if not paper.citekey in self.citekeys:
+        if not self.has_paper(paper.citekey):
             self.add_paper(paper)
         else:
             self.save_paper(paper)
 
+    def update(self, paper, old_citekey=None, overwrite=False):
+        """Updates a paper, eventually changing its citekey.
+        The paper should be in repository. If the citekey changes,
+        the new citekey should be free excpet if the overwrite argumnent
+        is set to True.
+        """
+        if old_citekey is None:
+            old_citekey = paper.citekey
+        if old_citekey not in self.citekeys:
+            raise(ValueError, 'Paper not in repository. Add first')
+        else:
+            if paper.citekey == old_citekey:
+                self.save_paper(paper)
+            else:
+                if self.has_paper(paper.citekey):
+                    if not overwrite:
+                        raise(ValueError,
+                            "There is already a paper with citekey: %s."
+                                % paper.citekey)
+                    else:
+                        self.save_paper(paper)
+                else:
+                    self.add_paper(paper)
+                # Eventually move document file
+                paper = PaperInRepo.from_paper(paper, self)
+                try:
+                    path = self.find_document(old_citekey)
+                    self.import_document(paper.citekey, path)
+                except NoDocumentFile:
+                    pass
+                self.remove(old_citekey)
+
     def remove(self, citekey):
-        self.citetekeys.remove(citekey)
+        self.citekeys.remove(citekey)
         paper = self.paper_from_citekey(citekey)
         for f in ('bib', 'meta'):
-            shutil.rmtree(self.path_to_paper_file(citekey, f))
-        # TODO change
-        if paper.metadata['in-repo']:
-            shutil.rmtree(self.path_to_paper_file(citekey, f))
+            os.remove(self.path_to_paper_file(citekey, f))
+        # Eventually remove associated document
+        try:
+            path = paper.get_document_path_in_repo()
+            os.remove(path)
+        except NoDocumentFile:
+            pass
 
     def save_paper(self, paper):
-        if not paper.citekey in self.citekeys:
+        if not self.has_paper(paper.citekey):
             raise(ValueError('Paper not in repository, first add it.'))
         paper.save_to_disc(self.path_to_paper_file(paper.citekey, 'bib'),
                 self.path_to_paper_file(paper.citekey, 'meta'))
@@ -124,6 +161,7 @@ class Repository(object):
         self.papersdir = papersdir
         os.makedirs(os.path.join(self.papersdir, BIB_DIR))
         os.makedirs(os.path.join(self.papersdir, META_DIR))
+        os.makedirs(self.get_document_directory())
         self.save()
 
     def path_to_paper_file(self, citekey, file_):
@@ -139,6 +177,14 @@ class Repository(object):
             return self.config.get('papers', 'document-directory')
         else:
             return os.path.join(self.papersdir, DOC_DIR)
+
+    def find_document(self, citekey):
+        doc_dir = files.clean_path(self.get_document_directory())
+        found = glob.glob(doc_dir + "/%s.*" % citekey)
+        if found:
+            return found[0]
+        else:
+            raise NoDocumentFile
 
     def all_papers(self):
         for key in self.citekeys:

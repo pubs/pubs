@@ -3,9 +3,8 @@ import os
 import unicodedata
 import re
 from cStringIO import StringIO
-import glob
 
-from pybtex.database import Entry, BibliographyData
+from pybtex.database import Entry, BibliographyData, FieldDict, Person
 
 import files
 
@@ -49,6 +48,21 @@ def get_bibentry_from_string(content):
     return first_key, first_entry
 
 
+def copy_person(p):
+    return Person(first=p.get_part_as_text('first'),
+                  middle=p.get_part_as_text('middle'),
+                  prelast=p.get_part_as_text('prelast'),
+                  last=p.get_part_as_text('last'),
+                  lineage=p.get_part_as_text('lineage'))
+
+
+def copy_bibentry(entry):
+    fd = FieldDict(entry.fields.parent, entry.fields)
+    persons = dict([(k, [copy_person(p) for p in v])
+                    for k, v in entry.persons.items()])
+    return Entry(entry.type, fields=fd, persons=persons)
+
+
 def get_safe_metadata(metapath):
     if metapath is None:
         return None
@@ -81,7 +95,7 @@ class Paper(object):
         self.citekey = citekey
 
     def __eq__(self, other):
-        return (type(other) is Paper
+        return (isinstance(self, Paper) and type(other) is type(self)
             and self.bibentry == other.bibentry
             and self.metadata == other.metadata
             and self.citekey == other.citekey)
@@ -168,6 +182,11 @@ class Paper(object):
         except (KeyError, IndexError):
             raise(NoDocumentFile('No file found in bib data.'))
 
+    def copy(self):
+        return Paper(bibentry=copy_bibentry(self.bibentry),
+                     metadata=self.metadata.copy(),
+                     citekey=self.citekey)
+
     @classmethod
     def load(cls, bibpath, metapath=None):
         key, entry = get_bibentry_from_file(bibpath)
@@ -211,18 +230,21 @@ class PaperInRepo(Paper):
         self.repo = repo
 
     def get_document_path_in_repo(self):
-        doc_dir = files.clean_path(self.repo.get_document_directory())
-        found = glob.glob(doc_dir + "/%s.*" % self.citekey)
-        if found:
-            return found[0]
-        else:
-            raise NoDocumentFile
+        return self.repo.find_document(self.citekey)
 
     def get_document_path(self):
         try:
             return self.get_document_path_in_repo()
         except NoDocumentFile:
             return self.get_external_document_path()
+
+    def copy(self):
+        return PaperInRepo.from_paper(self.as_paper().copy(), self.repo)
+
+    def as_paper(self):
+        return Paper(bibentry=self.bibentry,
+                     metadata=self.metadata,
+                     citekey=self.citekey)
 
     @classmethod
     def load(cls, repo, bibpath, metapath=None):
@@ -231,3 +253,10 @@ class PaperInRepo(Paper):
         p = PaperInRepo(repo, bibentry=entry, metadata=metadata,
                                  citekey=key)
         return p
+
+    @classmethod
+    def from_paper(cls, paper, repo):
+        return PaperInRepo(repo,
+                           bibentry=paper.bibentry,
+                           metadata=paper.metadata,
+                           citekey=paper.citekey)

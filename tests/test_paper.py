@@ -22,10 +22,8 @@ entries:
         year: '1950'
 """
 META = """
-filename: null
-extension: null
+external-document: null
 notes: []
-path: null
 """
 
 
@@ -100,3 +98,22 @@ class TestSaveLoad(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
+
+
+class TestCopy(unittest.TestCase):
+
+    def setUp(self):
+        self.orig = Paper()
+        self.orig.bibentry.fields['title'] = u'Nice title.'
+        self.orig.bibentry.fields['year'] = u'2013'
+        self.orig.bibentry.persons['author'] = [Person(u'John Doe')]
+        self.orig.citekey = self.orig.generate_citekey()
+
+    def test_copy_equal(self):
+        copy = self.orig.copy()
+        self.assertEqual(copy, self.orig)
+
+    def test_copy_can_be_changed(self):
+        copy = self.orig.copy()
+        copy.bibentry.fields['year'] = 2014
+        self.assertEqual(self.orig.bibentry.fields['year'], u'2013')
