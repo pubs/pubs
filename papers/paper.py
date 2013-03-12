@@ -42,7 +42,7 @@ def get_bibentry_from_file(bibfile):
 def get_bibentry_from_string(content):
     """Extract first entry (supposed to be the only one) from given file.
     """
-    bib_data = files.parse_bibdata(StringIO(content))
+    bib_data = files.parse_bibdata(StringIO(content), 'yml')
     first_key = bib_data.entries.keys()[0]
     first_entry = bib_data.entries[first_key]
     return first_key, first_entry
@@ -70,6 +70,12 @@ def get_safe_metadata(metapath):
         return files.read_yamlfile(metapath)
 
 
+def check_citekey(citekey):
+    # TODO This is not the right way to test that (17/12/2012)
+    if unicode(citekey) != str2citekey(citekey):
+        raise(ValueError("Invalid citekey: %s" % citekey))
+
+
 class NoDocumentFile(Exception):
     pass
 
@@ -89,9 +95,7 @@ class Paper(object):
         if not metadata:
             metadata = Paper.create_meta()
         self.metadata = metadata
-        # TODO This is not the right way to test that (17/12/2012)
-        if unicode(citekey) != str2citekey(citekey):
-            raise(ValueError("Invalid citekey: %s" % citekey))
+        check_citekey(citekey)
         self.citekey = citekey
 
     def __eq__(self, other):
@@ -157,6 +161,15 @@ class Paper(object):
         bibdata = BibliographyData(entries={self.citekey: self.bibentry})
         files.save_bibdata(bibdata, bib_filepath)
         files.save_meta(self.metadata, meta_filepath)
+
+    def update(self, key=None, bib=None, meta=None):
+        if key is not None:
+            check_citekey(key)
+            self.citekey = key
+        if bib is not None:
+            self.bibentry = bib
+        if meta is not None:
+            self.metadata = meta
 
     def get_document_file_from_bibdata(self, remove=False):
         """Try extracting document file from bib data.

@@ -15,6 +15,10 @@ META_DIR = 'meta'
 DOC_DIR = 'doc'
 
 
+class CiteKeyAlreadyExists(Exception):
+    pass
+
+
 class Repository(object):
 
     def __init__(self, config=None):
@@ -86,7 +90,7 @@ class Repository(object):
     def update(self, paper, old_citekey=None, overwrite=False):
         """Updates a paper, eventually changing its citekey.
         The paper should be in repository. If the citekey changes,
-        the new citekey should be free excpet if the overwrite argumnent
+        the new citekey should be free except if the overwrite argument
         is set to True.
         """
         if old_citekey is None:
@@ -99,7 +103,7 @@ class Repository(object):
             else:
                 if self.has_paper(paper.citekey):
                     if not overwrite:
-                        raise(ValueError,
+                        raise(CiteKeyAlreadyExists,
                             "There is already a paper with citekey: %s."
                                 % paper.citekey)
                     else:
@@ -116,8 +120,9 @@ class Repository(object):
                 self.remove(old_citekey)
 
     def remove(self, citekey):
-        self.citekeys.remove(citekey)
         paper = self.paper_from_citekey(citekey)
+        self.citekeys.remove(citekey)
+        self.save()
         for f in ('bib', 'meta'):
             os.remove(self.path_to_paper_file(citekey, f))
         # Eventually remove associated document
@@ -196,7 +201,7 @@ class Repository(object):
         else:
             doc_path = self.get_document_directory()
             if not (os.path.exists(doc_path) and os.path.isdir(doc_path)):
-                raise(ValueError,
+                raise(NoDocumentFile,
                       "Document directory %s, does not exist." % doc_path)
             ext = os.path.splitext(doc_file)[1]
             new_doc_file = os.path.join(doc_path, citekey + ext)
