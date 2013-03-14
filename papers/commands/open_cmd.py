@@ -7,9 +7,9 @@ from ..paper import NoDocumentFile
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('open',
-            help=colored('open the paper in a pdf viewer', 'normal'))
+            help='open the paper in a pdf viewer')
     parser.add_argument('citekey',
-            help=colored('the paper associated citekey', 'normal'))
+            help='the paper associated citekey')
     return parser
 
 

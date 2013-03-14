@@ -179,12 +179,13 @@ class Repository(object):
 
     def get_document_directory(self):
         if self.config.has_option('papers', 'document-directory'):
-            return self.config.get('papers', 'document-directory')
+            doc_dir = self.config.get('papers', 'document-directory')
         else:
-            return os.path.join(self.papersdir, DOC_DIR)
+            doc_dir = os.path.join(self.papersdir, DOC_DIR)
+        return files.clean_path(doc_dir)
 
     def find_document(self, citekey):
-        doc_dir = files.clean_path(self.get_document_directory())
+        doc_dir = self.get_document_directory()
         found = glob.glob(doc_dir + "/%s.*" % citekey)
         if found:
             return found[0]

@@ -1,4 +1,3 @@
-from ..color import colored
 from ..files import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string
@@ -6,11 +5,9 @@ from ..paper import get_bibentry_from_string
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('edit',
-            help=colored('open the paper bibliographic file in an editor',
-                'normal'))
+            help='open the paper bibliographic file in an editor')
     parser.add_argument('reference',
-            help=colored('reference to the paper (citekey or number)',
-                'normal'))
+            help='reference to the paper (citekey or number)')
     return parser
 
 
