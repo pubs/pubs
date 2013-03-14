@@ -27,11 +27,16 @@ except ImportError:
 _papersdir = None
 
 BIB_EXTENSIONS = ['.bib', '.bibyaml', '.bibml', '.yaml']
-FORMATS = {'bib': pybtex.database.input.bibtex,
-           'xml': pybtex.database.input.bibtexml,
-           'yml': pybtex.database.input.bibyaml,
-           'yaml': pybtex.database.input.bibyaml,
-           'bibyaml': pybtex.database.input.bibyaml}
+FORMATS_INPUT = {'bib': pybtex.database.input.bibtex,
+                 'xml': pybtex.database.input.bibtexml,
+                 'yml': pybtex.database.input.bibyaml,
+                 'yaml': pybtex.database.input.bibyaml,
+                 'bibyaml': pybtex.database.input.bibyaml}
+FORMATS_OUTPUT = {'bib': pybtex.database.output.bibtex,
+                 'xml': pybtex.database.output.bibtexml,
+                 'yml': pybtex.database.output.bibyaml,
+                 'yaml': pybtex.database.output.bibyaml,
+                 'bibyaml': pybtex.database.output.bibyaml}
 
 
 def clean_path(path):
@@ -112,10 +117,14 @@ def load_bibdata(filename, filepath):
     return load_externalbibfile(filepath)
 
 
+def write_bibdata(bib_data, file_, format_):
+    writer = FORMATS_OUTPUT[format_].Writer()
+    writer.write_stream(bib_data, file_)
+
+
 def save_bibdata(bib_data, filepath):
     with open(filepath, 'w') as f:
-        parser = pybtex.database.output.bibyaml.Writer()
-        parser.write_stream(bib_data, f)
+        write_bibdata(bib_data, f, 'yaml')
 
 
 def save_meta(meta_data, filepath):
@@ -131,7 +140,7 @@ def load_meta(filepath):
 def load_externalbibfile(fullbibpath):
     check_file(fullbibpath, fail=True)
     filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
-    if ext[1:] in FORMATS.keys():
+    if ext[1:] in FORMATS_INPUT.keys():
         with open(fullbibpath) as f:
             return parse_bibdata(f, ext[1:])
     else:
@@ -147,7 +156,7 @@ def parse_bibdata(content, format_):
     :content: stream
     :param format_: (bib|xml|yml)
     """
-    parser = FORMATS[format_].Parser()
+    parser = FORMATS_INPUT[format_].Parser()
     return parser.parse_stream(content)
 
 

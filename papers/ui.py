@@ -63,3 +63,6 @@ class UI:
         d = 0 if default in (True, 'y', 'yes') else 1
         return (True, False)[self.input_choice(['yes', 'no'], ['y', 'n'],
                                                default=d, question=question)]
+
+    def error(self, message):
+        self.print_("%s: %s" % (colored('error', 'red'), message))

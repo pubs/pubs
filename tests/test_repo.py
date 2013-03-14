@@ -4,7 +4,8 @@ import shutil
 import os
 
 import fixtures
-from papers.repo import Repository, _str_incr, _to_suffix, BIB_DIR, META_DIR
+from papers.repo import (Repository, _str_incr, _to_suffix, BIB_DIR, META_DIR,
+                         CiteKeyAlreadyExists)
 from papers.paper import PaperInRepo
 
 
@@ -65,9 +66,9 @@ class TestUpdatePaper(TestRepo):
         with self.assertRaises(ValueError):
             self.repo.update(fixtures.doe2013, old_citekey='zou')
 
-    def test_raises_value_error_on_existing_destination(self):
+    def test_error_on_existing_destination(self):
         self.repo.add_paper(fixtures.doe2013)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CiteKeyAlreadyExists):
             self.repo.update(fixtures.turing1950, old_citekey='Doe2013')
 
     def test_updates_same_key(self):
