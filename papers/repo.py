@@ -166,7 +166,9 @@ class Repository(object):
         self.papersdir = papersdir
         os.makedirs(os.path.join(self.papersdir, BIB_DIR))
         os.makedirs(os.path.join(self.papersdir, META_DIR))
-        os.makedirs(self.get_document_directory())
+        doc_dir = self.get_document_directory()
+        if not os.path.exists(doc_dir):
+            os.makedirs(doc_dir)
         self.save()
 
     def path_to_paper_file(self, citekey, file_):

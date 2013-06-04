@@ -22,7 +22,6 @@ def command(config, ui):
         repo.init(papersdir)  # Creates directories
         repo.save()  # Saves empty repository description
     else:
-        print(colored('error', 'error') +
-                ' : papers already present in {}.'.format(
+        ui.error('papers already present in {}.'.format(
                colored(papersdir, 'filepath')))
         exit(-1)
