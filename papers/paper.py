@@ -3,6 +3,7 @@ import os
 import unicodedata
 import re
 from cStringIO import StringIO
+import yaml
 
 from pybtex.database import Entry, BibliographyData, FieldDict, Person
 
@@ -19,7 +20,8 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
 
 BASE_META = {
     'external-document': None,
-    'notes': []
+    'labels': [],
+    'notes': [],
     }
 
 
@@ -63,11 +65,21 @@ def copy_bibentry(entry):
     return Entry(entry.type, fields=fd, persons=persons)
 
 
-def get_safe_metadata(metapath):
-    if metapath is None:
-        return None
-    else:
-        return files.read_yamlfile(metapath)
+def get_safe_metadata(meta):
+    base_meta = Paper.create_meta()
+    if meta is not None:
+        base_meta.update(meta)
+    return base_meta
+
+
+def get_safe_metadata_from_content(content):
+    return get_safe_metadata(yaml.load(content))
+
+
+def get_safe_metadata_from_path(metapath):
+    if metapath is not None:
+        content = files.read_yamlfile(metapath)
+    return get_safe_metadata(content)
 
 
 def check_citekey(citekey):
@@ -89,10 +101,10 @@ class Paper(object):
     """
 
     def __init__(self, bibentry=None, metadata=None, citekey=None):
-        if not bibentry:
+        if bibentry is None:
             bibentry = Entry(DEFAULT_TYPE)
         self.bibentry = bibentry
-        if not metadata:
+        if metadata is None:
             metadata = Paper.create_meta()
         self.metadata = metadata
         check_citekey(citekey)
@@ -203,7 +215,7 @@ class Paper(object):
     @classmethod
     def load(cls, bibpath, metapath=None):
         key, entry = get_bibentry_from_file(bibpath)
-        metadata = get_safe_metadata(metapath)
+        metadata = get_safe_metadata_from_path(metapath)
         p = Paper(bibentry=entry, metadata=metadata, citekey=key)
         return p
 
@@ -262,7 +274,7 @@ class PaperInRepo(Paper):
     @classmethod
     def load(cls, repo, bibpath, metapath=None):
         key, entry = get_bibentry_from_file(bibpath)
-        metadata = get_safe_metadata(metapath)
+        metadata = get_safe_metadata_from_path(metapath)
         p = PaperInRepo(repo, bibentry=entry, metadata=metadata,
                                  citekey=key)
         return p

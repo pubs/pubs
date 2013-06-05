@@ -1,6 +1,6 @@
 from ..files import editor_input
 from .. import repo
-from ..paper import get_bibentry_from_string
+from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
 
 
 def parser(subparsers, config):
@@ -8,26 +8,34 @@ def parser(subparsers, config):
             help='open the paper bibliographic file in an editor')
     parser.add_argument('reference',
             help='reference to the paper (citekey or number)')
+    parser.add_argument('-m', '--meta', action='store_true', default=False,
+            help='edit metadata')
     return parser
 
 
-def command(config, ui, reference):
+def command(config, ui, reference, meta):
     rp = repo.Repository.from_directory()
     key = rp.citekey_from_ref(reference, fatal=True)
     paper = rp.paper_from_citekey(key)
-    filepath = rp.path_to_paper_file(key, 'bib')
+    to_edit = 'bib'
+    if meta:
+        to_edit = 'meta'
+    filepath = rp.path_to_paper_file(key, to_edit)
     editor = config.get('papers', 'edit-cmd')
     with open(filepath) as f:
         content = f.read()
     while True:
         # Get new content from user
         content = editor_input(editor, content)
+        new_key = key
+        bib = None
+        metadata = None
         # Parse new content
-        new_key, bib = get_bibentry_from_string(content)
-        paper.update(key=key, bib=bib)
-        # TODO merge into an update method
-        paper.citekey = new_key
-        paper.bibentry = bib
+        if meta:
+            metadata = get_safe_metadata_from_content(content)
+        else:
+            new_key, bib = get_bibentry_from_string(content)
+        paper.update(key=key, bib=bib, meta=metadata)
         try:
             rp.update(paper, old_citekey=key)
             break

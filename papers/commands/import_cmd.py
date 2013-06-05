@@ -17,8 +17,7 @@ def parser(subparsers, config):
 
 def command(config, ui, bibpath, copy):
     """
-    :param pdffilepath  path (no url yet) to a pdf or ps file
-    :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
+    :param bibpath: path (no url yet) to a bibliography file
     """
     if copy is None:
         copy = config.get('papers', 'import-copy')

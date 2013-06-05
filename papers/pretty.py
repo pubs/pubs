@@ -36,7 +36,7 @@ def bib_oneliner(bibentry):
         field = 'booktitle'
     journal = bibtex_purify(bibentry.fields.get(field, ''))
     return u'{authors} \"{title}\" {journal} ({year})'.format(
-            authors=colored(authors, 'green'),
+            authors=colored(authors, 'cyan'),
             title=title,
             journal=colored(journal, 'yellow'),
             year=year,
