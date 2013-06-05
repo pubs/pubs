@@ -35,7 +35,7 @@ def command(config, ui, reference, meta):
             metadata = get_safe_metadata_from_content(content)
         else:
             new_key, bib = get_bibentry_from_string(content)
-        paper.update(key=key, bib=bib, meta=metadata)
+        paper.update(key=new_key, bib=bib, meta=metadata)
         try:
             rp.update(paper, old_citekey=key)
             break
