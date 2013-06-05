@@ -17,6 +17,7 @@ cmds = collections.OrderedDict([
         ('export', commands.export_cmd),
         ('list', commands.list_cmd),
         ('edit', commands.edit_cmd),
+        ('remove', commands.remove_cmd),
         ('open', commands.open_cmd),
         ('websearch', commands.websearch_cmd)
         ])
