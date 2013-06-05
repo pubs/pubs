@@ -66,3 +66,6 @@ class UI:
 
     def error(self, message):
         self.print_("%s: %s" % (colored('error', 'red'), message))
+
+    def warning(self, message):
+        self.print_("%s: %s" % (colored('warning', 'yellow'), message))

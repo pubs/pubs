@@ -3,7 +3,7 @@ import shutil
 import glob
 
 import files
-from paper import Paper, PaperInRepo, NoDocumentFile
+from paper import PaperInRepo, NoDocumentFile
 from color import colored
 import configs
 
@@ -59,13 +59,6 @@ class Repository(object):
         return self.paper_from_citekey(key)
 
     # creating new papers
-
-    # Deprecated
-    # TODO merge
-    def add_paper_from_paths(self, docpath, bibpath):
-        p = Paper.load(bibpath)
-        p.set_external_document(docpath)
-        self.add_paper(p)
 
     def add_paper(self, p):
         if p.citekey is None:  # TODO also test if citekey is valid

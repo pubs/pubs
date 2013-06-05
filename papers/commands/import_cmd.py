@@ -1,6 +1,6 @@
 from .. import repo
-from ..paper import Paper, NoDocumentFile
-from .. import files
+from ..paper import Paper
+from add_cmd import add_paper_with_docfile, extract_doc_path_from_bibdata
 
 
 def parser(subparsers, config):
@@ -25,20 +25,7 @@ def command(config, ui, bibpath, copy):
     # Extract papers from bib
     papers = Paper.many_from_path(bibpath, fatal=False)
     for p in papers:
-        doc_file = None
-        try:
-            file_path = p.get_document_file_from_bibdata(remove=True)
-            if files.check_file(file_path):
-                doc_file = file_path
-            else:
-                print("File does not exist for %s (%s)."
-                      % (p.citekey, file_path))
-        except NoDocumentFile:
-            print "No file for %s." % p.citekey
-        rp.add_paper(p)
-        if doc_file:
-            if copy:
-                rp.import_document(p.citekey, doc_file)
-            else:
-                p.set_external_document(doc_file)
-                rp.add_or_update(p)
+        doc_file = extract_doc_path_from_bibdata(p, ui)
+        if doc_file is None:
+            ui.warning("No file for %s." % p.citekey)
+        add_paper_with_docfile(rp, p, docfile=doc_file, copy=copy)

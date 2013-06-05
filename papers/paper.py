@@ -77,7 +77,9 @@ def get_safe_metadata_from_content(content):
 
 
 def get_safe_metadata_from_path(metapath):
-    if metapath is not None:
+    if metapath is None:
+        content = None
+    else:
         content = files.read_yamlfile(metapath)
     return get_safe_metadata(content)
 
