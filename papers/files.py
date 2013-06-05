@@ -43,30 +43,6 @@ def clean_path(path):
     return os.path.abspath(os.path.expanduser(path))
 
 
-def find_papersdir():
-    """Find .papers directory in this directory and the parent directories"""
-    global _papersdir
-    if _papersdir is None:
-        curdir = os.path.abspath('')
-        while curdir != '':
-            curdir_path = os.path.join(clean_path(curdir), '.papers')
-            if (os.path.exists(curdir_path) and os.path.isdir(curdir_path)):
-                _papersdir = curdir + '/.papers'
-                curdir = ''
-            if curdir == '/':
-                curdir = '~'
-            elif curdir == '~':
-                curdir = ''
-            else:
-                curdir = os.path.split(curdir)[0]
-        if _papersdir is None:
-            print (colored('error', 'error')
-                    + ': no papers repo found in this directory or in '
-                    'any parent directory.')
-            exit(-1)
-    return _papersdir
-
-
 def name_from_path(fullpdfpath, verbose=False):
     name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
     if verbose:

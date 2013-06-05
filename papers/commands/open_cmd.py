@@ -14,7 +14,7 @@ def parser(subparsers, config):
 
 
 def command(config, ui, citekey):
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     paper = rp.paper_from_ref(citekey, fatal=True)
     try:
         filepath = paper.get_document_path()

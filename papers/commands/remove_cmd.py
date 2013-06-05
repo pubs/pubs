@@ -9,7 +9,7 @@ def parser(subparsers, config):
 
 
 def command(config, ui, reference):
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     key = rp.citekey_from_ref(reference, fatal=True)
     paper = rp.paper_from_citekey(key)
     are_you_sure = ("Are you sure you want to delete paper [%s]"

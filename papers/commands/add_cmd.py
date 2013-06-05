@@ -43,7 +43,7 @@ def command(config, ui, bibfile, docfile, copy):
     """
     if copy is None:
         copy = config.get('papers', 'import-copy')
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     p = Paper.load(bibfile)
     # Check if another doc file is specified in bibtex
     docfile2 = extract_doc_path_from_bibdata(p, ui)

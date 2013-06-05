@@ -8,7 +8,7 @@ def parser(subparsers, config):
 
 
 def command(config, ui):
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     articles = []
     for n, p in enumerate(rp.all_papers()):
         bibdesc = pretty.bib_oneliner(p.bibentry, color=ui.color)

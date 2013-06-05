@@ -21,7 +21,7 @@ def command(config, ui, bibpath, copy):
     """
     if copy is None:
         copy = config.get('papers', 'import-copy')
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     # Extract papers from bib
     papers = Paper.many_from_path(bibpath, fatal=False)
     for p in papers:

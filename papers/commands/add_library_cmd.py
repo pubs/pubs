@@ -13,6 +13,6 @@ def command(config, ui, bibfile):
     """
     :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
     """
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     for p in Paper.many_from_bib(bibfile):
         rp.add_paper(p)

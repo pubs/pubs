@@ -2,6 +2,7 @@ import os
 import ConfigParser
 
 
+DEFAULT_PAPERS_DIRECTORY = os.path.expanduser('~/.papers')
 DEFAULT_OPEN_CMD = 'open'
 try:
     DEFAULT_EDIT_CMD = os.environ['EDITOR']
@@ -14,6 +15,7 @@ DEFAULT_COLOR = 'yes'
 
 
 CONFIG = ConfigParser.SafeConfigParser({
+    'papers-directory': DEFAULT_PAPERS_DIRECTORY,
     'open-cmd': DEFAULT_OPEN_CMD,
     'edit-cmd': DEFAULT_EDIT_CMD,
     'import-copy': DEFAULT_IMPORT_COPY,

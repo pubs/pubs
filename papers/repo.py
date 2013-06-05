@@ -204,10 +204,10 @@ class Repository(object):
             shutil.copy(doc_file, new_doc_file)
 
     @classmethod
-    def from_directory(cls, papersdir=None):
-        repo = cls()
+    def from_directory(cls, config, papersdir=None):
+        repo = cls(config=config)
         if papersdir is None:
-            papersdir = files.find_papersdir()
+            papersdir = config.get('papers', 'papers-directory')
         repo.papersdir = files.clean_path(papersdir)
         repo.load()
         return repo

@@ -1,6 +1,5 @@
 import sys
 
-import pybtex
 from pybtex.database import BibliographyData
 
 from .. import repo
@@ -19,7 +18,7 @@ def command(config, ui, bib_format):
     """
     :param bib_format       (in 'bibtex', 'yaml')
     """
-    rp = repo.Repository.from_directory()
+    rp = repo.Repository.from_directory(config)
     bib = BibliographyData()
     for p in rp.all_papers():
         bib.add_entry(p.citekey, p.bibentry)
