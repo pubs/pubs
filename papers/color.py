@@ -46,7 +46,7 @@ def colored(s, color=None, bold=False):
             color_code = COLORS[color]
     except KeyError:
         if bold:
-            color_code = CODE
+            color_code = BOLD
         else:
             color_code = ''
     if color_code != '':
@@ -54,3 +54,7 @@ def colored(s, color=None, bold=False):
     else:
         end_code = ''
     return color_code + s + end_code
+
+
+def not_colored(s, **kwargs):
+    return s
