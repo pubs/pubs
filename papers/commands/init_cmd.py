@@ -8,21 +8,22 @@ from .. import configs
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('init',
-            help="initialize the papers directory")
+                                   help="initialize the papers directory")
     parser.add_argument('-p', '--path', default=None,
-            help='path to papers directory (if none, ~/.papers is used)')
+                        help='path to papers directory (if none, ~/.papers is used)')
     parser.add_argument('-d', '--doc-dir', default=None,
-            help=('path to document directory '
-            '(if none, documents are stored in the same directory)'))
+                        help=('path to document directory '
+                        '(if none, documents are stored in the same directory)'))
     return parser
 
 
 def command(config, ui, path, doc_dir):
     """Create a .papers directory"""
     if path is None:
-        papersdir = configs.DEFAULT_PAPER_PATH
+        papersdir = configs.get('papers', 'papers-directory')
     else:
         papersdir = os.path.join(os.getcwd(), path)
+        configs.add_and_write_option('papers', 'papers-directory', papersdir)
     if not os.path.exists(papersdir):
         ui.print_('Initializing papers in {}.'.format(
             ui.colored(papersdir, 'filepath')))
@@ -31,5 +32,5 @@ def command(config, ui, path, doc_dir):
         repo.save()  # Saves empty repository description
     else:
         ui.error('papers already present in {}.'.format(
-               ui.colored(papersdir, 'filepath')))
+                 ui.colored(papersdir, 'filepath')))
         exit(-1)

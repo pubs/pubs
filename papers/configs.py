@@ -1,7 +1,7 @@
 import os
 import ConfigParser
 
-
+CONFIG_PATH = os.path.expanduser('~/.papersrc')
 DEFAULT_PAPERS_DIRECTORY = os.path.expanduser('~/.papers')
 DEFAULT_OPEN_CMD = 'open'
 try:
@@ -20,14 +20,26 @@ CONFIG = ConfigParser.SafeConfigParser({
     'edit-cmd': DEFAULT_EDIT_CMD,
     'import-copy': DEFAULT_IMPORT_COPY,
     'import-move': DEFAULT_IMPORT_MOVE,
-    'color': DEFAULT_COLOR,
-    })
+    'color': DEFAULT_COLOR})
 CONFIG.add_section('papers')
 
 
 def read_config():
-    CONFIG.read(os.path.expanduser('~/.papersrc'))
+    CONFIG.read(CONFIG_PATH)
     return CONFIG
+
+
+def add_and_write_option(section, option, value):
+    cfg = ConfigParser.ConfigParser()
+    cfg.read(CONFIG_PATH)
+    if not cfg.has_section(section):
+        cfg.add_section(section)
+
+    cfg.set(section, option, value)
+
+    f = open(CONFIG_PATH, 'w')
+    cfg.write(f)
+    f.close()
 
 
 def get_boolean(value, default):
