@@ -16,6 +16,6 @@ def command(config, ui):
             num=int(n),
             citekey=ui.colored(rp.citekeys[n], 'purple'),
             descr=bibdesc,
-            labels=ui.colored(''.join(p.metadata['labels']), 'purple'),
+            labels=ui.colored(''.join(p.metadata.get('labels', [])), 'purple'),
             )).encode('utf-8'))
     ui.print_('\n'.join(articles))

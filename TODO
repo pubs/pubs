@@ -1,0 +1,11 @@
+TODO list
+=========
+- manage cross-references
++ labels
+- find (authors) duplicates
++ remove command
+- stats command
+- add query support to list command (cf beets)
+- FIX open on ubuntu
+- implement queries
+- edit on add

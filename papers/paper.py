@@ -277,13 +277,10 @@ class PaperInRepo(Paper):
     def load(cls, repo, bibpath, metapath=None):
         key, entry = get_bibentry_from_file(bibpath)
         metadata = get_safe_metadata_from_path(metapath)
-        p = PaperInRepo(repo, bibentry=entry, metadata=metadata,
-                                 citekey=key)
+        p = cls(repo, bibentry=entry, metadata=metadata, citekey=key)
         return p
 
     @classmethod
     def from_paper(cls, paper, repo):
-        return PaperInRepo(repo,
-                           bibentry=paper.bibentry,
-                           metadata=paper.metadata,
-                           citekey=paper.citekey)
+        return cls(repo, bibentry=paper.bibentry, metadata=paper.metadata,
+                   citekey=paper.citekey)
