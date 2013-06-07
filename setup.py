@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(name='papers',
       version='1',
@@ -9,6 +9,6 @@ setup(name='papers',
       url='',
       description='research papers manager',
       requires=['pybtex'],
-      packages = ['papers', 'papers.commands'],
+      packages=find_packages(),
       scripts=['papers/papers']
       )
