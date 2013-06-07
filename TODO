@@ -8,4 +8,5 @@ TODO list
 - add query support to list command (cf beets)
 - FIX open on ubuntu
 - implement queries
-- edit on add
+- edit bibtex on add
+- option to add tag on add
