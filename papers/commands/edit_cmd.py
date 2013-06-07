@@ -1,6 +1,7 @@
 from ..files import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
+from . import configs
 
 
 def parser(subparsers, config):
@@ -21,7 +22,7 @@ def command(config, ui, reference, meta):
     if meta:
         to_edit = 'meta'
     filepath = rp.path_to_paper_file(key, to_edit)
-    editor = config.get('papers', 'edit-cmd')
+    editor = config.get(configs.MAIN_SECTION, 'edit-cmd')
     with open(filepath) as f:
         content = f.read()
     while True:

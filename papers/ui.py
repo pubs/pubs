@@ -1,6 +1,7 @@
-from beets_ui import _encoding, input_
+from .beets_ui import _encoding, input_
 
-from color import colored
+from .color import colored
+from . import configs
 
 
 class UI:
@@ -9,7 +10,7 @@ class UI:
 
     def __init__(self, config):
         self.encoding = _encoding(config)
-        self.color = config.getboolean('papers', 'color')
+        self.color = config.getboolean(configs.MAIN_SECTION, 'color')
 
     def colored(self, s, *args, **kwargs):
         if self.color:
@@ -23,7 +24,7 @@ class UI:
         replaces it.
         """
         txt = [s.encode(self.encoding, 'replace')
-                if isinstance(s, unicode) else s
+               if isinstance(s, unicode) else s
                for s in strings]
         print(' '.join(txt))
 

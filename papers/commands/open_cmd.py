@@ -3,6 +3,7 @@ import subprocess
 from ..color import colored
 from .. import repo
 from ..paper import NoDocumentFile
+from . import configs
 
 
 def parser(subparsers, config):
@@ -18,7 +19,7 @@ def command(config, ui, citekey):
     paper = rp.paper_from_ref(citekey, fatal=True)
     try:
         filepath = paper.get_document_path()
-        subprocess.Popen([config.get('papers', 'open-cmd'), filepath])
+        subprocess.Popen([config.get(configs.MAIN_SECTION, 'open-cmd'), filepath])
         print("%s opened." % colored(filepath, 'filepath'))
     except NoDocumentFile:
         print("%s: No document associated to this entry %s."

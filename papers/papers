@@ -25,6 +25,14 @@ cmds = collections.OrderedDict([
 config = configs.read_config()
 ui = UI(config)
 
+# Extend with plugin commands
+plugs = configs.get_plugins(config)
+for plugname in plugs:
+    module_name = 'papers.plugins.' + plugname + '.' + plugname + '_cmd'
+    plug = __import__(module_name, globals(), locals(),
+                      ['parser', 'command'], -1)
+    cmds.update(collections.OrderedDict([(plugname, plug)]))
+
 parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")
 

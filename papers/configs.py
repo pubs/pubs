@@ -1,6 +1,8 @@
 import os
 import ConfigParser
 
+
+MAIN_SECTION = 'papers'
 CONFIG_PATH = os.path.expanduser('~/.papersrc')
 DEFAULT_PAPERS_DIRECTORY = os.path.expanduser('~/.papers')
 DEFAULT_OPEN_CMD = 'open'
@@ -12,7 +14,7 @@ except KeyError:
 DEFAULT_IMPORT_COPY = 'yes'
 DEFAULT_IMPORT_MOVE = 'no'
 DEFAULT_COLOR = 'yes'
-
+DEFAULT_PLUGINS = ''
 
 CONFIG = ConfigParser.SafeConfigParser({
     'papers-directory': DEFAULT_PAPERS_DIRECTORY,
@@ -20,8 +22,9 @@ CONFIG = ConfigParser.SafeConfigParser({
     'edit-cmd': DEFAULT_EDIT_CMD,
     'import-copy': DEFAULT_IMPORT_COPY,
     'import-move': DEFAULT_IMPORT_MOVE,
-    'color': DEFAULT_COLOR})
-CONFIG.add_section('papers')
+    'color': DEFAULT_COLOR,
+    'plugins': DEFAULT_PLUGINS})
+CONFIG.add_section(MAIN_SECTION)
 
 
 def read_config():
@@ -40,6 +43,10 @@ def add_and_write_option(section, option, value):
     f = open(CONFIG_PATH, 'w')
     cfg.write(f)
     f.close()
+
+
+def get_plugins(cfg):
+    return cfg.get(MAIN_SECTION, 'plugins').split()
 
 
 def get_boolean(value, default):

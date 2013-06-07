@@ -2,10 +2,10 @@ import os
 import shutil
 import glob
 
-import files
-from paper import PaperInRepo, NoDocumentFile
-from color import colored
-import configs
+from . import files
+from .paper import PaperInRepo, NoDocumentFile
+from .color import colored
+from . import configs
 
 
 ALPHABET = 'abcdefghijklmopqrstuvwxyz'
@@ -173,8 +173,8 @@ class Repository(object):
             raise(ValueError("%s is not a valid paper file." % file_))
 
     def get_document_directory(self):
-        if self.config.has_option('papers', 'document-directory'):
-            doc_dir = self.config.get('papers', 'document-directory')
+        if self.config.has_option(configs.MAIN_SECTION, 'document-directory'):
+            doc_dir = self.config.get(configs.MAIN_SECTION, 'document-directory')
         else:
             doc_dir = os.path.join(self.papersdir, DOC_DIR)
         return files.clean_path(doc_dir)
@@ -207,7 +207,7 @@ class Repository(object):
     def from_directory(cls, config, papersdir=None):
         repo = cls(config=config)
         if papersdir is None:
-            papersdir = config.get('papers', 'papers-directory')
+            papersdir = config.get(configs.MAIN_SECTION, 'papers-directory')
         repo.papersdir = files.clean_path(papersdir)
         repo.load()
         return repo

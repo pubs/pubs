@@ -1,6 +1,7 @@
 from .. import repo
 from .. import files
 from ..paper import Paper, NoDocumentFile
+from . import configs
 
 
 def add_paper_with_docfile(repo, paper, docfile=None, copy=False):
@@ -20,7 +21,7 @@ def extract_doc_path_from_bibdata(paper, ui):
             return file_path
         else:
             ui.warning("File does not exist for %s (%s)."
-                        % (paper.citekey, file_path))
+                       % (paper.citekey, file_path))
     except NoDocumentFile:
         return None
 
@@ -42,7 +43,7 @@ def command(config, ui, bibfile, docfile, copy):
     :param docfile: path (no url yet) to a pdf or ps file
     """
     if copy is None:
-        copy = config.get('papers', 'import-copy')
+        copy = config.get(configs.MAIN_SECTION, 'import-copy')
     rp = repo.Repository.from_directory(config)
     p = Paper.load(bibfile)
     # Check if another doc file is specified in bibtex

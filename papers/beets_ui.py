@@ -19,6 +19,8 @@ import locale
 import sys
 from ConfigParser import NoOptionError
 
+from . import configs
+
 
 class UserError(Exception):
     """UI exception. Commands should throw this in order to display
@@ -31,7 +33,7 @@ def _encoding(config):
     """Tries to guess the encoding used by the terminal."""
     # Configured override?
     try:
-        return config.get('papers', 'terminal-encoding')
+        return config.get(configs.MAIN_SECTION, 'terminal-encoding')
     except NoOptionError:
         # Determine from locale settings.
         try:

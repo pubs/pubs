@@ -1,6 +1,7 @@
 from .. import repo
 from ..paper import Paper
 from add_cmd import add_paper_with_docfile, extract_doc_path_from_bibdata
+from . import configs
 
 
 def parser(subparsers, config):
@@ -20,7 +21,7 @@ def command(config, ui, bibpath, copy):
     :param bibpath: path (no url yet) to a bibliography file
     """
     if copy is None:
-        copy = config.get('papers', 'import-copy')
+        copy = config.get(configs.MAIN_SECTION, 'import-copy')
     rp = repo.Repository.from_directory(config)
     # Extract papers from bib
     papers = Paper.many_from_path(bibpath, fatal=False)
