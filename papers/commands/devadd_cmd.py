@@ -34,6 +34,7 @@ def parser(subparsers, config):
     parser = subparsers.add_parser('devadd', help='devadd a paper to the repository')
     parser.add_argument('-b', '--bibfile', help='bibtex, bibtexml or bibyaml file', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
+    parser.add_argument('-l', '--label', help='label associated to the paper', default=None)
     parser.add_argument('-c', '--copy', action='store_true', default=None,
             help="copy document files into library directory (default)")
     parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
@@ -41,7 +42,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, bibfile, docfile, copy):
+def command(config, ui, bibfile, docfile, label, copy):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -52,6 +53,8 @@ def command(config, ui, bibfile, docfile, copy):
     if bibfile is None:
         bibfile = fill_bib(config)
     p = Paper.load(bibfile)
+    if label is not None:
+        p.metadata['labels'] = label.split()
     # Check if another doc file is specified in bibtex
     docfile2 = extract_doc_path_from_bibdata(p, ui)
     if docfile is None:
