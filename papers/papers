@@ -23,6 +23,7 @@ cmds = collections.OrderedDict([
         ])
 
 cmds.update(collections.OrderedDict([('devadd', commands.devadd_cmd)]))
+cmds.update(collections.OrderedDict([('devlist', commands.devlist_cmd)]))
 
 config = configs.read_config()
 ui = UI(config)
