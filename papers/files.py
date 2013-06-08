@@ -106,7 +106,7 @@ def save_bibdata(bib_data, filepath):
 def save_meta(meta_data, filepath):
     write_yamlfile(filepath, meta_data)
 
-
+# is this function ever used? 08/06/2013
 def load_meta(filepath):
     return read_yamlfile(filepath)
 

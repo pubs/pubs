@@ -12,3 +12,7 @@ setup(name='papers',
       packages=find_packages(),
       scripts=['papers/papers']
       )
+
+# TODO include package data from plugins
+# Jonathan could not make it works (08/06/2013)
+# should we use MANIFEST.in or package_data = ..., or both
