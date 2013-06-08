@@ -1,7 +1,7 @@
 from ..files import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
-from . import configs
+from .. import configs
 
 
 def parser(subparsers, config):

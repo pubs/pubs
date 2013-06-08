@@ -1,7 +1,7 @@
 from .. import repo
 from .. import files
 from ..paper import Paper, NoDocumentFile
-from . import configs
+from .. import configs
 
 
 def add_paper_with_docfile(repo, paper, docfile=None, copy=False):
