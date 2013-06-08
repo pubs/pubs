@@ -11,3 +11,4 @@ TODO list
 - option to add tag on add
 - paths in metadata must be relative
 - include package data in setup.py (see setup.py for more info)
+- in the script papers, why do we use a dictionary and not a list? it may be confusing, the key is not the subparser name. The subparser name is defined in the cmd files

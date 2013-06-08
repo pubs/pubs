@@ -22,6 +22,8 @@ cmds = collections.OrderedDict([
         ('websearch', commands.websearch_cmd)
         ])
 
+cmds.update(collections.OrderedDict([('devadd', commands.devadd_cmd)]))
+
 config = configs.read_config()
 ui = UI(config)
 
