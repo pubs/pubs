@@ -6,19 +6,16 @@ from .. import repo
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('devlist', help="list papers")
-    parser.add_argument('cmd', help='experimental option "year: 2000 or labels: bite"')
+    parser.add_argument('cmd', nargs='*', help='experimental option "year: 2000 or labels: bite"')
     return parser
-
 
 
 def command(config, ui, cmd):
     rp = repo.Repository.from_directory(config)
 
-    tests = cmd.split()
-
     articles = []
     for n, p in enumerate(rp.all_papers()):
-        if test_paper(tests, p):
+        if test_paper(cmd, p):
             bibdesc = pretty.bib_oneliner(p.bibentry, color=ui.color)
             articles.append((u'{num:d}: [{citekey}] {descr} {labels}'.format(
                 num=int(n),
@@ -33,9 +30,7 @@ def command(config, ui, cmd):
 def test_paper(tests, p):
     for test in tests:
         tmp = test.split(':')
-        if tmp[0] == 'all':
-            return True
-        elif len(tmp) != 2:
+        if len(tmp) != 2:
             raise ValueError('command not valid')
 
         field = tmp[0]
