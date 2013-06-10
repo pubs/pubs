@@ -5,6 +5,7 @@ import tempfile
 import yaml
 
 from .color import colored
+from . import configs
 
 try:
     import pybtex
@@ -106,6 +107,7 @@ def save_bibdata(bib_data, filepath):
 def save_meta(meta_data, filepath):
     write_yamlfile(filepath, meta_data)
 
+
 # is this function ever used? 08/06/2013
 def load_meta(filepath):
     return read_yamlfile(filepath)
@@ -136,9 +138,12 @@ def parse_bibdata(content, format_):
     return parser.parse_stream(content)
 
 
-def editor_input(editor, initial=""):
+def editor_input(config, initial="", suffix=None):
     """Use an editor to get input"""
-    with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as temp_file:
+    if suffix is None:
+        suffix = '.tmp'
+    editor = config.get(configs.MAIN_SECTION, 'edit-cmd')
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(initial)
         temp_file.flush()

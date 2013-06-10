@@ -9,5 +9,4 @@ import edit_cmd
 import remove_cmd
 import websearch_cmd
 
-import devadd_cmd
 import devlist_cmd

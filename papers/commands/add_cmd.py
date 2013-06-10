@@ -1,6 +1,6 @@
 from .. import repo
 from .. import files
-from ..paper import Paper, NoDocumentFile
+from ..paper import Paper, NoDocumentFile, get_bibentry_from_string
 from .. import configs
 
 
@@ -28,8 +28,11 @@ def extract_doc_path_from_bibdata(paper, ui):
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
-    parser.add_argument('bibfile', help='bibtex, bibtexml or bibyaml file')
+    parser.add_argument('-b', '--bibfile',
+                        help='bibtex, bibtexml or bibyaml file', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
+    parser.add_argument('-l', '--label', help='label associated to the paper',
+                        default=None)
     parser.add_argument('-c', '--copy', action='store_true', default=None,
             help="copy document files into library directory (default)")
     parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
@@ -37,7 +40,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, bibfile, docfile, copy):
+def command(config, ui, bibfile, docfile, label, copy):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -45,7 +48,25 @@ def command(config, ui, bibfile, docfile, copy):
     if copy is None:
         copy = config.get(configs.MAIN_SECTION, 'import-copy')
     rp = repo.Repository.from_directory(config)
-    p = Paper.load(bibfile)
+    if bibfile is None:
+        cont = True
+        bibstr = ''
+        while cont:
+            try:
+                bibstr = files.editor_input(config, bibstr, suffix='.yaml')
+                key, bib = get_bibentry_from_string(bibstr)
+                cont = False
+            except Exception:
+                cont = ui.input_yn(
+                    question='Invalid bibfile. Edit again or abort?',
+                    default='y')
+                if not cont:
+                    ui.exit()
+        p = Paper(bibentry=bib, citekey=key)
+    else:
+        p = Paper.load(bibfile)
+    if label is not None:
+        p.metadata['labels'] = label.split()
     # Check if another doc file is specified in bibtex
     docfile2 = extract_doc_path_from_bibdata(p, ui)
     if docfile is None:
@@ -54,4 +75,9 @@ def command(config, ui, bibfile, docfile, copy):
         ui.warning(
                 "Skipping document file from bib file: %s, using %s instead."
                 % (docfile2, docfile))
-    add_paper_with_docfile(rp, p, docfile=docfile, copy=copy)
+    try:
+        add_paper_with_docfile(rp, p, docfile=docfile, copy=copy)
+    except ValueError, v:
+        ui.error(v.message)
+        ui.exit(1)
+# TODO handle case where citekey exists
