@@ -20,7 +20,7 @@ def parser(subparsers, config):
 def command(config, ui, path, doc_dir):
     """Create a .papers directory"""
     if path is None:
-        papersdir = configs.get('papers', 'papers-directory')
+        papersdir = config.get('papers', 'papers-directory')
     else:
         papersdir = os.path.join(os.getcwd(), path)
         configs.add_and_write_option('papers', 'papers-directory', papersdir)
