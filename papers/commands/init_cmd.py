@@ -12,8 +12,8 @@ def parser(subparsers, config):
     parser.add_argument('-p', '--path', default=None,
                         help='path to papers directory (if none, ~/.papers is used)')
     parser.add_argument('-d', '--doc-dir', default=None,
-                        help=('path to document directory '
-                        '(if none, documents are stored in the same directory)'))
+                        help=('path to document directory (if none, documents '
+                              'are stored in the same directory)'))
     return parser
 
 
@@ -33,4 +33,4 @@ def command(config, ui, path, doc_dir):
     else:
         ui.error('papers already present in {}.'.format(
                  ui.colored(papersdir, 'filepath')))
-        exit(-1)
+        ui.exit()
