@@ -174,7 +174,8 @@ class Repository(object):
 
     def get_document_directory(self):
         if self.config.has_option(configs.MAIN_SECTION, 'document-directory'):
-            doc_dir = self.config.get(configs.MAIN_SECTION, 'document-directory')
+            doc_dir = self.config.get(configs.MAIN_SECTION,
+                                      'document-directory')
         else:
             doc_dir = os.path.join(self.papersdir, DOC_DIR)
         return files.clean_path(doc_dir)
@@ -202,6 +203,12 @@ class Repository(object):
             ext = os.path.splitext(doc_file)[1]
             new_doc_file = os.path.join(doc_path, citekey + ext)
             shutil.copy(doc_file, new_doc_file)
+
+    def get_labels(self):
+        labels = set()
+        for p in self.all_papers():
+            labels = labels.union(p.metadata.get('labels', []))
+        return labels
 
     @classmethod
     def from_directory(cls, config, papersdir=None):

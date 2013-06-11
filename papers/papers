@@ -19,7 +19,8 @@ cmds = collections.OrderedDict([
         ('edit', commands.edit_cmd),
         ('remove', commands.remove_cmd),
         ('open', commands.open_cmd),
-        ('websearch', commands.websearch_cmd)
+        ('websearch', commands.websearch_cmd),
+        ('tags', commands.tags_cmd),
         ])
 
 config = configs.read_config()
