@@ -34,10 +34,11 @@ FORMATS_INPUT = {'bib': pybtex.database.input.bibtex,
                  'yaml': pybtex.database.input.bibyaml,
                  'bibyaml': pybtex.database.input.bibyaml}
 FORMATS_OUTPUT = {'bib': pybtex.database.output.bibtex,
-                 'xml': pybtex.database.output.bibtexml,
-                 'yml': pybtex.database.output.bibyaml,
-                 'yaml': pybtex.database.output.bibyaml,
-                 'bibyaml': pybtex.database.output.bibyaml}
+                  'bibtex': pybtex.database.output.bibtex,
+                  'xml': pybtex.database.output.bibtexml,
+                  'yml': pybtex.database.output.bibyaml,
+                  'yaml': pybtex.database.output.bibyaml,
+                  'bibyaml': pybtex.database.output.bibyaml}
 
 
 def clean_path(path):
