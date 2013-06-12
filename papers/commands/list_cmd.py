@@ -3,7 +3,7 @@ from .. import repo
 
 
 def parser(subparsers, config):
-    parser = subparsers.add_parser('devlist', help="list papers")
+    parser = subparsers.add_parser('list', help="list papers")
     parser.add_argument('cmd', nargs='*', help='experimental option "year: 2000 or labels: bite"')
     return parser
 
