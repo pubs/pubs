@@ -36,9 +36,17 @@ def test_paper(tests, p):
         field = tmp[0]
         value = tmp[1]
 
-        if field == 'labels':
+        if field in ['labels', 'l', 'tags', 't']:
             if value not in p.metadata['labels']:
                 return False
+        elif field in ['authors', 'a']:  # that is the very ugly
+            if not 'author' in p.bibentry.persons:
+                return False
+            a = False
+            for p in p.bibentry.persons['author']:
+                if value in p.last()[0]:
+                    a = True
+            return a
         else:
             if field in p.bibentry.fields:
                 if value not in p.bibentry.fields[field]:
