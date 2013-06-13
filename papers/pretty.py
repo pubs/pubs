@@ -26,7 +26,7 @@ def short_authors(bibentry):
         return ''
 
 
-def bib_oneliner(bibentry, color=True):
+def bib_oneliner(bibentry):
     authors = short_authors(bibentry)
     title = bibtex_purify(bibentry.fields['title'])
     year = bibtex_purify(bibentry.fields.get('year', ''))

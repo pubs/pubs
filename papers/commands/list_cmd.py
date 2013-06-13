@@ -1,5 +1,6 @@
 from .. import pretty
 from .. import repo
+from .. import color
 
 
 def parser(subparsers, config):
