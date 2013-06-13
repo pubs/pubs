@@ -4,7 +4,7 @@ import tempfile
 
 import yaml
 
-from .color import colored
+from . import ui
 from . import configs
 
 try:
@@ -20,9 +20,9 @@ try:
     import pybtex.database.output.bibyaml
 
 except ImportError:
-    print(colored('error', 'error')
-            + ': you need to install Pybtex; try running \'pip install'
-            'pybtex\' or \'easy_install pybtex\'')
+    print(ui.dye('error', ui.error) +
+          ": you need to install Pybtex; try running 'pip install"
+          "pybtex' or 'easy_install pybtex'")
 
 
 _papersdir = None
@@ -49,9 +49,9 @@ def name_from_path(fullpdfpath, verbose=False):
     name, ext = os.path.splitext(os.path.split(fullpdfpath)[1])
     if verbose:
         if ext != '.pdf' and ext != '.ps':
-            print(colored('warning', 'yellow')
-                    + '{: extension {ext} not recognized'.format(
-                        ext=colored(ext, 'cyan')))
+            print('{}: extension {} not recognized'.format(
+                  color.dye('warning', color.warning),
+                  color.dye(ext, color.cyan)))
     return name, ext
 
 
@@ -73,9 +73,9 @@ def write_yamlfile(filepath, datamap):
         with open(filepath, 'w') as f:
             yaml.dump(datamap, f)
     except IOError:
-        print(colored('error', 'error')
-                + ': impossible to read file {}'.format(
-                    colored(filepath, 'filepath')))
+        print('{}: impossible to read or write on file {}'.format(
+              color.dye('error', color.error),
+              color.dye(filepath, color.filepath)))
         exit(-1)
 
 
@@ -85,9 +85,9 @@ def read_yamlfile(filepath):
         with open(filepath, 'r') as f:
             return yaml.load(f)
     except IOError:
-        print(colored('error', 'error')
-                + ': impossible to read file {}'.format(
-                    colored(filepath, 'filepath')))
+        print('{}: impossible to read file {}'.format(
+              color.dye('error', color.error),
+              color.dye(filepath, color.filepath)))
         exit(-1)
 
 
@@ -123,9 +123,9 @@ def load_externalbibfile(fullbibpath):
         with open(fullbibpath) as f:
             return parse_bibdata(f, ext[1:])
     else:
-        print(colored('error', 'error')
-                + ': {} not recognized format for bibliography'.format(
-                    colored(ext, 'cyan')))
+        print('{}: {} not recognized format for bibliography'.format(
+              color.dye('error', color.error)
+              color.dye(ext, color.cyan)))
         exit(-1)
 
 

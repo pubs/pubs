@@ -20,8 +20,8 @@ def command(config, ui, citekey):
         filepath = paper.get_document_path()
         subprocess.Popen([config.get(configs.MAIN_SECTION, 'open-cmd'),
                           filepath])
-        print("%s opened." % ui.colored(filepath, 'filepath'))
+        print('{} opened.'.format(color.dye(filepath, color.filepath)))
     except NoDocumentFile:
-        ui.error("No document associated with the entry %s."
-                 % ui.colored(citekey, 'citekey'))
+        ui.error('No document associated with the entry {}.'.format(
+                 color.dye(citekey, color.citekey)))
         ui.exit()

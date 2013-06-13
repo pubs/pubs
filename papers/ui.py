@@ -2,7 +2,7 @@ import sys
 
 from .beets_ui import _encoding, input_
 
-from .color import colored
+from . import color
 from . import configs
 
 
@@ -12,13 +12,7 @@ class UI:
 
     def __init__(self, config):
         self.encoding = _encoding(config)
-        self.color = config.getboolean(configs.MAIN_SECTION, 'color')
-
-    def colored(self, s, *args, **kwargs):
-        if self.color:
-            return colored(s, *args, **kwargs)
-        else:
-            return s
+        color.setup(config)
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character
@@ -47,7 +41,7 @@ class UI:
         """
         displayed_chars = [s.upper() if i == default else s
                            for i, s in enumerate(option_chars)]
-        option_str = ', '.join(["[%s]%s" % (self.colored(c, 'cyan'), o)
+        option_str = ', '.join(["[%s]%s" % (color.dye(c, color.cyan), o)
                                 for c, o in zip(displayed_chars, options)])
         self.print_(question, option_str)
         while True:
@@ -71,7 +65,7 @@ class UI:
         sys.exit(error_code)
 
     def error(self, message):
-        self.print_("%s: %s" % (colored('error', 'red'), message))
+        self.print_("%s: %s" % (color.dye('error', color.red), message))
 
     def warning(self, message):
-        self.print_("%s: %s" % (colored('warning', 'yellow'), message))
+        self.print_("%s: %s" % (color.dye('warning', color.yellow), message))

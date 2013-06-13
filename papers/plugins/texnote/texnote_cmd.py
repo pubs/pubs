@@ -15,7 +15,6 @@ import os
 import shutil
 import subprocess
 
-from ...color import colored
 from ... import repo
 from ...paper import NoDocumentFile
 from ... import configs
