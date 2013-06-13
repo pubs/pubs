@@ -13,13 +13,13 @@ def command(config, ui, cmd):
     articles = []
     for n, p in enumerate(rp.all_papers()):
         if test_paper(cmd, p):
-            bibdesc = pretty.bib_oneliner(p.bibentry, color=ui.color)
+            bibdesc = pretty.bib_oneliner(p.bibentry)
             articles.append((u'{num:d}: [{citekey}] {descr} {labels}'.format(
                 num=int(n),
-                citekey=ui.colored(rp.citekeys[n], 'purple'),
+                citekey=color.dye(rp.citekeys[n], color.purple),
                 descr=bibdesc,
-                labels=ui.colored(' '.join(p.metadata.get('labels', [])),
-                                  'purple'),
+                labels=color.dye(' '.join(p.metadata.get('labels', [])),
+                                 color.purple),
                 )).encode('utf-8'))
     ui.print_('\n'.join(articles))
 

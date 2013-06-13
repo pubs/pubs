@@ -1,60 +1,38 @@
-# display
+"""
+Small code to handle colored text
+"""
 
-BOLD = '\033[1m'
-END  = '\033[0m'
+bold = '\033[1m'
+end  = '\033[0m'
 
-COLORS = {
-    'black' : '\033[0;30m',
-    'red'   : '\033[0;31m',
-    'green' : '\033[0;32m',
-    'yellow': '\033[0;33m',
-    'blue'  : '\033[0;34m',
-    'purple': '\033[0;35m',
-    'cyan'  : '\033[0;36m',
-    'grey'  : '\032[0;37m',
-    }
+black  = '\033[0;30m'
+red    = '\033[0;31m'
+green  = '\033[0;32m'
+yellow = '\033[0;33m'
+blue   = '\033[0;34m'
+purple = '\033[0;35m'
+cyan   = '\033[0;36m'
+grey   = '\033[0;37m'
 
-# Bold
-BCOLORS = {
-    'black' : '\033[1;30m',
-    'red'   : '\033[1;31m',
-    'green' : '\033[1;32m',
-    'yellow': '\033[1;33m',
-    'blue'  : '\033[1;34m',
-    'purple': '\033[1;35m',
-    'cyan'  : '\033[1;36m',
-    'grey'  : '\033[1;37m',
-    }
+ok       = green
+error    = red
+normal   = grey
+citekey  = purple
+filepath = cyan
 
-# application specific
-ALIASES = {
-    'ok'      : 'green',
-    'error'   : 'red',
-    'normal'  : 'grey',
-    'citekey' : 'purple',
-    'filepath': 'cyan',
-    }
+def dye(s, color=end, bold=False):
+    assert color[0] == '\033'
+    if bold:
+        s = '\033[1' + s[3:]
+    return color + s + end
 
-
-def colored(s, color=None, bold=False):
-    if color in ALIASES:
-        color = ALIASES[color]
-    try:
-        if bold:
-            color_code = BCOLORS[color]
-        else:
-            color_code = COLORS[color]
-    except KeyError:
-        if bold:
-            color_code = BOLD
-        else:
-            color_code = ''
-    if color_code != '':
-        end_code = END
-    else:
-        end_code = ''
-    return color_code + s + end_code
-
-
-def not_colored(s, **kwargs):
+_dye = dye
+def _nodye(s, **kwargs):
     return s
+
+def color_setup(config):
+    global dye
+    if config.getboolean(configs.MAIN_SECTION, 'color'):
+        dye = _dye
+    else:
+        dye = _nodye

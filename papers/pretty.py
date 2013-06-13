@@ -1,6 +1,6 @@
 # display formatting
 
-from color import colored, not_colored
+from . import color
 from pybtex.bibtex.utils import bibtex_purify
 
 
@@ -27,10 +27,6 @@ def short_authors(bibentry):
 
 
 def bib_oneliner(bibentry, color=True):
-    if color:
-        col_func = colored
-    else:
-        col_func = not_colored
     authors = short_authors(bibentry)
     title = bibtex_purify(bibentry.fields['title'])
     year = bibtex_purify(bibentry.fields.get('year', ''))
@@ -40,9 +36,9 @@ def bib_oneliner(bibentry, color=True):
         field = 'booktitle'
     journal = bibtex_purify(bibentry.fields.get(field, ''))
     return u'{authors} \"{title}\" {journal} ({year})'.format(
-            authors=col_func(authors, 'cyan'),
+            authors=color.dye(authors, color.cyan),
             title=title,
-            journal=col_func(journal, 'yellow'),
+            journal=color.dye(journal, color.yellow),
             year=year,
             )
 

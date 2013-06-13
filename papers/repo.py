@@ -4,7 +4,7 @@ import glob
 
 from . import files
 from .paper import PaperInRepo, NoDocumentFile
-from .color import colored
+from . import color
 from . import configs
 
 
@@ -48,9 +48,9 @@ class Repository(object):
                 return self.citekeys[int(ref)]
             except (IndexError, ValueError):
                 if fatal:
-                    print(colored('error', 'error')
-                            + ': no paper with reference {}'.format(
-                        colored(ref, 'citekey')))
+                    print('{}: no paper with reference {}'.format(
+                          color.dye('error', color.error),
+                          color.dye(ref, color.citekey)))
                     exit(-1)
                 raise(IOError('file not found'))
 
