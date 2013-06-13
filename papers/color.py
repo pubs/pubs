@@ -1,4 +1,6 @@
-# display
+"""
+Small code to handle colored text
+"""
 
 bold = '\033[1m'
 end  = '\033[0m'
@@ -18,7 +20,19 @@ normal   = grey
 citekey  = purple
 filepath = cyan
 
-def colored(s, color=end, bold=False):
+def dye(s, color=end, bold=False):
+    assert color[0] == '\033'
     if bold:
         s = '\033[1' + s[3:]
     return color + s + end
+
+_dye = dye
+def _nodye(s, **kwargs):
+    return s
+
+def color_setup(config):
+    global dye
+    if config.getboolean(configs.MAIN_SECTION, 'color'):
+        dye = _dye
+    else:
+        dye = _nodye
