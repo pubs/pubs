@@ -1,5 +1,5 @@
 from .. import repo
-import color
+from .. import color
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('remove', help='removes a paper')

@@ -49,11 +49,11 @@ def get_plugins(cfg):
     return cfg.get(MAIN_SECTION, 'plugins').split()
 
 
-def get_boolean(value, default):
+def get_boolean(value, default = False):
     value = str(value).lower()
     if value in ('yes', 'true', 't', 'y', '1'):
         return True
     elif value in ('no', 'false', 'f', 'n', '0'):
         return False
     else:
-        return 0
+        return default

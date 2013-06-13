@@ -2,6 +2,7 @@
 Small code to handle colored text
 """
 
+
 bold = '\033[1m'
 end  = '\033[0m'
 
@@ -30,9 +31,9 @@ _dye = dye
 def _nodye(s, **kwargs):
     return s
 
-def color_setup(config):
+def setup(enable = True):
     global dye
-    if config.getboolean(configs.MAIN_SECTION, 'color'):
+    if enable:
         dye = _dye
     else:
         dye = _nodye

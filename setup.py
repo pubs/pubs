@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(name='papers',
       version='1',
-      author='Fabien Benureau, Olivier Mangin',
+      author='Fabien Benureau, Olivier Mangin, Jonathan Grizou',
       author_email='fabien.benureau+inria@gmail.com',
       url='',
       description='research papers manager',

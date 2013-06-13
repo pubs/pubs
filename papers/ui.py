@@ -12,7 +12,8 @@ class UI:
 
     def __init__(self, config):
         self.encoding = _encoding(config)
-        color.setup(config)
+        color_enable = configs.get_boolean(config.get('papers', 'color'))
+        color.setup(color_enable)
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character

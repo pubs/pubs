@@ -4,7 +4,7 @@ import os
 
 from ..repo import Repository
 from .. import configs
-
+from .. import color
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('init',
