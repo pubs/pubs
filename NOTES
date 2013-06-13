@@ -1,3 +1,8 @@
+A paper correspond to 3 files :
+    name.pdf              a pdf or ps file, the paper itself, whose location is arbitrary
+    bibdata/name.bibyaml  a bibyaml file with all bibliographic data.
+    meta/name.meta        a metadata file for internal use, notes, citekeys, status, etc.
+
 + requires config file (default repo, open command, ...)
 - printing should include templating engine and several templates for bib types and output
   * chose existing engine
