@@ -1,7 +1,7 @@
 [header]
 title = adding bibdata by hand
 id = a3f35d0d7925baa938852ab89477ef26964edf18
-status = open
+status = closed
 type = feature
 author = Fabien Benureau
 mail = fabien.benureau+git@gmail.com
@@ -9,6 +9,7 @@ date = 2012-10-05 at 14:59 UCT
 
 [eventlog]
 opened[0] = opened the 2012-10-05 at 14:59 UCT by Fabien Benureau
+closed[1] = closed the 2013-06-13 at 13:03(UCT) by Olivier Mangin
 
 [discussion]
 desc = # enter your description here
