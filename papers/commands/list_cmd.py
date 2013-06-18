@@ -20,7 +20,7 @@ def command(config, ui, cmd):
                 citekey=color.dye(rp.citekeys[n], color.purple),
                 descr=bibdesc,
                 labels=color.dye(' '.join(p.metadata.get('labels', [])),
-                                 color.purple),
+                                 color.purple, bold=True),
                 )).encode('utf-8'))
     ui.print_('\n'.join(articles))
 

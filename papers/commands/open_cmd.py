@@ -3,6 +3,7 @@ import subprocess
 from .. import repo
 from ..paper import NoDocumentFile
 from .. import configs
+from .. import color
 
 
 def parser(subparsers, config):
