@@ -4,6 +4,7 @@ from pybtex.database import BibliographyData
 
 from .. import repo
 from .. import files
+from .helpers import parse_references, add_references_argument
 
 
 def parser(subparsers, config):
@@ -11,16 +12,21 @@ def parser(subparsers, config):
             help='export bibliography')
     parser.add_argument('-f', '--bib-format', default='bibtex',
             help="export format")
+    add_references_argument(parser)
     return parser
 
 
-def command(config, ui, bib_format):
+def command(config, ui, bib_format, references):
     """
     :param bib_format       (in 'bibtex', 'yaml')
     """
     rp = repo.Repository.from_directory(config)
+    papers = [rp.paper_from_citekey(c)
+              for c in parse_references(ui, rp, references)]
+    if len(papers) == 0:
+        papers = rp.all_papers()
     bib = BibliographyData()
-    for p in rp.all_papers():
+    for p in papers:
         bib.add_entry(p.citekey, p.bibentry)
     try:
         files.write_bibdata(bib, sys.stdout, bib_format)

@@ -1,6 +1,6 @@
 from .. import repo
 from ..paper import Paper
-from add_cmd import add_paper_with_docfile, extract_doc_path_from_bibdata
+from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 from .. import configs
 
 

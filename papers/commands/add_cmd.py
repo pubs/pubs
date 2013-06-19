@@ -2,28 +2,7 @@ from .. import repo
 from .. import files
 from ..paper import Paper, NoDocumentFile, get_bibentry_from_string
 from .. import configs
-
-
-def add_paper_with_docfile(repo, paper, docfile=None, copy=False):
-    repo.add_paper(paper)
-    if docfile is not None:
-        if copy:
-            repo.import_document(paper.citekey, docfile)
-        else:
-            paper.set_external_document(docfile)
-            repo.add_or_update(paper)
-
-
-def extract_doc_path_from_bibdata(paper, ui):
-    try:
-        file_path = paper.get_document_file_from_bibdata(remove=True)
-        if files.check_file(file_path):
-            return file_path
-        else:
-            ui.warning("File does not exist for %s (%s)."
-                       % (paper.citekey, file_path))
-    except NoDocumentFile:
-        return None
+from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 
 
 def parser(subparsers, config):

@@ -4,7 +4,6 @@ import glob
 
 from . import files
 from .paper import PaperInRepo, NoDocumentFile
-from . import color
 from . import configs
 
 
@@ -16,6 +15,10 @@ DOC_DIR = 'doc'
 
 
 class CiteKeyAlreadyExists(Exception):
+    pass
+
+
+class InvalidReference(Exception):
     pass
 
 
@@ -37,7 +40,7 @@ class Repository(object):
                 self, self.path_to_paper_file(citekey, 'bib'),
                 metapath=self.path_to_paper_file(citekey, 'meta'))
 
-    def citekey_from_ref(self, ref, fatal=True):
+    def citekey_from_ref(self, ref):
         """Tries to get citekey from given ref.
         Ref can be a citekey or a number.
         """
@@ -47,15 +50,10 @@ class Repository(object):
             try:
                 return self.citekeys[int(ref)]
             except (IndexError, ValueError):
-                if fatal:
-                    print('{}: no paper with reference {}'.format(
-                          color.dye('error', color.error),
-                          color.dye(ref, color.citekey)))
-                    exit(-1)
-                raise(IOError('file not found'))
+                raise(InvalidReference)
 
-    def paper_from_ref(self, ref, fatal=True):
-        key = self.citekey_from_ref(ref, fatal=fatal)
+    def paper_from_ref(self, ref):
+        key = self.citekey_from_ref(ref)
         return self.paper_from_citekey(key)
 
     # creating new papers

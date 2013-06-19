@@ -1,21 +1,21 @@
 from ..files import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
+from .helpers import add_references_argument, parse_reference
 
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('edit',
             help='open the paper bibliographic file in an editor')
-    parser.add_argument('reference',
-            help='reference to the paper (citekey or number)')
     parser.add_argument('-m', '--meta', action='store_true', default=False,
             help='edit metadata')
+    add_references_argument(parser, single=True)
     return parser
 
 
-def command(config, ui, reference, meta):
+def command(config, ui, meta, reference):
     rp = repo.Repository.from_directory(config)
-    key = rp.citekey_from_ref(reference, fatal=True)
+    key = parse_reference(ui, rp, reference)
     paper = rp.paper_from_citekey(key)
     to_edit = 'bib'
     if meta:

@@ -4,6 +4,7 @@ from .. import repo
 from ..paper import NoDocumentFile
 from .. import configs
 from .. import color
+from .helpers import add_references_argument, parse_reference
 
 
 def parser(subparsers, config):
@@ -11,14 +12,14 @@ def parser(subparsers, config):
             help='open the paper in a pdf viewer')
     parser.add_argument('-w', '--with', dest='with_command', default=None,
             help='command to use to open the document file')
-    parser.add_argument('citekey',
-            help='the paper associated citekey')
+    add_references_argument(parser, single=True)
     return parser
 
 
-def command(config, ui, with_command, citekey):
+def command(config, ui, with_command, reference):
     rp = repo.Repository.from_directory(config)
-    paper = rp.paper_from_ref(citekey, fatal=True)
+    key = parse_reference(ui, rp, reference)
+    paper = rp.paper_from_citekey(key)
     if with_command is None:
         with_command = config.get(configs.MAIN_SECTION, 'open-cmd')
     try:
@@ -27,7 +28,7 @@ def command(config, ui, with_command, citekey):
         ui.print_('{} opened.'.format(color.dye(filepath, color.filepath)))
     except NoDocumentFile:
         ui.error('No document associated with the entry {}.'.format(
-                 color.dye(citekey, color.citekey)))
+                 color.dye(key, color.citekey)))
         ui.exit()
     except OSError:
         ui.error("Command does not exist: %s." % with_command)
