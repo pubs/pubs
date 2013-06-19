@@ -19,7 +19,7 @@ def parser(subparsers, config):
 def command(config, ui, with_command, reference):
     rp = repo.Repository.from_directory(config)
     key = parse_reference(ui, rp, reference)
-    paper = rp.paper_from_citekey(key)
+    paper = rp.get_paper(key)
     if with_command is None:
         with_command = config.get(configs.MAIN_SECTION, 'open-cmd')
     try:

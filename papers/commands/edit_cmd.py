@@ -16,7 +16,7 @@ def parser(subparsers, config):
 def command(config, ui, meta, reference):
     rp = repo.Repository.from_directory(config)
     key = parse_reference(ui, rp, reference)
-    paper = rp.paper_from_citekey(key)
+    paper = rp.get_paper(key)
     to_edit = 'bib'
     if meta:
         to_edit = 'meta'

@@ -34,7 +34,7 @@ class Repository(object):
     def has_paper(self, citekey):
         return citekey in self.citekeys
 
-    def paper_from_citekey(self, citekey):
+    def get_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
         return PaperInRepo.load(
                 self, self.path_to_paper_file(citekey, 'bib'),
@@ -51,10 +51,6 @@ class Repository(object):
                 return self.citekeys[int(ref)]
             except (IndexError, ValueError):
                 raise(InvalidReference)
-
-    def paper_from_ref(self, ref):
-        key = self.citekey_from_ref(ref)
-        return self.paper_from_citekey(key)
 
     # creating new papers
 
@@ -111,7 +107,7 @@ class Repository(object):
                 self.remove(old_citekey)
 
     def remove(self, citekey):
-        paper = self.paper_from_citekey(citekey)
+        paper = self.get_paper(citekey)
         self.citekeys.remove(citekey)
         self.save()
         for f in ('bib', 'meta'):
@@ -188,7 +184,7 @@ class Repository(object):
 
     def all_papers(self):
         for key in self.citekeys:
-            yield self.paper_from_citekey(key)
+            yield self.get_paper(key)
 
     def import_document(self, citekey, doc_file):
         if citekey not in self.citekeys:

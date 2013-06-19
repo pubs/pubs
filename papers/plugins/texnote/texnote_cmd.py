@@ -19,6 +19,7 @@ from ... import repo
 from ...paper import NoDocumentFile
 from ... import configs
 from ... import files
+from ...commands.helpers import add_references_argument, parse_reference
 
 TEXNOTE_SECTION = 'texnote'
 TEXNOTE_SAMPLE_FILE = os.path.join(os.path.dirname(__file__), 'note_sample.tex')
@@ -26,8 +27,8 @@ TEXNOTE_DIR = 'texnote'
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('texnote', help="edit advance note in latex")
-    parser.add_argument('ref', help='the paper associated citekey or number')
     parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
+    add_references_argument(parser, single=True)
     return parser
 
 
@@ -43,7 +44,7 @@ def command(config, ui, ref, view):
 
 def open_texnote(config, ui, ref):
     rp = repo.Repository.from_directory(config)
-    paper = rp.paper_from_ref(ref, fatal=True)
+    paper = rp.get_paper(parse_reference(ui, rp, ref))
 
     if not paper.metadata.has_key('texnote'):
         texnote_dir = os.path.join(rp.papersdir, TEXNOTE_DIR)

@@ -72,16 +72,16 @@ class TestUpdatePaper(TestRepo):
             self.repo.update(fixtures.turing1950, old_citekey='Doe2013')
 
     def test_updates_same_key(self):
-        new = self.repo.paper_from_citekey('Turing1950')
+        new = self.repo.get_paper('Turing1950')
         new.bibentry.fields['journal'] = u'Mind'
         self.repo.update(new)
-        self.assertEqual(new, self.repo.paper_from_citekey('Turing1950'))
+        self.assertEqual(new, self.repo.get_paper('Turing1950'))
 
     def test_updates_same_key_with_old_arg(self):
-        new = self.repo.paper_from_citekey('Turing1950')
+        new = self.repo.get_paper('Turing1950')
         new.bibentry.fields['journal'] = u'Mind'
         self.repo.update(new, old_citekey='Turing1950')
-        self.assertEqual(new, self.repo.paper_from_citekey('Turing1950'))
+        self.assertEqual(new, self.repo.get_paper('Turing1950'))
 
     def test_update_new_key_removes_old(self):
         self.repo.update(fixtures.doe2013, old_citekey='Turing1950')
@@ -90,7 +90,7 @@ class TestUpdatePaper(TestRepo):
     def test_update_new_key_updates(self):
         self.repo.update(fixtures.doe2013, old_citekey='Turing1950')
         self.assertTrue(self.repo.has_paper('Doe2013'))
-        self.assertEqual(self.repo.paper_from_citekey('Doe2013'),
+        self.assertEqual(self.repo.get_paper('Doe2013'),
                          PaperInRepo.from_paper(fixtures.doe2013, self.repo))
 
     def test_update_new_key_moves_doc(self):
