@@ -5,31 +5,39 @@ from .. import color
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('list', help="list papers")
-    parser.add_argument('cmd', nargs='*', help='experimental option "year: 2000 or labels: bite"')
+    parser.add_argument('-k', '--citekeys-only', action='store_true',
+            default=False,
+            help='Only returns citekeys of matching papers.')
+    parser.add_argument('query', nargs='*',
+            help='Paper query (e.g. "year: 2000" or "labels: math")')
     return parser
 
 
-def command(config, ui, cmd):
+def command(config, ui, citekeys, query):
     rp = repo.Repository.from_directory(config)
-    articles = []
-    for n, p in enumerate(rp.all_papers()):
-        if test_paper(cmd, p):
+    papers = [(n, p) for n, p in enumerate(rp.all_papers())
+              if test_paper(query, p)]
+    if citekeys:
+        paper_strings = [p.citekey for n, p in papers]
+    else:
+        paper_strings = []
+        for n, p in papers:
             bibdesc = pretty.bib_oneliner(p.bibentry)
-            articles.append((u'{num:d}: [{citekey}] {descr} {labels}'.format(
+            paper_strings.append((u'{num:d}: [{citekey}] {descr} {labels}'.format(
                 num=int(n),
-                citekey=color.dye(rp.citekeys[n], color.purple),
+                citekey=color.dye(p.citekey, color.purple),
                 descr=bibdesc,
                 labels=color.dye(' '.join(p.metadata.get('labels', [])),
                                  color.purple, bold=True),
                 )).encode('utf-8'))
-    ui.print_('\n'.join(articles))
+    ui.print_('\n'.join(paper_strings))
 
 
 # TODO author is not implemented, should we do it by last name only or more
 # complex
 # TODO implement search by type of document
-def test_paper(tests, p):
-    for test in tests:
+def test_paper(query_string, p):
+    for test in query_string:
         tmp = test.split(':')
         if len(tmp) != 2:
             raise ValueError('command not valid')
