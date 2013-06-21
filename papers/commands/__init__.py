@@ -9,3 +9,4 @@ import edit_cmd
 import remove_cmd
 import websearch_cmd
 import tags_cmd
+import attach_cmd

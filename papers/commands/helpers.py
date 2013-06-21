@@ -1,6 +1,7 @@
 from .. import files
 from .. import color
 from ..repo import InvalidReference
+from ..paper import NoDocumentFile
 
 
 def add_references_argument(parser, single=False):
@@ -12,14 +13,18 @@ def add_references_argument(parser, single=False):
                 help="one or several reference to export (citekeysor numbers)")
 
 
+def add_docfile_to_paper(repo, paper, docfile, copy=False):
+    if copy:
+        repo.import_document(paper.citekey, docfile)
+    else:
+        paper.set_external_document(docfile)
+        repo.add_or_update(paper)
+
+
 def add_paper_with_docfile(repo, paper, docfile=None, copy=False):
     repo.add_paper(paper)
     if docfile is not None:
-        if copy:
-            repo.import_document(paper.citekey, docfile)
-        else:
-            paper.set_external_document(docfile)
-            repo.add_or_update(paper)
+        add_docfile_to_paper(repo, paper, docfile, copy=copy)
 
 
 def extract_doc_path_from_bibdata(paper, ui):
