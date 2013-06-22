@@ -6,7 +6,7 @@ from .. import color
 def parser(subparsers, config):
     parser = subparsers.add_parser('list', help="list papers")
     parser.add_argument('-k', '--citekeys-only', action='store_true',
-            default=False,
+            default=False, dest='citekeys',
             help='Only returns citekeys of matching papers.')
     parser.add_argument('query', nargs='*',
             help='Paper query (e.g. "year: 2000" or "labels: math")')
