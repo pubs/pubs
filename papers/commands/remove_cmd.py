@@ -1,5 +1,6 @@
 from .. import repo
 from .. import color
+from .. import configs
 from .helpers import add_references_argument, parse_references
 
 
@@ -18,4 +19,12 @@ def command(config, ui, references):
     sure = ui.input_yn(question=are_you_sure, default='n')
     if sure:
         for c in citekeys:
+            # Extend with plugin commands, think about how to create a smart registering system for plugins
+            plugs = configs.get_plugins(config)
+            for plugname in plugs:
+                module_name = 'papers.plugins.' + plugname + '.' + plugname + '_cmd'
+                plug = __import__(module_name, globals(), locals(), ['callback'], -1)
+                plug.callback(config, ui, 'remove', c)
+
             rp.remove(c)
+

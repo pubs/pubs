@@ -27,19 +27,28 @@ TEXNOTE_DIR = 'texnote'
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('texnote', help="edit advance note in latex")
-    parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
     add_references_argument(parser, single=True)
+    parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
     return parser
 
 
-def command(config, ui, ref, view):
-    ui.print_('texnote test')
+def command(config, ui, reference, view):
     if view is not None:
-        subprocess.Popen(['papers', 'open', ref])
-
+        subprocess.Popen(['papers', 'open', reference])
     # check if citekey exist
-    open_texnote(config, ui, ref)
+    open_texnote(config, ui, reference)
 
+
+def callback(config, ui, name, ref):
+    if name == 'remove':
+        rp = repo.Repository.from_directory(config)
+        paper = rp.get_paper(parse_reference(ui, rp, ref))
+
+        if paper.metadata.has_key('texnote'):
+            os.remove(paper.metadata['texnote'])
+            paper.metadata.pop('texnote')
+            metapath = rp.path_to_paper_file(paper.citekey, 'meta')
+            files.save_meta(paper.metadata, metapath)
 
 
 def open_texnote(config, ui, ref):
@@ -48,7 +57,7 @@ def open_texnote(config, ui, ref):
 
     if not paper.metadata.has_key('texnote'):
         texnote_dir = os.path.join(rp.papersdir, TEXNOTE_DIR)
-        # if folder does not exist create it
+        # if folder does not exist create it, this should be relative
         if not os.path.exists(texnote_dir):
             os.mkdir(texnote_dir)
         texnote_path = os.path.join(texnote_dir, paper.citekey + '.tex')
