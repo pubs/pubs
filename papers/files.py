@@ -6,6 +6,7 @@ import yaml
 
 from . import ui
 from . import configs
+from . import color
 
 try:
     import pybtex

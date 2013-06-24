@@ -48,7 +48,7 @@ def test_paper(query_string, p):
         if field in ['labels', 'l', 'tags', 't']:
             if value not in p.metadata['labels']:
                 return False
-        elif field in ['authors', 'a']:  # that is the very ugly
+        elif field in ['author', 'authors', 'a']:  # that is the very ugly
             if not 'author' in p.bibentry.persons:
                 return False
             a = False
@@ -56,10 +56,9 @@ def test_paper(query_string, p):
                 if value in p.last()[0]:
                     a = True
             return a
-        else:
-            if field in p.bibentry.fields:
+        elif field in p.bibentry.fields:
                 if value not in p.bibentry.fields[field]:
                     return False
-            else:
-                return False
+        else:
+            return False
     return True
