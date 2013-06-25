@@ -8,6 +8,7 @@ import collections
 from papers.ui import UI
 from papers import configs
 from papers import commands
+from papers import plugins
 
 cmds = collections.OrderedDict([
         ('init', commands.init_cmd),
@@ -30,10 +31,16 @@ ui = UI(config)
 # Extend with plugin commands
 plugs = configs.get_plugins(config)
 for plugname in plugs:
-    module_name = 'papers.plugins.' + plugname + '.' + plugname + '_cmd'
+    module_name = 'papers.plugs.' + plugname + '.' + plugname + '_cmd'
     plug = __import__(module_name, globals(), locals(),
                       ['parser', 'command'], -1)
     cmds.update(collections.OrderedDict([(plugname, plug)]))
+
+plugins.load_plugins(config, ui, plugs)
+for p in plugins.get_plugins().values():
+    cmds.update(collections.OrderedDict([(p.name, p)]))
+
+#####
 
 parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")

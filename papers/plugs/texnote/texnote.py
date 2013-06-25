@@ -1,42 +1,33 @@
-#import ConfigParser
-
-#from ... import configs
-#cfg = configs.read_config()
-
-#TEXNOTE_SECTION = 'texnote'
-#DEFAULT_EDIT_CMD = cfg.get(configs.MAIN_SECTION, 'edit-cmd')
-
-#TODO file should not be created before the end of the process to ensure everything went ok
-#TODO add subparser to have more feature
-#TODO add clean command to wipe out any compilation file
-#TODO add function to merge several texnote in one based on a research result
-
 import os
 import shutil
 import subprocess
 
 from ... import repo
-from ...paper import NoDocumentFile
 from ... import configs
 from ... import files
+from ...plugins import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
 TEXNOTE_SECTION = 'texnote'
 TEXNOTE_SAMPLE_FILE = os.path.join(os.path.dirname(__file__), 'note_sample.tex')
 TEXNOTE_DIR = 'texnote'
 
-def parser(subparsers, config):
-    parser = subparsers.add_parser('texnote', help="edit advance note in latex")
-    add_references_argument(parser, single=True)
-    parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
-    return parser
+
+class TexnotePlugin(PapersPlugin):
+
+    def parser(self, subparsers, config):
+        parser = subparsers.add_parser(self.name, help="edit advance note in latex")
+        add_references_argument(parser, single=True)
+        parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
+        return parser
+
+    def command(self, config, ui, reference, view):
+        if view is not None:
+            subprocess.Popen(['papers', 'open', reference])
+        open_texnote(config, ui, reference)
 
 
-def command(config, ui, reference, view):
-    if view is not None:
-        subprocess.Popen(['papers', 'open', reference])
-    # check if citekey exist
-    open_texnote(config, ui, reference)
+#  temporary
 
 
 def callback(config, ui, name, ref):
@@ -44,7 +35,7 @@ def callback(config, ui, name, ref):
         rp = repo.Repository.from_directory(config)
         paper = rp.get_paper(parse_reference(ui, rp, ref))
 
-        if paper.metadata.has_key('texnote'):
+        if 'texnote' in paper.metadata:
             os.remove(paper.metadata['texnote'])
             paper.metadata.pop('texnote')
             metapath = rp.path_to_paper_file(paper.citekey, 'meta')
@@ -55,13 +46,14 @@ def open_texnote(config, ui, ref):
     rp = repo.Repository.from_directory(config)
     paper = rp.get_paper(parse_reference(ui, rp, ref))
 
-    if not paper.metadata.has_key('texnote'):
+    #ugly to recode like for the doc field
+    if not 'texnote' in paper.metadata:
         texnote_dir = os.path.join(rp.papersdir, TEXNOTE_DIR)
         # if folder does not exist create it, this should be relative
         if not os.path.exists(texnote_dir):
             os.mkdir(texnote_dir)
         texnote_path = os.path.join(texnote_dir, paper.citekey + '.tex')
-        paper.metadata['texnote'] =  files.clean_path(texnote_path)
+        paper.metadata['texnote'] = files.clean_path(texnote_path)
         # save path in metadata
         metapath = rp.path_to_paper_file(paper.citekey, 'meta')
         files.save_meta(paper.metadata, metapath)
@@ -82,7 +74,6 @@ def open_texnote(config, ui, ref):
         subprocess.Popen([config.get(configs.MAIN_SECTION, 'edit-cmd'), texnote_path])
 
 
-
 ##### ugly replace by proper #####
 def format_author(author):
     first = author.first()
@@ -97,13 +88,14 @@ def format_author(author):
         formatted += ' ' + last[0]
     return formatted
 
+
 def concatenate_authors(authors):
     concatenated = ''
     for a in range(len(authors)):
         if len(authors) > 1 and a > 0:
             if a == len(authors) - 1:
                 concatenated += 'and '
-            else :
+            else:
                 concatenated += ', '
         concatenated += authors[a]
     return concatenated
@@ -120,23 +112,23 @@ def autofill_texnote(texnote_path, bibentry):
     fields = bibentry.fields
     persons = bibentry.persons
 
-    if fields.has_key('title'):
+    if 'title' in fields:
         title_str = fields['title']
         text = text.replace("TITLE", title_str)
 
-    if fields.has_key('year'):
+    if 'year' in fields:
         year_str = fields['year']
         text = text.replace("YEAR", year_str)
 
-    if fields.has_key('abstract'):
+    if 'abstract' in fields:
         abstract_str = fields['abstract']
         text = text.replace("ABSTRACT", abstract_str)
 
-    if persons.has_key('author'):
+    if 'author' in persons:
         authors = []
         for author in persons['author']:
             authors.append(format_author(author))
-        author_str =  concatenate_authors(authors)
+        author_str = concatenate_authors(authors)
         text = text.replace("AUTHOR", author_str)
 
     # write file
