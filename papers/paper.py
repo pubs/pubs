@@ -20,7 +20,7 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
 
 BASE_META = {
     'external-document': None,
-    'labels': [],
+    'tags': [],
     'notes': [],
     }
 
@@ -250,7 +250,30 @@ class Paper(object):
             return papers
 
 
-class PaperInRepo(Paper):
+    # tags
+
+    @property
+    def tags(self):
+        return self.metadata.setdefault('tags', set())
+
+    @tags.setter
+    def tags(self, value):
+        if not hasattr(value, '__iter__'):
+            raise ValueError, 'tags must be iterables'
+        self.metadata['tags'] = set(value)
+
+    def add_tag(self, tag):
+        self.tags.add(tag)
+
+    def remove_tag(self, tag):
+        """Remove a tag from a paper. Fails silently."""
+        try:
+            self.tags.pop(tag)
+        except KeyError:
+            pass
+
+
+class PaperInRepo(Paper): # TODO document why this class exists (fabien, 2013/06)
 
     def __init__(self, repo, *args, **kwargs):
         Paper.__init__(self, *args, **kwargs)

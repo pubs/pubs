@@ -9,5 +9,5 @@ def parser(subparsers, config):
 def command(config, ui):
     """List existing tags"""
     rp = Repository.from_directory(config)
-    for tag in rp.get_labels():
+    for tag in rp.get_tags():
         ui.print_(tag)

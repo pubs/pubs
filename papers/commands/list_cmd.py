@@ -9,7 +9,7 @@ def parser(subparsers, config):
             default=False, dest='citekeys',
             help='Only returns citekeys of matching papers.')
     parser.add_argument('query', nargs='*',
-            help='Paper query (e.g. "year: 2000" or "labels: math")')
+            help='Paper query (e.g. "year: 2000" or "tags: math")')
     return parser
 
 
@@ -23,12 +23,12 @@ def command(config, ui, citekeys, query):
         paper_strings = []
         for n, p in papers:
             bibdesc = pretty.bib_oneliner(p.bibentry)
-            paper_strings.append((u'{num:d}: [{citekey}] {descr} {labels}'.format(
+            paper_strings.append((u'{num:d}: [{citekey}] {descr} {tags}'.format(
                 num=int(n),
                 citekey=color.dye(p.citekey, color.purple),
                 descr=bibdesc,
-                labels=color.dye(' '.join(p.metadata.get('labels', [])),
-                                 color.purple, bold=True),
+                tags=color.dye(' '.join(p.tags),
+                               color.purple, bold=True),
                 )).encode('utf-8'))
     ui.print_('\n'.join(paper_strings))
 
@@ -45,8 +45,8 @@ def test_paper(query_string, p):
         field = tmp[0]
         value = tmp[1]
 
-        if field in ['labels', 'l', 'tags', 't']:
-            if value not in p.metadata['labels']:
+        if field in ['tags', 't']:
+            if value not in p.tags:
                 return False
         elif field in ['author', 'authors', 'a']:  # that is the very ugly
             if not 'author' in p.bibentry.persons:

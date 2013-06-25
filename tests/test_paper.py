@@ -24,7 +24,7 @@ entries:
 META = """
 external-document: null
 notes: []
-labels: []
+tags: []
 """
 
 

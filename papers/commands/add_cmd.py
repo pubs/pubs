@@ -45,7 +45,7 @@ def command(config, ui, bibfile, docfile, label, copy):
     else:
         p = Paper.load(bibfile)
     if label is not None:
-        p.metadata['labels'] = label.split()
+        p.tags = set(label.split())
     # Check if another doc file is specified in bibtex
     docfile2 = extract_doc_path_from_bibdata(p, ui)
     if docfile is None:
