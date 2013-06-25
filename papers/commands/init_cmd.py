@@ -24,13 +24,14 @@ def command(config, ui, path, doc_dir):
     else:
         papersdir = os.path.join(os.getcwd(), path)
         configs.add_and_write_option('papers', 'papers-directory', papersdir)
-    if not os.path.exists(papersdir):
-        ui.print_('Initializing papers in {}.'.format(
-                  color.dye(papersdir, color.filepath)))
-        repo = Repository()
-        repo.init(papersdir)  # Creates directories
-        repo.save()  # Saves empty repository description
-    else:
-        ui.error('papers already present in {}.'.format(
-                 color.dye(papersdir, color.filepath)))
-        ui.exit()
+    if os.path.exists(papersdir):
+        if len(os.listdir(papersdir)) > 0:
+            ui.error('directory {} is not empty.'.format(
+                                 color.dye(papersdir, color.filepath)))
+            ui.exit()
+
+    ui.print_('Initializing papers in {}.'.format(
+              color.dye(papersdir, color.filepath)))
+    repo = Repository()
+    repo.init(papersdir)  # Creates directories
+    repo.save()  # Saves empty repository description
