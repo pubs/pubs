@@ -22,6 +22,7 @@ cmds = collections.OrderedDict([
         ('websearch', commands.websearch_cmd),
         ('tags', commands.tags_cmd),
         ('attach', commands.attach_cmd),
+        ('update', commands.update_cmd),
         ])
 
 config = configs.read_config()

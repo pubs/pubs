@@ -10,3 +10,4 @@ import remove_cmd
 import websearch_cmd
 import tags_cmd
 import attach_cmd
+import update_cmd
