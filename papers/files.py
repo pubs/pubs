@@ -21,10 +21,10 @@ try:
     import pybtex.database.output.bibyaml
 
 except ImportError:
-    print(ui.dye('error', ui.error) +
-          ": you need to install Pybtex; try running 'pip install"
+    print(color.dye('error', color.error) +
+          ": you need to install Pybtex; try running 'pip install "
           "pybtex' or 'easy_install pybtex'")
-
+    exit(-1)
 
 _papersdir = None
 
