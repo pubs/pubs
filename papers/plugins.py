@@ -22,8 +22,8 @@ class PapersPlugin(object):
     #two options:
     #- create specific cases in script papers/papers
     #- do not store self.config and self.ui and use them if needed when command is called
-    #this may end up a lot of function with config/ui in argument
-    #or just keep it this way...
+    #this may end up with a lot of function with config/ui in argument
+    #or just keep it that way...
     def parser(self, subparsers, config):
         """ Should retrun the parser with plugins specific command.
         This is a basic example
@@ -54,7 +54,7 @@ def load_plugins(config, ui, names):
             except ImportError as exc:
                 # Again, this is hacky:
                 if exc.args[0].endswith(' ' + name):
-                    ui.warning('** plugin %s not found' % name)
+                    ui.warning('plugin {} not found'.format(name))
                 else:
                     raise
             else:
@@ -65,7 +65,7 @@ def load_plugins(config, ui, names):
                         _instances[obj] = obj(config, ui)
 
         except:
-            ui.warning('** error loading plugin %s' % name)
+            ui.warning('error loading plugin {}'.format(name))
 
 
 def get_plugins():

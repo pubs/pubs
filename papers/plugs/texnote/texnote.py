@@ -8,6 +8,9 @@ from ... import files
 from ...plugins import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
+from ...events import listen
+from ...commands.remove_cmd import RemoveEvent
+
 TEXNOTE_SECTION = 'texnote'
 TEXNOTE_SAMPLE_FILE = os.path.join(os.path.dirname(__file__), 'note_sample.tex')
 TEXNOTE_DIR = 'texnote'
@@ -27,19 +30,16 @@ class TexnotePlugin(PapersPlugin):
         open_texnote(config, ui, reference)
 
 
-#  temporary
+@listen(RemoveEvent)
+def remove(rmevent):
+    rp = repo.Repository.from_directory(rmevent.config)
+    paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
 
-
-def callback(config, ui, name, ref):
-    if name == 'remove':
-        rp = repo.Repository.from_directory(config)
-        paper = rp.get_paper(parse_reference(ui, rp, ref))
-
-        if 'texnote' in paper.metadata:
-            os.remove(paper.metadata['texnote'])
-            paper.metadata.pop('texnote')
-            metapath = rp.path_to_paper_file(paper.citekey, 'meta')
-            files.save_meta(paper.metadata, metapath)
+    if 'texnote' in paper.metadata:
+        os.remove(paper.metadata['texnote'])
+        paper.metadata.pop('texnote')
+        metapath = rp.path_to_paper_file(paper.citekey, 'meta')
+        files.save_meta(paper.metadata, metapath)
 
 
 def open_texnote(config, ui, ref):
@@ -108,7 +108,7 @@ def autofill_texnote(texnote_path, bibentry):
     text = f.read()
     f.close()
     # modify with bib info
-    print bibentry
+    #print bibentry
     fields = bibentry.fields
     persons = bibentry.persons
 

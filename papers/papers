@@ -29,18 +29,10 @@ config = configs.read_config()
 ui = UI(config)
 
 # Extend with plugin commands
-plugs = configs.get_plugins(config)
-for plugname in plugs:
-    module_name = 'papers.plugs.' + plugname + '.' + plugname + '_cmd'
-    plug = __import__(module_name, globals(), locals(),
-                      ['parser', 'command'], -1)
-    cmds.update(collections.OrderedDict([(plugname, plug)]))
-
-plugins.load_plugins(config, ui, plugs)
+plugins.load_plugins(config, ui, configs.get_plugins(config))
 for p in plugins.get_plugins().values():
     cmds.update(collections.OrderedDict([(p.name, p)]))
-
-#####
+#
 
 parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")
