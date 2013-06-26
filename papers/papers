@@ -38,7 +38,7 @@ parser = argparse.ArgumentParser(description="research papers repository")
 subparsers = parser.add_subparsers(title="valid commands", dest="command")
 
 for cmd_mod in cmds.values():
-    subparser = cmd_mod.parser(subparsers, config)
+    subparser = cmd_mod.parser(subparsers, config)  # why do we return the subparser ?
 
 args = parser.parse_args()
 args.config = config

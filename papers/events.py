@@ -1,14 +1,16 @@
-msg_list = {}
+listener = {}
 
-def listen(EventClass):
+
+def listen(EventClass, *args):
     def wrap(f):
         if isinstance(EventClass, type) \
                 and issubclass(EventClass, Event) \
                 and EventClass != Event:
 
-            if not EventClass.__name__ in msg_list:
-                msg_list[EventClass.__name__] = []
-            msg_list[EventClass.__name__].append(f)
+            if not EventClass.__name__ in listener:
+                listener[EventClass.__name__] = []
+            listener[EventClass.__name__].append((f, args))
+
             # next step allow us to call the function itself without Event raised
             def wrapped_f(*args):
                 f(*args)
@@ -30,9 +32,9 @@ class Event(object):
         """ This function send the instance of the class, i.e. the event to be sent,
         to all function that listen to it
         """
-        if self.__class__.__name__ in msg_list:
-            for f in msg_list[self.__class__.__name__]:
-                f(self)
+        if self.__class__.__name__ in listener:
+            for f, args in listener[self.__class__.__name__]:
+                f(self, *args)
 
 if __name__ == "__main__":
 
@@ -40,9 +42,9 @@ if __name__ == "__main__":
         def print_one(self):
             print 'one'
 
-    @listen(TestEvent)
-    def Display(TestEventInstance):
-        print TestEventInstance.string
+    @listen(TestEvent, 12, 15)
+    def Display(TestEventInstance, nb1, nb2):
+        print TestEventInstance.string, nb1, nb2
 
     @listen(TestEvent)
     def Helloword(TestEventInstance):
@@ -71,7 +73,7 @@ if __name__ == "__main__":
     addevent.send()
 
     # but also work without the event raising system!
-    Display(myevent)
+    Display(myevent, 12, 15)
     Helloword(myevent)
     PrintIt(myevent)
     DoIt(addevent)

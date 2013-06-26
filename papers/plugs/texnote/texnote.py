@@ -20,21 +20,31 @@ class TexnotePlugin(PapersPlugin):
 
     def parser(self, subparsers, config):
         parser = subparsers.add_parser(self.name, help="edit advance note in latex")
-        add_references_argument(parser, single=True)
+        sub = parser.add_subparsers(title="valid texnote commands", dest="texcmd")
+        p = sub.add_parser("remove", help="remove a reference")
+        add_references_argument(p, single=True)
+        p = sub.add_parser("edit", help="edit the reference texnote")
+        add_references_argument(p, single=True)
+        #add_references_argument(parser, single=True)
         parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
         return parser
 
-    def command(self, config, ui, reference, view):
+    def command(self, config, ui, texcmd, reference, view):
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
-        open_texnote(config, ui, reference)
+        if texcmd == 'edit':
+            open_texnote(config, ui, reference)
+
+    def toto(self):
+        print "toto"
 
 
 @listen(RemoveEvent)
 def remove(rmevent):
+    texplug = TexnotePlugin.get_instance()
+    texplug.toto()
     rp = repo.Repository.from_directory(rmevent.config)
     paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
-
     if 'texnote' in paper.metadata:
         os.remove(paper.metadata['texnote'])
         paper.metadata.pop('texnote')

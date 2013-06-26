@@ -39,6 +39,13 @@ class PapersPlugin(object):
         for s in strings:
             print s
 
+    @classmethod
+    def get_instance(cls):
+        if cls in _instances:
+            return _instances[cls]
+        else:
+            raise RuntimeError("{} instance not created".format(cls.__name__))
+
 
 def load_plugins(config, ui, names):
     """Imports the modules for a sequence of plugin names. Each name
