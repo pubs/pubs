@@ -5,7 +5,7 @@ import subprocess
 from ... import repo
 from ... import configs
 from ... import files
-from ...plugins import PapersPlugin
+from ...plugin import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
 from ...events import RemoveEvent
