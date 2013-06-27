@@ -5,15 +5,25 @@ pit : python issue tracker.
 
 pit is a simple issue tracker written in python
 """
-__version__ = '0.3'
+from __future__ import print_function
+
+__version__ = '0.4'
 
 import sys, os
 import shutil
-import ConfigParser
+
 from hashlib import sha1
-import StringIO
 import subprocess
 import datetime
+
+if sys.version_info[0] == 2:
+    import ConfigParser as configparser
+    import StringIO as io
+    input = raw_input
+else:
+    import configparser
+    import io
+
 
 # Searching for the pit dir
 
@@ -30,9 +40,9 @@ def find_pitdir():
             curdir = ''
         else:
             curdir = os.path.split(curdir)[0]
-    
+
     if pitdir is None:
-        print 'No pit repo found in this directory or in any parent directory.'
+        print('No pit repo found in this directory or in any parent directory.')
         exit(0)
 
 # Reading Writing issues
@@ -53,13 +63,14 @@ def get_author():
         author = author.strip('\n')
         mail   = mail.strip('\n')
         return author, mail
-    except OSError, subprocess.CalledProcessError:
+    except OSError as xxx_todo_changeme:
+        subprocess.CalledProcessError = xxx_todo_changeme
         return 'anonymous', 'unknow'
 
 def get_issue_date(issue):
     try:
         return datetime.datetime.strptime(issue.get('header', 'date'), '%Y-%m-%d at %H:%M UCT')
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         return datetime.datetime(2012, 8, 7, 0, 36, 32, 0)
 
 def issue_file(digest):
@@ -80,7 +91,7 @@ def find_issue_file(digest):
 def read_issue(digest):
     f = find_issue_file(digest)
     if os.path.exists(f):
-        issue = ConfigParser.ConfigParser()
+        issue = configparser.ConfigParser()
         issue.read(f)
         return issue
     else:
@@ -121,7 +132,7 @@ grey    = '\033[0;37m'
 bblack  = '\033[1;30m'
 bred    = '\033[1;31m'
 bgreen  = '\033[1;32m'
-byellow = '\033[1;33m'     
+byellow = '\033[1;33m'
 bblue   = '\033[1;34m'
 bpurple = '\033[1;35m'
 bcyan   = '\033[1;36m'
@@ -149,19 +160,19 @@ def show_issues(filtered_status):
         if filename.startswith('pit-'):
             issue = read_issue(filename[4:])
             status = issue.get('header', 'status')
-            if filtered_status is None or status in filtered_status:  
+            if filtered_status is None or status in filtered_status:
                 relevant_issues.append((get_issue_date(issue), oneline(issue)))
     relevant_issues.sort()
     for _, line in relevant_issues:
         #print _
-        print line
-        
+        print(line)
+
 # Commands
 
 def init_cmd():
     """Create a .pit directory"""
     pitdir = os.getcwd() + '/.pit'
-    print "initializing pit in %s" % (pitdir,)
+    print("initializing pit in %s" % (pitdir,))
     if not os.path.exists(pitdir):
         os.makedirs(pitdir)
 
@@ -170,38 +181,38 @@ def add_cmd(title):
     # finding type
     t = None
     while t not in set(['b', 'f', 't', '', 'bug', 'feature', 'task']):
-        print "bug (b), feature (f) or task (t) ? [b]: ",
+        print("bug (b), feature (f) or task (t) ? [b]: ", end=' ')
         sys.stdout.flush()
-        t = raw_input()
+        t = input()
     if t == '':
         t = 'b'
     extend = {'b':'bug', 'f':'feature', 't':'task'}
     if t in extend:
         t = extend[t]
 
-    # finding the digest    
+    # finding the digest
     issue = setup_issue('', title, t)
-    s = StringIO.StringIO()
+    s = io.StringIO()
     issue.write(s)
     digest = sha1digest(s.getvalue())
 
     # creating the issue values
     filepath = issue_file(digest)
     if os.path.exists(filepath):
-        print '{}error{}: an issue by this name already exists; exiting.'.format(red, end)
+        print('{}error{}: an issue by this name already exists; exiting.'.format(red, end))
         exit(1)
     issue.set('header', 'id', digest)
-    issue.set('eventlog', 'opened[0]', 'opened the {} by {}'.format(issue.get('header', 'date'), 
+    issue.set('eventlog', 'opened[0]', 'opened the {} by {}'.format(issue.get('header', 'date'),
                                                                     issue.get('header', 'author')))
-    
+
     # writing the issue on file
     try:
-       with open(filepath, 'w') as f: 
+       with open(filepath, 'w') as f:
            issue.write(f)
     except IOError as e:
-       print 'IOError : impossible to write on issue file {:s}'.format(issue_file(digest))
-       print 'Verify file permissions'
-    print oneline(issue)
+       print('IOError : impossible to write on issue file {:s}'.format(issue_file(digest)))
+       print('Verify file permissions')
+    print(oneline(issue))
 
 def close_cmd(digest):
     """Close issue n"""
@@ -209,25 +220,25 @@ def close_cmd(digest):
     status = issue.get('header', 'status')
     digest = issue.get('header', 'id')[:sha1_length]
     if status == 'closed':
-        print "{}warning{}: issue {}{}{} already closed".format(red, end, bold, digest, end)
+        print("{}warning{}: issue {}{}{} already closed".format(red, end, bold, digest, end))
     else:
         issue.set('header','status','closed')
         now = datetime.datetime.utcnow()
-        
+
         author, mail = get_author()
         try:
             issue.add_section('eventlog')
         except ConfigParser.DuplicateSectionError:
             pass
-        issue.set('eventlog', 
-                   'closed[{}]'.format(len(issue.options('eventlog'))), 
+        issue.set('eventlog',
+                   'closed[{}]'.format(len(issue.options('eventlog'))),
                    'closed the {} at {}(UCT) by {}'.format(now.date().isoformat(), now.time().strftime("%H:%M"), author))
         try:
-           with open(issue_file(digest), 'w') as f: 
+           with open(issue_file(digest), 'w') as f:
                issue.write(f)
         except IOError as e:
-           print 'IOError : impossible to write on issue file {:s}'.format(issue_file(digest))
-           print 'Verify file permissions'
+           print('IOError : impossible to write on issue file {:s}'.format(issue_file(digest)))
+           print('Verify file permissions')
 
 def open_cmd():
     """Show opened issues"""
@@ -242,18 +253,18 @@ def all_cmd():
     show_issues(None)
 
 def install_cmd():
-    
+
     """Install command on the system"""
-    print 'File to install :', __file__
+    print('File to install :', __file__)
     default = '/usr/local/bin'
-    print "Folder to install the pit command [{:s}] : ".format(default),
+    print("Folder to install the pit command [{:s}] : ".format(default), end=' ')
     sys.stdout.flush()
-    path = raw_input()
+    path = input()
     if path == '':
         path = default
-        
+
     if not os.path.exists(path):
-        print "error: {:s} does not exist. Installation aborted.".format(path)
+        print("error: {:s} does not exist. Installation aborted.".format(path))
     else:
         if os.path.exists(path+'/pit'):
             if os.path.samefile(path+'/pit', __file__):
@@ -267,7 +278,7 @@ def update_cmd():
         if filename.startswith('pit00'):
             issue = ConfigParser.ConfigParser()
             issue.read(pitdir + '/' + filename)
-            s = StringIO.StringIO()
+            s = io.StringIO()
             issue.write(s)
             digest = sha1digest(s.getvalue())
 
@@ -275,7 +286,7 @@ def update_cmd():
             assert not os.path.exists(filepath)
             issue.set('header', 'id', digest)
 
-            with open(filepath, 'w') as f: 
+            with open(filepath, 'w') as f:
                 issue.write(f)
 
 # Handling command line arguments
@@ -299,7 +310,7 @@ manual = """pit manual
 
 pit is designed to be simple, self-contained, and compatible with git branching.
 
-{b}BASIC USAGE{e}  
+{b}BASIC USAGE{e}
     $ {b}pit init{e}
     initializing pit in /Users/fabien/Perso/sync/projects/pit/.pit
     $ {b}pit add{e} 'bug description'
@@ -309,7 +320,7 @@ pit is designed to be simple, self-contained, and compatible with git branching.
     0001 b [ open ]    bug description
     $ {b}pit close 1{e}
     $ {b}pit open{e}
-    $ {b}pit closed{e} 
+    $ {b}pit closed{e}
     0001 b [closed]    bug description
 
 {b}DISTRIBUTION{e}
@@ -321,18 +332,18 @@ pit is designed to be simple, self-contained, and compatible with git branching.
     Each issue is stored in its own file in the .pit directory.
     At creation, the checksum of the file is computed, and it designates the issue
     for there on. This is particularly useful when using pit under git : collision
-    between issues created in different branch are vanishingly unlikely, and when 
+    between issues created in different branch are vanishingly unlikely, and when
     they happen, overwhelming chances are the bug are exactly the same.
 
     "If all 6.5 billion humans on Earth were programming, and every second, each one
-     was producing code that was the equivalent of the entire Linux kernel history 
-     (1 million Git objects) and pushing it into one enormous Git repository, it 
+     was producing code that was the equivalent of the entire Linux kernel history
+     (1 million Git objects) and pushing it into one enormous Git repository, it
      would take 5 years until that repository contained enough objects to have a 50%%
      probability of a single SHA-1 object collision." -- Pro Git book.
 """.format(b=bold, e=end)
 
 if len(sys.argv) == 1 or len(sys.argv) > 3:
-    print usage
+    print(usage)
     exit(0)
 
 cmd = sys.argv[1]
@@ -341,15 +352,15 @@ if cmd not in ['init', 'install', 'man', 'version']:
 
 if len(sys.argv) == 2:
     if cmd not in ['init', 'open', 'install', 'man', 'version', 'closed', 'all', 'update']:
-        print usage
+        print(usage)
     elif cmd == 'init':
         init_cmd()
     elif cmd == 'install':
         install_cmd()
     elif cmd == 'man':
-        print manual
+        print(manual)
     elif cmd == 'version':
-        print __version__
+        print(__version__)
     elif cmd == 'open':
         open_cmd()
     elif cmd == 'closed':
@@ -360,11 +371,10 @@ if len(sys.argv) == 2:
         update_cmd()
 if len(sys.argv) == 3:
     if cmd not in ['add', 'close']:
-        print usage
+        print(usage)
     elif cmd == 'add':
-        title = sys.argv[2]        
+        title = sys.argv[2]
         add_cmd(title)
     elif cmd == 'close':
         digest = sys.argv[2]
         close_cmd(digest)
-      
