@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-rm -Rf .papers;
-papers init;
+rm -Rf paper_test/;
+papers init -p paper_test/;
+papers add -d data/pagerank.pdf -b data/pagerank.bib;
 papers list;
-papers add data/pagerank.pdf data/pagerank.bib;
-papers list;
-papers open 0;
-papers open Page99;
-rm -Rf .papers;
+papers tag;
+papers tag Page99 network,search;
+papers tag Page99;
+papers tag search;
+papers tag 0;
+rm -Rf paper_test/*;
