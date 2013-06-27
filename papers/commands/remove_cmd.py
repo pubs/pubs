@@ -3,13 +3,8 @@ from .. import color
 from .. import configs
 from .helpers import add_references_argument, parse_references
 
-from ..events import Event
+from ..events import RemoveEvent
 
-class RemoveEvent(Event):
-    def __init__(self, config, ui, citekey):
-        self.config = config
-        self.ui = ui
-        self.citekey = citekey
 
 def parser(subparsers, config):
     parser = subparsers.add_parser('remove', help='removes a paper')
@@ -30,4 +25,3 @@ def command(config, ui, references):
             rmevent.send()
 
             rp.remove(c)
-

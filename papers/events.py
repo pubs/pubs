@@ -1,23 +1,4 @@
-listener = {}
-
-
-def listen(EventClass, *args):
-    def wrap(f):
-        if isinstance(EventClass, type) \
-                and issubclass(EventClass, Event) \
-                and EventClass != Event:
-
-            if not EventClass.__name__ in listener:
-                listener[EventClass.__name__] = []
-            listener[EventClass.__name__].append((f, args))
-
-            # next step allow us to call the function itself without Event raised
-            def wrapped_f(*args):
-                f(*args)
-            return wrapped_f
-        else:
-            raise IOError('{} is not an Event subclass'.format(EventClass))
-    return wrap
+_listener = {}
 
 
 class Event(object):
@@ -29,12 +10,33 @@ class Event(object):
         self.string = string
 
     def send(self):
-        """ This function send the instance of the class, i.e. the event to be sent,
-        to all function that listen to it
+        """ This function sends the instance of the class, i.e. the event
+        to be sent, to all function that listen to it.
         """
-        if self.__class__.__name__ in listener:
-            for f, args in listener[self.__class__.__name__]:
+        if self.__class__.__name__ in _listener:
+            for f, args in _listener[self.__class__.__name__]:
                 f(self, *args)
+
+    @classmethod
+    def listen(cls, *args):
+        def wrap(f):
+            if cls.__name__ not in _listener:
+                _listener[cls.__name__] = []
+            _listener[cls.__name__].append((f, args))
+
+            # next step allow us to call the function itself without Event raised
+            def wrapped_f(*args):
+                f(*args)
+            return wrapped_f
+        return wrap
+
+
+class RemoveEvent(Event):
+    def __init__(self, config, ui, citekey):
+        self.config = config
+        self.ui = ui
+        self.citekey = citekey
+
 
 if __name__ == "__main__":
 
@@ -42,15 +44,15 @@ if __name__ == "__main__":
         def print_one(self):
             print 'one'
 
-    @listen(TestEvent, 12, 15)
+    @TestEvent.listen(12, 15)
     def Display(TestEventInstance, nb1, nb2):
         print TestEventInstance.string, nb1, nb2
 
-    @listen(TestEvent)
+    @TestEvent.listen()
     def Helloword(TestEventInstance):
         print 'Helloword'
 
-    @listen(TestEvent)
+    @TestEvent.listen()
     def PrintIt(TestEventInstance):
         TestEventInstance.print_one()
 
@@ -61,7 +63,7 @@ if __name__ == "__main__":
         def add(self, a, b):
             return a + b
 
-    @listen(AddEvent)
+    @AddEvent.listen()
     def DoIt(AddEventInstance):
         print AddEventInstance.add(17, 25)
 
