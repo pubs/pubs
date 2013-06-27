@@ -8,7 +8,7 @@ import collections
 from papers.ui import UI
 from papers import configs
 from papers import commands
-from papers import plugins
+from papers import plugin
 
 cmds = collections.OrderedDict([
         ('init',        commands.init_cmd),
@@ -30,8 +30,8 @@ config = configs.read_config()
 ui = UI(config)
 
 # Extend with plugin commands
-plugins.load_plugins(config, ui, configs.get_plugins(config))
-for p in plugins.get_plugins().values():
+plugin.load_plugins(config, ui, configs.get_plugins(config))
+for p in plugin.get_plugins().values():
     cmds.update(collections.OrderedDict([(p.name, p)]))
 #
 
