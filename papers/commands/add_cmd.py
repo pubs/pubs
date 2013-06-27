@@ -10,7 +10,7 @@ def parser(subparsers, config):
     parser.add_argument('-b', '--bibfile',
                         help='bibtex, bibtexml or bibyaml file', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
-    parser.add_argument('-l', '--label', help='label associated to the paper',
+    parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
                         default=None)
     parser.add_argument('-c', '--copy', action='store_true', default=None,
             help="copy document files into library directory (default)")
@@ -19,7 +19,7 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, bibfile, docfile, label, copy):
+def command(config, ui, bibfile, docfile, tags, copy):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -44,8 +44,8 @@ def command(config, ui, bibfile, docfile, label, copy):
         p = Paper(bibentry=bib, citekey=key)
     else:
         p = Paper.load(bibfile)
-    if label is not None:
-        p.tags = set(label.split())
+    if tags is not None:
+        p.tags = set(tags.split(','))
     # Check if another doc file is specified in bibtex
     docfile2 = extract_doc_path_from_bibdata(p, ui)
     if docfile is None:
