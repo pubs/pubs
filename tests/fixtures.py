@@ -8,6 +8,7 @@ turing1950.bibentry.fields['title'] = u'Computing machinery and intelligence.'
 turing1950.bibentry.fields['year'] = u'1950'
 turing1950.bibentry.persons['author'] = [Person(u'Alan Turing')]
 turing1950.citekey = turing1950.generate_citekey()
+turing1950.tags = ['computer', 'AI']
 
 
 doe2013 = Paper()

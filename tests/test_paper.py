@@ -24,7 +24,7 @@ entries:
 META = """
 external-document: null
 notes: []
-tags: []
+tags: ['AI', 'computer']
 """
 
 
