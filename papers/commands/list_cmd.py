@@ -18,21 +18,6 @@ def command(config, ui, citekeys, query):
     rp = repo.Repository.from_directory(config)
     papers = [(n, p) for n, p in enumerate(rp.all_papers())
               if test_paper(query, p)]
-    # if citekeys:
-    #     paper_strings = [p.citekey for n, p in papers]
-    # else:
-    #     paper_strings = []
-    #     print p.tags
-    #     print color.dye(' '.join(p.tags), color.purple)
-    #     for n, p in papers:
-    #         bibdesc = pretty.bib_oneliner(p.bibentry)
-    #         paper_strings.append((u'{num:d}: [{citekey}] {descr} {tags}'.format(
-    #             num=int(n),
-    #             citekey=color.dye(p.citekey, color.purple),
-    #             descr=bibdesc,
-    #             tags=color.dye(' '.join(p.tags),
-    #                            color.purple, bold=True),
-    #             )).encode('utf-8'))
     ui.print_('\n'.join(helpers.paper_oneliner(p, n = n, citekey_only = citekeys) for n, p in papers))
 
 
