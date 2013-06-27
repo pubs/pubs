@@ -37,7 +37,7 @@ def command(config, ui, bibfile, docfile, tags, copy):
                 cont = False
             except Exception:
                 cont = ui.input_yn(
-                    question='Invalid bibfile. Edit again or abort?',
+                    question='Invalid bibfile. Edit again ?',
                     default='y')
                 if not cont:
                     ui.exit()
