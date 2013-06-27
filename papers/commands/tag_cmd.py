@@ -19,7 +19,7 @@ from ..repo import Repository, InvalidReference
 from . import helpers
 
 def parser(subparsers, config):
-    parser = subparsers.add_parser('tags', help="add, remove and show tags")
+    parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('referenceOrTag', nargs='?', default = None,
                         help='reference to the paper (citekey or number), or '
                              'tag.')
