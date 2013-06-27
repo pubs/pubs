@@ -69,6 +69,7 @@ def get_safe_metadata(meta):
     base_meta = Paper.create_meta()
     if meta is not None:
         base_meta.update(meta)
+    base_meta['tags'] = set(base_meta['tags'])
     return base_meta
 
 
@@ -266,11 +267,8 @@ class Paper(object):
         self.tags.add(tag)
 
     def remove_tag(self, tag):
-        """Remove a tag from a paper. Fails silently."""
-        try:
-            self.tags.pop(tag)
-        except KeyError:
-            pass
+        """Remove a tag from a paper if present."""
+        self.tags.discard(tag)
 
 
 class PaperInRepo(Paper): # TODO document why this class exists (fabien, 2013/06)
