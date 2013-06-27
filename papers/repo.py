@@ -198,11 +198,11 @@ class Repository(object):
             new_doc_file = os.path.join(doc_path, citekey + ext)
             shutil.copy(doc_file, new_doc_file)
 
-    def get_labels(self):
-        labels = set()
+    def get_tags(self):
+        tags = set()
         for p in self.all_papers():
-            labels = labels.union(p.metadata.get('labels', []))
-        return labels
+            tags = tags.union(p.tags)
+        return tags
 
     @classmethod
     def from_directory(cls, config, papersdir=None):

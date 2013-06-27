@@ -1,5 +1,6 @@
 from .. import files
 from .. import color
+from .. import pretty
 from ..repo import InvalidReference
 from ..paper import NoDocumentFile
 
@@ -51,3 +52,16 @@ def parse_reference(ui, rp, ref):
 def parse_references(ui, rp, refs):
     citekeys = [parse_reference(ui, rp, ref) for ref in refs]
     return citekeys
+
+def paper_oneliner(p, n = 0, citekey_only = False):
+    if citekey_only:
+        return p.citekey
+    else:
+        bibdesc = pretty.bib_oneliner(p.bibentry)
+        return (u'{num:d}: [{citekey}] {descr} {tags}'.format(
+            num=int(n),
+            citekey=color.dye(p.citekey, color.purple),
+            descr=bibdesc,
+            tags=color.dye(' '.join(p.tags),
+                           color.purple, bold=True),
+            )).encode('utf-8')

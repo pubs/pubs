@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+from cStringIO import StringIO
 
 import yaml
 
@@ -21,10 +22,10 @@ try:
     import pybtex.database.output.bibyaml
 
 except ImportError:
-    print(ui.dye('error', ui.error) +
-          ": you need to install Pybtex; try running 'pip install"
+    print(color.dye('error', color.error) +
+          ": you need to install Pybtex; try running 'pip install "
           "pybtex' or 'easy_install pybtex'")
-
+    exit(-1)
 
 _papersdir = None
 
@@ -122,7 +123,7 @@ def load_externalbibfile(fullbibpath):
     filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
     if ext[1:] in FORMATS_INPUT.keys():
         with open(fullbibpath) as f:
-            return parse_bibdata(f, ext[1:])
+            return _parse_bibdata_formated_stream(f, ext[1:])
     else:
         print('{}: {} not recognized format for bibliography'.format(
               color.dye('error', color.error),
@@ -130,14 +131,38 @@ def load_externalbibfile(fullbibpath):
         exit(-1)
 
 
-def parse_bibdata(content, format_):
-    """Parse bib data from string.
+def _parse_bibdata_formated_stream(stream, fmt):
+    """Parse a stream for bibdata, using the supplied format."""
+    try:
+        parser = FORMATS_INPUT[fmt].Parser()
+        data = parser.parse_stream(stream)
+        if data.entries.keys() > 0:
+            return data
+    except Exception:
+        pass
+    raise ValueError, 'content format is not recognized.'
 
+def parse_bibdata(content, format_ = None):
+    """Parse bib data from string or stream.
+
+    Raise ValueError if no bibdata is present.
     :content: stream
-    :param format_: (bib|xml|yml)
+    :param format_: (bib|xml|yml) if format is None, tries to recognize the
+                    format automatically.
     """
-    parser = FORMATS_INPUT[format_].Parser()
-    return parser.parse_stream(content)
+    fmts = [format_]
+    if format_ is None:
+        fmts = FORMATS_INPUT.keys()
+        # we need to reuse the content
+        content = content if type(content) == str else str(content.read())
+
+    for fmt in fmts:
+        try:
+            return _parse_bibdata_formated_stream(StringIO(content), fmt)
+        except Exception:
+            pass
+
+    raise ValueError, 'content format is not recognized.'
 
 
 def editor_input(config, initial="", suffix=None):

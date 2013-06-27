@@ -20,7 +20,7 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
 
 BASE_META = {
     'external-document': None,
-    'labels': [],
+    'tags': [],
     'notes': [],
     }
 
@@ -44,7 +44,7 @@ def get_bibentry_from_file(bibfile):
 def get_bibentry_from_string(content):
     """Extract first entry (supposed to be the only one) from given file.
     """
-    bib_data = files.parse_bibdata(StringIO(content), 'yml')
+    bib_data = files.parse_bibdata(StringIO(content))
     first_key = bib_data.entries.keys()[0]
     first_entry = bib_data.entries[first_key]
     return first_key, first_entry
@@ -69,6 +69,7 @@ def get_safe_metadata(meta):
     base_meta = Paper.create_meta()
     if meta is not None:
         base_meta.update(meta)
+    base_meta['tags'] = set(base_meta['tags'])
     return base_meta
 
 
@@ -250,7 +251,27 @@ class Paper(object):
             return papers
 
 
-class PaperInRepo(Paper):
+    # tags
+
+    @property
+    def tags(self):
+        return self.metadata.setdefault('tags', set())
+
+    @tags.setter
+    def tags(self, value):
+        if not hasattr(value, '__iter__'):
+            raise ValueError, 'tags must be iterables'
+        self.metadata['tags'] = set(value)
+
+    def add_tag(self, tag):
+        self.tags.add(tag)
+
+    def remove_tag(self, tag):
+        """Remove a tag from a paper if present."""
+        self.tags.discard(tag)
+
+
+class PaperInRepo(Paper): # TODO document why this class exists (fabien, 2013/06)
 
     def __init__(self, repo, *args, **kwargs):
         Paper.__init__(self, *args, **kwargs)
