@@ -24,7 +24,7 @@ filepath = cyan
 def dye(s, color=end, bold=False):
     assert color[0] == '\033'
     if bold:
-        s = '\033[1' + s[3:]
+        color = '\033[1' + color[3:]
     return color + s + end
 
 _dye = dye
