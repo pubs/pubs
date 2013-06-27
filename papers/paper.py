@@ -20,7 +20,7 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
 
 BASE_META = {
     'external-document': None,
-    'tags': [],
+    'tags': set(),
     'notes': [],
     }
 

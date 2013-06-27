@@ -108,7 +108,10 @@ def save_bibdata(bib_data, filepath):
 
 
 def save_meta(meta_data, filepath):
-    write_yamlfile(filepath, meta_data)
+    new_meta = meta_data.copy()
+    # Cannot store sets in yaml
+    new_meta['tags'] = list(new_meta['tags'])
+    write_yamlfile(filepath, new_meta)
 
 
 # is this function ever used? 08/06/2013
