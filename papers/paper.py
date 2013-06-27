@@ -44,7 +44,7 @@ def get_bibentry_from_file(bibfile):
 def get_bibentry_from_string(content):
     """Extract first entry (supposed to be the only one) from given file.
     """
-    bib_data = files.parse_bibdata(StringIO(content), 'yml')
+    bib_data = files.parse_bibdata(StringIO(content))
     first_key = bib_data.entries.keys()[0]
     first_entry = bib_data.entries[first_key]
     return first_key, first_entry
