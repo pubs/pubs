@@ -2,12 +2,8 @@ _listener = {}
 
 
 class Event(object):
-    def __init__(self, string):
-        """This is an example of simple event that can be raised
-        Inherit from this class and redefine whatever you need,
-        except the send funtion
-        """
-        self.string = string
+    """Base event that can be sent to listeners.
+    """
 
     def send(self):
         """ This function sends the instance of the class, i.e. the event
@@ -36,46 +32,3 @@ class RemoveEvent(Event):
         self.config = config
         self.ui = ui
         self.citekey = citekey
-
-
-if __name__ == "__main__":
-
-    class TestEvent(Event):
-        def print_one(self):
-            print 'one'
-
-    @TestEvent.listen(12, 15)
-    def Display(TestEventInstance, nb1, nb2):
-        print TestEventInstance.string, nb1, nb2
-
-    @TestEvent.listen()
-    def Helloword(TestEventInstance):
-        print 'Helloword'
-
-    @TestEvent.listen()
-    def PrintIt(TestEventInstance):
-        TestEventInstance.print_one()
-
-    class AddEvent(Event):
-        def __init__(self):
-            pass
-
-        def add(self, a, b):
-            return a + b
-
-    @AddEvent.listen()
-    def DoIt(AddEventInstance):
-        print AddEventInstance.add(17, 25)
-
-    # using the callback system
-    myevent = TestEvent('abcdefghijklmnopqrstuvwxyz')
-    myevent.send()  # this one call three function
-
-    addevent = AddEvent()
-    addevent.send()
-
-    # but also work without the event raising system!
-    Display(myevent, 12, 15)
-    Helloword(myevent)
-    PrintIt(myevent)
-    DoIt(addevent)
