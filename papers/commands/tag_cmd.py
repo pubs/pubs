@@ -9,10 +9,12 @@ The different use cases are :
     Add 'math' to the list of tags of the given citekey
 4. > papers tag citekey :math
     Remove 'math' for the list of tags of the given citekey
-5. > papers tag citekey math,romance,:war
+5. > papers tag citekey math+romance-war
     Add 'math' and 'romance' tags to the given citekey, and remove the 'war' tag
 6. > papers tag math
     If 'math' is not a citekey, then display all papers with the tag 'math'
+7. > papers tag -war+math+romance
+    display all papers with the tag 'math', 'romance' but not 'war'
 """
 
 from ..repo import Repository, InvalidReference
@@ -33,6 +35,7 @@ def parser(subparsers, config):
 
 import re
 def _parse_tags(s):
+    """Transform 'math-ai' in ['+math', '-ai']"""
     tags = []
     if s[0] not in ['+', '-']:
         s = '+' + s
@@ -50,6 +53,15 @@ def _parse_tags(s):
         tags.append(s[last:])
     return tags
 
+def _tag_groups(tags):
+    plus_tags, minus_tags = [], []
+    for tag in tags:
+        if tag[0] == '+':
+            plus_tags.append(tag[1:])
+        else:
+            assert tag[0] == '-'
+            minus_tags.append(tag[1:])
+    return set(plus_tags), set(minus_tags)
 
 def command(config, ui, referenceOrTag, tags):
     """Add, remove and show tags"""
@@ -65,16 +77,20 @@ def command(config, ui, referenceOrTag, tags):
             if tags is None:
                 ui.print_(' '.join(p.tags))
             else:
-                tags = tags.split(',')
-                for tag in tags:
-                    if tag[0] == ':':
-                        p.remove_tag(tag[1:])
-                    else:
-                        p.add_tag(tag)
+                add_tags, remove_tags = _tag_groups(_parse_tags(tags))
+                for tag in add_tag:
+                    p.add_tag(tag)
+                for tag in remove_tag:
+                    p.remove_tag(tag)
                 rp.save_paper(p)
         except InvalidReference:
-            tag = referenceOrTag
-            papers_list = [(p, n) for n, p in enumerate(rp.all_papers())
-                           if tag in p.tags]
+            # case where we want to find paper with specific tags
+            included, excluded = _tag_groups(_parse_tags(referenceOrTag))
+            papers_list = []
+            for n, p in enumerate(rp.all_papers()):
+                if (p.tags.issuperset(included) and
+                    len(p.tags.intersection(excluded)) == 0):
+                    papers_list.append((p, n))
+
             ui.print_('\n'.join(helpers.paper_oneliner(p, n)
                                 for p, n in papers_list))
