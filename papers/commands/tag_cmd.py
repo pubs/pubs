@@ -78,9 +78,9 @@ def command(config, ui, referenceOrTag, tags):
                 ui.print_(' '.join(p.tags))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tags(tags))
-                for tag in add_tag:
+                for tag in add_tags:
                     p.add_tag(tag)
-                for tag in remove_tag:
+                for tag in remove_tags:
                     p.remove_tag(tag)
                 rp.save_paper(p)
         except InvalidReference:
