@@ -30,6 +30,27 @@ def parser(subparsers, config):
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
 
+
+import re
+def _parse_tags(s):
+    tags = []
+    if s[0] not in ['+', '-']:
+        s = '+' + s
+    last = 0
+    for m in re.finditer(r'[+-]', s):
+        if m.start() == last:
+            if last != 0:
+                raise ValueError, 'could not match tag expression'
+        else:
+            tags.append(s[last:(m.start())])
+        last = m.start()
+    if last == len(s):
+        raise ValueError, 'could not match tag expression'
+    else:
+        tags.append(s[last:])
+    return tags
+
+
 def command(config, ui, referenceOrTag, tags):
     """Add, remove and show tags"""
     rp = Repository.from_directory(config)
