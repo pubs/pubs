@@ -10,9 +10,9 @@ setup(name='papers',
       description='research papers manager',
       requires=['pybtex'],
       packages=find_packages(),
+      package_data={'': ['*.tex']},
       scripts=['papers/papers']
       )
 
-# TODO include package data from plugins
-# Jonathan could not make it works (08/06/2013)
+# TODO include proper package data from plugins (08/06/2013)
 # should we use MANIFEST.in or package_data = ..., or both

@@ -1,6 +1,9 @@
 from .. import repo
 from .. import color
+from .. import configs
 from .helpers import add_references_argument, parse_references
+
+from ..events import RemoveEvent
 
 
 def parser(subparsers, config):
@@ -18,4 +21,7 @@ def command(config, ui, references):
     sure = ui.input_yn(question=are_you_sure, default='n')
     if sure:
         for c in citekeys:
+            rmevent = RemoveEvent(config, ui, c)
+            rmevent.send()
+
             rp.remove(c)
