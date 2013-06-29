@@ -26,24 +26,25 @@ cmds = collections.OrderedDict([
         ('update',      commands.update_cmd),
         ])
 
-config = configs.read_config()
-ui = UI(config)
-
-# Extend with plugin commands
-plugin.load_plugins(config, ui, configs.get_plugins(config))
-for p in plugin.get_plugins().values():
-    cmds.update(collections.OrderedDict([(p.name, p)]))
-#
-
-parser = argparse.ArgumentParser(description="research papers repository")
-subparsers = parser.add_subparsers(title="valid commands", dest="command")
-
-for cmd_mod in cmds.values():
-    subparser = cmd_mod.parser(subparsers, config)  # why do we return the subparser ?
 
 def execute(raw_args = sys.argv):
+    config = configs.read_config()
+    ui = UI(config)
+
+    # Extend with plugin commands
+    plugin.load_plugins(config, ui, configs.get_plugins(config))
+    for p in plugin.get_plugins().values():
+        cmds.update(collections.OrderedDict([(p.name, p)]))
+
+    parser = argparse.ArgumentParser(description="research papers repository")
+    subparsers = parser.add_subparsers(title="valid commands", dest="command")
+
+    for cmd_mod in cmds.values():
+        subparser = cmd_mod.parser(subparsers, config)  # why do we return the subparser ?
+
     args = parser.parse_args(raw_args[1:])
     args.config = config
+
     args.ui = ui
     cmd = args.command
     del args.command
