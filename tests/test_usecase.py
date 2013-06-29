@@ -6,6 +6,8 @@ import testenv
 import fake_filesystem
 import fake_filesystem_shutil
 
+from papers import papers_cmd
+
 real_os = os
 real_open = open
 
@@ -47,12 +49,18 @@ def _copy_data(fs):
         if real_os.path.isdir(filepath):
             fs.CreateDirectory(filepath)
 
+def _execute_cmds(cmds):
+    fs = _create_fake_fs()
+    _copy_data(fs)
+
+    for cmd in cmds:
+        papers_cmd.execute(cmd.split())
+
 
 class TestInit(unittest.TestCase):
 
     def test_init(self):
         fs = _create_fake_fs()
-        from papers import papers_cmd
         papers_cmd.execute('papers init -p paper_test2'.split())
         self.assertEqual(set(fake_os.listdir('/paper_test2/')), {'bibdata', 'doc', 'meta', 'papers.yaml'})
 
@@ -64,7 +72,6 @@ class TestAdd(unittest.TestCase):
         fs = _create_fake_fs()
         _copy_data(fs)
 
-        from papers import papers_cmd
         papers_cmd.execute('papers init'.split())
         papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
 
@@ -73,11 +80,36 @@ class TestAdd(unittest.TestCase):
         fs = _create_fake_fs()
         _copy_data(fs)
 
-        from papers import papers_cmd
         papers_cmd.execute('papers init -p /not_default'.split())
         papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
+        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'Page99.pdf'})
 
 
-#class TestAdd2(unittest.TestCase):
+class TestList(unittest.TestCase):
+
+    def test_list(self):
+
+        fs = _create_fake_fs()
+        _copy_data(fs)
+
+        papers_cmd.execute('papers init -p /not_default2'.split())
+        papers_cmd.execute('papers list'.split())
+        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
+        papers_cmd.execute('papers list'.split())
 
 
+class TestUsecase(unittest.TestCase):
+
+    def test_first(self):
+
+        cmds = ['papers init -p paper_test/',
+                'papers add -d data/pagerank.pdf -b data/pagerank.bib',
+                'papers list',
+                'papers tag',
+                'papers tag Page99 network+search',
+                'papers tag Page99',
+                'papers tag search',
+                'papers tag 0',
+               ]
+
+        _execute_cmds(cmds)
