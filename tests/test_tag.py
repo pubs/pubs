@@ -4,7 +4,7 @@ import unittest
 import testenv
 from papers.commands.tag_cmd import _parse_tags, _tag_groups
 
-class TestCreateCitekey(unittest.TestCase):
+class TestTag(unittest.TestCase):
 
     def test_tag_parsing(self):
 
