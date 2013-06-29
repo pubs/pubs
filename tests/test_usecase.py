@@ -9,7 +9,7 @@ import fake_filesystem_shutil
 real_os = os
 real_open = open
 
-fake_os, fake_open, fake_shutil = None, None
+fake_os, fake_open, fake_shutil = None, None, None
 
 def _create_fake_fs():
     global fake_os, fake_open, fake_shutil
@@ -37,6 +37,17 @@ def _create_fake_fs():
 
     return fake_fs
 
+def _copy_data(fs):
+    """Copy all the data directory into the fake fs"""
+    for filename in real_os.listdir('data/'):
+        filepath = 'data/' + filename
+        if real_os.path.isfile(filepath):
+            with real_open(filepath, 'r') as f:
+                fs.CreateFile(filepath, contents = f.read())
+        if real_os.path.isdir(filepath):
+            fs.CreateDirectory(filepath)
+
+
 class TestInit(unittest.TestCase):
 
     def test_init(self):
@@ -45,34 +56,28 @@ class TestInit(unittest.TestCase):
         papers_cmd.execute('papers init -p paper_test2'.split())
         self.assertEqual(set(fake_os.listdir('/paper_test2/')), {'bibdata', 'doc', 'meta', 'papers.yaml'})
 
+
 class TestAdd(unittest.TestCase):
 
     def test_add(self):
 
         fs = _create_fake_fs()
+        _copy_data(fs)
+
         from papers import papers_cmd
         papers_cmd.execute('papers init'.split())
+        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
 
-        with real_open('data/pagerank.bib', 'r') as f:
-            fs.CreateFile('/data/page.bib', contents = f.read())
-        with real_open('data/pagerank.pdf', 'r') as f:
-            fs.CreateFile('/data/page.pdf', contents = f.read())
-
-        papers_cmd.execute('papers add -b /data/page.bib -d /data/page.pdf'.split())
-
-
-class TestAdd2(unittest.TestCase):
     def test_add2(self):
 
         fs = _create_fake_fs()
+        _copy_data(fs)
+
         from papers import papers_cmd
         papers_cmd.execute('papers init -p /not_default'.split())
+        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
 
-        with real_open('data/pagerank.bib', 'r') as f:
-            fs.CreateFile('/data/page.bib', contents = f.read())
-        with real_open('data/pagerank.pdf', 'r') as f:
-            fs.CreateFile('/data/page.pdf', contents = f.read())
 
-        papers_cmd.execute('papers add -b /data/page.bib -d /data/page.pdf'.split())
+#class TestAdd2(unittest.TestCase):
 
 
