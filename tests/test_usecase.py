@@ -7,6 +7,8 @@ import fake_filesystem
 import fake_filesystem_shutil
 
 from papers import papers_cmd
+from papers import color
+from papers.p3 import io
 
 real_os = os
 real_open = open
@@ -49,12 +51,30 @@ def _copy_data(fs):
         if real_os.path.isdir(filepath):
             fs.CreateDirectory(filepath)
 
-def _execute_cmds(cmds):
-    fs = _create_fake_fs()
-    _copy_data(fs)
+def redirect(f):
+    def newf(*args, **kwargs):
+        old_stderr, old_stdout = sys.stderr, sys.stdout
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        sys.stdout, sys.stderr = stdout, stderr
+        try:
+            return f(*args, **kwargs), stdout, stderr
+        finally:
+            sys.stderr, sys.stdout = old_stderr, old_stdout
+    return newf
 
+#@redirect
+def _execute_cmds(cmds, fs = None):
+    if fs is None:
+        fs = _create_fake_fs()
+        _copy_data(fs)
+
+    outs = []
     for cmd in cmds:
-        papers_cmd.execute(cmd.split())
+        _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
+        outs.append(color.undye(stdout.getvalue()))
+
+    return outs
 
 
 class TestInit(unittest.TestCase):
@@ -102,6 +122,15 @@ class TestUsecase(unittest.TestCase):
 
     def test_first(self):
 
+        correct = ['Initializing papers in /paper_test/.\n',
+                   'Added: Page99\n',
+                   '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
+                   '',
+                   '',
+                   'search network\n',
+                   '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) search network\n',
+                   'search network\n']
+
         cmds = ['papers init -p paper_test/',
                 'papers add -d data/pagerank.pdf -b data/pagerank.bib',
                 'papers list',
@@ -112,4 +141,4 @@ class TestUsecase(unittest.TestCase):
                 'papers tag 0',
                ]
 
-        _execute_cmds(cmds)
+        self.assertEqual(correct, _execute_cmds(cmds))
