@@ -1,7 +1,7 @@
 """
 Small code to handle colored text
 """
-
+import re
 
 bold = '\033[1m'
 end  = '\033[0m'
@@ -37,3 +37,10 @@ def setup(enable = True):
         dye = _dye
     else:
         dye = _nodye
+
+
+undye_re = re.compile('\x1b\[[;\d]*[A-Za-z]')
+
+def undye(s):
+    """Purge string s of color"""
+    return undye_re.sub('', s)
