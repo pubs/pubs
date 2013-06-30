@@ -38,7 +38,7 @@ class TexnotePlugin(PapersPlugin):
     def toto(self):
         print "toto"
 
-    @RemoveEvent.listen()
+    #@RemoveEvent.listen()
     def testEvent(self, rmevent):
         print "testEvent"
 

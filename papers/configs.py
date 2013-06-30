@@ -14,7 +14,7 @@ except KeyError:
 DEFAULT_IMPORT_COPY = 'yes'
 DEFAULT_IMPORT_MOVE = 'no'
 DEFAULT_COLOR = 'yes'
-DEFAULT_PLUGINS = ''
+DEFAULT_PLUGINS = 'texnote'
 
 CONFIG = ConfigParser.SafeConfigParser({
     'papers-directory': DEFAULT_PAPERS_DIRECTORY,
