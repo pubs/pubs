@@ -122,7 +122,7 @@ class TestUsecase(unittest.TestCase):
 
     def test_first(self):
 
-        correct = ['Initializing papers in /paper_test/.\n',
+        correct = ['Initializing papers in /paper_first/.\n',
                    'Added: Page99\n',
                    '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
                    '',
@@ -131,7 +131,7 @@ class TestUsecase(unittest.TestCase):
                    '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) search network\n',
                    'search network\n']
 
-        cmds = ['papers init -p paper_test/',
+        cmds = ['papers init -p paper_first/',
                 'papers add -d data/pagerank.pdf -b data/pagerank.bib',
                 'papers list',
                 'papers tag',
@@ -142,3 +142,31 @@ class TestUsecase(unittest.TestCase):
                ]
 
         self.assertEqual(correct, _execute_cmds(cmds))
+
+    def test_second(self):
+
+        cmds = ['papers init -p paper_second/',
+                'papers add -b data/pagerank.bib',
+                'papers add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
+                'papers add -b data/martius.bib',
+                'papers add -b data/10.1371%2Fjournal.pone.0038236.bib',
+                'papers list',
+                'papers attach Page99 data/pagerank.pdf'
+               ]
+
+        _execute_cmds(cmds)
+
+    def test_third(self):
+
+        cmds = ['papers init',
+                'papers add -b data/pagerank.bib',
+                'papers add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
+                'papers add -b data/martius.bib',
+                'papers add -b data/10.1371%2Fjournal.pone.0038236.bib',
+                'papers list',
+                'papers attach Page99 data/pagerank.pdf',
+                'papers remove -f Page99',
+                'papers remove -f turing1950computing',
+               ]
+
+        _execute_cmds(cmds)
