@@ -18,33 +18,33 @@ DFT_IMPORT_MOVE = 'no'
 DFT_COLOR       = 'yes'
 DFT_PLUGINS     = 'texnote'
 
-DFT_CONFIG = configparser.SafeConfigParser({
-    'papers_dir'  : DFT_PAPERS_DIR,
-    'open_cmd'    : DFT_OPEN_CMD,
-    'edit_cmd'    : DFT_EDIT_CMD,
-    'import_copy' : DFT_IMPORT_COPY,
-    'import_move' : DFT_IMPORT_MOVE,
-    'color'       : DFT_COLOR,
-    'plugins'     : DFT_PLUGINS
-    })
+DFT_CONFIG = {'papers_dir'  : DFT_PAPERS_DIR,
+              'open_cmd'    : DFT_OPEN_CMD,
+              'edit_cmd'    : DFT_EDIT_CMD,
+              'import_copy' : DFT_IMPORT_COPY,
+              'import_move' : DFT_IMPORT_MOVE,
+              'color'       : DFT_COLOR,
+              'plugins'     : DFT_PLUGINS
+             }
 
 BOOLEANS = {'import-copy', 'import-move', 'color'}
-
-DFT_CONFIG.add_section(MAIN_SECTION)
 
 
 # package-shared config that can be accessed using :
 # from configs import config
-config = None
+_config = None
+def config():
+    return _config
 
 class Config(object):
 
     def __init__(self):
-        object.__setattr__(self, '_cfg', copy.copy(DFT_CONFIG))
+        object.__setattr__(self, '_cfg', configparser.SafeConfigParser(DFT_CONFIG))
+        self._cfg.add_section(MAIN_SECTION)
 
     def as_global(self):
-        global config
-        config = self
+        global _config
+        _config = self
 
     def load(self, path = DFT_CONFIG_PATH):
         self._cfg.read(path)
