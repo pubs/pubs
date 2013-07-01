@@ -15,10 +15,12 @@ Git
 
 This project use git-flow {nvie.com/posts/a-successful-git-branching-model}
 as a model for branches management. In particular :
-- master is for release only
-- when you commit to develop, run nosetests before. All tests should pass.
-- in feature/branches, you do whatever you want.
-- when developping a new feature, write tests for it.
+1. master is for release only
+2. when you commit to develop, run nosetests before. All tests should pass.
+3. when you commit to develop, run nosetests before. All tests should pass.
+4. when you commit to develop, run nosetests before. All tests should pass.
+5. in 'feat/' branches, you do whatever you want.
+6. when developping a new feature, write tests for it.
 
 
 Alignement
@@ -52,7 +54,7 @@ Names
 Avoid at all cost to name a variable like a module from the package, a
 dependency or the standart lib.
 This breaks coherence across the code, makes it harder to read.
-Change either the module or variable name, I don't care.
+Change either the module or variable name.
 
 
 Function that have only local uses should be preceded by an underscore.
@@ -66,3 +68,14 @@ These functiona won't be imported automatically with the module.
 It keeps the interface clean, makes occasional hacks explicit, and inform other
 developers that theses functions may need special care when uses outside their
 natural habitat.
+
+
+Files
+=====
+
+Unless you have a good reason, use 'open' as such :
+yes: with open(path, 'w') as f:
+         f.read()
+no : f = open(path, 'r')
+         f.read()
+     f.close()
