@@ -52,6 +52,9 @@ class TestConfig(unittest.TestCase):
 
         with self.assertRaises(configparser.NoOptionError):
             config().color2
+        self.assertEqual(config().get('color2', default = 'blue'), 'blue')
 
         with self.assertRaises(configparser.NoSectionError):
             config(section = 'bla3').color
+        self.assertEqual(config(section = 'bla3').get('color', default = 'green'), 'green')
+        self.assertEqual(config(section = 'bla3').get('color', default = config().color), True)

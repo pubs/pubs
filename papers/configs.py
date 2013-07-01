@@ -72,6 +72,12 @@ class Config(object):
             value = str2bool(value)
         return value
 
+    def get(self, name, default = None):
+        try:
+            return self.__getattr__(name)
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            return default
+
     def items(self):
         for name, value in self._cfg.items(self._section):
             if name in BOOLEANS:
