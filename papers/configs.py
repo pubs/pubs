@@ -33,14 +33,18 @@ BOOLEANS = {'import-copy', 'import-move', 'color'}
 # package-shared config that can be accessed using :
 # from configs import config
 _config = None
-def config():
+def config(section = MAIN_SECTION):
+    if config is None:
+        raise ValueError, 'not config instanciated yet'
+    _config._section = section
     return _config
 
 class Config(object):
 
     def __init__(self):
         object.__setattr__(self, '_cfg', configparser.SafeConfigParser(DFT_CONFIG))
-        self._cfg.add_section(MAIN_SECTION)
+        object.__setattr__(self, '_section', MAIN_SECTION) # active section
+        self._cfg.add_section(self._section)
 
     def as_global(self):
         global _config
@@ -55,18 +59,21 @@ class Config(object):
             self._cfg.write(f)
 
     def __setattr__(self, name, value):
-        if type(value) is bool:
-            BOOLEANS.add(name)
-        self._cfg.set(MAIN_SECTION, name, str(value))
+        if name in ('_cfg', '_section'):
+            object.__setattr__(self, name, value)
+        else:
+            if type(value) is bool:
+                BOOLEANS.add(name)
+            self._cfg.set(self._section, name, str(value))
 
     def __getattr__(self, name):
-        value = self._cfg.get(MAIN_SECTION, name)
+        value = self._cfg.get(self._section, name)
         if name in BOOLEANS:
             value = str2bool(value)
         return value
 
     def items(self):
-        for name, value in self._cfg.items(MAIN_SECTION):
+        for name, value in self._cfg.items(self._section):
             if name in BOOLEANS:
                 value = str2bool(value)
             yield name, value
