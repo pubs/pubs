@@ -37,7 +37,7 @@ class PapersPlugin(object):
         This is a basic example
         """
         for s in strings:
-            print s
+            print(s)
 
     @classmethod
     def get_instance(cls):

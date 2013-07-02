@@ -2,12 +2,13 @@
 This module can't depend on configs.
 If you feel the need to import configs, you are not in the right place.
 """
-
+from __future__ import print_function
 
 import os
 import subprocess
 import tempfile
-from cStringIO import StringIO
+from .p3 import io
+from io import StringIO
 
 import yaml
 
@@ -65,9 +66,9 @@ def name_from_path(fullpdfpath, verbose=False):
 def check_file(path, fail=False):
     if fail:
         if not os.path.exists(path):
-            raise(IOError, "File does not exist: %s." % path)
+            raise IOError("File does not exist: {}.".format(path))
         if not os.path.isfile(path):
-            raise(IOError, "%s is not a file." % path)
+            raise IOError("{} is not a file.".format(path))
         return True
     else:
         return os.path.exists(path) and os.path.isfile(path)
@@ -129,7 +130,7 @@ def load_meta(filepath):
 def load_externalbibfile(fullbibpath):
     check_file(fullbibpath, fail=True)
     filename, ext = os.path.splitext(os.path.split(fullbibpath)[1])
-    if ext[1:] in FORMATS_INPUT.keys():
+    if ext[1:] in list(FORMATS_INPUT.keys()):
         with open(fullbibpath) as f:
             return _parse_bibdata_formated_stream(f, ext[1:])
     else:
@@ -144,11 +145,11 @@ def _parse_bibdata_formated_stream(stream, fmt):
     try:
         parser = FORMATS_INPUT[fmt].Parser()
         data = parser.parse_stream(stream)
-        if data.entries.keys() > 0:
+        if len(list(data.entries.keys())) > 0:
             return data
     except Exception:
         pass
-    raise ValueError, 'content format is not recognized.'
+    raise ValueError('content format is not recognized.')
 
 def parse_bibdata(content, format_ = None):
     """Parse bib data from string or stream.
@@ -170,7 +171,7 @@ def parse_bibdata(content, format_ = None):
         except Exception:
             pass
 
-    raise ValueError, 'content format is not recognized.'
+    raise ValueError('content format is not recognized.')
 
 
 def editor_input(editor, initial="", suffix=None):

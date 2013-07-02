@@ -15,9 +15,12 @@
 # included in all copies or substantial portions of the Software.
 
 
-import locale
+#import locale
 import sys
-from ConfigParser import NoOptionError
+
+from . import p3
+from p3 import input
+from p3 import configparser
 
 from . import configs
 
@@ -34,7 +37,7 @@ def _encoding(config):
     # Configured override?
     try:
         return config.get(configs.MAIN_SECTION, 'terminal-encoding')
-    except NoOptionError:
+    except configparser.NoOptionError:
         # Determine from locale settings.
         try:
             return locale.getdefaultlocale()[1] or 'utf8'
@@ -54,7 +57,7 @@ def input_():
     # use print() explicitly to display prompts.
     # http://bugs.python.org/issue1927
     try:
-        resp = raw_input()
+        resp = input()
     except EOFError:
         raise UserError('stdin stream ended while input required')
     return resp.decode(sys.stdin.encoding or 'utf8', 'ignore')

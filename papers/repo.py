@@ -97,7 +97,7 @@ class Repository(object):
             try:
                 return self.citekeys[int(ref)]
             except (IndexError, ValueError):
-                raise(InvalidReference)
+                raise InvalidReference
 
 
     # papers
@@ -116,7 +116,7 @@ class Repository(object):
 
     def add_paper(self, p, overwrite = False):
         if p.citekey is None:  # TODO also test if citekey is valid
-            raise(ValueError("Invalid citekey: %s." % p.citekey))
+            raise ValueError("Invalid citekey: {}.".format(p.citekey))
         if not overwrite and p.citekey in self:
             raise CiteKeyCollision('citekey {} already in use'.format(
                                    p.citekey))
@@ -178,7 +178,7 @@ class Repository(object):
 
     def save_paper(self, paper):
         if not paper.citekey in self:
-            raise(ValueError('Paper not in repository, first add it.'))
+            raise ValueError('Paper not in repository, first add it.')
         paper.save(self._bibfile(paper.citekey),
                    self._metafile(paper.citekey))
 
@@ -199,7 +199,7 @@ class Repository(object):
 
     def import_document(self, citekey, doc_file):
         if citekey not in self.citekeys:
-            raise(ValueError, "Unknown citekey: %s." % citekey)
+            raise ValueError("Unknown citekey: {}.".format(citekey))
         else:
             if not os.path.isfile(doc_file):
                 raise ValueError("No file {} found.".format(doc_file))

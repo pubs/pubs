@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 
 from .beets_ui import _encoding, input_

@@ -7,3 +7,7 @@ if sys.version_info[0] == 2:
 else:
     import configparser
     import io
+
+configparser = configparser
+io = io
+input = input

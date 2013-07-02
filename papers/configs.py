@@ -1,6 +1,6 @@
 import os
 import copy
-from p3 import configparser
+from .p3 import configparser
 
 # constant stuff (DFT = DEFAULT)
 
@@ -33,7 +33,7 @@ BOOLEANS = {'import_copy', 'import_move', 'color'}
 _config = None
 def config(section = MAIN_SECTION):
     if _config is None:
-        raise ValueError, 'not config instanciated yet'
+        raise ValueError('not config instanciated yet')
     _config._section = section
     return _config
 

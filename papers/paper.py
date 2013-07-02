@@ -36,7 +36,7 @@ def get_bibentry_from_file(bibfile):
     """Extract first entry (supposed to be the only one) from given file.
     """
     bib_data = files.load_externalbibfile(bibfile)
-    first_key = bib_data.entries.keys()[0]
+    first_key = list(bib_data.entries.keys())[0]
     first_entry = bib_data.entries[first_key]
     return first_key, first_entry
 
@@ -45,7 +45,7 @@ def get_bibentry_from_string(content):
     """Extract first entry (supposed to be the only one) from given file.
     """
     bib_data = files.parse_bibdata(StringIO(content))
-    first_key = bib_data.entries.keys()[0]
+    first_key = list(bib_data.entries.keys())[0]
     first_entry = bib_data.entries[first_key]
     return first_key, first_entry
 
@@ -88,7 +88,7 @@ def get_safe_metadata_from_path(metapath):
 def check_citekey(citekey):
     # TODO This is not the right way to test that (17/12/2012)
     if unicode(citekey) != str2citekey(citekey):
-        raise(ValueError("Invalid citekey: %s" % citekey))
+        raise ValueError("Invalid citekey: %s" % citekey)
 
 
 class NoDocumentFile(Exception):
@@ -157,8 +157,8 @@ class Paper(object):
         try:
             first_author = self.bibentry.persons[author_key][0]
         except KeyError:
-            raise(ValueError(
-                    'No author or editor defined: cannot generate a citekey.'))
+            raise ValueError(
+                    'No author or editor defined: cannot generate a citekey.')
         try:
             year = self.bibentry.fields['year']
         except KeyError:
@@ -171,8 +171,8 @@ class Paper(object):
         saves it to disc.
         """
         if self.citekey is None:
-            raise(ValueError(
-                'No valid citekey initialized. Cannot save paper'))
+            raise ValueError(
+                'No valid citekey initialized. Cannot save paper')
         bibdata = BibliographyData(entries={self.citekey: self.bibentry})
         files.save_bibdata(bibdata, bib_filepath)
         files.save_meta(self.metadata, meta_filepath)
@@ -208,7 +208,7 @@ class Paper(object):
                 f = '/' + f
             return f
         except (KeyError, IndexError):
-            raise(NoDocumentFile('No file found in bib data.'))
+            raise NoDocumentFile('No file found in bib data.')
 
     def copy(self):
         return Paper(bibentry=copy_bibentry(self.bibentry),
@@ -247,7 +247,7 @@ class Paper(object):
                     try:
                         papers.append(Paper(bibentry=b.entries[k], citekey=k))
                     except ValueError, e:
-                        print "Warning, skipping paper (%s)." % e
+                        print('Warning, skipping paper ({}).'.format(e))
             return papers
 
 
@@ -260,7 +260,7 @@ class Paper(object):
     @tags.setter
     def tags(self, value):
         if not hasattr(value, '__iter__'):
-            raise ValueError, 'tags must be iterables'
+            raise ValueError('tags must be iterables')
         self.metadata['tags'] = set(value)
 
     def add_tag(self, tag):
