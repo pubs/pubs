@@ -25,9 +25,11 @@ class TestConfig(unittest.TestCase):
         a.as_global()
         config().color = 'no'
         self.assertEqual(config().color, False)
+        self.assertEqual(config('papers').color, False)
         # booleans type for new variables are memorized, but not saved.
         config().bla = True
         self.assertEqual(config().bla, True)
+        self.assertEqual(config('papers').bla, True)
 
         with self.assertRaises(configparser.NoOptionError):
             config()._cfg.get(configs.MAIN_SECTION, '_section')

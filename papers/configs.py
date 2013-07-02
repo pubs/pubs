@@ -40,9 +40,13 @@ def config(section = MAIN_SECTION):
 class Config(object):
 
     def __init__(self, **kwargs):
-        object.__setattr__(self, '_cfg', configparser.SafeConfigParser(DFT_CONFIG))
         object.__setattr__(self, '_section', MAIN_SECTION) # active section
+        object.__setattr__(self, '_cfg', configparser.SafeConfigParser())
+
         self._cfg.add_section(self._section)
+        for name, value in DFT_CONFIG.items():
+            self._cfg.set(self._section, name, str(value))
+
         for name, value in kwargs.items():
             self.__setattr__(name, value)
 
