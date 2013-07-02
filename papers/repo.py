@@ -15,7 +15,7 @@ META_DIR = 'meta'
 DOC_DIR = 'doc'
 
 
-class CiteKeyAlreadyExists(Exception):
+class CiteKeyCollision(Exception):
     pass
 
 
@@ -113,20 +113,25 @@ class Repository(object):
         if p.citekey is None:  # TODO also test if citekey is valid
             raise(ValueError("Invalid citekey: %s." % p.citekey))
         if not overwrite and p.citekey in self:
-            raise(ValueError('citekey {} already in use'.format(p.citekey)))
+            raise CiteKeyCollision('citekey {} already in use'.format(
+                                   p.citekey))
         self.citekeys.append(p.citekey)
         self.save_paper(p)
         self.save()
         # TODO change to logging system (17/12/2012)
-        print "Added: %s" % p.citekey
+        print('Added: {}'.format(p.citekey))
+        return p
 
     def rename_paper(self, paper, new_citekey, overwrite=False):
         """Modify the citekey of a paper, and propagate changes to disk"""
         if paper.citekey not in self:
-            raise(ValueError, 'paper {} not in repository'.format(p.citekey))
-        if not overwrite and new_citekey not in self:
-            raise(ValueError, 'citekey {} already in use'.format(new_citekey))
-        paper.remove_paper(paper.citekey, remove_doc = False)
+            raise ValueError(
+                  'paper {} not in repository'.format(paper.citekey))
+        if (not overwrite and paper.citekey != new_citekey
+            and new_citekey in self):
+            raise CiteKeyCollision('citekey {} already in use'.format(
+                                   new_citekey))
+        self.remove_paper(paper.citekey, remove_doc = False)
         paper.citekey = new_citekey
         self.add_paper(paper, overwrite = overwrite)
 
@@ -166,19 +171,14 @@ class Repository(object):
             if not citekey + _base27(n) in self.citekeys:
                 return citekey + _base27(n)
 
-
-
-
     def import_document(self, citekey, doc_file):
         if citekey not in self.citekeys:
-            raise(ValueError, "Unknown citekey: %s." % citekey)
+            raise ValueError("Unknown citekey {}.".format(citekey))
         else:
-            doc_path = self.get_document_directory()
-            if not (os.path.exists(doc_path) and os.path.isdir(doc_path)):
-                raise(NoDocumentFile,
-                      "Document directory %s, does not exist." % doc_path)
-            ext = os.path.splitext(doc_file)[1]
-            new_doc_file = os.path.join(doc_path, citekey + ext)
+            if not os.path.isfile(doc_file):
+                raise ValueError("No file {} found.".format(doc_file))
+            new_doc_file = os.path.join(self.doc_dir,
+                                        os.path.basename(doc_file))
             shutil.copy(doc_file, new_doc_file)
 
     def get_tags(self):
