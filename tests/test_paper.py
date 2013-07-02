@@ -7,6 +7,7 @@ import shutil
 import yaml
 from pybtex.database import Person
 
+import testenv
 import fixtures
 from papers.paper import Paper
 

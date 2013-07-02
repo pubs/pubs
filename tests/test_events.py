@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import testenv
 from papers.events import Event
 
 
