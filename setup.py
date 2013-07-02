@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='papers',
-      version='1',
+      version='3',
       author='Fabien Benureau, Olivier Mangin, Jonathan Grizou',
       author_email='fabien.benureau+inria@gmail.com',
       url='',

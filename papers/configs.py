@@ -18,6 +18,7 @@ DFT_CONFIG = {'papers_dir'  : os.path.expanduser('~/.papers'),
               'import_copy' : 'yes',
               'import_move' : 'no',
               'color'       : 'yes',
+              'version'     : 3,
 
               'open_cmd'    : 'open',
               'edit_cmd'    : DFT_EDIT_CMD,
