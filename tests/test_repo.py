@@ -101,7 +101,7 @@ class TestUpdatePaper(TestRepo):
                                   os.path.join(os.path.dirname(__file__),
                                                'data/pagerank.pdf'))
         self.repo.rename_paper(self.repo.get_paper('Turing1950'), 'Doe2003')
-        # self.assertFalse(os.path.exists(os.path.join(
-        #     self.repo.doc_dir, 'Turing1950.pdf')))
-        # self.assertTrue(os.path.exists(os.path.join(
-        #     self.repo.doc_dir, 'Doe2013.pdf')))
+        self.assertFalse(os.path.exists(os.path.join(
+            self.repo.doc_dir, 'Turing1950.pdf')))
+        self.assertTrue(os.path.exists(os.path.join(
+            self.repo.doc_dir, 'Doe2003.pdf')))

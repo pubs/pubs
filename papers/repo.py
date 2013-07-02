@@ -136,9 +136,23 @@ class Repository(object):
             and new_citekey in self):
             raise CiteKeyCollision('citekey {} already in use'.format(
                                    new_citekey))
+
         self.remove_paper(paper.citekey, remove_doc = False)
+        old_citekey = paper.citekey
         paper.citekey = new_citekey
         self.add_paper(paper, overwrite = overwrite)
+        self._move_doc(old_citekey, paper)
+
+    def _move_doc(self, old_citekey, paper):
+        """Fragile. Make more robust"""
+        try:
+            old_docfile = self.find_document(old_citekey)
+            ext = os.path.splitext(old_docfile)[1]
+            new_docfile = os.path.join(self.doc_dir, paper.citekey + ext)
+            shutil.move(old_docfile, new_docfile)
+            paper.set_external_document(new_docfile)
+        except NoDocumentFile:
+            pass
 
     def _bibfile(self, citekey):
         return os.path.join(self.bib_dir, citekey + '.bibyaml')
@@ -176,14 +190,21 @@ class Repository(object):
             if not citekey + _base27(n) in self.citekeys:
                 return citekey + _base27(n)
 
+    def find_document(self, citekey):
+        found = glob.glob('{}/{}.*'.format(self.doc_dir, citekey))
+        if found:
+            return found[0]
+        else:
+            raise NoDocumentFile
+
     def import_document(self, citekey, doc_file):
         if citekey not in self.citekeys:
-            raise ValueError("Unknown citekey {}.".format(citekey))
+            raise(ValueError, "Unknown citekey: %s." % citekey)
         else:
             if not os.path.isfile(doc_file):
                 raise ValueError("No file {} found.".format(doc_file))
-            new_doc_file = os.path.join(self.doc_dir,
-                                        os.path.basename(doc_file))
+            ext = os.path.splitext(doc_file)[1]
+            new_doc_file = os.path.join(self.doc_dir, citekey + ext)
             shutil.copy(doc_file, new_doc_file)
 
     def get_tags(self):
