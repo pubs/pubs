@@ -3,7 +3,7 @@ import shutil
 import subprocess
 
 from ... import repo
-from ... import configs
+from ...configs import config
 from ... import files
 from ...plugin import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
@@ -18,7 +18,7 @@ TEXNOTE_DIR = 'texnote'
 
 class TexnotePlugin(PapersPlugin):
 
-    def parser(self, subparsers, config):
+    def parser(self, subparsers):
         parser = subparsers.add_parser(self.name, help="edit advance note in latex")
         sub = parser.add_subparsers(title="valid texnote commands", dest="texcmd")
         p = sub.add_parser("remove", help="remove a reference")
@@ -29,11 +29,11 @@ class TexnotePlugin(PapersPlugin):
         parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
         return parser
 
-    def command(self, config, ui, texcmd, reference, view):
+    def command(self, ui, texcmd, reference, view):
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
         if texcmd == 'edit':
-            open_texnote(config, ui, reference)
+            open_texnote(ui, reference)
 
     def toto(self):
         print "toto"
@@ -47,7 +47,8 @@ class TexnotePlugin(PapersPlugin):
 def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
     texplug.toto()
-    rp = repo.Repository.from_directory(rmevent.config)
+    # HACK : transfer repo via RemoveEvent, do not recreate one
+    rp = repo.Repository(config())
     paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
     if 'texnote' in paper.metadata:
         try:
@@ -59,8 +60,9 @@ def remove(rmevent):
         files.save_meta(paper.metadata, metapath)
 
 
-def open_texnote(config, ui, ref):
-    rp = repo.Repository.from_directory(config)
+def open_texnote(ui, ref):
+    # HACK : transfer repo via arguments, do not recreate one
+    rp = repo.Repository(config())
     paper = rp.get_paper(parse_reference(ui, rp, ref))
 
     #ugly to recode like for the doc field
@@ -83,12 +85,8 @@ def open_texnote(config, ui, ref):
     autofill_texnote(texnote_path, paper.bibentry)
 
     #open the file using the config editor
-    if config.has_option(TEXNOTE_SECTION, 'edit-cmd'):
-        #os.system(config.get(TEXNOTE_SECTION, 'edit-cmd') + ' ' + texnote_path + " &")
-        subprocess.Popen([config.get(TEXNOTE_SECTION, 'edit-cmd'), texnote_path])
-    else:
-        #os.system(config.get(configs.MAIN_SECTION, 'edit-cmd') + ' ' + texnote_path + " &")
-        subprocess.Popen([config.get(configs.MAIN_SECTION, 'edit-cmd'), texnote_path])
+    edit_cmd = config(TEXTNOTE_SECTION).get('edit_cmd', config().edit_cmd)
+    subprocess.Popen([edit_cmd, texnote_path])
 
 
 ##### ugly replace by proper #####
