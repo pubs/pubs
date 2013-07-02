@@ -32,7 +32,7 @@ class TestRepo(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.repo = Repository(configs.Config(papers_dir = self.tmpdir), load = False)
-        self.repo.init_dirs()
+        self.repo.save()
         self.repo.add_paper(fixtures.turing1950)
 
     def tearDown(self):

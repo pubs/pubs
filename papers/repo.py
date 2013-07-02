@@ -55,14 +55,17 @@ class Repository(object):
 
     # load, save repo
 
-    def init_dirs(self):
+    def _init_dirs(self, autodoc = True):
         """Create, if necessary, the repository directories.
 
-        Can be called more than once.
+        Should only be called by load or save.
         """
         self.bib_dir  = files.clean_path(self.config.papers_dir, BIB_DIR)
         self.meta_dir = files.clean_path(self.config.papers_dir, META_DIR)
-        self.doc_dir  = files.clean_path(self.config.doc_dir)
+        if self.config.doc_dir == 'doc':
+            self.doc_dir = files.clean_path(self.config.papers_dir, DOC_DIR)
+        else:
+            self.doc_dir  = files.clean_path(self.config.doc_dir)
         self.cfg_path = files.clean_path(self.config.papers_dir, 'papers.yaml')
 
         for d in [self.bib_dir, self.meta_dir, self.doc_dir]:
@@ -71,13 +74,13 @@ class Repository(object):
 
     def load(self):
         """Load the repository, creating dirs if necessary"""
-        self.init_dirs()
+        self._init_dirs()
         repo_config = files.read_yamlfile(self.cfg_path)
         self.citekeys = repo_config['citekeys']
 
     def save(self):
         """Save the repo, creating dirs if necessary"""
-        self.init_dirs()
+        self._init_dirs()
         repo_cfg = {'citekeys': self.citekeys}
         files.write_yamlfile(self.cfg_path, repo_cfg)
 

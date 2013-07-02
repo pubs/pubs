@@ -102,7 +102,7 @@ class TestAdd(unittest.TestCase):
 
         papers_cmd.execute('papers init -p /not_default'.split())
         papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
-        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'Page99.pdf'})
+        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'pagerank.pdf'})
 
 
 class TestList(unittest.TestCase):
@@ -122,7 +122,7 @@ class TestUsecase(unittest.TestCase):
 
     def test_first(self):
 
-        correct = ['Initializing papers in /paper_first/.\n',
+        correct = ['Initializing papers in /paper_first.\n',
                    'Added: Page99\n',
                    '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
                    '',

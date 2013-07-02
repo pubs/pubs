@@ -6,29 +6,25 @@ from p3 import configparser
 
 MAIN_SECTION    = 'papers'
 DFT_CONFIG_PATH = os.path.expanduser('~/.papersrc')
-DFT_PAPERS_DIR  = os.path.expanduser('~/.papers')
-DFT_OPEN_CMD    = 'open'
 try:
     DFT_EDIT_CMD = os.environ['EDITOR']
 except KeyError:
     DFT_EDIT_CMD = 'vi'
 
-DFT_IMPORT_COPY = 'yes'
-DFT_IMPORT_MOVE = 'no'
-DFT_COLOR       = 'yes'
 DFT_PLUGINS     = 'texnote'
 
-DFT_CONFIG = {'papers_dir'  : DFT_PAPERS_DIR,
-              'doc_dir'     : os.path.join(DFT_PAPERS_DIR, 'doc'),
-              'open_cmd'    : DFT_OPEN_CMD,
+DFT_CONFIG = {'papers_dir'  : os.path.expanduser('~/.papers'),
+              'doc_dir'     : 'doc',
+              'import_copy' : 'yes',
+              'import_move' : 'no',
+              'color'       : 'yes',
+
+              'open_cmd'    : 'open',
               'edit_cmd'    : DFT_EDIT_CMD,
-              'import_copy' : DFT_IMPORT_COPY,
-              'import_move' : DFT_IMPORT_MOVE,
-              'color'       : DFT_COLOR,
               'plugins'     : DFT_PLUGINS
              }
 
-BOOLEANS = {'import-copy', 'import-move', 'color'}
+BOOLEANS = {'import_copy', 'import_move', 'color'}
 
 
 # package-shared config that can be accessed using :

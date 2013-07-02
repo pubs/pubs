@@ -16,8 +16,9 @@ class TestConfig(unittest.TestCase):
     def test_config_content(self):
         a = configs.Config()
         a.as_global()
-        self.assertEqual(config().papers_dir, configs.DFT_PAPERS_DIR)
-        self.assertEqual(config().color, configs.str2bool(configs.DFT_COLOR))
+
+        self.assertEqual(config().papers_dir, configs.DFT_CONFIG['papers_dir'])
+        self.assertEqual(config().color, configs.str2bool(configs.DFT_CONFIG['color']))
 
     def test_set(self):
         a = configs.Config()
@@ -33,17 +34,19 @@ class TestConfig(unittest.TestCase):
 
     def test_reload(self):
 
+        default_color = configs.DFT_CONFIG['color']
+
         a = configs.Config()
         a.as_global()
         a.color = False
         a.bla = 'foo'
-        config.color = not configs.str2bool(configs.DFT_COLOR)
-        self.assertEqual(config().color, not configs.str2bool(configs.DFT_COLOR))
+        config.color = not configs.str2bool(default_color)
+        self.assertEqual(config().color, not configs.str2bool(default_color))
 
         b = configs.Config()
         b.as_global()
         self.assertEqual(b, config())
-        self.assertEqual(config().color, configs.str2bool(configs.DFT_COLOR))
+        self.assertEqual(config().color, configs.str2bool(default_color))
 
     def test_exception(self):
 

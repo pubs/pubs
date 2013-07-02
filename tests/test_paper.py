@@ -73,25 +73,25 @@ class TestSaveLoad(unittest.TestCase):
     def test_save_fails_with_no_citekey(self):
         p = Paper()
         with self.assertRaises(ValueError):
-            p.save_to_disc(self.dest_bibfile, self.dest_metafile)
+            p.save(self.dest_bibfile, self.dest_metafile)
 
     def test_save_creates_bib(self):
-        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
         self.assertTrue(os.path.exists(self.dest_bibfile))
 
     def test_save_creates_meta(self):
-        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
         self.assertTrue(os.path.exists(self.dest_metafile))
 
     def test_save_right_bib(self):
-        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
         with open(self.dest_bibfile, 'r') as f:
             written = yaml.load(f)
             ok = yaml.load(BIB)
             self.assertEqual(written, ok)
 
     def test_save_right_meta(self):
-        fixtures.turing1950.save_to_disc(self.dest_bibfile, self.dest_metafile)
+        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
         with open(self.dest_metafile, 'r') as f:
             written = yaml.load(f)
             ok = yaml.load(META)
