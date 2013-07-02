@@ -3,31 +3,27 @@ import tempfile
 import shutil
 import os
 
+import testenv
 import fixtures
-from papers.repo import (Repository, _str_incr, _to_suffix, BIB_DIR, META_DIR,
+from papers.repo import (Repository, _base27, BIB_DIR, META_DIR,
                          CiteKeyAlreadyExists)
 from papers.paper import PaperInRepo
-
+from papers import configs
 
 class TestCitekeyGeneration(unittest.TestCase):
 
     def test_string_increment(self):
-        l = []
-        self.assertEqual(_to_suffix(l), '')
-        _str_incr(l)
-        self.assertEqual(_to_suffix(l), 'a')
-        _str_incr(l)
-        self.assertEqual(_to_suffix(l), 'b')
-        l = ['z']
-        _str_incr(l)
-        self.assertEqual(_to_suffix(l), 'aa')
+        self.assertEqual(_base27(0), '')
+        for i in range(26):
+            self.assertEqual(_base27(i+1), chr(97+i))
+            self.assertEqual(_base27(26+i+1), 'a' + chr(97+i))
 
     def test_generated_key_is_unique(self):
-        repo = Repository()
+        repo = Repository(configs.Config())
         repo.citekeys = ['Turing1950', 'Doe2003']
-        c = repo.get_free_citekey(fixtures.turing1950)
+        c = repo.generate_citekey(fixtures.turing1950)
         repo.citekeys.append('Turing1950a')
-        c = repo.get_free_citekey(fixtures.turing1950)
+        c = repo.generate_citekey(fixtures.turing1950)
         self.assertEqual(c, 'Turing1950b')
 
 
@@ -35,7 +31,7 @@ class TestRepo(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.repo = Repository()
+        self.repo = Repository(configs.Config())
         self.repo.init(self.tmpdir)
         self.repo.add_paper(fixtures.turing1950)
 
