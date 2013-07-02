@@ -1,4 +1,5 @@
 import importlib
+from .configs import config
 
 PLUGIN_NAMESPACE = 'plugs'
 
@@ -11,20 +12,19 @@ class PapersPlugin(object):
     functionality by defining a subclass of PapersPlugin and overriding
     the abstract methods defined here.
     """
-    def __init__(self, config, ui):
+    def __init__(self, ui):
         """Perform one-time plugin setup.
         """
         self.name = self.__module__.split('.')[-1]
-        self.config = config
         self.ui = ui
 
-    #config and ui and given again to stay consistent with the core papers cmd.
+    #ui and given again to stay consistent with the core papers cmd.
     #two options:
     #- create specific cases in script papers/papers
-    #- do not store self.config and self.ui and use them if needed when command is called
+    #- do not store self.ui and use them if needed when command is called
     #this may end up with a lot of function with config/ui in argument
     #or just keep it that way...
-    def parser(self, subparsers, config):
+    def parser(self, subparsers):
         """ Should retrun the parser with plugins specific command.
         This is a basic example
         """
@@ -32,7 +32,7 @@ class PapersPlugin(object):
         parser.add_argument('strings', nargs='*', help='the strings')
         return parser
 
-    def command(self, config, ui, strings):
+    def command(self, ui, strings):
         """This function will be called with argument defined in the parser above
         This is a basic example
         """
@@ -47,7 +47,7 @@ class PapersPlugin(object):
             raise RuntimeError("{} instance not created".format(cls.__name__))
 
 
-def load_plugins(config, ui, names):
+def load_plugins(ui, names):
     """Imports the modules for a sequence of plugin names. Each name
     must be the name of a Python module under the "PLUGIN_NAMESPACE" namespace
     package in sys.path; the module indicated should contain the
@@ -69,7 +69,7 @@ def load_plugins(config, ui, names):
                     if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
                             and obj != PapersPlugin:
                         _classes.append(obj)
-                        _instances[obj] = obj(config, ui)
+                        _instances[obj] = obj(ui)
 
         except:
             ui.warning('error loading plugin {}'.format(name))

@@ -2,9 +2,10 @@ from ..files import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
 from .helpers import add_references_argument, parse_reference
+from ..configs import config
 
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('edit',
             help='open the paper bibliographic file in an editor')
     parser.add_argument('-m', '--meta', action='store_true', default=False,
@@ -13,8 +14,8 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, meta, reference):
-    rp = repo.Repository.from_directory(config)
+def command(ui, meta, reference):
+    rp = repo.Repository.from_directory(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
     to_edit = 'bib'
@@ -25,7 +26,7 @@ def command(config, ui, meta, reference):
         content = f.read()
     while True:
         # Get new content from user
-        content = editor_input(config, content)
+        content = editor_input(config().edit_cmd, content)
         new_key = key
         bib = None
         metadata = None

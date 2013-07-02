@@ -1,10 +1,11 @@
-import sys, os
+import sys, os, shutil, glob
 import unittest
 import pkgutil
 
 import testenv
 import fake_filesystem
 import fake_filesystem_shutil
+import fake_filesystem_glob
 
 from papers import papers_cmd
 from papers import color
@@ -12,23 +13,27 @@ from papers.p3 import io
 
 real_os = os
 real_open = open
+real_shutil = shutil
+real_glob = glob
 
-fake_os, fake_open, fake_shutil = None, None, None
+fake_os, fake_open, fake_shutil, fake_glob = None, None, None, None
 
 def _create_fake_fs():
-    global fake_os, fake_open, fake_shutil
+    global fake_os, fake_open, fake_shutil, fake_glob
 
     fake_fs = fake_filesystem.FakeFilesystem()
     fake_os = fake_filesystem.FakeOsModule(fake_fs)
     fake_open = fake_filesystem.FakeFileOpen(fake_fs)
     fake_shutil = fake_filesystem_shutil.FakeShutilModule(fake_fs)
+    fake_glob = fake_filesystem_glob.FakeGlobModule(fake_fs)
 
     fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
     __builtins__['open'] = fake_open
     __builtins__['file'] = fake_open
 
-    sys.modules['os'] = fake_os
+    sys.modules['os']     = fake_os
     sys.modules['shutil'] = fake_shutil
+    sys.modules['glob']   = fake_glob
 
     import papers
     for importer, modname, ispkg in pkgutil.walk_packages(
@@ -122,7 +127,7 @@ class TestUsecase(unittest.TestCase):
 
     def test_first(self):
 
-        correct = ['Initializing papers in /paper_first/.\n',
+        correct = ['Initializing papers in /paper_first.\n',
                    'Added: Page99\n',
                    '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
                    '',

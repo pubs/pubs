@@ -3,8 +3,6 @@ import sys
 from .beets_ui import _encoding, input_
 
 from . import color
-from . import configs
-
 
 class UI:
     """UI class. Stores configuration parameters and system information.
@@ -12,8 +10,7 @@ class UI:
 
     def __init__(self, config):
         self.encoding = _encoding(config)
-        color_enable = configs.get_boolean(config.get('papers', 'color'))
-        color.setup(color_enable)
+        color.setup(config.color)
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character

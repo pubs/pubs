@@ -2,12 +2,12 @@ import subprocess
 
 from .. import repo
 from ..paper import NoDocumentFile
-from .. import configs
+from ..configs import config
 from .. import color
 from .helpers import add_references_argument, parse_reference
 
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('open',
             help='open the paper in a pdf viewer')
     parser.add_argument('-w', '--with', dest='with_command', default=None,
@@ -16,12 +16,12 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, with_command, reference):
+def command(ui, with_command, reference):
     rp = repo.Repository.from_directory(config)
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
     if with_command is None:
-        with_command = config.get(configs.MAIN_SECTION, 'open-cmd')
+        with_command = config().open_cmd
     try:
         filepath = paper.get_document_path()
         subprocess.Popen([with_command, filepath])

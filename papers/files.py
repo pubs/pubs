@@ -1,3 +1,9 @@
+"""
+This module can't depend on configs.
+If you feel the need to import configs, you are not in the right place.
+"""
+
+
 import os
 import subprocess
 import tempfile
@@ -6,7 +12,6 @@ from cStringIO import StringIO
 import yaml
 
 from . import ui
-from . import configs
 from . import color
 
 try:
@@ -30,21 +35,21 @@ except ImportError:
 _papersdir = None
 
 BIB_EXTENSIONS = ['.bib', '.bibyaml', '.bibml', '.yaml']
-FORMATS_INPUT = {'bib': pybtex.database.input.bibtex,
-                 'xml': pybtex.database.input.bibtexml,
-                 'yml': pybtex.database.input.bibyaml,
-                 'yaml': pybtex.database.input.bibyaml,
-                 'bibyaml': pybtex.database.input.bibyaml}
-FORMATS_OUTPUT = {'bib': pybtex.database.output.bibtex,
-                  'bibtex': pybtex.database.output.bibtex,
-                  'xml': pybtex.database.output.bibtexml,
-                  'yml': pybtex.database.output.bibyaml,
-                  'yaml': pybtex.database.output.bibyaml,
+FORMATS_INPUT =  {'bib'    : pybtex.database.input.bibtex,
+                  'xml'    : pybtex.database.input.bibtexml,
+                  'yml'    : pybtex.database.input.bibyaml,
+                  'yaml'   : pybtex.database.input.bibyaml,
+                  'bibyaml': pybtex.database.input.bibyaml}
+FORMATS_OUTPUT = {'bib'    : pybtex.database.output.bibtex,
+                  'bibtex' : pybtex.database.output.bibtex,
+                  'xml'    : pybtex.database.output.bibtexml,
+                  'yml'    : pybtex.database.output.bibyaml,
+                  'yaml'   : pybtex.database.output.bibyaml,
                   'bibyaml': pybtex.database.output.bibyaml}
 
 
-def clean_path(path):
-    return os.path.abspath(os.path.expanduser(path))
+def clean_path(*args):
+    return os.path.abspath(os.path.expanduser(os.path.join(*args)))
 
 
 def name_from_path(fullpdfpath, verbose=False):
@@ -168,11 +173,10 @@ def parse_bibdata(content, format_ = None):
     raise ValueError, 'content format is not recognized.'
 
 
-def editor_input(config, initial="", suffix=None):
+def editor_input(editor, initial="", suffix=None):
     """Use an editor to get input"""
     if suffix is None:
         suffix = '.tmp'
-    editor = config.get(configs.MAIN_SECTION, 'edit-cmd')
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(initial)

@@ -28,7 +28,6 @@ class Event(object):
 
 
 class RemoveEvent(Event):
-    def __init__(self, config, ui, citekey):
-        self.config = config
+    def __init__(self, ui, citekey):
         self.ui = ui
         self.citekey = citekey

@@ -166,7 +166,7 @@ class Paper(object):
         citekey = u'{}{}'.format(u''.join(first_author.last()), year)
         return str2citekey(citekey)
 
-    def save_to_disc(self, bib_filepath, meta_filepath):
+    def save(self, bib_filepath, meta_filepath):
         """Creates a BibliographyData object containing a single entry and
         saves it to disc.
         """
