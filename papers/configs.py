@@ -19,6 +19,7 @@ DFT_COLOR       = 'yes'
 DFT_PLUGINS     = 'texnote'
 
 DFT_CONFIG = {'papers_dir'  : DFT_PAPERS_DIR,
+              'doc_dir'     : os.path.join(DFT_PAPERS_DIR, 'doc'),
               'open_cmd'    : DFT_OPEN_CMD,
               'edit_cmd'    : DFT_EDIT_CMD,
               'import_copy' : DFT_IMPORT_COPY,
@@ -41,10 +42,12 @@ def config(section = MAIN_SECTION):
 
 class Config(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         object.__setattr__(self, '_cfg', configparser.SafeConfigParser(DFT_CONFIG))
         object.__setattr__(self, '_section', MAIN_SECTION) # active section
         self._cfg.add_section(self._section)
+        for name, value in kwargs.items():
+            self.__setattr__(name, value)
 
     def as_global(self):
         global _config

@@ -58,3 +58,7 @@ class TestConfig(unittest.TestCase):
             config(section = 'bla3').color
         self.assertEqual(config(section = 'bla3').get('color', default = 'green'), 'green')
         self.assertEqual(config(section = 'bla3').get('color', default = config().color), True)
+
+    def test_keywords(self):
+        a = configs.Config(papers_dir = '/blabla')
+        self.assertEqual(a.papers_dir, '/blabla')
