@@ -32,7 +32,7 @@ BOOLEANS = {'import_copy', 'import_move', 'color'}
 # from configs import config
 _config = None
 def config(section = MAIN_SECTION):
-    if config is None:
+    if _config is None:
         raise ValueError, 'not config instanciated yet'
     _config._section = section
     return _config
