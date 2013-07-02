@@ -33,6 +33,8 @@ class Repository(object):
         """
         self.config = config
         self.citekeys = []
+        if load:
+            self.load()
 
     # @classmethod
     # def from_directory(cls, config, papersdir=None):

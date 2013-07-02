@@ -19,7 +19,7 @@ class TestCitekeyGeneration(unittest.TestCase):
             self.assertEqual(_base27(26+i+1), 'a' + chr(97+i))
 
     def test_generated_key_is_unique(self):
-        repo = Repository(configs.Config())
+        repo = Repository(configs.Config(), load = False)
         repo.citekeys = ['Turing1950', 'Doe2003']
         c = repo.generate_citekey(fixtures.turing1950)
         repo.citekeys.append('Turing1950a')
@@ -31,7 +31,7 @@ class TestRepo(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.repo = Repository(configs.Config(papers_dir = self.tmpdir))
+        self.repo = Repository(configs.Config(papers_dir = self.tmpdir), load = False)
         self.repo.init_dirs()
         self.repo.add_paper(fixtures.turing1950)
 
