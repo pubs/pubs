@@ -5,9 +5,9 @@ from pybtex.database import BibliographyData
 from .. import repo
 from .. import files
 from .helpers import parse_references, add_references_argument
+from ..configs import config
 
-
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('export',
             help='export bibliography')
     parser.add_argument('-f', '--bib-format', default='bibtex',
@@ -16,11 +16,11 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, bib_format, references):
+def command(ui, bib_format, references):
     """
     :param bib_format       (in 'bibtex', 'yaml')
     """
-    rp = repo.Repository.from_directory(config)
+    rp = repo.Repository.from_directory(config())
     papers = [rp.get_paper(c)
               for c in parse_references(ui, rp, references)]
     if len(papers) == 0:

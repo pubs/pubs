@@ -1,10 +1,10 @@
 from .. import repo
-from .. import configs
+from ..configs import config
 from .helpers import (add_references_argument, parse_reference,
                       add_docfile_to_paper)
 
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('attach',
             help='attach a document to an existing paper')
     parser.add_argument('-c', '--copy', action='store_true', default=None,
@@ -16,14 +16,14 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, copy, reference, document):
+def command(ui, copy, reference, document):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
     """
     if copy is None:
-        copy = config.get(configs.MAIN_SECTION, 'import-copy')
-    rp = repo.Repository.from_directory(config)
+        copy = config().import_copy
+    rp = repo.Repository(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
     try:

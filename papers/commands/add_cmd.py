@@ -1,11 +1,11 @@
 from .. import repo
 from .. import files
 from ..paper import Paper, NoDocumentFile, get_bibentry_from_string
-from .. import configs
+from ..configs import config
 from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('-b', '--bibfile',
                         help='bibtex, bibtexml or bibyaml file', default=None)
@@ -19,14 +19,14 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, bibfile, docfile, tags, copy):
+def command(ui, bibfile, docfile, tags, copy):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
     """
     if copy is None:
-        copy = config.get(configs.MAIN_SECTION, 'import-copy')
-    rp = repo.Repository.from_directory(config)
+        copy = config().import_copy
+    rp = repo.Repository(config())
     if bibfile is None:
         cont = True
         bibstr = ''

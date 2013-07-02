@@ -1,12 +1,12 @@
 from .. import repo
 from .. import color
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('update', help='update the repository to the lastest format')
     return parser
 
 
-def command(config, ui):
+def command(ui):
     rp = repo.Repository.from_directory(config)
     msg = ("You should backup the paper directory {} before continuing."
            "Continue ?").format(color.dye(rp.papersdir, color.filepath))

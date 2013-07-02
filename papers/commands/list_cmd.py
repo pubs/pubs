@@ -2,9 +2,10 @@ from .. import pretty
 from .. import repo
 from .. import color
 from . import helpers
+from ..configs import config
 
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('list', help="list papers")
     parser.add_argument('-k', '--citekeys-only', action='store_true',
             default=False, dest='citekeys',
@@ -14,8 +15,8 @@ def parser(subparsers, config):
     return parser
 
 
-def command(config, ui, citekeys, query):
-    rp = repo.Repository.from_directory(config)
+def command(ui, citekeys, query):
+    rp = repo.Repository(config())
     papers = [(n, p) for n, p in enumerate(rp.all_papers())
               if test_paper(query, p)]
     ui.print_('\n'.join(helpers.paper_oneliner(p, n = n, citekey_only = citekeys) for n, p in papers))

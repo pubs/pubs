@@ -19,8 +19,9 @@ The different use cases are :
 
 from ..repo import Repository, InvalidReference
 from . import helpers
+from ..configs import config
 
-def parser(subparsers, config):
+def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('referenceOrTag', nargs='?', default = None,
                         help='reference to the paper (citekey or number), or '
@@ -43,12 +44,12 @@ def _parse_tags(s):
     for m in re.finditer(r'[+-]', s):
         if m.start() == last:
             if last != 0:
-                raise ValueError, 'could not match tag expression'
+                raise ValueError('could not match tag expression')
         else:
             tags.append(s[last:(m.start())])
         last = m.start()
     if last == len(s):
-        raise ValueError, 'could not match tag expression'
+        raise ValueError('could not match tag expression')
     else:
         tags.append(s[last:])
     return tags
@@ -63,16 +64,16 @@ def _tag_groups(tags):
             minus_tags.append(tag[1:])
     return set(plus_tags), set(minus_tags)
 
-def command(config, ui, referenceOrTag, tags):
+def command(ui, referenceOrTag, tags):
     """Add, remove and show tags"""
-    rp = Repository.from_directory(config)
+    rp = Repository(config())
 
     if referenceOrTag is None:
         for tag in rp.get_tags():
             ui.print_(tag)
     else:
         try:
-            citekey = rp.citekey_from_ref(referenceOrTag)
+            citekey = rp.ref2citekey(referenceOrTag)
             p = rp.get_paper(citekey)
             if tags is None:
                 ui.print_(' '.join(p.tags))

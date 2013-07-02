@@ -42,7 +42,7 @@ def extract_doc_path_from_bibdata(paper, ui):
 
 def parse_reference(ui, rp, ref):
     try:
-        return rp.citekey_from_ref(ref)
+        return rp.ref2citekey(ref)
     except InvalidReference:
         ui.error("no paper with reference: %s."
                     % color.dye(ref, color.citekey))
