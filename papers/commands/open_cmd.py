@@ -17,7 +17,7 @@ def parser(subparsers):
 
 
 def command(ui, with_command, reference):
-    rp = repo.Repository.from_directory(config)
+    rp = repo.Repository(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
     if with_command is None:
