@@ -20,7 +20,7 @@ def command(ui, bib_format, references):
     """
     :param bib_format       (in 'bibtex', 'yaml')
     """
-    rp = repo.Repository.from_directory(config())
+    rp = repo.Repository(config())
     papers = [rp.get_paper(c)
               for c in parse_references(ui, rp, references)]
     if len(papers) == 0:
