@@ -32,10 +32,14 @@ class PapersPlugin(object):
         parser.add_argument('strings', nargs='*', help='the strings')
         return parser
 
-    def command(self, ui, strings):
+    def command(self, args):
         """This function will be called with argument defined in the parser above
         This is a basic example
         """
+
+        ui = args.ui
+        strings = args.strings
+
         for s in strings:
             print(s)
 

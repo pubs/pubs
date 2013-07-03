@@ -8,7 +8,7 @@ import collections
 from .ui import UI
 from . import configs
 from . import commands
-from . import plugin
+from . import plugins
 
 cmds = collections.OrderedDict([
         ('init',        commands.init_cmd),
@@ -36,8 +36,8 @@ def execute(raw_args = sys.argv):
     ui = UI(config)
 
     # Extend with plugin commands
-    plugin.load_plugins(ui, config.plugins.split())
-    for p in plugin.get_plugins().values():
+    plugins.load_plugins(ui, config.plugins.split())
+    for p in plugins.get_plugins().values():
         cmds.update(collections.OrderedDict([(p.name, p)]))
 
     parser = argparse.ArgumentParser(description="research papers repository")
