@@ -38,7 +38,8 @@ def execute(raw_args = sys.argv):
     # Extend with plugin commands
     plugins.load_plugins(ui, config.plugins.split())
     for p in plugins.get_plugins().values():
-        cmds.update(collections.OrderedDict([(p.name, p)]))
+        if getattr(p, 'parser') and getattr(p, 'command'):
+            cmds.update(collections.OrderedDict([(p.name, p)]))
 
     parser = argparse.ArgumentParser(description="research papers repository")
     subparsers = parser.add_subparsers(title="valid commands", dest="command")

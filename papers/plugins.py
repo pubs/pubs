@@ -12,11 +12,10 @@ class PapersPlugin(object):
     functionality by defining a subclass of PapersPlugin and overriding
     the abstract methods defined here.
     """
-    def __init__(self, ui):
+    def __init__(self):
         """Perform one-time plugin setup.
         """
         self.name = self.__module__.split('.')[-1]
-        self.ui = ui
 
     #ui and given again to stay consistent with the core papers cmd.
     #two options:
@@ -25,7 +24,7 @@ class PapersPlugin(object):
     #this may end up with a lot of function with config/ui in argument
     #or just keep it that way...
     def parser(self, subparsers):
-        """ Should retrun the parser with plugins specific command.
+        """ Should return the parser with plugins specific command.
         This is a basic example
         """
         parser = subparsers.add_parser(self.name, help="echo string in argument")
@@ -59,24 +58,24 @@ def load_plugins(ui, names):
     """
     for name in names:
         modname = '%s.%s.%s.%s' % ('papers', PLUGIN_NAMESPACE, name, name)
+        #try:
         try:
-            try:
-                namespace = importlib.import_module(modname)
-            except ImportError as exc:
-                # Again, this is hacky:
-                if exc.args[0].endswith(' ' + name):
-                    ui.warning('plugin {} not found'.format(name))
-                else:
-                    raise
+            namespace = importlib.import_module(modname)
+        except ImportError as exc:
+            # Again, this is hacky:
+            if exc.args[0].endswith(' ' + name):
+                ui.warning('plugin {} not found'.format(name))
             else:
-                for obj in namespace.__dict__.values():
-                    if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
-                            and obj != PapersPlugin:
-                        _classes.append(obj)
-                        _instances[obj] = obj(ui)
+                raise
+        else:
+            for obj in namespace.__dict__.values():
+                if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
+                        and obj != PapersPlugin:
+                    _classes.append(obj)
+                    _instances[obj] = obj()
 
-        except:
-            ui.warning('error loading plugin {}'.format(name))
+        #except:
+        #    ui.warning('error loading plugin {}'.format(name))
 
 
 def get_plugins():
