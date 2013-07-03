@@ -16,11 +16,18 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, copy, reference, document):
+def command(args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
     """
+
+    ui = args.ui
+    copy = args.copy
+    reference = args.reference
+    document = args.document
+
+
     if copy is None:
         copy = config().import_copy
     rp = repo.Repository(config())

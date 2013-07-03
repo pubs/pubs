@@ -18,8 +18,13 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, path, doc_dir):
+def command(args):
     """Create a .papers directory"""
+
+    ui = args.ui
+    path = args.path
+    doc_dir = args.doc_dir
+
     if path is not None:
         config().papers_dir = files.clean_path(os.getcwd(), path)
     ppd = config().papers_dir

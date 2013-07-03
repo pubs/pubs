@@ -29,7 +29,14 @@ class TexnotePlugin(PapersPlugin):
         parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
         return parser
 
-    def command(self, ui, texcmd, reference, view):
+    def command(self, args):
+
+        ui = args.ui
+        texcmd = args.texcmd
+        reference = args.reference
+        view = args.view
+
+
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
         if texcmd == 'edit':

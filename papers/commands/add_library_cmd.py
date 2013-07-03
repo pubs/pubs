@@ -9,10 +9,14 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, bibfile):
+def command(args):
     """
-    :param bibtex       bibtex file (in .bib, .bibml or .yaml format.
+    :param bibfile       bibtex file (in .bib, .bibml or .yaml format.
     """
+
+    ui = args.ui
+    bibfile = args.bibfile
+
     rp = repo.Repository(config())
     for p in Paper.many_from_bib(bibfile):
         rp.add_paper(p)

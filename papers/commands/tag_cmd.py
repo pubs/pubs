@@ -28,7 +28,7 @@ def parser(subparsers):
                              'tag.')
     parser.add_argument('tags', nargs='?', default = None,
                         help='If the previous argument was a reference, then '
-                             'then a list of tags separated by commas.')
+                             'then a list of tags separated by a +.')
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
@@ -64,8 +64,14 @@ def _tag_groups(tags):
             minus_tags.append(tag[1:])
     return set(plus_tags), set(minus_tags)
 
-def command(ui, referenceOrTag, tags):
+def command(args):
     """Add, remove and show tags"""
+
+    ui = args.ui
+    referenceOrTag = args.referenceOrTag
+    tags = args.tags
+
+
     rp = Repository(config())
 
     if referenceOrTag is None:

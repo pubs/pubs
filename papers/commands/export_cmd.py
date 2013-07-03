@@ -16,10 +16,15 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, bib_format, references):
+def command(args):
     """
     :param bib_format       (in 'bibtex', 'yaml')
     """
+
+    ui = args.ui
+    bib_format = args.bib_format
+    references = args.references
+
     rp = repo.Repository(config())
     papers = [rp.get_paper(c)
               for c in parse_references(ui, rp, references)]

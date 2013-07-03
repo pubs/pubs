@@ -14,7 +14,12 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, force, references):
+def command(args):
+
+    ui = args.ui
+    force = args.force
+    references = args.references
+
     rp = repo.Repository(config())
     citekeys = parse_references(ui, rp, references)
     if force is None:

@@ -10,8 +10,11 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, search_string):
-    print search_string
+def command(args):
+
+    ui = args.ui
+    search_string = args.search_string
+
     url = ("https://scholar.google.fr/scholar?q=%s&lr="
            % (urllib.quote_plus(' '.join(search_string))))
     webbrowser.open(url)

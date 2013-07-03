@@ -52,4 +52,4 @@ def execute(raw_args = sys.argv):
     cmd = args.command
     del args.command
 
-    cmds[cmd].command(**vars(args))
+    cmds[cmd].command(args)

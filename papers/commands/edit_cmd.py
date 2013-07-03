@@ -14,7 +14,12 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, meta, reference):
+def command(args):
+
+    ui = args.ui
+    meta = args.meta
+    reference = args.reference
+
     rp = repo.Repository(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)

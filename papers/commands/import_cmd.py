@@ -15,10 +15,15 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, bibpath, copy):
+def command(args):
     """
     :param bibpath: path (no url yet) to a bibliography file
     """
+
+    ui = args.ui
+    bibpath = args.bibpath
+    copy = agrs.copy
+
     if copy is None:
         copy = config().import_copy
     rp = repo.Repository(config())

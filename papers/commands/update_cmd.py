@@ -10,7 +10,10 @@ def parser(subparsers):
     return parser
 
 
-def command(ui):
+def command(args):
+
+    ui = args.ui
+
     code_version = __version__
     repo_version = int(config().version)
 

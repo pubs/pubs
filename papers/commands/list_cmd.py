@@ -15,7 +15,12 @@ def parser(subparsers):
     return parser
 
 
-def command(ui, citekeys, query):
+def command(args):
+
+    ui = args.ui
+    citekeys = args.citekeys
+    query = args.query
+
     rp = repo.Repository(config())
     papers = [(n, p) for n, p in enumerate(rp.all_papers())
               if test_paper(query, p)]
