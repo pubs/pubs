@@ -15,13 +15,12 @@ def parser(subparsers):
 
 
 def command(ui, meta, reference):
-    rp = repo.Repository.from_directory(config())
+    rp = repo.Repository(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
-    to_edit = 'bib'
+    filepath = rp._bibfile(key)
     if meta:
-        to_edit = 'meta'
-    filepath = rp.path_to_paper_file(key, to_edit)
+        filepath = rp._metafile(key)
     with open(filepath) as f:
         content = f.read()
     while True:
@@ -37,9 +36,9 @@ def command(ui, meta, reference):
             new_key, bib = get_bibentry_from_string(content)
         paper.update(key=new_key, bib=bib, meta=metadata)
         try:
-            rp.update(paper, old_citekey=key)
+            rp.update_paper(paper, old_citekey=key)
             break
-        except repo.CiteKeyAlreadyExists:
+        except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']
             choice = options[ui.input_choice(
                         options,
@@ -49,5 +48,6 @@ def command(ui, meta, reference):
             if choice == 'abort':
                 break
             elif choice == 'overwrite':
-                rp.update(paper, old_citekey=key, overwrite=True)
+                rp.update_paper(paper, old_citekey=key, overwrite=True)
+                break
             # else edit again

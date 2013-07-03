@@ -117,10 +117,11 @@ class Repository(object):
     def add_paper(self, p, overwrite = False):
         if p.citekey is None:  # TODO also test if citekey is valid
             raise ValueError("Invalid citekey: {}.".format(p.citekey))
-        if not overwrite and p.citekey in self:
+        if not overwrite and p.citekey in self.citekeys:
             raise CiteKeyCollision('citekey {} already in use'.format(
                                    p.citekey))
-        self.citekeys.append(p.citekey)
+        if p.citekey not in self.citekeys:
+            self.citekeys.append(p.citekey)
         self.save_paper(p)
         self.save()
         # TODO change to logging system (17/12/2012)
@@ -143,6 +144,38 @@ class Repository(object):
         self.add_paper(paper, overwrite = overwrite)
         self._move_doc(old_citekey, paper)
 
+    def update_paper(self, paper, old_citekey=None, overwrite=False):
+        """Updates a paper, eventually changing its citekey.
+        The paper should be in repository. If the citekey changes,
+        the new citekey should be free except if the overwrite argument
+        is set to True.
+        """
+        if old_citekey is None:
+            old_citekey = paper.citekey
+        if old_citekey not in self.citekeys:
+            raise(ValueError, 'Paper not in repository. Add first')
+        else:
+            if paper.citekey == old_citekey:
+                self.save_paper(paper)
+            else:
+                if paper.citekey in self.citekeys:
+                    if not overwrite:
+                        raise(CiteKeyCollision,
+                            "There is already a paper with citekey: %s."
+                                % paper.citekey)
+                    else:
+                        self.save_paper(paper)
+                else:
+                    self.add_paper(paper)
+                # Eventually move document file
+                paper = PaperInRepo.from_paper(paper, self)
+                try:
+                    path = self.find_document(old_citekey)
+                    self.import_document(paper.citekey, path)
+                except NoDocumentFile:
+                    pass
+                self.remove_paper(old_citekey, remove_doc=True)
+
     def _move_doc(self, old_citekey, paper):
         """Fragile. Make more robust"""
         try:
@@ -160,7 +193,7 @@ class Repository(object):
     def _metafile(self, citekey):
         return os.path.join(self.meta_dir, citekey + '.meta')
 
-    def remove_paper(self, citekey, remove_doc = True):
+    def remove_paper(self, citekey, remove_doc=True):
         paper = self.get_paper(citekey)
         self.citekeys.remove(citekey)
         os.remove(self._metafile(citekey))

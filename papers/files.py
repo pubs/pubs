@@ -165,10 +165,16 @@ def parse_bibdata(content, format_ = None):
         # we need to reuse the content
         content = content if type(content) == str else str(content.read())
 
+    # If you use StingIO from io then the content must be unicode
+    # Let call this quick fix a hack but we should think it more carefully
+    content = unicode(content)
+    # This bug was really a pain in the ass to discover because of the (old) except Expection below!
+    # I changed it to the only kind of error that can raise _parse_bibdata_formated_stream, which is a ValueError
+
     for fmt in fmts:
         try:
             return _parse_bibdata_formated_stream(StringIO(content), fmt)
-        except Exception:
+        except ValueError:
             pass
 
     raise ValueError('content format is not recognized.')
