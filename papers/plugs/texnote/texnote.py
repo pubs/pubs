@@ -1,22 +1,33 @@
 import os
 import shutil
 import subprocess
+import collections
 
 from ... import repo
-from ...configs import config
 from ... import files
+from ...configs import config
 from ...plugins import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
 from ...events import RemoveEvent
 
-
+TEXNOTE_PARSER_NAME = 'texnote'
 TEXNOTE_SECTION = 'texnote'
 TEXNOTE_SAMPLE_FILE = os.path.join(os.path.dirname(__file__), 'note_sample.tex')
 TEXNOTE_DIR = 'texnote'
 
 
 class TexnotePlugin(PapersPlugin):
+
+    def __init__(self):
+        self.name = TEXNOTE_PARSER_NAME
+
+        #self.rp = repo.Repository(config())
+
+        self.texcmds = collections.OrderedDict([
+                        ('remove', self.remove),
+                        ('edit', self.edit),
+                        ])
 
     def parser(self, subparsers):
         parser = subparsers.add_parser(self.name, help="edit advance note in latex")
@@ -26,21 +37,30 @@ class TexnotePlugin(PapersPlugin):
         p = sub.add_parser("edit", help="edit the reference texnote")
         add_references_argument(p, single=True)
         #add_references_argument(parser, single=True)
-        parser.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
+        p.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
         return parser
 
     def command(self, args):
 
-        ui = args.ui
         texcmd = args.texcmd
+        del args.texcmd
+
+        self.texcmds[texcmd](args)
+
+    def remove(self, args):
+        reference = args.reference
+        print('Should remove {}'.format(reference))
+
+
+    def edit(self, args):
         reference = args.reference
         view = args.view
 
-
+        print('Should remove {}'.format(reference))
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
-        if texcmd == 'edit':
-            open_texnote(ui, reference)
+
+        #open_texnote(ui, reference)
 
     def toto(self):
         print "toto"
@@ -55,16 +75,16 @@ def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
     texplug.toto()
     # HACK : transfer repo via RemoveEvent, do not recreate one
-    rp = repo.Repository(config())
-    paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
-    if 'texnote' in paper.metadata:
-        try:
-            os.remove(paper.metadata['texnote'])
-        except OSError:
-            pass  # For some reason, the texnote file didn't exist
-        paper.metadata.pop('texnote')
-        metapath = rp.path_to_paper_file(paper.citekey, 'meta')
-        files.save_meta(paper.metadata, metapath)
+    #rp = repo.Repository(config())
+    #paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
+    #if 'texnote' in paper.metadata:
+    #    try:
+    #        os.remove(paper.metadata['texnote'])
+    #    except OSError:
+    #        pass  # For some reason, the texnote file didn't exist
+    #    paper.metadata.pop('texnote')
+    #    metapath = rp.path_to_paper_file(paper.citekey, 'meta')
+    #    files.save_meta(paper.metadata, metapath)
 
 
 def open_texnote(ui, ref):
