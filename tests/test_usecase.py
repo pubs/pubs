@@ -65,13 +65,15 @@ def _create_fake_fs():
 
 def _copy_data(fs):
     """Copy all the data directory into the fake fs"""
-    for filename in real_os.listdir('data/'):
-        filepath = 'data/' + filename
-        if real_os.path.isfile(filepath):
-            with real_open(filepath, 'r') as f:
-                fs.CreateFile(filepath, contents = f.read())
-        if real_os.path.isdir(filepath):
-            fs.CreateDirectory(filepath)
+    datadir = real_os.path.join(real_os.path.dirname(__file__), 'data')
+    for filename in real_os.listdir(datadir):
+        real_path = real_os.path.join(datadir, filename)
+        fake_path = fake_os.path.join('data', filename)
+        if real_os.path.isfile(real_path):
+            with real_open(real_path, 'r') as f:
+                fs.CreateFile(fake_path, contents = f.read())
+        if real_os.path.isdir(real_path):
+            fs.CreateDirectory(fake_path)
 
 
     # redirecting output
@@ -141,6 +143,7 @@ def _execute_cmds(cmds, fs = None):
     if fs is None:
         fs = _create_fake_fs()
         _copy_data(fs)
+
 
     outs = []
     for cmd in cmds:
@@ -287,19 +290,20 @@ class TestUsecase(unittest.TestCase):
 
         _execute_cmds(cmds)
 
-    def test_editor(self):
+    def test_editor_abort(self):
 
         with self.assertRaises(SystemExit):
             cmds = ['papers init',
                     ('papers add', ['abc', 'n'])
                    ]
-    
+
             _execute_cmds(cmds)
 
-
-# if __name__ == "__main__":
-#     cmds = ['papers init',
-#             'papers add', ['', 'n']]
-#
-#     _execute_cmds(cmds)
-
+    # def test_editor_success(self):
+    #     with real_open('data/', 'r')
+    #
+    #     cmds = ['papers init',
+    #             ('papers add', ['abc', 'n'])
+    #            ]
+    #
+    #     _execute_cmds(cmds)
