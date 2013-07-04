@@ -22,7 +22,7 @@ def command(args):
 
     ui = args.ui
     bibpath = args.bibpath
-    copy = agrs.copy
+    copy = args.copy
 
     if copy is None:
         copy = config().import_copy
