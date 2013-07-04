@@ -63,6 +63,17 @@ def name_from_path(fullpdfpath, verbose=False):
     return name, ext
 
 
+def check_directory(path, fail=False):
+    if fail:
+        if not os.path.exists(path):
+            raise IOError("File does not exist: {}.".format(path))
+        if not os.path.isdir(path):
+            raise IOError("{} is not a directory.".format(path))
+        return True
+    else:
+        return os.path.exists(path) and os.path.isdir(path)
+
+
 def check_file(path, fail=False):
     if fail:
         if not os.path.exists(path):

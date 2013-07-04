@@ -10,7 +10,7 @@ setup(name='papers',
       description='research papers manager',
       requires=['pybtex'],
       packages=find_packages(),
-      package_data={'': ['*.tex']},
+      package_data={'': ['*.tex', '*.sty']},
       scripts=['papers/papers']
       )
 

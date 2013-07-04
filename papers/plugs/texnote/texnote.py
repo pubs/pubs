@@ -11,56 +11,72 @@ from ...commands.helpers import add_references_argument, parse_reference
 
 from ...events import RemoveEvent
 
-TEXNOTE_PARSER_NAME = 'texnote'
 TEXNOTE_SECTION = 'texnote'
-TEXNOTE_SAMPLE_FILE = os.path.join(os.path.dirname(__file__), 'note_sample.tex')
-TEXNOTE_DIR = 'texnote'
+TEXNOTE_DIR = os.path.join(config().papers_dir, 'texnote')
+TEXNOTE_TEMPLATE = os.path.join(TEXNOTE_DIR, 'template.tex')
+TEXNOTE_STYLE = os.path.join(TEXNOTE_DIR, 'style.sty')
+
+TEXNOTE_DEFAULT_TEMPLATE = os.path.join(os.path.dirname(__file__), 'template.tex')
+TEXNOTE_DEFAULT_STYLE = os.path.join(os.path.dirname(__file__), 'style.sty')
 
 
 class TexnotePlugin(PapersPlugin):
 
     def __init__(self):
-        self.name = TEXNOTE_PARSER_NAME
-
-        #self.rp = repo.Repository(config())
+        self.name = TEXNOTE_SECTION
+        if not files.check_directory(TEXNOTE_DIR):
+            os.mkdir(TEXNOTE_DIR)
+        if not files.check_file(TEXNOTE_TEMPLATE):
+            shutil.copy(TEXNOTE_DEFAULT_TEMPLATE, TEXNOTE_TEMPLATE)
+        if not files.check_file(TEXNOTE_STYLE):
+            shutil.copy(TEXNOTE_DEFAULT_STYLE, TEXNOTE_STYLE)
 
         self.texcmds = collections.OrderedDict([
                         ('remove', self.remove),
                         ('edit', self.edit),
+                        ('edit_style', self.edit_style),
+                        ('edit_template', self.edit_template),
                         ])
 
     def parser(self, subparsers):
-        parser = subparsers.add_parser(self.name, help="edit advance note in latex")
-        sub = parser.add_subparsers(title="valid texnote commands", dest="texcmd")
-        p = sub.add_parser("remove", help="remove a reference")
+        parser = subparsers.add_parser(self.name, help='edit advance note in latex')
+        sub = parser.add_subparsers(title='valid texnote commands', dest='texcmd')
+        # remove
+        p = sub.add_parser('remove', help='remove a reference')
         add_references_argument(p, single=True)
-        p = sub.add_parser("edit", help="edit the reference texnote")
+        # edit
+        p = sub.add_parser('edit', help='edit the reference texnote')
+        p.add_argument('-v', '--view', action='store_true',
+                help='open the paper in a pdf viewer', default=None)
         add_references_argument(p, single=True)
-        #add_references_argument(parser, single=True)
-        p.add_argument('-v', '--view', action='store_true', help='open the paper in a pdf viewer', default=None)
+        # edit_style
+        p = sub.add_parser('edit_style', help='edit the latex style used by texnote')
+        #edit_template
+        p = sub.add_parser('edit_template', help='edit the latex template used by texnote')
         return parser
 
     def command(self, args):
-
         texcmd = args.texcmd
         del args.texcmd
+        self.texcmds[texcmd](**vars(args))
 
-        self.texcmds[texcmd](args)
+    def remove(self, ui, reference):
+        rp = repo.Repository(config())
+        key = parse_reference(ui, rp, reference)
+        print('Should remove {}'.format(key))
 
-    def remove(self, args):
-        reference = args.reference
-        print('Should remove {}'.format(reference))
-
-
-    def edit(self, args):
-        reference = args.reference
-        view = args.view
-
-        print('Should remove {}'.format(reference))
+    def edit(self, ui, reference, view=None):
+        print('Should edit {}'.format(reference))
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
 
         #open_texnote(ui, reference)
+
+    def edit_style(self):
+        pass
+
+    def edit_template(self):
+        pass
 
     def toto(self):
         print "toto"
@@ -73,7 +89,7 @@ class TexnotePlugin(PapersPlugin):
 @RemoveEvent.listen()
 def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
-    texplug.toto()
+    texplug.remove(rmevent.ui, rmevent.citekey)
     # HACK : transfer repo via RemoveEvent, do not recreate one
     #rp = repo.Repository(config())
     #paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
@@ -112,7 +128,7 @@ def open_texnote(ui, ref):
     autofill_texnote(texnote_path, paper.bibentry)
 
     #open the file using the config editor
-    edit_cmd = config(TEXTNOTE_SECTION).get('edit_cmd', config().edit_cmd)
+    edit_cmd = config(TEXNOTE_SECTION).get('edit_cmd', config().edit_cmd)
     subprocess.Popen([edit_cmd, texnote_path])
 
 
