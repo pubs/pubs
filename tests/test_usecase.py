@@ -9,7 +9,7 @@ import fake_filesystem_glob
 
 from papers import papers_cmd
 from papers import color
-from papers.p3 import io
+from papers.p3 import io, input
 
 
     # code for fake fs
@@ -84,11 +84,15 @@ def redirect(f):
 
     # automating input
 
+real_input = input
+
 class FakeInput():
     """ Replace the input() command, and mock user input during tests
 
         Instanciate as :
         input = FakeInput(['yes', 'no'])
+        then replace the input command in every module of the package :
+        input.as_global()
         Then :
         input() returns 'yes'
         input() returns 'no'
@@ -98,6 +102,10 @@ class FakeInput():
     def __init__(self, inputs = None):
         self.inputs = list(inputs) or []
         self._cursor = 0
+
+    def as_global(self):
+        for md in mod_list:
+            md.input = self
 
     def add_input(self, inp):
         self.inputs.append(inp)
@@ -122,6 +130,8 @@ def _execute_cmds(cmds, fs = None):
 
     return outs
 
+
+    # actual tests
 
 class TestInit(unittest.TestCase):
 
@@ -172,6 +182,15 @@ class TestInput(unittest.TestCase):
         self.assertEqual(input(), 'no')
         with self.assertRaises(IndexError):
             input()
+
+    def test_input(self):
+        other_input = FakeInput(['yes', 'no'])
+        other_input.as_global()
+        self.assertEqual(color.input(), 'yes')
+        self.assertEqual(color.input(), 'no')
+        with self.assertRaises(IndexError):
+            color.input()
+
 
 class TestUsecase(unittest.TestCase):
 
