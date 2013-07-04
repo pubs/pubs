@@ -28,7 +28,7 @@ def _mod_list():
                                         path=papers.__path__,
                                         prefix=papers.__name__+'.',
                                         onerror=lambda x: None):
-        ml.append(__import__(modname, fromlist = 'dummy'))
+        ml.append((modname, __import__(modname, fromlist = 'dummy')))
     return ml
 
 mod_list = _mod_list()
@@ -50,7 +50,7 @@ def _create_fake_fs():
     sys.modules['shutil'] = fake_shutil
     sys.modules['glob']   = fake_glob
 
-    for md in mod_list:
+    for mdname, md in mod_list:
         md.os = fake_os
         md.shutil = fake_shutil
 
@@ -104,13 +104,15 @@ class FakeInput():
         self._cursor = 0
 
     def as_global(self):
-        for md in mod_list:
+        for mdname, md in mod_list:
             md.input = self
+            if mdname == 'papers.files':
+                md.editor_input = self
 
     def add_input(self, inp):
         self.inputs.append(inp)
 
-    def __call__(self):
+    def __call__(self, *args, **kwargs):
         inp = self.inputs[self._cursor]
         self._cursor += 1
         return inp
@@ -135,9 +137,9 @@ def _execute_cmds(cmds, fs = None):
 
     outs = []
     for cmd in cmds:
-        if hasattr('__iter__', cmd):
+        if hasattr(cmd, '__iter__'):
             if len(cmd) == 2:
-                input = FakeInput(cmd[2])
+                input = FakeInput(cmd[1])
                 input.as_global()
 
             _, stdout, stderr = redirect(papers_cmd.execute)(cmd[0].split())
@@ -264,7 +266,7 @@ class TestUsecase(unittest.TestCase):
                 'papers add -b data/10.1371%2Fjournal.pone.0038236.bib',
                 'papers list',
                 'papers attach Page99 data/pagerank.pdf',
-                'papers remove -f Page99',
+                ('papers remove Page99', ['y']),
                 'papers remove -f turing1950computing',
                ]
 
