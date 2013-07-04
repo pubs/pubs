@@ -119,13 +119,38 @@ class FakeInput():
     # putting it all together
 
 def _execute_cmds(cmds, fs = None):
+    """ Execute a list of commands, and capture their output
+
+    A command can be a string, or a tuple of size 2 or 3.
+    In the latter case, the command is :
+    1. a string reprensenting the command to execute
+    2. the user inputs to feed to the command during execution
+    3. the output excpected, verified with assertEqual
+
+    """
+
     if fs is None:
         fs = _create_fake_fs()
         _copy_data(fs)
 
     outs = []
     for cmd in cmds:
-        _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
+        if hasattr('__iter__', cmd):
+            if len(cmd) == 2:
+                input = FakeInput(cmd[2])
+                input.as_global()
+
+            _, stdout, stderr = redirect(papers_cmd.execute)(cmd[0].split())
+            if len(cmd) == 3:
+                actual_out  = color.undye(stdout.getvalue())
+                correct_out = color.undye(cmd[2])
+                self.assertEqual(actual_out, correct_out)
+
+        else:
+            assert type(cmd) == str
+            _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
+
+        print stderr
         outs.append(color.undye(stdout.getvalue()))
 
     return outs
