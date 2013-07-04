@@ -8,7 +8,7 @@ import fake_filesystem_shutil
 import fake_filesystem_glob
 
 from papers import papers_cmd
-from papers import color
+from papers import color, files
 from papers.p3 import io, input
 
 
@@ -43,8 +43,13 @@ def _create_fake_fs():
     fake_glob = fake_filesystem_glob.FakeGlobModule(fake_fs)
 
     fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
-    __builtins__['open'] = fake_open
-    __builtins__['file'] = fake_open
+
+    try:
+        __builtins__.open = fake_open
+        __builtins__.file = fake_open
+    except AttributeError:
+        __builtins__['open'] = fake_open
+        __builtins__['file'] = fake_open
 
     sys.modules['os']     = fake_os
     sys.modules['shutil'] = fake_shutil
@@ -53,6 +58,8 @@ def _create_fake_fs():
     for mdname, md in mod_list:
         md.os = fake_os
         md.shutil = fake_shutil
+        md.open = fake_open
+        md.file = fake_open
 
     return fake_fs
 
@@ -152,7 +159,7 @@ def _execute_cmds(cmds, fs = None):
             assert type(cmd) == str
             _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
 
-        print stderr
+        assert(stderr.getvalue() == '')
         outs.append(color.undye(stdout.getvalue()))
 
     return outs
@@ -210,11 +217,19 @@ class TestInput(unittest.TestCase):
         with self.assertRaises(IndexError):
             input()
 
-    def test_input(self):
+    def test_input2(self):
         other_input = FakeInput(['yes', 'no'])
         other_input.as_global()
         self.assertEqual(color.input(), 'yes')
         self.assertEqual(color.input(), 'no')
+        with self.assertRaises(IndexError):
+            color.input()
+
+    def test_editor_input(self):
+        other_input = FakeInput(['yes', 'no'])
+        other_input.as_global()
+        self.assertEqual(files.editor_input(), 'yes')
+        self.assertEqual(files.editor_input(), 'no')
         with self.assertRaises(IndexError):
             color.input()
 
@@ -272,4 +287,19 @@ class TestUsecase(unittest.TestCase):
 
         _execute_cmds(cmds)
 
+    def test_editor(self):
+
+        with self.assertRaises(SystemExit):
+            cmds = ['papers init',
+                    ('papers add', ['abc', 'n'])
+                   ]
+    
+            _execute_cmds(cmds)
+
+
+# if __name__ == "__main__":
+#     cmds = ['papers init',
+#             'papers add', ['', 'n']]
+#
+#     _execute_cmds(cmds)
 

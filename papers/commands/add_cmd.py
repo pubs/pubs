@@ -47,7 +47,7 @@ def command(args):
                     question='Invalid bibfile. Edit again ?',
                     default='y')
                 if not cont:
-                    ui.exit()
+                    ui.exit(0)
         p = Paper(bibentry=bib, citekey=key)
     else:
         p = Paper.load(bibfile)
