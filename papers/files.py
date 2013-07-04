@@ -206,3 +206,17 @@ def editor_input(editor, initial="", suffix=None):
         content = temp_file.read()
         os.remove(tfile_name)
     return content
+
+
+def edit_file(editor, path_to_file, temporary=True):
+    if temporary:
+        check_file(path_to_file, fail=True)
+        with open(path_to_file) as f:
+            content = f.read()
+        content = editor_input(editor, content)
+        with open(path_to_file, 'w') as f:
+            f.write(content)
+    else:
+        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
+        cmd.append(path_to_file)
+        subprocess.call(cmd)
