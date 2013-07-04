@@ -28,7 +28,9 @@ def _mod_list():
                                         path=papers.__path__,
                                         prefix=papers.__name__+'.',
                                         onerror=lambda x: None):
-        ml.append((modname, __import__(modname, fromlist = 'dummy')))
+        # HACK to not load textnote
+        if not modname.startswith('papers.plugs.texnote'):
+            ml.append((modname, __import__(modname, fromlist = 'dummy')))
     return ml
 
 mod_list = _mod_list()
@@ -294,16 +296,20 @@ class TestUsecase(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             cmds = ['papers init',
-                    ('papers add', ['abc', 'n'])
+                    ('papers add', ['abc', 'n']),
+                    ('papers add', ['abc', 'y', 'abc', 'n'])
                    ]
 
             _execute_cmds(cmds)
 
-    # def test_editor_success(self):
-    #     with real_open('data/', 'r')
-    #
-    #     cmds = ['papers init',
-    #             ('papers add', ['abc', 'n'])
-    #            ]
-    #
-    #     _execute_cmds(cmds)
+    def test_editor_success(self):
+        bibpath = real_os.path.join(real_os.path.dirname(__file__), 'data', 'pagerank.bib')
+        with real_open(bibpath, 'r') as f:
+            bibtext = f.read()
+
+        cmds = ['papers init',
+                ('papers add', [bibtext]),
+                ('papers remove Page99', ['y']),
+               ]
+
+        _execute_cmds(cmds)
