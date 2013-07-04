@@ -1,5 +1,4 @@
 import add_cmd
-import add_library_cmd
 import import_cmd
 import export_cmd
 import init_cmd

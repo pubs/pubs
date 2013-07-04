@@ -13,7 +13,6 @@ from . import plugins
 cmds = collections.OrderedDict([
         ('init',        commands.init_cmd),
         ('add',         commands.add_cmd),
-        ('add_library', commands.add_library_cmd),
         ('import',      commands.import_cmd),
         ('export',      commands.export_cmd),
         ('list',        commands.list_cmd),
