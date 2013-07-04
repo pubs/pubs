@@ -16,18 +16,18 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
-    meta = args.meta
+    ui        = args.ui
+    meta      = args.meta
     reference = args.reference
 
     rp = repo.Repository(config())
     key = parse_reference(ui, rp, reference)
     paper = rp.get_paper(key)
-    filepath = rp._bibfile(key)
-    if meta:
-        filepath = rp._metafile(key)
+    filepath = rp._metafile(key) if meta else rp._bibfile(key)
+
     with open(filepath) as f:
         content = f.read()
+
     while True:
         # Get new content from user
         content = editor_input(config().edit_cmd, content)
@@ -46,10 +46,10 @@ def command(args):
         except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']
             choice = options[ui.input_choice(
-                        options,
-                        ['o', 'e', 'a'],
+                        options, ['o', 'e', 'a'],
                         question='A paper already exist with this citekey.'
                         )]
+
             if choice == 'abort':
                 break
             elif choice == 'overwrite':
