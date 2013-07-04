@@ -11,12 +11,27 @@ from papers import papers_cmd
 from papers import color
 from papers.p3 import io
 
+
+    # code for fake fs
+
 real_os = os
 real_open = open
 real_shutil = shutil
 real_glob = glob
 
 fake_os, fake_open, fake_shutil, fake_glob = None, None, None, None
+
+def _mod_list():
+    ml = []
+    import papers
+    for importer, modname, ispkg in pkgutil.walk_packages(
+                                        path=papers.__path__,
+                                        prefix=papers.__name__+'.',
+                                        onerror=lambda x: None):
+        ml.append(__import__(modname, fromlist = 'dummy'))
+    return ml
+
+mod_list = _mod_list()
 
 def _create_fake_fs():
     global fake_os, fake_open, fake_shutil, fake_glob
@@ -35,12 +50,7 @@ def _create_fake_fs():
     sys.modules['shutil'] = fake_shutil
     sys.modules['glob']   = fake_glob
 
-    import papers
-    for importer, modname, ispkg in pkgutil.walk_packages(
-                                        path=papers.__path__,
-                                        prefix=papers.__name__+'.',
-                                        onerror=lambda x: None):
-        md = __import__(modname, fromlist = 'dummy')
+    for md in mod_list:
         md.os = fake_os
         md.shutil = fake_shutil
 
@@ -56,6 +66,9 @@ def _copy_data(fs):
         if real_os.path.isdir(filepath):
             fs.CreateDirectory(filepath)
 
+
+    # redirecting output
+
 def redirect(f):
     def newf(*args, **kwargs):
         old_stderr, old_stdout = sys.stderr, sys.stdout
@@ -68,7 +81,35 @@ def redirect(f):
             sys.stderr, sys.stdout = old_stderr, old_stdout
     return newf
 
-#@redirect
+
+    # automating input
+
+class FakeInput():
+    """ Replace the input() command, and mock user input during tests
+
+        Instanciate as :
+        input = FakeInput(['yes', 'no'])
+        Then :
+        input() returns 'yes'
+        input() returns 'no'
+        input() raise IndexError
+     """
+
+    def __init__(self, inputs = None):
+        self.inputs = list(inputs) or []
+        self._cursor = 0
+
+    def add_input(self, inp):
+        self.inputs.append(inp)
+
+    def __call__(self):
+        inp = self.inputs[self._cursor]
+        self._cursor += 1
+        return inp
+
+
+    # putting it all together
+
 def _execute_cmds(cmds, fs = None):
     if fs is None:
         fs = _create_fake_fs()
@@ -122,6 +163,15 @@ class TestList(unittest.TestCase):
         papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
         papers_cmd.execute('papers list'.split())
 
+class TestInput(unittest.TestCase):
+
+    def test_input(self):
+
+        input = FakeInput(['yes', 'no'])
+        self.assertEqual(input(), 'yes')
+        self.assertEqual(input(), 'no')
+        with self.assertRaises(IndexError):
+            input()
 
 class TestUsecase(unittest.TestCase):
 
@@ -175,3 +225,5 @@ class TestUsecase(unittest.TestCase):
                ]
 
         _execute_cmds(cmds)
+
+
