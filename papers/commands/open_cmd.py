@@ -29,7 +29,9 @@ def command(args):
         with_command = config().open_cmd
     try:
         filepath = paper.get_document_path()
-        subprocess.Popen([with_command, filepath])
+        cmd = with_command.split()
+        cmd.append(filepath)
+        subprocess.Popen(cmd)
         ui.print_('{} opened.'.format(color.dye(filepath, color.filepath)))
     except NoDocumentFile:
         ui.error('No document associated with the entry {}.'.format(
