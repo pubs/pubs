@@ -11,7 +11,7 @@ try:
 except KeyError:
     DFT_EDIT_CMD = 'vi'
 
-DFT_PLUGINS     = 'texnote'
+DFT_PLUGINS = ''
 
 DFT_CONFIG = {'papers_dir'  : os.path.expanduser('~/.papers'),
               'doc_dir'     : 'doc',
