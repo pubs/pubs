@@ -1,6 +1,7 @@
 import sys, os, shutil, glob
 import unittest
 import pkgutil
+import re
 
 import testenv
 import fake_filesystem
@@ -10,6 +11,8 @@ import fake_filesystem_glob
 from papers import papers_cmd
 from papers import color, files
 from papers.p3 import io, input
+
+import fixtures
 
 
     # code for fake fs
@@ -117,8 +120,9 @@ class FakeInput():
     def as_global(self):
         for mdname, md in mod_list:
             md.input = self
-            if mdname == 'papers.files':
-                md.editor_input = self
+            md.editor_input = self
+            # if mdname.endswith('files'):
+            #     md.editor_input = self
 
     def add_input(self, inp):
         self.inputs.append(inp)
@@ -131,7 +135,7 @@ class FakeInput():
 
     # putting it all together
 
-def _execute_cmds(cmds, fs = None):
+def _execute_cmds(cmds, test_instance = None, fs = None):
     """ Execute a list of commands, and capture their output
 
     A command can be a string, or a tuple of size 2 or 3.
@@ -158,7 +162,8 @@ def _execute_cmds(cmds, fs = None):
             if len(cmd) == 3:
                 actual_out  = color.undye(stdout.getvalue())
                 correct_out = color.undye(cmd[2])
-                self.assertEqual(actual_out, correct_out)
+                if test_instance is not None:
+                    test_instance.assertEqual(actual_out, correct_out)
 
         else:
             assert type(cmd) == str
@@ -297,19 +302,73 @@ class TestUsecase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             cmds = ['papers init',
                     ('papers add', ['abc', 'n']),
-                    ('papers add', ['abc', 'y', 'abc', 'n'])
+                    ('papers add', ['abc', 'y', 'abc', 'n']),
+                    'papers add -b data/pagerank.bib',
+                    ('papers edit Page99', ['', 'a']),
                    ]
 
             _execute_cmds(cmds)
 
     def test_editor_success(self):
-        bibpath = real_os.path.join(real_os.path.dirname(__file__), 'data', 'pagerank.bib')
-        with real_open(bibpath, 'r') as f:
-            bibtext = f.read()
-
         cmds = ['papers init',
-                ('papers add', [bibtext]),
+                ('papers add', [fixtures.pagerankbib]),
                 ('papers remove Page99', ['y']),
                ]
 
         _execute_cmds(cmds)
+
+    def test_edit(self):
+        bib = fixtures.pagerankbib
+        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+        bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
+        bib3 = re.sub('Page99', 'Ridge07', bib2)
+
+        line = '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n'
+        line1 = re.sub('1999', '2007', line)
+        line2 = re.sub('L. Page', 'L. Ridge', line1)
+        line3 = re.sub('Page99', 'Ridge07', line2)
+
+        cmds = ['papers init',
+                'papers add -b data/pagerank.bib',
+                ('papers list', [], line),
+                ('papers edit Page99', [bib1]),
+                ('papers list', [], line1),
+                ('papers edit Page99', [bib2]),
+                ('papers list', [], line2),
+                ('papers edit Page99', [bib3]),
+                ('papers list', [], line3),
+               ]
+
+        _execute_cmds(cmds, test_instance = self)
+
+    def test_export(self):
+        cmds = ['papers init',
+                ('papers add', [fixtures.pagerankbib]),
+                'papers export Page99',
+                ('papers export Page99 -f bibtex', [], fixtures.pagerankbib_generated),
+                'papers export Page99 -f bibyaml',
+               ]
+
+        _execute_cmds(cmds)
+
+    def test_import(self):
+        cmds = ['papers init',
+                'papers import data/',
+                'papers list'
+               ]
+
+        outs = _execute_cmds(cmds)
+        self.assertEqual(4+1, len(outs[-1].split('\n')))
+
+    def test_open(self):
+        cmds = ['papers init',
+                'papers add -b data/pagerank.bib',
+                'papers open Page99'
+               ]
+
+        with self.assertRaises(SystemExit):
+            _execute_cmds(cmds)
+
+        with self.assertRaises(SystemExit):
+            cmds[-1] == 'papers open Page8'
+            _execute_cmds(cmds)
