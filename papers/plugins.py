@@ -1,5 +1,4 @@
 import importlib
-from .configs import config
 
 PLUGIN_NAMESPACE = 'plugs'
 
@@ -36,7 +35,6 @@ class PapersPlugin(object):
         This is a basic example
         """
 
-        ui = args.ui
         strings = args.strings
 
         for s in strings:
@@ -58,7 +56,6 @@ def load_plugins(ui, names):
     """
     for name in names:
         modname = '%s.%s.%s.%s' % ('papers', PLUGIN_NAMESPACE, name, name)
-        #try:
         try:
             namespace = importlib.import_module(modname)
         except ImportError as exc:
@@ -73,9 +70,6 @@ def load_plugins(ui, names):
                         and obj != PapersPlugin:
                     _classes.append(obj)
                     _instances[obj] = obj()
-
-        #except:
-        #    ui.warning('error loading plugin {}'.format(name))
 
 
 def get_plugins():

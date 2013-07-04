@@ -63,6 +63,17 @@ def name_from_path(fullpdfpath, verbose=False):
     return name, ext
 
 
+def check_directory(path, fail=False):
+    if fail:
+        if not os.path.exists(path):
+            raise IOError("File does not exist: {}.".format(path))
+        if not os.path.isdir(path):
+            raise IOError("{} is not a directory.".format(path))
+        return True
+    else:
+        return os.path.exists(path) and os.path.isdir(path)
+
+
 def check_file(path, fail=False):
     if fail:
         if not os.path.exists(path):
@@ -151,7 +162,7 @@ def _parse_bibdata_formated_stream(stream, fmt):
         pass
     raise ValueError('content format is not recognized.')
 
-def parse_bibdata(content, format_ = None):
+def parse_bibdata(content, format_=None):
     """Parse bib data from string or stream.
 
     Raise ValueError if no bibdata is present.
@@ -188,7 +199,9 @@ def editor_input(editor, initial="", suffix=None):
         tfile_name = temp_file.name
         temp_file.write(initial)
         temp_file.flush()
-        subprocess.call([editor, tfile_name])
+        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
+        cmd.append(tfile_name)
+        subprocess.call(cmd)
     with open(tfile_name) as temp_file:
         content = temp_file.read()
         os.remove(tfile_name)
