@@ -15,17 +15,18 @@ DFT_PLUGINS = ''
 
 DFT_CONFIG = {'papers_dir'  : os.path.expanduser('~/.papers'),
               'doc_dir'     : 'doc',
-              'import_copy' : 'yes',
-              'import_move' : 'no',
-              'color'       : 'yes',
+              'import_copy' : True,
+              'import_move' : False,
+              'color'       : True,
               'version'     : 3,
+              'version_warning' : True,
 
               'open_cmd'    : 'open',
               'edit_cmd'    : DFT_EDIT_CMD,
               'plugins'     : DFT_PLUGINS
              }
 
-BOOLEANS = {'import_copy', 'import_move', 'color'}
+BOOLEANS = {'import_copy', 'import_move', 'color', 'version_warning'}
 
 
 # package-shared config that can be accessed using :
