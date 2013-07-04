@@ -372,3 +372,13 @@ class TestUsecase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             cmds[-1] == 'papers open Page8'
             _execute_cmds(cmds)
+
+    def test_update(self):
+        cmds = ['papers init',
+                'papers add -b data/pagerank.bib',
+                'papers update'
+               ]
+
+        with self.assertRaises(SystemExit):
+            _execute_cmds(cmds)
+
