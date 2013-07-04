@@ -24,12 +24,6 @@ class TexnotePlugin(PapersPlugin):
 
     def __init__(self):
         self.name = TEXNOTE_SECTION
-        if not files.check_directory(TEXNOTE_DIR):
-            os.mkdir(TEXNOTE_DIR)
-        if not files.check_file(TEXNOTE_TEMPLATE):
-            shutil.copy(TEXNOTE_DEFAULT_TEMPLATE, TEXNOTE_TEMPLATE)
-        if not files.check_file(TEXNOTE_STYLE):
-            shutil.copy(TEXNOTE_DEFAULT_STYLE, TEXNOTE_STYLE)
 
         self.texcmds = collections.OrderedDict([
                         ('remove', self.remove),
@@ -37,6 +31,14 @@ class TexnotePlugin(PapersPlugin):
                         ('edit_style', self.edit_style),
                         ('edit_template', self.edit_template),
                         ])
+
+    def ensure_init(self):
+        if not files.check_directory(TEXNOTE_DIR):
+            os.mkdir(TEXNOTE_DIR)
+        if not files.check_file(TEXNOTE_TEMPLATE):
+            shutil.copy(TEXNOTE_DEFAULT_TEMPLATE, TEXNOTE_TEMPLATE)
+        if not files.check_file(TEXNOTE_STYLE):
+            shutil.copy(TEXNOTE_DEFAULT_STYLE, TEXNOTE_STYLE)
 
     def parser(self, subparsers):
         parser = subparsers.add_parser(self.name, help='edit advance note in latex')
@@ -56,6 +58,8 @@ class TexnotePlugin(PapersPlugin):
         return parser
 
     def command(self, args):
+        self.ensure_init()
+
         texcmd = args.texcmd
         del args.texcmd
         self.texcmds[texcmd](**vars(args))
