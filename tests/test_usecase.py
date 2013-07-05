@@ -1,4 +1,7 @@
-import sys, os, shutil, glob
+import sys
+import os
+import shutil
+import glob
 import unittest
 import pkgutil
 import re
@@ -24,19 +27,21 @@ real_glob = glob
 
 fake_os, fake_open, fake_shutil, fake_glob = None, None, None, None
 
+
 def _mod_list():
     ml = []
     import papers
     for importer, modname, ispkg in pkgutil.walk_packages(
                                         path=papers.__path__,
-                                        prefix=papers.__name__+'.',
+                                        prefix=papers.__name__ + '.',
                                         onerror=lambda x: None):
         # HACK to not load textnote
         if not modname.startswith('papers.plugs.texnote'):
-            ml.append((modname, __import__(modname, fromlist = 'dummy')))
+            ml.append((modname, __import__(modname, fromlist='dummy')))
     return ml
 
 mod_list = _mod_list()
+
 
 def _create_fake_fs():
     global fake_os, fake_open, fake_shutil, fake_glob
@@ -68,6 +73,7 @@ def _create_fake_fs():
 
     return fake_fs
 
+
 def _copy_data(fs):
     """Copy all the data directory into the fake fs"""
     datadir = real_os.path.join(real_os.path.dirname(__file__), 'data')
@@ -76,7 +82,7 @@ def _copy_data(fs):
         fake_path = fake_os.path.join('data', filename)
         if real_os.path.isfile(real_path):
             with real_open(real_path, 'r') as f:
-                fs.CreateFile(fake_path, contents = f.read())
+                fs.CreateFile(fake_path, contents=f.read())
         if real_os.path.isdir(real_path):
             fs.CreateDirectory(fake_path)
 
@@ -96,7 +102,10 @@ def redirect(f):
     return newf
 
 
-    # automating input
+
+# Test helpers
+
+# automating input
 
 real_input = input
 
@@ -113,7 +122,7 @@ class FakeInput():
         input() raise IndexError
      """
 
-    def __init__(self, inputs = None):
+    def __init__(self, inputs=None):
         self.inputs = list(inputs) or []
         self._cursor = 0
 
@@ -133,91 +142,7 @@ class FakeInput():
         return inp
 
 
-    # putting it all together
-
-def _execute_cmds(cmds, test_instance = None, fs = None):
-    """ Execute a list of commands, and capture their output
-
-    A command can be a string, or a tuple of size 2 or 3.
-    In the latter case, the command is :
-    1. a string reprensenting the command to execute
-    2. the user inputs to feed to the command during execution
-    3. the output excpected, verified with assertEqual
-
-    """
-
-    if fs is None:
-        fs = _create_fake_fs()
-        _copy_data(fs)
-
-
-    outs = []
-    for cmd in cmds:
-        if hasattr(cmd, '__iter__'):
-            if len(cmd) == 2:
-                input = FakeInput(cmd[1])
-                input.as_global()
-
-            _, stdout, stderr = redirect(papers_cmd.execute)(cmd[0].split())
-            if len(cmd) == 3:
-                actual_out  = color.undye(stdout.getvalue())
-                correct_out = color.undye(cmd[2])
-                if test_instance is not None:
-                    test_instance.assertEqual(actual_out, correct_out)
-
-        else:
-            assert type(cmd) == str
-            _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
-
-        assert(stderr.getvalue() == '')
-        outs.append(color.undye(stdout.getvalue()))
-
-    return outs
-
-
-    # actual tests
-
-class TestInit(unittest.TestCase):
-
-    def test_init(self):
-        fs = _create_fake_fs()
-        papers_cmd.execute('papers init -p paper_test2'.split())
-        self.assertEqual(set(fake_os.listdir('/paper_test2/')), {'bibdata', 'doc', 'meta', 'papers.yaml'})
-
-
-class TestAdd(unittest.TestCase):
-
-    def test_add(self):
-
-        fs = _create_fake_fs()
-        _copy_data(fs)
-
-        papers_cmd.execute('papers init'.split())
-        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
-
-    def test_add2(self):
-
-        fs = _create_fake_fs()
-        _copy_data(fs)
-
-        papers_cmd.execute('papers init -p /not_default'.split())
-        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
-        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'Page99.pdf'})
-
-
-class TestList(unittest.TestCase):
-
-    def test_list(self):
-
-        fs = _create_fake_fs()
-        _copy_data(fs)
-
-        papers_cmd.execute('papers init -p /not_default2'.split())
-        papers_cmd.execute('papers list'.split())
-        papers_cmd.execute('papers add -b /data/pagerank.bib -d /data/pagerank.pdf'.split())
-        papers_cmd.execute('papers list'.split())
-
-class TestInput(unittest.TestCase):
+class TestFakeInput(unittest.TestCase):
 
     def test_input(self):
 
@@ -244,10 +169,93 @@ class TestInput(unittest.TestCase):
             color.input()
 
 
-class TestUsecase(unittest.TestCase):
+class CommandTestCase(unittest.TestCase):
+    """Abstract TestCase intializing the fake filesystem."""
+
+    def setUp(self):
+        self.fs = _create_fake_fs()
+
+    def execute_cmds(self, cmds, fs=None):
+        """ Execute a list of commands, and capture their output
+
+        A command can be a string, or a tuple of size 2 or 3.
+        In the latter case, the command is :
+        1. a string reprensenting the command to execute
+        2. the user inputs to feed to the command during execution
+        3. the output excpected, verified with assertEqual
+
+        """
+        outs = []
+        for cmd in cmds:
+            if hasattr(cmd, '__iter__'):
+                if len(cmd) == 2:
+                    input = FakeInput(cmd[1])
+                    input.as_global()
+
+                _, stdout, stderr = redirect(papers_cmd.execute)(cmd[0].split())
+                if len(cmd) == 3:
+                    actual_out  = color.undye(stdout.getvalue())
+                    correct_out = color.undye(cmd[2])
+                    self.assertEqual(actual_out, correct_out)
+
+            else:
+                assert type(cmd) == str
+                _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
+
+            assert(stderr.getvalue() == '')
+            outs.append(color.undye(stdout.getvalue()))
+        return outs
+
+
+class DataCommandTestCase(CommandTestCase):
+    """Abstract TestCase intializing the fake filesystem and
+    copying fake data.
+    """
+
+    def setUp(self):
+        CommandTestCase.setUp(self)
+        _copy_data(self.fs)
+
+
+# Actual tests
+
+class TestInit(CommandTestCase):
+
+    def test_init(self):
+        papers_cmd.execute('papers init -p paper_test2'.split())
+        self.assertEqual(set(fake_os.listdir('/paper_test2/')),
+                         {'bibdata', 'doc', 'meta', 'papers.yaml'})
+
+
+class TestAdd(DataCommandTestCase):
+
+    def test_add(self):
+        cmds = ['papers init',
+                'papers add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+
+    def test_add2(self):
+        cmds = ['papers init -p /not_default',
+                'papers add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'Page99.pdf'})
+
+
+class TestList(DataCommandTestCase):
+
+    def test_list(self):
+        cmds = ['papers init -p /not_default2',
+                'papers list',
+                'papers add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                'papers list',
+                ]
+        self.execute_cmds(cmds)
+
+class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
-
         correct = ['Initializing papers in /paper_first.\n',
                    '',
                    '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
@@ -267,10 +275,9 @@ class TestUsecase(unittest.TestCase):
                 'papers tag 0',
                ]
 
-        self.assertEqual(correct, _execute_cmds(cmds))
+        self.assertEqual(correct, self.execute_cmds(cmds))
 
     def test_second(self):
-
         cmds = ['papers init -p paper_second/',
                 'papers add -b data/pagerank.bib',
                 'papers add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
@@ -279,11 +286,9 @@ class TestUsecase(unittest.TestCase):
                 'papers list',
                 'papers attach Page99 data/pagerank.pdf'
                ]
-
-        _execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_third(self):
-
         cmds = ['papers init',
                 'papers add -b data/pagerank.bib',
                 'papers add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
@@ -294,11 +299,9 @@ class TestUsecase(unittest.TestCase):
                 ('papers remove Page99', ['y']),
                 'papers remove -f turing1950computing',
                ]
-
-        _execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_editor_abort(self):
-
         with self.assertRaises(SystemExit):
             cmds = ['papers init',
                     ('papers add', ['abc', 'n']),
@@ -306,16 +309,14 @@ class TestUsecase(unittest.TestCase):
                     'papers add -b data/pagerank.bib',
                     ('papers edit Page99', ['', 'a']),
                    ]
-
-            _execute_cmds(cmds)
+            self.execute_cmds(cmds)
 
     def test_editor_success(self):
         cmds = ['papers init',
                 ('papers add', [fixtures.pagerankbib]),
                 ('papers remove Page99', ['y']),
                ]
-
-        _execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_edit(self):
         bib = fixtures.pagerankbib
@@ -339,7 +340,7 @@ class TestUsecase(unittest.TestCase):
                 ('papers list', [], line3),
                ]
 
-        _execute_cmds(cmds, test_instance = self)
+        self.execute_cmds(cmds)
 
     def test_export(self):
         cmds = ['papers init',
@@ -349,7 +350,7 @@ class TestUsecase(unittest.TestCase):
                 'papers export Page99 -f bibyaml',
                ]
 
-        _execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_import(self):
         cmds = ['papers init',
@@ -357,8 +358,8 @@ class TestUsecase(unittest.TestCase):
                 'papers list'
                ]
 
-        outs = _execute_cmds(cmds)
-        self.assertEqual(4+1, len(outs[-1].split('\n')))
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(4 + 1, len(outs[-1].split('\n')))
 
     def test_open(self):
         cmds = ['papers init',
@@ -367,11 +368,11 @@ class TestUsecase(unittest.TestCase):
                ]
 
         with self.assertRaises(SystemExit):
-            _execute_cmds(cmds)
+            self.execute_cmds(cmds)
 
         with self.assertRaises(SystemExit):
             cmds[-1] == 'papers open Page8'
-            _execute_cmds(cmds)
+            self.execute_cmds(cmds)
 
     def test_update(self):
         cmds = ['papers init',
@@ -380,5 +381,4 @@ class TestUsecase(unittest.TestCase):
                ]
 
         with self.assertRaises(SystemExit):
-            _execute_cmds(cmds)
-
+            self.execute_cmds(cmds)
