@@ -39,7 +39,7 @@ def command(args):
         bibstr = ''
         while cont:
             try:
-                bibstr = files.editor_input(config, bibstr, suffix='.yaml')
+                bibstr = files.editor_input(config().edit_cmd, bibstr, suffix='.yaml')
                 key, bib = get_bibentry_from_string(bibstr)
                 cont = False
             except Exception:
@@ -47,7 +47,7 @@ def command(args):
                     question='Invalid bibfile. Edit again ?',
                     default='y')
                 if not cont:
-                    ui.exit()
+                    ui.exit(0)
         p = Paper(bibentry=bib, citekey=key)
     else:
         p = Paper.load(bibfile)

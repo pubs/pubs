@@ -9,6 +9,7 @@ from .ui import UI
 from . import configs
 from . import commands
 from . import plugins
+from .__init__ import __version__
 
 cmds = collections.OrderedDict([
         ('init',        commands.init_cmd),
@@ -25,6 +26,26 @@ cmds = collections.OrderedDict([
         ('update',      commands.update_cmd),
         ])
 
+def _update_check(config, ui):
+    if config.version_warning:
+        code_version = int(__version__)
+        repo_version = int(config.version)
+
+        if repo_version > code_version:
+            ui.print_('warning: your repository was generated with an newer version'
+                      ' of papers (v{}) than the one you are using (v{}).\n'.format(
+                       repo_version, code_version) +
+                      '         you should not use papers until you install the '
+                      'newest version. (use version_warning in you papersrc '
+                      'to bypass this error)')
+            sys.exit()
+        elif repo_version < code_version:
+            ui.print_(
+                'warning: your repository version (v{})'.format(repo_version)
+                + 'must be updated to version {}.\n'.format(code_version)
+                + "run 'papers update'.")
+            sys.exit()
+
 
 def execute(raw_args = sys.argv):
     # loading config
@@ -33,6 +54,8 @@ def execute(raw_args = sys.argv):
     config.as_global()
 
     ui = UI(config)
+
+    _update_check(config, ui)
 
     # Extend with plugin commands
     plugins.load_plugins(ui, config.plugins.split())

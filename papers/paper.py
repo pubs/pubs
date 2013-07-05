@@ -271,7 +271,10 @@ class Paper(object):
         self.tags.discard(tag)
 
 
-class PaperInRepo(Paper): # TODO document why this class exists (fabien, 2013/06)
+class PaperInRepo(Paper):
+    """Extend paper class with command specific to the case where the paper
+    lives in a repository.
+    """
 
     def __init__(self, repo, *args, **kwargs):
         Paper.__init__(self, *args, **kwargs)
