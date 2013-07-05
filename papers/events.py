@@ -36,3 +36,8 @@ class RenameEvent(Event):
     def __init__(self, old_citekey, new_citekey):
         self.old_citekey = old_citekey
         self.new_citekey = new_citekey
+
+
+class AddEvent(Event):
+    def __init__(self, citekey):
+        self.citekey = citekey

@@ -5,7 +5,7 @@ import itertools
 
 from . import files
 from .paper import PaperInRepo, NoDocumentFile
-from .events import RemoveEvent, RenameEvent
+from .events import RemoveEvent, RenameEvent, AddEvent
 
 BASE_FILE = 'papers.yaml'
 BIB_DIR = 'bibdata'
@@ -114,9 +114,7 @@ class Repository(object):
             self.citekeys.append(p.citekey)
         self.save_paper(p)
         self.save()
-        # TODO change to logging system (17/12/2012)
-        print('Added: {}'.format(p.citekey))
-        return p
+        AddEvent(p.citekey).send()
 
     def save_paper(self, paper, old_citekey=None, overwrite=False):
         if (not paper.citekey in self.citekeys and
@@ -130,7 +128,7 @@ class Repository(object):
                 raise CiteKeyCollision('citekey {} already in use'.format(
                                        paper.citekey))
 
-            RenameEvent(old_citekey, paper.citekey)
+            RenameEvent(old_citekey, paper.citekey).send()
             self._remove_paper(old_citekey, remove_doc=False)
             self.add_paper(paper, overwrite=overwrite)
             self._move_doc(old_citekey, paper)
