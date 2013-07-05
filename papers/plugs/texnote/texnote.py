@@ -64,76 +64,84 @@ class TexnotePlugin(PapersPlugin):
         del args.texcmd
         self.texcmds[texcmd](**vars(args))
 
-    def remove(self, ui, reference):
+    def _texfile(self, citekey):
+        return os.path.join(TEXNOTE_DIR, citekey + '.tex')
+
+    def _ensure_texfile(self, citekey):
+        if not files.check_file(self._texfile(citekey)):
+            shutil.copy(TEXNOTE_DEFAULT_TEMPLATE, self._texfile(citekey))
+
+    def _autofill_texfile(self, citekey):
+        self._ensure_texfile(citekey)
+
+        with open(self._texfile(citekey)) as f:
+            text = f.read()
+
+        # modify with bib info
         rp = repo.Repository(config())
-        key = parse_reference(ui, rp, reference)
-        print('Should remove {}'.format(key))
+        paper = rp.get_paper(citekey)
+        fields = paper.bibentry.fields
+        persons = paper.bibentry.persons
+
+        if 'title' in fields:
+            title_str = fields['title']
+            text = text.replace("TITLE", title_str)
+
+        if 'year' in fields:
+            year_str = fields['year']
+            text = text.replace("YEAR", year_str)
+
+        if 'abstract' in fields:
+            abstract_str = fields['abstract']
+            text = text.replace("ABSTRACT", abstract_str)
+
+        if 'author' in persons:
+            authors = []
+            for author in persons['author']:
+                authors.append(format_author(author))
+            author_str = concatenate_authors(authors)
+            text = text.replace("AUTHOR", author_str)
+
+        with open(self._texfile(citekey), "w") as f:
+            f.write(text)
+
+    def get_texfile(self, citekey):
+        """ This function returns the name of the texfile and
+        ensure it exist and it is filled with info from the bibfile"""
+        self._autofill_texfile(citekey)
+        return self._texfile(citekey)
+
+    def get_edit_cmd(self):
+        default = config().edit_cmd
+        return config(TEXNOTE_SECTION).get('edit_cmd', default)
 
     def edit(self, ui, reference, view=None):
-        print('Should edit {}'.format(reference))
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
 
-        #open_texnote(ui, reference)
+        rp = repo.Repository(config())
+        citekey = parse_reference(ui, rp, reference)
+        files.edit_file(self.get_edit_cmd(), self.get_texfile(citekey), temporary=False)
 
-    def edit_style(self):
-        pass
+    def edit_style(self, ui):
+        files.edit_file(self.get_edit_cmd(), TEXNOTE_STYLE)
 
-    def edit_template(self):
-        pass
+    def edit_template(self, ui):
+        files.edit_file(self.get_edit_cmd(), TEXNOTE_TEMPLATE)
 
-    def toto(self):
-        print "toto"
-
-    #@RemoveEvent.listen()
-    def testEvent(self, rmevent):
-        print "testEvent"
+    def remove(self, ui, reference):
+        rp = repo.Repository(config())
+        citekey = parse_reference(ui, rp, reference)
+        try:
+            os.remove(self._texfile(citekey))
+        except OSError:
+            pass  # For some reason, the texnote file didn't exist
 
 
 @RemoveEvent.listen()
 def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
     texplug.remove(rmevent.ui, rmevent.citekey)
-    # HACK : transfer repo via RemoveEvent, do not recreate one
-    #rp = repo.Repository(config())
-    #paper = rp.get_paper(parse_reference(rmevent.ui, rp, rmevent.citekey))
-    #if 'texnote' in paper.metadata:
-    #    try:
-    #        os.remove(paper.metadata['texnote'])
-    #    except OSError:
-    #        pass  # For some reason, the texnote file didn't exist
-    #    paper.metadata.pop('texnote')
-    #    metapath = rp.path_to_paper_file(paper.citekey, 'meta')
-    #    files.save_meta(paper.metadata, metapath)
-
-
-def open_texnote(ui, ref):
-    # HACK : transfer repo via arguments, do not recreate one
-    rp = repo.Repository(config())
-    paper = rp.get_paper(parse_reference(ui, rp, ref))
-
-    #ugly to recode like for the doc field
-    if not 'texnote' in paper.metadata:
-        texnote_dir = os.path.join(rp.papersdir, TEXNOTE_DIR)
-        # if folder does not exist create it, this should be relative
-        if not os.path.exists(texnote_dir):
-            os.mkdir(texnote_dir)
-        texnote_path = os.path.join(texnote_dir, paper.citekey + '.tex')
-        paper.metadata['texnote'] = files.clean_path(texnote_path)
-        # save path in metadata
-        metapath = rp.path_to_paper_file(paper.citekey, 'meta')
-        files.save_meta(paper.metadata, metapath)
-
-    texnote_path = paper.metadata['texnote']
-    # test if doc exist else copy the sample one
-    if not files.check_file(texnote_path):
-        shutil.copyfile(TEXNOTE_SAMPLE_FILE, texnote_path)
-    #should autofill at every opening or not ? usefull if bib changes but the filling should be improved
-    autofill_texnote(texnote_path, paper.bibentry)
-
-    #open the file using the config editor
-    edit_cmd = config(TEXNOTE_SECTION).get('edit_cmd', config().edit_cmd)
-    subprocess.Popen([edit_cmd, texnote_path])
 
 
 ##### ugly replace by proper #####
@@ -162,38 +170,3 @@ def concatenate_authors(authors):
         concatenated += authors[a]
     return concatenated
 #####
-
-
-def autofill_texnote(texnote_path, bibentry):
-    # read file
-    f = open(texnote_path, "r")
-    text = f.read()
-    f.close()
-    # modify with bib info
-    #print bibentry
-    fields = bibentry.fields
-    persons = bibentry.persons
-
-    if 'title' in fields:
-        title_str = fields['title']
-        text = text.replace("TITLE", title_str)
-
-    if 'year' in fields:
-        year_str = fields['year']
-        text = text.replace("YEAR", year_str)
-
-    if 'abstract' in fields:
-        abstract_str = fields['abstract']
-        text = text.replace("ABSTRACT", abstract_str)
-
-    if 'author' in persons:
-        authors = []
-        for author in persons['author']:
-            authors.append(format_author(author))
-        author_str = concatenate_authors(authors)
-        text = text.replace("AUTHOR", author_str)
-
-    # write file
-    f = open(texnote_path, "w")
-    f.write(text)
-    f.close()
