@@ -4,7 +4,7 @@ import glob
 import itertools
 
 from . import files
-from .paper import PaperInRepo, NoDocumentFile
+from .paper import PaperInRepo, NoDocumentFile, check_citekey
 from .events import RemoveEvent, RenameEvent, AddEvent
 
 BASE_FILE = 'papers.yaml'
@@ -103,35 +103,32 @@ class Repository(object):
         return PaperInRepo.load(self, self._bibfile(citekey),
                                 self._metafile(citekey))
 
-    # add, remove papers
-    def add_paper(self, p, overwrite=False):
-        if p.citekey is None:  # TODO also test if citekey is valid
-            raise ValueError("Invalid citekey: {}.".format(p.citekey))
-        if not overwrite and p.citekey in self.citekeys:
-            raise CiteKeyCollision('citekey {} already in use'.format(
-                                   p.citekey))
-        if p.citekey not in self.citekeys:
-            self.citekeys.append(p.citekey)
-        self.save_paper(p)
+    def _add_citekey(self, citekey):
+        if citekey not in self.citekeys:
+            self.citekeys.append(citekey)
+            self.save()
+
+    def _write_paper(self, paper):
+        """Warning: overwrites the paper without checking if it exists."""
+        paper.save(self._bibfile(paper.citekey),
+                   self._metafile(paper.citekey))
+        self._add_citekey(paper.citekey)
+
+    def _remove_paper(self, citekey, remove_doc=True):
+        """ This version of remove is not meant to be accessed from outside.
+        It removes paper without raising the Remove Event"""
+        paper = self.get_paper(citekey)
+        self.citekeys.remove(citekey)
+        os.remove(self._metafile(citekey))
+        os.remove(self._bibfile(citekey))
+        # Eventually remove associated document
+        if remove_doc:
+            try:
+                path = paper.get_document_path_in_repo()
+                os.remove(path)
+            except NoDocumentFile:
+                pass
         self.save()
-        AddEvent(p.citekey).send()
-
-    def save_paper(self, paper, old_citekey=None, overwrite=False):
-        if (not paper.citekey in self.citekeys and
-                not old_citekey in self.citekeys):
-            raise ValueError('Paper not in repository, first add it.')
-        if old_citekey is None or old_citekey == paper.citekey:
-            paper.save(self._bibfile(paper.citekey),
-                       self._metafile(paper.citekey))
-        else:  # paper has changed citekey, raise RenameEvent
-            if (not overwrite and paper.citekey in self.citekeys):
-                raise CiteKeyCollision('citekey {} already in use'.format(
-                                       paper.citekey))
-
-            RenameEvent(old_citekey, paper.citekey).send()
-            self._remove_paper(old_citekey, remove_doc=False)
-            self.add_paper(paper, overwrite=overwrite)
-            self._move_doc(old_citekey, paper)
 
     def _move_doc(self, old_citekey, paper):
         """Fragile. Make more robust"""
@@ -144,33 +141,40 @@ class Repository(object):
         except NoDocumentFile:
             pass
 
-    def _bibfile(self, citekey):
-        return os.path.join(self.bib_dir, citekey + '.bibyaml')
+    def _add_paper(self, paper, overwrite=False):
+        check_citekey(paper.citekey)
+        if not overwrite and paper.citekey in self.citekeys:
+            raise CiteKeyCollision('Citekey {} already in use'.format(
+                                   paper.citekey))
+        self._write_paper(paper)
 
-    def _metafile(self, citekey):
-        return os.path.join(self.meta_dir, citekey + '.meta')
+    # add, remove papers
+    def add_paper(self, paper):
+        self._add_paper(paper)
+        AddEvent(paper.citekey).send()
+
+    def save_paper(self, paper, old_citekey=None, overwrite=False):
+        if old_citekey is None:
+            old_citekey = paper.citekey
+        if not old_citekey in self.citekeys:
+            raise ValueError('Paper not in repository, first add it.')
+        if old_citekey == paper.citekey:
+            self._write_paper(paper)
+        else:
+            self._add_paper(paper, overwrite=overwrite)  # This checks for collisions
+            self._remove_paper(old_citekey, remove_doc=False)
+            self._move_doc(old_citekey, paper)
+            RenameEvent(paper, old_citekey).send()
 
     def remove_paper(self, citekey, remove_doc=True):
         RemoveEvent(citekey).send()
         self._remove_paper(citekey, remove_doc)
 
-    def _remove_paper(self, citekey, remove_doc=True):
-        """ This version of remove is not meant to be accessed from outside.
-        It removes paper without raising the Remove Event"""
-        paper = self.get_paper(citekey)
-        self.citekeys.remove(citekey)
-        os.remove(self._metafile(citekey))
-        os.remove(self._bibfile(citekey))
+    def _bibfile(self, citekey):
+        return os.path.join(self.bib_dir, citekey + '.bibyaml')
 
-        # Eventually remove associated document
-        if remove_doc:
-            try:
-                path = paper.get_document_path_in_repo()
-                os.remove(path)
-            except NoDocumentFile:
-                pass
-
-        self.save()
+    def _metafile(self, citekey):
+        return os.path.join(self.meta_dir, citekey + '.meta')
 
     def generate_citekey(self, paper, citekey=None):
         """Create a unique citekey for the given paper."""
