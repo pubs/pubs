@@ -33,9 +33,9 @@ class RemoveEvent(Event):
 
 
 class RenameEvent(Event):
-    def __init__(self, old_citekey, new_citekey):
+    def __init__(self, paper, old_citekey):
+        self.paper = paper
         self.old_citekey = old_citekey
-        self.new_citekey = new_citekey
 
 
 class AddEvent(Event):

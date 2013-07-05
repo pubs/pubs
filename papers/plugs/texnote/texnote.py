@@ -50,11 +50,17 @@ class TexnotePlugin(PapersPlugin):
         p = sub.add_parser('edit', help='edit the reference texnote')
         p.add_argument('-v', '--view', action='store_true',
                 help='open the paper in a pdf viewer', default=None)
+        p.add_argument('-w', '--with', dest='with_command', default=None,
+                       help='command to use to open the file')
         add_references_argument(p, single=True)
         # edit_style
         p = sub.add_parser('edit_style', help='edit the latex style used by texnote')
+        p.add_argument('-w', '--with', dest='with_command', default=None,
+                       help='command to use to open the file')
         #edit_template
         p = sub.add_parser('edit_template', help='edit the latex template used by texnote')
+        p.add_argument('-w', '--with', dest='with_command', default=None,
+                       help='command to use to open the file')
         return parser
 
     def command(self, args):
@@ -115,19 +121,25 @@ class TexnotePlugin(PapersPlugin):
         default = config().edit_cmd
         return config(TEXNOTE_SECTION).get('edit_cmd', default)
 
-    def edit(self, ui, reference, view=None):
+    def edit(self, ui, reference, view=None, with_command=None):
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
+        if with_command is None:
+            with_command = self.get_edit_cmd()
 
         rp = repo.Repository(config())
         citekey = parse_reference(ui, rp, reference)
-        files.edit_file(self.get_edit_cmd(), self.get_texfile(citekey), temporary=False)
+        files.edit_file(with_command, self.get_texfile(citekey), temporary=False)
 
-    def edit_style(self, ui):
-        files.edit_file(self.get_edit_cmd(), TEXNOTE_STYLE, temporary=False)
+    def edit_style(self, ui, with_command=None):
+        if with_command is None:
+            with_command = self.get_edit_cmd()
+        files.edit_file(with_command, TEXNOTE_STYLE, temporary=False)
 
-    def edit_template(self, ui):
-        files.edit_file(self.get_edit_cmd(), TEXNOTE_TEMPLATE, temporary=False)
+    def edit_template(self, ui, with_command=None):
+        if with_command is None:
+            with_command = self.get_edit_cmd()
+        files.edit_file(with_command, TEXNOTE_TEMPLATE, temporary=False)
 
     def create(self, citekey):
         self._autofill_texfile(citekey)
@@ -164,7 +176,7 @@ def remove(rmevent):
 def rename(renamevent):
     texplug = TexnotePlugin.get_instance()
     texplug.rename(renamevent.old_citekey,
-                   renamevent.new_citekey,
+                   renamevent.paper.citekey,
                    overwrite=True)
 
 
