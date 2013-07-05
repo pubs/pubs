@@ -9,7 +9,7 @@ from ...configs import config
 from ...plugins import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
-from ...events import RemoveEvent
+from ...events import RemoveEvent, RenameEvent, AddEvent
 
 TEXNOTE_SECTION = 'texnote'
 TEXNOTE_DIR = os.path.join(config().papers_dir, 'texnote')
@@ -32,7 +32,7 @@ class TexnotePlugin(PapersPlugin):
                         ('edit_template', self.edit_template),
                         ])
 
-    def ensure_init(self):
+    def _ensure_init(self):
         if not files.check_directory(TEXNOTE_DIR):
             os.mkdir(TEXNOTE_DIR)
         if not files.check_file(TEXNOTE_TEMPLATE):
@@ -58,7 +58,7 @@ class TexnotePlugin(PapersPlugin):
         return parser
 
     def command(self, args):
-        self.ensure_init()
+        self._ensure_init()
 
         texcmd = args.texcmd
         del args.texcmd
@@ -69,7 +69,7 @@ class TexnotePlugin(PapersPlugin):
 
     def _ensure_texfile(self, citekey):
         if not files.check_file(self._texfile(citekey)):
-            shutil.copy(TEXNOTE_DEFAULT_TEMPLATE, self._texfile(citekey))
+            shutil.copy(TEXNOTE_TEMPLATE, self._texfile(citekey))
 
     def _autofill_texfile(self, citekey):
         self._ensure_texfile(citekey)
@@ -124,24 +124,48 @@ class TexnotePlugin(PapersPlugin):
         files.edit_file(self.get_edit_cmd(), self.get_texfile(citekey), temporary=False)
 
     def edit_style(self, ui):
-        files.edit_file(self.get_edit_cmd(), TEXNOTE_STYLE)
+        files.edit_file(self.get_edit_cmd(), TEXNOTE_STYLE, temporary=False)
 
     def edit_template(self, ui):
-        files.edit_file(self.get_edit_cmd(), TEXNOTE_TEMPLATE)
+        files.edit_file(self.get_edit_cmd(), TEXNOTE_TEMPLATE, temporary=False)
 
-    def remove(self, ui, reference):
-        rp = repo.Repository(config())
-        citekey = parse_reference(ui, rp, reference)
+    def create(self, citekey):
+        self._autofill_texfile(citekey)
+
+    def remove(self, citekey):
         try:
             os.remove(self._texfile(citekey))
         except OSError:
             pass  # For some reason, the texnote file didn't exist
 
+    def rename(self, old_citekey, new_citekey, overwrite=False):
+        if files.check_file(self._texfile(old_citekey)):
+            if not files.check_file(self._texfile(new_citekey)) or overwrite:
+                shutil.move(self._texfile(old_citekey), self._texfile(new_citekey))
+            else:
+                raise ValueError('citekey {} already exist'.format(new_citekey))
+        else:
+            raise ValueError('citekey {} does not exist'.format(old_citekey))
+
+
+@AddEvent.listen()
+def create(addevent):
+    texplug = TexnotePlugin.get_instance()
+    texplug.create(addevent.citekey)
+
 
 @RemoveEvent.listen()
 def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
-    texplug.remove(rmevent.ui, rmevent.citekey)
+    texplug.remove(rmevent.citekey)
+
+
+@RenameEvent.listen()
+def rename(renamevent):
+    texplug = TexnotePlugin.get_instance()
+    texplug.rename(renamevent.old_citekey,
+                   renamevent.new_citekey,
+                   overwrite=True)
 
 
 ##### ugly replace by proper #####
