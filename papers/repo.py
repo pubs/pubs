@@ -100,8 +100,11 @@ class Repository(object):
 
     def get_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        return PaperInRepo.load(self, self._bibfile(citekey),
-                                self._metafile(citekey))
+        if citekey in self.citekeys:
+            return PaperInRepo.load(self, self._bibfile(citekey),
+                                    self._metafile(citekey))
+        else:
+            raise InvalidReference
 
     def _add_citekey(self, citekey):
         if citekey not in self.citekeys:
@@ -162,6 +165,7 @@ class Repository(object):
             self._write_paper(paper)
         else:
             self._add_paper(paper, overwrite=overwrite)  # This checks for collisions
+            # We do not want to send the RemoveEvent, associated documents should be moved
             self._remove_paper(old_citekey, remove_doc=False)
             self._move_doc(old_citekey, paper)
             RenameEvent(paper, old_citekey).send()
