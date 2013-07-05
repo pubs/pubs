@@ -16,8 +16,8 @@ def parser(subparsers):
 
 def command(args):
 
-    ui        = args.ui
-    meta      = args.meta
+    ui = args.ui
+    meta = args.meta
     reference = args.reference
 
     rp = repo.Repository(config())
@@ -40,8 +40,9 @@ def command(args):
         else:
             new_key, bib = get_bibentry_from_string(content)
         paper.update(key=new_key, bib=bib, meta=metadata)
+
         try:
-            rp.update_paper(paper, old_citekey=key)
+            paper = rp.save_paper(paper, old_citekey=key)
             break
         except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']
@@ -53,6 +54,6 @@ def command(args):
             if choice == 'abort':
                 break
             elif choice == 'overwrite':
-                rp.update_paper(paper, old_citekey=key, overwrite=True)
+                paper = rp.save_paper(paper, old_citekey=key, overwrite=True)
                 break
             # else edit again
