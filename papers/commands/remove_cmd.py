@@ -3,8 +3,6 @@ from .. import color
 from ..configs import config
 from .helpers import add_references_argument, parse_references
 
-from ..events import RemoveEvent
-
 
 def parser(subparsers):
     parser = subparsers.add_parser('remove', help='removes a paper')
@@ -29,7 +27,4 @@ def command(args):
         sure = ui.input_yn(question=are_you_sure, default='n')
     if force or sure:
         for c in citekeys:
-            rmevent = RemoveEvent(ui, c)
-            rmevent.send()
-
             rp.remove_paper(c)

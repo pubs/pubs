@@ -28,6 +28,11 @@ class Event(object):
 
 
 class RemoveEvent(Event):
-    def __init__(self, ui, citekey):
-        self.ui = ui
+    def __init__(self, citekey):
         self.citekey = citekey
+
+
+class RenameEvent(Event):
+    def __init__(self, old_citekey, new_citekey):
+        self.old_citekey = old_citekey
+        self.new_citekey = new_citekey
