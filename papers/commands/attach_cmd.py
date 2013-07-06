@@ -32,7 +32,7 @@ def command(args):
     if copy is None:
         copy = config().import_copy
     rp = repo.Repository(config())
-    key = parse_reference(ui, rp, reference)
+    key = parse_reference(rp, reference)
     paper = rp.get_paper(key)
     try:
         add_docfile_to_paper(rp, paper, docfile=document, copy=copy)

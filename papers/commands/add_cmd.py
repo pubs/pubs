@@ -55,7 +55,7 @@ def command(args):
     if tags is not None:
         p.tags = set(tags.split(','))
     # Check if another doc file is specified in bibtex
-    docfile2 = extract_doc_path_from_bibdata(p, ui)
+    docfile2 = extract_doc_path_from_bibdata(p)
     if docfile is None:
         docfile = docfile2
     elif docfile2 is not None:

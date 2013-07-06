@@ -3,6 +3,7 @@ from .. import color
 from .. import pretty
 from ..repo import InvalidReference
 from ..paper import NoDocumentFile
+from ..uis import get_ui()
 
 
 def add_references_argument(parser, single=False):
@@ -28,29 +29,31 @@ def add_paper_with_docfile(repo, paper, docfile=None, copy=False):
         add_docfile_to_paper(repo, paper, docfile, copy=copy)
 
 
-def extract_doc_path_from_bibdata(paper, ui):
+def extract_doc_path_from_bibdata(paper):
     try:
         file_path = paper.get_document_file_from_bibdata(remove=True)
         if files.check_file(file_path):
             return file_path
         else:
+            ui = get_ui()
             ui.warning("File does not exist for %s (%s)."
                        % (paper.citekey, file_path))
     except NoDocumentFile:
         return None
 
 
-def parse_reference(ui, rp, ref):
+def parse_reference(rp, ref):
     try:
         return rp.ref2citekey(ref)
     except InvalidReference:
+        ui = get_ui()
         ui.error("no paper with reference: %s."
                     % color.dye(ref, color.citekey))
         ui.exit(-1)
 
 
-def parse_references(ui, rp, refs):
-    citekeys = [parse_reference(ui, rp, ref) for ref in refs]
+def parse_references(rp, refs):
+    citekeys = [parse_reference(rp, ref) for ref in refs]
     return citekeys
 
 def paper_oneliner(p, n = 0, citekey_only = False):

@@ -22,7 +22,7 @@ def command(args):
     reference = args.reference
 
     rp = repo.Repository(config())
-    key = parse_reference(ui, rp, reference)
+    key = parse_reference(rp, reference)
     paper = rp.get_paper(key)
     filepath = rp._metafile(key) if meta else rp._bibfile(key)
 
