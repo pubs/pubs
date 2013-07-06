@@ -131,7 +131,7 @@ class TexnotePlugin(PapersPlugin):
             with_command = self.get_edit_cmd()
 
         rp = repo.Repository(config())
-        citekey = parse_reference(get_ui(), rp, reference)
+        citekey = parse_reference(rp, reference)
         files.edit_file(with_command, self.get_texfile(citekey), temporary=False)
 
     def edit_template(self, body=None, style=None, header=None, with_command=None):
@@ -147,7 +147,7 @@ class TexnotePlugin(PapersPlugin):
 
     def remove(self, reference):
         rp = repo.Repository(config())
-        citekey = parse_reference(get_ui(), rp, reference)
+        citekey = parse_reference(rp, reference)
         os.remove(self.get_texfile(citekey))
 
     def rename(self, old_citekey, new_citekey, overwrite=False):
