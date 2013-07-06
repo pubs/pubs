@@ -5,18 +5,20 @@ import collections
 
 from ... import repo
 from ... import files
-from ...configs import config
+
 from ...uis import get_ui
+from ...configs import config
 from ...plugins import PapersPlugin
+from ...events import RemoveEvent, RenameEvent, AddEvent
 from ...commands.helpers import add_references_argument, parse_reference
 
-from ...events import RemoveEvent, RenameEvent, AddEvent
 
 SECTION = 'texnote'
 DIR = os.path.join(config().papers_dir, 'texnote')
 TPL_DIR = os.path.join(DIR, 'template')
 TPL_BODY = os.path.join(TPL_DIR, 'body.tex')
 TPL_STYLE = os.path.join(TPL_DIR, 'style.sty')
+TPL_BIB = os.path.join(TPL_DIR, 'bib.bib')
 
 DFT_BODY = os.path.join(os.path.dirname(__file__), 'default_body.tex')
 DFT_STYLE = os.path.join(os.path.dirname(__file__), 'default_style.sty')
@@ -31,6 +33,7 @@ class TexnotePlugin(PapersPlugin):
                         ('remove', self.remove),
                         ('edit', self.edit),
                         ('edit_template', self.edit_template),
+                        ('generate_bib', self.generate_bib),
                         ])
 
     def _ensure_init(self):
@@ -56,7 +59,7 @@ class TexnotePlugin(PapersPlugin):
         p.add_argument('-w', '--with', dest='with_command', default=None,
                        help='command to use to open the file')
         add_references_argument(p, single=True)
-        #edit_template
+        # edit_template
         p = sub.add_parser('edit_template', help='edit the latex template used by texnote')
         p.add_argument('-w', '--with', dest='with_command', default=None,
                        help='command to use to open the file')
@@ -64,6 +67,8 @@ class TexnotePlugin(PapersPlugin):
                 help='edit the main body', default=None)
         p.add_argument('-S', '--style', action='store_true',
                 help='open the style', default=None)
+        # generate_bib
+        p = sub.add_parser('generate_bib', help='generate the latex bib used by texnote')
         return parser
 
     def command(self, args):
@@ -150,6 +155,10 @@ class TexnotePlugin(PapersPlugin):
 
     def rename(self, old_citekey, new_citekey, overwrite=False):
         shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
+
+    def generate_bib(self):
+        cmd = 'papers list -k |xargs papers export >> {}'.format(TPL_BIB)
+        os.system(cmd)
 
 
 @AddEvent.listen()
