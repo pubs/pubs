@@ -1,4 +1,4 @@
-_listener = {}
+_listener = []
 
 
 class Event(object):
@@ -9,16 +9,14 @@ class Event(object):
         """ This function sends the instance of the class, i.e. the event
         to be sent, to all function that listen to it.
         """
-        if self.__class__ in _listener:
-            for f, args in _listener[self.__class__]:
+        for cls, f, args in _listener:
+            if isinstance(self, cls):
                 f(self, *args)
 
     @classmethod
     def listen(cls, *args):
         def wrap(f):
-            if cls not in _listener:
-                _listener[cls] = []
-            _listener[cls].append((f, args))
+            _listener.append((cls, f, args))
 
             # next step allow us to call the function itself without Event raised
             def wrapped_f(*args):

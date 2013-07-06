@@ -23,6 +23,17 @@ class AddEvent(Event):
         return a + b
 
 
+class Info(Event):
+    def __init__(self, info):
+        self.info = info
+
+
+class SpecificInfo(Info):
+    def __init__(self, info, specific):
+        Info.__init__(self, info)
+        self.specific = specific
+
+
 @TestEvent.listen(12, 15)
 def display(TestEventInstance, nb1, nb2):
     _output.append("%s %s %s"
@@ -44,6 +55,13 @@ def do_it(AddEventInstance):
     _output.append(AddEventInstance.add(17, 25))
 
 
+@Info.listen()
+def test_info_instance(infoevent):
+    _output.append(infoevent.info)
+    if isinstance(infoevent, SpecificInfo):
+        _output.append(infoevent.specific)
+
+
 class TestEvents(TestCase):
 
     def setUp(self):
@@ -63,4 +81,10 @@ class TestEvents(TestCase):
         addevent = AddEvent()
         addevent.send()
         correct = [42]
+        self.assertEquals(_output, correct)
+
+    def test_listen_Info(self):
+        Info('info').send()
+        SpecificInfo('info', 'specific').send()
+        correct = ['info', 'info', 'specific']
         self.assertEquals(_output, correct)
