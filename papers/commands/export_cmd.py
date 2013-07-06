@@ -28,7 +28,7 @@ def command(args):
 
     rp = repo.Repository(config())
     papers = [rp.get_paper(c)
-              for c in parse_references(ui, rp, references)]
+              for c in parse_references(rp, references)]
     if len(papers) == 0:
         papers = rp.all_papers()
     bib = BibliographyData()

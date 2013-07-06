@@ -24,7 +24,7 @@ def command(args):
     reference = args.reference
 
     rp = repo.Repository(config())
-    key = parse_reference(ui, rp, reference)
+    key = parse_reference(rp, reference)
     paper = rp.get_paper(key)
     if with_command is None:
         with_command = config().open_cmd

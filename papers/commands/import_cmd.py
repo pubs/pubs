@@ -31,7 +31,7 @@ def command(args):
     # Extract papers from bib
     papers = Paper.many_from_path(bibpath, fatal=False)
     for p in papers:
-        doc_file = extract_doc_path_from_bibdata(p, ui)
+        doc_file = extract_doc_path_from_bibdata(p)
         if doc_file is None:
             ui.warning("No file for %s." % p.citekey)
         add_paper_with_docfile(rp, p, docfile=doc_file, copy=copy)

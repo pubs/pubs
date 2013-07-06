@@ -20,7 +20,7 @@ def command(args):
     references = args.references
 
     rp = repo.Repository(config())
-    citekeys = parse_references(ui, rp, references)
+    citekeys = parse_references(rp, references)
     if force is None:
         are_you_sure = ("Are you sure you want to delete paper(s) [%s]"
             " (this will also delete associated documents)?"
