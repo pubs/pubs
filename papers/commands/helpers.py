@@ -3,7 +3,7 @@ from .. import color
 from .. import pretty
 from ..repo import InvalidReference
 from ..paper import NoDocumentFile
-from ..uis import get_ui()
+from ..uis import get_ui
 
 
 def add_references_argument(parser, single=False):
