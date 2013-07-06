@@ -3,8 +3,25 @@ from __future__ import print_function
 import sys
 
 from .beets_ui import _encoding, input_
-
 from . import color
+
+# package-shared ui that can be accessed using :
+# from uis import get_ui
+# ui = get_ui()
+# you must instanciate ui with a Config instance using init_ui(config)
+_ui = None
+
+
+def get_ui():
+    if _ui is None:
+        raise ValueError('ui not instanciated yet')
+    return _ui
+
+
+def init_ui(config):
+    global _ui
+    _ui = UI(config)
+
 
 class UI:
     """UI class. Stores configuration parameters and system information.

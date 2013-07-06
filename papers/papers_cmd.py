@@ -5,7 +5,7 @@ import sys
 import argparse
 import collections
 
-from .ui import UI
+from . import uis
 from . import configs
 from . import commands
 from . import plugins
@@ -53,7 +53,8 @@ def execute(raw_args = sys.argv):
     config.load()
     config.as_global()
 
-    ui = UI(config)
+    uis.init_ui(config)
+    ui = uis.get_ui()
 
     _update_check(config, ui)
 
