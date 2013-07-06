@@ -6,6 +6,7 @@ import collections
 from ... import repo
 from ... import files
 from ...configs import config
+from ...uis import get_ui
 from ...plugins import PapersPlugin
 from ...commands.helpers import add_references_argument, parse_reference
 
@@ -123,17 +124,17 @@ class TexnotePlugin(PapersPlugin):
         default = config().edit_cmd
         return config(SECTION).get('edit_cmd', default)
 
-    def edit(self, ui, reference, view=None, with_command=None):
+    def edit(self, reference, view=None, with_command=None):
         if view is not None:
             subprocess.Popen(['papers', 'open', reference])
         if with_command is None:
             with_command = self.get_edit_cmd()
 
         rp = repo.Repository(config())
-        citekey = parse_reference(ui, rp, reference)
+        citekey = parse_reference(get_ui(), rp, reference)
         files.edit_file(with_command, self.get_texfile(citekey), temporary=False)
 
-    def edit_template(self, ui, body=None, style=None, header=None, with_command=None):
+    def edit_template(self, body=None, style=None, header=None, with_command=None):
         if with_command is None:
             with_command = self.get_edit_cmd()
         if body is not None:
@@ -144,11 +145,9 @@ class TexnotePlugin(PapersPlugin):
     def create(self, citekey):
         self._autofill_texfile(citekey)
 
-    def remove(self, reference, ui=None):
-        citekey = reference
-        if ui is not None:
-            rp = repo.Repository(config())
-            citekey = parse_reference(ui, rp, reference)
+    def remove(self, reference):
+        rp = repo.Repository(config())
+        citekey = parse_reference(get_ui(), rp, reference)
         os.remove(self.get_texfile(citekey))
 
     def rename(self, old_citekey, new_citekey, overwrite=False):
