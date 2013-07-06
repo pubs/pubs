@@ -64,8 +64,6 @@ class TexnotePlugin(PapersPlugin):
                 help='edit the main body', default=None)
         p.add_argument('-S', '--style', action='store_true',
                 help='open the style', default=None)
-        p.add_argument('-H', '--header', action='store_true',
-                help='open the header', default=None)
         return parser
 
     def command(self, args):
@@ -134,7 +132,7 @@ class TexnotePlugin(PapersPlugin):
         citekey = parse_reference(rp, reference)
         files.edit_file(with_command, self.get_texfile(citekey), temporary=False)
 
-    def edit_template(self, body=None, style=None, header=None, with_command=None):
+    def edit_template(self, body=None, style=None, with_command=None):
         if with_command is None:
             with_command = self.get_edit_cmd()
         if body is not None:
