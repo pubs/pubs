@@ -12,7 +12,6 @@ from io import StringIO
 
 import yaml
 
-from . import ui
 from . import color
 
 try:

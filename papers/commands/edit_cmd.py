@@ -3,6 +3,7 @@ from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
 from .helpers import add_references_argument, parse_reference
 from ..configs import config
+from ..uis import get_ui
 
 
 def parser(subparsers):
@@ -16,7 +17,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
     meta = args.meta
     reference = args.reference
 

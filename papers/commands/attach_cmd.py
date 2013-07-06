@@ -1,5 +1,6 @@
 from .. import repo
 from ..configs import config
+from ..uis import get_ui
 from .helpers import (add_references_argument, parse_reference,
                       add_docfile_to_paper)
 
@@ -22,7 +23,7 @@ def command(args):
     :param docfile: path (no url yet) to a pdf or ps file
     """
 
-    ui = args.ui
+    ui = get_ui()
     copy = args.copy
     reference = args.reference
     document = args.document

@@ -3,6 +3,7 @@ import subprocess
 from .. import repo
 from ..paper import NoDocumentFile
 from ..configs import config
+from ..uis import get_ui
 from .. import color
 from .helpers import add_references_argument, parse_reference
 
@@ -18,7 +19,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
     with_command = args.with_command
     reference = args.reference
 

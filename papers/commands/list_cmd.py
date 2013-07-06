@@ -3,6 +3,7 @@ from .. import repo
 from .. import color
 from . import helpers
 from ..configs import config
+from ..uis import get_ui
 
 
 def parser(subparsers):
@@ -17,7 +18,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
     citekeys = args.citekeys
     query = args.query
 

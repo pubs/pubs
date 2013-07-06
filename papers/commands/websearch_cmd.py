@@ -1,6 +1,7 @@
 import webbrowser
 import urllib
 
+from ..uis import get_ui
 
 def parser(subparsers):
     parser = subparsers.add_parser('websearch',
@@ -12,7 +13,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
     search_string = args.search_string
 
     url = ("https://scholar.google.fr/scholar?q=%s&lr="

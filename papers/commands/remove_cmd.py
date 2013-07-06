@@ -1,6 +1,7 @@
 from .. import repo
 from .. import color
 from ..configs import config
+from ..uis import get_ui
 from .helpers import add_references_argument, parse_references
 
 
@@ -14,7 +15,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
     force = args.force
     references = args.references
 

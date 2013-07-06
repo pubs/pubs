@@ -2,6 +2,7 @@ from .. import repo
 from ..paper import Paper
 from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 from ..configs import config
+from ..uis import get_ui
 
 def parser(subparsers):
     parser = subparsers.add_parser('import',
@@ -20,7 +21,7 @@ def command(args):
     :param bibpath: path (no url yet) to a bibliography file
     """
 
-    ui = args.ui
+    ui = get_ui()
     bibpath = args.bibpath
     copy = args.copy
 

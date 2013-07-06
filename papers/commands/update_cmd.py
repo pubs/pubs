@@ -3,6 +3,7 @@ import sys
 from .. import repo
 from .. import color
 from ..configs import config
+from ..uis import get_ui
 from ..__init__ import __version__
 
 def parser(subparsers):
@@ -12,7 +13,7 @@ def parser(subparsers):
 
 def command(args):
 
-    ui = args.ui
+    ui = get_ui()
 
     code_version = __version__
     repo_version = int(config().version)

@@ -4,6 +4,7 @@ import os
 
 from ..repo import Repository
 from ..configs import config
+from ..uis import get_ui
 from .. import color
 from .. import files
 
@@ -21,7 +22,7 @@ def parser(subparsers):
 def command(args):
     """Create a .papers directory"""
 
-    ui = args.ui
+    ui = get_ui()
     path = args.path
     doc_dir = args.doc_dir
 

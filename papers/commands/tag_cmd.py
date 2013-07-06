@@ -20,6 +20,7 @@ The different use cases are :
 from ..repo import Repository, InvalidReference
 from . import helpers
 from ..configs import config
+from ..uis import get_ui
 
 def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
@@ -67,7 +68,7 @@ def _tag_groups(tags):
 def command(args):
     """Add, remove and show tags"""
 
-    ui = args.ui
+    ui = get_ui()
     referenceOrTag = args.referenceOrTag
     tags = args.tags
 

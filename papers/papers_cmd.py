@@ -71,8 +71,6 @@ def execute(raw_args = sys.argv):
         subparser = cmd_mod.parser(subparsers)  # why do we return the subparser ?
 
     args = parser.parse_args(raw_args[1:])
-
-    args.ui = ui
     cmd = args.command
     del args.command
 

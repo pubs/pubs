@@ -2,6 +2,7 @@ from .. import repo
 from .. import files
 from ..paper import Paper, NoDocumentFile, get_bibentry_from_string
 from ..configs import config
+from ..uis import get_ui
 from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 
 
@@ -25,7 +26,7 @@ def command(args):
     :param docfile: path (no url yet) to a pdf or ps file
     """
 
-    ui = args.ui
+    ui = get_ui()
     bibfile = args.bibfile
     docfile = args.docfile
     tags = args.tags

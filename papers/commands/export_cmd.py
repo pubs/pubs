@@ -6,6 +6,7 @@ from .. import repo
 from .. import files
 from .helpers import parse_references, add_references_argument
 from ..configs import config
+from ..uis import get_ui
 
 def parser(subparsers):
     parser = subparsers.add_parser('export',
@@ -21,7 +22,7 @@ def command(args):
     :param bib_format       (in 'bibtex', 'yaml')
     """
 
-    ui = args.ui
+    ui = get_ui()
     bib_format = args.bib_format
     references = args.references
 
