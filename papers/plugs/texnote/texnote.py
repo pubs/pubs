@@ -13,8 +13,8 @@ from ...plugins import PapersPlugin
 from ...events import RemoveEvent, RenameEvent, AddEvent
 from ...commands.helpers import add_references_argument, parse_reference
 
+from . import latex_tools
 from .autofill_tools import autofill, replace_pattern
-from .latex_tools import full_compile
 
 
 SECTION = 'texnote'
@@ -46,6 +46,7 @@ class TexnotePlugin(PapersPlugin):
                         ('generate_bib', self.generate_bib),
                         ('clean', self.clean),
                         ('generate_pdf', self.generate_pdf),
+                        ('extract_note', self.extract_note),
                         ])
 
     def _ensure_init(self):
@@ -108,6 +109,10 @@ class TexnotePlugin(PapersPlugin):
                 default=True, help="don't clean document afterwards")
         p.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                  default=False, help="display stdout")
+        # extract_note
+        p = sub.add_parser('extract_note',
+                help='extract core note from its reference')
+        add_references_argument(p, single=True)
         return parser
 
     def command(self, args):
@@ -221,7 +226,7 @@ class TexnotePlugin(PapersPlugin):
         rp = repo.Repository(config())
         citekey = parse_reference(rp, reference)
         path = self.get_texfile(citekey, autofill=True)
-        full_compile(path, verbose)
+        latex_tools.full_compile(path, verbose)
         if clean:
             self.clean(force=True)
         if open_pdf:
@@ -230,6 +235,14 @@ class TexnotePlugin(PapersPlugin):
             cmd = with_command.split()
             cmd.append(os.path.splitext(path)[0] + '.pdf')
             subprocess.Popen(cmd)
+
+    def extract_note(self, reference):
+        rp = repo.Repository(config())
+        citekey = parse_reference(rp, reference)
+        path = self.get_texfile(citekey, autofill=True)
+        with open(path) as f:
+            text = f.read()
+        print latex_tools.extract_note(text)
 
 
 @AddEvent.listen()

@@ -1,6 +1,27 @@
 import os
 import subprocess
 
+from .autofill_tools import replace_pattern
+
+DO_NOT_MODIFY_PATTERN = '%DO_NOT_MODIFY{INFO}'
+HEADER_PATTERN = '%HEADER{INFO}'
+
+
+def extract_note(text):
+    text = replace_pattern(text, DO_NOT_MODIFY_PATTERN, 'INFO')
+    text = text.replace(DO_NOT_MODIFY_PATTERN, '')
+    text = replace_pattern(text, HEADER_PATTERN, 'INFO')
+    text = text.replace(HEADER_PATTERN, '')
+    return remove_empty_lines(text)
+
+
+def remove_empty_lines(text):
+    cleaned_text = ''
+    for line in text.split('\n'):
+        if line.strip():
+                cleaned_text += line + '\n'
+    return cleaned_text[:-1]
+
 
 def full_compile(full_path_to_file, verbose=False):
     FNULL = None
@@ -22,10 +43,10 @@ def run_command(command, full_path_to_file, stdout=None, nb_time=1):
         subprocess.call(cmd, stdout=stdout)
     os.chdir(origWD) # get back to our original working directory
 
+
 def run_pdflatex(full_path_to_file, stdout=None, nb_time=1):
     run_command('pdflatex', full_path_to_file, stdout, nb_time)
 
+
 def run_bibtex(full_path_to_file, stdout=None, nb_time=1):
     run_command('bibtex', full_path_to_file, stdout, nb_time)
-
-
