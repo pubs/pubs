@@ -13,7 +13,7 @@ from ...plugins import PapersPlugin
 from ...events import RemoveEvent, RenameEvent, AddEvent
 from ...commands.helpers import add_references_argument, parse_reference
 
-from .autofill_tools import autofill
+from .autofill_tools import autofill, replace_pattern
 
 
 SECTION = 'texnote'
@@ -26,6 +26,12 @@ TPL_BIB = os.path.join(TPL_DIR, 'bib.bib')
 DFT_BODY = os.path.join(os.path.dirname(__file__), 'default_body.tex')
 DFT_STYLE = os.path.join(os.path.dirname(__file__), 'default_style.sty')
 
+STYLE_PATTERN = '\\usepackage{INFO}'
+STYLE_INFO = os.path.splitext(TPL_STYLE)[0].replace(DIR, '')[1:]
+BIB_PATTERN = '\\bibliography{INFO}'
+BIB_INFO = os.path.splitext(TPL_BIB)[0].replace(DIR, '')[1:]
+BIBSTYLE_PATTERN = '\\bibliographystyle{INFO}'
+DFT_BIBSTYLE_INFO = 'ieeetr'
 
 class TexnotePlugin(PapersPlugin):
 
@@ -48,6 +54,8 @@ class TexnotePlugin(PapersPlugin):
             shutil.copy(DFT_BODY, TPL_BODY)
         if not files.check_file(TPL_STYLE):
             shutil.copy(DFT_STYLE, TPL_STYLE)
+        if not files.check_file(TPL_BIB):
+            self.generate_bib()
 
     def parser(self, subparsers):
         parser = subparsers.add_parser(self.name, help='edit advance note in latex')
@@ -88,6 +96,10 @@ class TexnotePlugin(PapersPlugin):
         if not files.check_file(self._texfile(citekey)):
             shutil.copy(TPL_BODY, self._texfile(citekey))
 
+    def get_bib_style(self):
+        default = DFT_BIBSTYLE_INFO
+        return config(SECTION).get('bib_style', default)
+
     def _autofill_texfile(self, citekey):
         with open(self._texfile(citekey)) as f:
             text = f.read()
@@ -95,6 +107,9 @@ class TexnotePlugin(PapersPlugin):
         if citekey in rp:
             paper = rp.get_paper(citekey)
             text = autofill(text, paper)
+            text = replace_pattern(text, STYLE_PATTERN, STYLE_INFO)
+            text = replace_pattern(text, BIB_PATTERN, BIB_INFO)
+            text = replace_pattern(text, BIBSTYLE_PATTERN, self.get_bib_style())
             with open(self._texfile(citekey), "w") as f:
                 f.write(text)
 

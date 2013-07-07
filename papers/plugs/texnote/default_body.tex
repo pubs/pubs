@@ -3,7 +3,7 @@
 %TITLE, AUTHOR, YEAR, ABSTRACT will be automatyically replaced with respect to the associated bibfile thanks to the \autofill{*FIELD*}{} marker.
 \documentclass{article}
 %All texnote much share the same style so that we can compile them all together without problem
-\usepackage{template/style}
+\usepackage{INFO}
 %You are free to edit the style file using: papers texnote edit_template -S
 \begin{document}
 %You can edit the template of this file using: papers texnote edit_template -B
@@ -23,7 +23,10 @@
 %DO_NOT_MODIFY{
 %You can only cite papers added in you repo.
 %To update the bib file with latest papers info: papers texnote generate_bib
-\bibliographystyle{IEEE}
-\bibliography{template/bib}
+\bibliographystyle{INFO} %default is ieeetr
+%You can change the bibliography style in the config file : .papersrc
+%[texnote]
+%bib_style = plain
+\bibliography{INFO}
 \end{document}
 %}

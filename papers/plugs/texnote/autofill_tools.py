@@ -1,9 +1,17 @@
 AUTOFILL_TPL = '\\autofill{FIELD}{INFO}'
 
+
+def get_autofill_pattern(field):
+    return AUTOFILL_TPL.replace('FIELD', field)
+
+
 def autofill(text, paper):
-    for field, repl in get_autofill_info(paper):
-        text = text.replace(find_autofill_pattern(text, field),
-                            autofill_repl(repl, field))
+    for field, info in get_autofill_info(paper):
+        print find_pattern(text, get_autofill_pattern(field))
+        print fill_pattern(get_autofill_pattern(field), info)
+        text = replace_pattern(text,
+                               get_autofill_pattern(field),
+                               info)
     return text
 
 def get_autofill_info(paper):
@@ -20,6 +28,25 @@ def get_autofill_info(paper):
     return info
 
 
+def fill_pattern(pattern, info):
+    return pattern.replace('INFO', info)
+
+
+def find_pattern(text, pattern):
+    pattern = pattern.replace('INFO}', '')
+    start = text.find(pattern)
+    after = start + len(pattern)
+    info_length = text[after:].find('}')
+    end = start + len(pattern) + info_length + 1
+    return text[start:end]
+
+
+def replace_pattern(text, pattern, info):
+        return text.replace(find_pattern(text, pattern),
+                            fill_pattern(pattern, info))
+
+
+##### ugly replace by proper #####
 def get_author_as_str(paper):
     persons = paper.bibentry.persons
     authors = []
@@ -29,24 +56,6 @@ def get_author_as_str(paper):
     return concatenate_authors(authors)
 
 
-def autofill_template(field):
-    return AUTOFILL_TPL.replace('FIELD', field)
-
-
-def autofill_repl(repl, field):
-    return autofill_template(field).replace('INFO', repl)
-
-
-def find_autofill_pattern(text, field):
-    pattern = autofill_template(field).replace('INFO}', '')
-    start = text.find(pattern)
-    after = start + len(pattern)
-    info_length = text[after:].find('}')
-    end = start + len(pattern) + info_length + 1
-    return text[start:end]
-
-
-##### ugly replace by proper #####
 def format_author(author):
     first = author.first()
     middle = author.middle()
