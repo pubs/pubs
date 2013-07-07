@@ -58,7 +58,6 @@ def find_pattern(text, pattern):
 def replace_pattern(text, pattern, info):
     repl = fill_pattern(pattern, info)
     for found in find_pattern(text, pattern):
-        print found
         text = text.replace(found, repl)
     return text
 
