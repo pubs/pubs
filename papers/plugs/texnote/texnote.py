@@ -43,6 +43,7 @@ class TexnotePlugin(PapersPlugin):
                         ('edit', self.edit),
                         ('edit_template', self.edit_template),
                         ('generate_bib', self.generate_bib),
+                        ('clean', self.clean),
                         ])
 
     def _ensure_init(self):
@@ -66,20 +67,27 @@ class TexnotePlugin(PapersPlugin):
         # edit
         p = sub.add_parser('edit', help='edit the reference texnote')
         p.add_argument('-v', '--view', action='store_true',
-                help='open the paper in a pdf viewer', default=None)
+                help='open the paper in a pdf viewer', default=False)
         p.add_argument('-w', '--with', dest='with_command', default=None,
                        help='command to use to open the file')
         add_references_argument(p, single=True)
         # edit_template
-        p = sub.add_parser('edit_template', help='edit the latex template used by texnote')
+        p = sub.add_parser('edit_template',
+                           help='edit the latex template used by texnote')
         p.add_argument('-w', '--with', dest='with_command', default=None,
                        help='command to use to open the file')
         p.add_argument('-B', '--body', action='store_true',
-                help='edit the main body', default=None)
+                help='edit the main body', default=False)
         p.add_argument('-S', '--style', action='store_true',
-                help='open the style', default=None)
+                help='open the style', default=False)
         # generate_bib
-        p = sub.add_parser('generate_bib', help='generate the latex bib used by texnote')
+        p = sub.add_parser('generate_bib',
+                           help='generate the latex bib used by texnote')
+        # clean
+        p = sub.add_parser('clean',
+                           help='delete all but tex files in the texnote folder')
+        p.add_argument('-f', '--force', action='store_true',
+                       help='do not ask for confirmation', default=False)
         return parser
 
     def command(self, args):
@@ -125,8 +133,8 @@ class TexnotePlugin(PapersPlugin):
         default = config().edit_cmd
         return config(SECTION).get('edit_cmd', default)
 
-    def edit(self, reference, view=None, with_command=None):
-        if view is not None:
+    def edit(self, reference, view=False, with_command=None):
+        if view:
             subprocess.Popen(['papers', 'open', reference])
         if with_command is None:
             with_command = self.get_edit_cmd()
@@ -137,12 +145,12 @@ class TexnotePlugin(PapersPlugin):
                         self.get_texfile(citekey, autofill=True),
                         temporary=False)
 
-    def edit_template(self, body=None, style=None, with_command=None):
+    def edit_template(self, body=False, style=False, with_command=None):
         if with_command is None:
             with_command = self.get_edit_cmd()
-        if body is not None:
+        if body:
             files.edit_file(with_command, TPL_BODY, temporary=False)
-        if style is not None:
+        if style:
             files.edit_file(with_command, TPL_STYLE, temporary=False)
 
     def create(self, citekey):
@@ -159,6 +167,21 @@ class TexnotePlugin(PapersPlugin):
     def generate_bib(self):
         cmd = 'papers list -k |xargs papers export >> {}'.format(TPL_BIB)
         os.system(cmd)
+
+    def clean(self, force=False):
+        for f in os.listdir(DIR):
+            path = os.path.join(DIR, f)
+            if os.path.isfile(path):
+                name, extension = os.path.splitext(path)
+                if extension != '.tex':
+                    if not force:
+                        ui = get_ui()
+                        are_you_sure = 'Are you sure you want to delete file [{}]'.format(path)
+                        sure = ui.input_yn(question=are_you_sure, default='n')
+                    if force or sure:
+                        os.remove(path)
+
+
 
 
 @AddEvent.listen()
