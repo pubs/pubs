@@ -88,6 +88,8 @@ class TexnotePlugin(PapersPlugin):
                            help='delete all but tex files in the texnote folder')
         p.add_argument('-f', '--force', action='store_true',
                        help='do not ask for confirmation', default=False)
+        p.add_argument('-d', '--deep', action='store_true',
+                       help='also delete tex file that are not associated a paper', default=False)
         return parser
 
     def command(self, args):
@@ -168,18 +170,25 @@ class TexnotePlugin(PapersPlugin):
         cmd = 'papers list -k |xargs papers export >> {}'.format(TPL_BIB)
         os.system(cmd)
 
-    def clean(self, force=False):
+    def clean(self, force=False, deep=False):
+        if deep:
+            rp = repo.Repository(config())
         for f in os.listdir(DIR):
             path = os.path.join(DIR, f)
             if os.path.isfile(path):
                 name, extension = os.path.splitext(path)
-                if extension != '.tex':
-                    if not force:
-                        ui = get_ui()
-                        are_you_sure = 'Are you sure you want to delete file [{}]'.format(path)
-                        sure = ui.input_yn(question=are_you_sure, default='n')
-                    if force or sure:
-                        os.remove(path)
+                if extension == '.tex':
+                    if not deep:
+                        continue
+                    citekey, _ = os.path.splitext(f)
+                    if citekey in rp:
+                        continue
+                if not force:
+                    ui = get_ui()
+                    are_you_sure = 'Are you sure you want to delete file [{}]'.format(path)
+                    sure = ui.input_yn(question=are_you_sure, default='n')
+                if force or sure:
+                    os.remove(path)
 
 
 
