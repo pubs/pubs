@@ -14,6 +14,7 @@ from ...events import RemoveEvent, RenameEvent, AddEvent
 from ...commands.helpers import add_references_argument, parse_reference
 
 from .autofill_tools import autofill, replace_pattern
+from .latex_tools import full_compile
 
 
 SECTION = 'texnote'
@@ -72,13 +73,13 @@ class TexnotePlugin(PapersPlugin):
         p.add_argument('-v', '--view', action='store_true',
                 help='open the paper in a pdf viewer', default=False)
         p.add_argument('-w', '--with', dest='with_command', default=None,
-                       help='command to use to open the file')
+                       help='command to use to open the file, default is the main config one. You can set one in the texnote config section')
         add_references_argument(p, single=True)
         # edit_template
         p = sub.add_parser('edit_template',
                            help='edit the latex template used by texnote')
         p.add_argument('-w', '--with', dest='with_command', default=None,
-                       help='command to use to open the file')
+                       help='command to use to open the file, default is the main config one. You can set one in the texnote config section')
         p.add_argument('-B', '--body', action='store_true',
                 help='edit the main body', default=False)
         p.add_argument('-S', '--style', action='store_true',
@@ -99,12 +100,14 @@ class TexnotePlugin(PapersPlugin):
         p = sub.add_parser('generate_pdf',
                 help='compile a texnote from its reference')
         add_references_argument(p, single=True)
-        p.add_argument('-v', '--view', action='store_true',
-                help='open the resulting note in a pdf viewer', default=False)
+        p.add_argument('-o', '--open', action='store_true', dest='open_pdf',
+                default=False, help='open the resulting pdf')
         p.add_argument('-w', '--with', dest='with_command', default=None,
-                help='command to use to open the pdf')
+                help='command to use to open the pdf, default is the main config one')
         p.add_argument('-C', '--noclean', action='store_false', dest='clean',
-                help="don't clean document afterwards")
+                default=True, help="don't clean document afterwards")
+        p.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+                 default=False, help="display stdout")
         return parser
 
     def command(self, args):
@@ -213,26 +216,20 @@ class TexnotePlugin(PapersPlugin):
                 if force or sure:
                     os.remove(path)
 
-    def generate_pdf(self, reference, view=False, with_command=None, clean=True):
+    def generate_pdf(self, reference, open_pdf=False,
+                     with_command=None, clean=True, verbose=False):
         rp = repo.Repository(config())
         citekey = parse_reference(rp, reference)
-        origWD = os.getcwd() # remember our original working directory
-        os.chdir(DIR)
-        FNULL = open(os.devnull, 'w')
         path = self.get_texfile(citekey, autofill=True)
-        filename, extension = os.path.splitext(path)
-        subprocess.call(['pdflatex', filename], stdout=FNULL)
-        subprocess.call(['bibtex', filename], stdout=FNULL)
-        subprocess.call(['pdflatex', filename], stdout=FNULL)
-        subprocess.call(['pdflatex', filename], stdout=FNULL)
-        subprocess.call(['pdflatex', filename], stdout=FNULL)
-        os.chdir(origWD) # get back to our original working directory
+        full_compile(path, verbose)
         if clean:
             self.clean(force=True)
-        if view:
+        if open_pdf:
             if with_command is None:
                 with_command = config().open_cmd
-            subprocess.Popen([with_command, filename+'.pdf'])
+            cmd = with_command.split()
+            cmd.append(os.path.splitext(path)[0] + '.pdf')
+            subprocess.Popen(cmd)
 
 
 @AddEvent.listen()
