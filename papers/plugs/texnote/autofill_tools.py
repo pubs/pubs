@@ -7,8 +7,6 @@ def get_autofill_pattern(field):
 
 def autofill(text, paper):
     for field, info in get_autofill_info(paper):
-        print find_pattern(text, get_autofill_pattern(field))
-        print fill_pattern(get_autofill_pattern(field), info)
         text = replace_pattern(text,
                                get_autofill_pattern(field),
                                info)
@@ -28,22 +26,41 @@ def get_autofill_info(paper):
     return info
 
 
+def find_first_level_delimiter(text, opening='{', closing='}'):
+    if opening in text:
+        match = text.split(opening,1)[1]
+        cnt = 1
+        for index in xrange(len(match)):
+            if match[index] in (opening + closing):
+                cnt = (cnt + 1) if match[index] == opening else (cnt - 1)
+            if not cnt:
+                return match[:index]
+
+
 def fill_pattern(pattern, info):
     return pattern.replace('INFO', info)
 
 
 def find_pattern(text, pattern):
-    pattern = pattern.replace('INFO}', '')
-    start = text.find(pattern)
-    after = start + len(pattern)
-    info_length = text[after:].find('}')
-    end = start + len(pattern) + info_length + 1
-    return text[start:end]
+    look_at = pattern.replace('INFO}', '')
+    found = []
+    start = -1
+    while True:
+        start = text.find(look_at, start + 1)
+        if start < 0:
+            break
+        delim_start = start + len(look_at) - 1
+        repl = find_first_level_delimiter(text[delim_start:])
+        found.append(pattern.replace('INFO', repl))
+    return found
 
 
 def replace_pattern(text, pattern, info):
-        return text.replace(find_pattern(text, pattern),
-                            fill_pattern(pattern, info))
+    repl = fill_pattern(pattern, info)
+    for found in find_pattern(text, pattern):
+        print found
+        text = text.replace(found, repl)
+    return text
 
 
 ##### ugly replace by proper #####
