@@ -44,6 +44,7 @@ class TexnotePlugin(PapersPlugin):
                         ('edit_template', self.edit_template),
                         ('generate_bib', self.generate_bib),
                         ('clean', self.clean),
+                        ('generate_pdf', self.generate_pdf),
                         ])
 
     def _ensure_init(self):
@@ -84,14 +85,26 @@ class TexnotePlugin(PapersPlugin):
                 help='open the style', default=False)
         # generate_bib
         p = sub.add_parser('generate_bib',
-                           help='generate the latex bib used by texnote')
+                help='generate the latex bib used by texnote')
         # clean
         p = sub.add_parser('clean',
-                           help='delete all but tex files in the texnote folder')
+                help='delete all but tex files and pdf document in the texnote folder')
         p.add_argument('-f', '--force', action='store_true',
-                       help='do not ask for confirmation', default=False)
+                help='do not ask for confirmation', default=False)
         p.add_argument('-d', '--deep', action='store_true',
-                       help='also delete tex file that are not associated a paper', default=False)
+                help='also delete tex file and pdf document that are not associated to a paper', default=False)
+        p.add_argument('-p', '--pdf', action='store_true',
+                help='also delete all pdf document', default=False)
+        # generate_pdf
+        p = sub.add_parser('generate_pdf',
+                help='compile a texnote from its reference')
+        add_references_argument(p, single=True)
+        p.add_argument('-v', '--view', action='store_true',
+                help='open the resulting note in a pdf viewer', default=False)
+        p.add_argument('-w', '--with', dest='with_command', default=None,
+                help='command to use to open the pdf')
+        p.add_argument('-C', '--noclean', action='store_false', dest='clean',
+                help="don't clean document afterwards")
         return parser
 
     def command(self, args):
@@ -177,14 +190,17 @@ class TexnotePlugin(PapersPlugin):
         cmd = 'papers list -k |xargs papers export >> {}'.format(TPL_BIB)
         os.system(cmd)
 
-    def clean(self, force=False, deep=False):
+    def clean(self, force=False, deep=False, pdf=False):
         if deep:
             rp = repo.Repository(config())
+        to_keep = ['.tex']
+        if not pdf:
+            to_keep.append('.pdf')
         for f in os.listdir(DIR):
             path = os.path.join(DIR, f)
             if os.path.isfile(path):
                 name, extension = os.path.splitext(path)
-                if extension == '.tex':
+                if extension in to_keep:
                     if not deep:
                         continue
                     citekey, _ = os.path.splitext(f)
@@ -197,7 +213,26 @@ class TexnotePlugin(PapersPlugin):
                 if force or sure:
                     os.remove(path)
 
-
+    def generate_pdf(self, reference, view=False, with_command=None, clean=True):
+        rp = repo.Repository(config())
+        citekey = parse_reference(rp, reference)
+        origWD = os.getcwd() # remember our original working directory
+        os.chdir(DIR)
+        FNULL = open(os.devnull, 'w')
+        path = self.get_texfile(citekey, autofill=True)
+        filename, extension = os.path.splitext(path)
+        subprocess.call(['pdflatex', filename], stdout=FNULL)
+        subprocess.call(['bibtex', filename], stdout=FNULL)
+        subprocess.call(['pdflatex', filename], stdout=FNULL)
+        subprocess.call(['pdflatex', filename], stdout=FNULL)
+        subprocess.call(['pdflatex', filename], stdout=FNULL)
+        os.chdir(origWD) # get back to our original working directory
+        if clean:
+            self.clean(force=True)
+        if view:
+            if with_command is None:
+                with_command = config().open_cmd
+            subprocess.Popen([with_command, filename+'.pdf'])
 
 
 @AddEvent.listen()
