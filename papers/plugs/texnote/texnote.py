@@ -64,6 +64,8 @@ class TexnotePlugin(PapersPlugin):
         # remove
         p = sub.add_parser('remove', help='remove a reference')
         add_references_argument(p, single=True)
+        p.add_argument('-f', '--force', action='store_true',
+                       help='do not ask for confirmation', default=False)
         # edit
         p = sub.add_parser('edit', help='edit the reference texnote')
         p.add_argument('-v', '--view', action='store_true',
@@ -158,10 +160,15 @@ class TexnotePlugin(PapersPlugin):
     def create(self, citekey):
         self._autofill_texfile(citekey)
 
-    def remove(self, reference):
+    def remove(self, reference, force=False):
         rp = repo.Repository(config())
         citekey = parse_reference(rp, reference)
-        os.remove(self.get_texfile(citekey))
+        if not force:
+            ui = get_ui()
+            are_you_sure = 'Are you sure you want to delete [{}]'.format(citekey)
+            sure = ui.input_yn(question=are_you_sure, default='n')
+        if force or sure:
+            os.remove(self.get_texfile(citekey))
 
     def rename(self, old_citekey, new_citekey, overwrite=False):
         shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
