@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import collections
@@ -11,6 +12,8 @@ from ...configs import config
 from ...plugins import PapersPlugin
 from ...events import RemoveEvent, RenameEvent, AddEvent
 from ...commands.helpers import add_references_argument, parse_reference
+
+from .autofill_tools import autofill
 
 
 SECTION = 'texnote'
@@ -86,41 +89,21 @@ class TexnotePlugin(PapersPlugin):
             shutil.copy(TPL_BODY, self._texfile(citekey))
 
     def _autofill_texfile(self, citekey):
-        self._ensure_texfile(citekey)
         with open(self._texfile(citekey)) as f:
             text = f.read()
         rp = repo.Repository(config())
         if citekey in rp:
             paper = rp.get_paper(citekey)
-            fields = paper.bibentry.fields
-            persons = paper.bibentry.persons
-
-            if 'title' in fields:
-                title_str = fields['title']
-                text = text.replace("TITLE", title_str)
-
-            if 'year' in fields:
-                year_str = fields['year']
-                text = text.replace("YEAR", year_str)
-
-            if 'abstract' in fields:
-                abstract_str = fields['abstract']
-                text = text.replace("ABSTRACT", abstract_str)
-
-            if 'author' in persons:
-                authors = []
-                for author in persons['author']:
-                    authors.append(format_author(author))
-                author_str = concatenate_authors(authors)
-                text = text.replace("AUTHOR", author_str)
-
+            text = autofill(text, paper)
             with open(self._texfile(citekey), "w") as f:
                 f.write(text)
 
-    def get_texfile(self, citekey):
+    def get_texfile(self, citekey, autofill=False):
         """ This function returns the name of the texfile and
         ensure it exist and it is filled with info from the bibfile if possible"""
-        self._autofill_texfile(citekey)
+        self._ensure_texfile(citekey)
+        if autofill:
+            self._autofill_texfile(citekey)
         return self._texfile(citekey)
 
     def get_edit_cmd(self):
@@ -135,7 +118,9 @@ class TexnotePlugin(PapersPlugin):
 
         rp = repo.Repository(config())
         citekey = parse_reference(rp, reference)
-        files.edit_file(with_command, self.get_texfile(citekey), temporary=False)
+        files.edit_file(with_command,
+                        self.get_texfile(citekey, autofill=True),
+                        temporary=False)
 
     def edit_template(self, body=None, style=None, with_command=None):
         if with_command is None:
@@ -179,31 +164,3 @@ def rename(renamevent):
     texplug.rename(renamevent.old_citekey,
                    renamevent.paper.citekey,
                    overwrite=True)
-
-
-##### ugly replace by proper #####
-def format_author(author):
-    first = author.first()
-    middle = author.middle()
-    last = author.last()
-    formatted = ''
-    if first:
-        formatted += first[0]
-    if middle:
-        formatted += ' ' + middle[0] + '.'
-    if last:
-        formatted += ' ' + last[0]
-    return formatted
-
-
-def concatenate_authors(authors):
-    concatenated = ''
-    for a in range(len(authors)):
-        if len(authors) > 1 and a > 0:
-            if a == len(authors) - 1:
-                concatenated += 'and '
-            else:
-                concatenated += ', '
-        concatenated += authors[a]
-    return concatenated
-#####

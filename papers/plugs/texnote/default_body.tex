@@ -1,26 +1,29 @@
 %DO_NOT_MODIFY{
 %This file is the starting point for all notes
-%TITLE, AUTHOR, YEAR, ABSTRACT will be automatyically replaced with respect to the associated bibfile
-%All texnote much share the same style so that we can compile them all together without problem
-%You can edit the style file using: papers texnote edit_template -S
+%TITLE, AUTHOR, YEAR, ABSTRACT will be automatyically replaced with respect to the associated bibfile thanks to the \autofill{*FIELD*}{} marker.
 \documentclass{article}
+%All texnote much share the same style so that we can compile them all together without problem
 \usepackage{template/style}
+%You are free to edit the style file using: papers texnote edit_template -S
 \begin{document}
-\begin{center}
-\Large{\textbf{TITLE}} \\ [0.2cm]
-\small{\textsc{AUTHOR}} \\ [0.2cm]
-\normalsize{\textsc{YEAR}} \\ [1cm]
-\end{center}
-\begin{abstract}
-    ABSTRACT
-\end{abstract}
-%You can edit the following of this file using: papers texnote edit_template -B
+%You can edit the template of this file using: papers texnote edit_template -B
 %}
 
-%WRITE YOUR NOTES FROM HERE
-%\section{Notes}
-%   Write your notes here
+\begin{center}
+    \Large{\textbf{\autofill{TITLE}{The title}}} \\ [0.2cm]
+    \small{\textsc{\autofill{AUTHOR}{The authors}}} \\ [0.2cm]
+    \normalsize{\textsc{\autofill{YEAR}{The year}}} \\ [1cm]
+\end{center}
+
+\begin{abstract}
+    \autofill{ABSTRACT}{The abstract}
+\end{abstract}
+
 
 %DO_NOT_MODIFY{
+%You can only cite papers added in you repo.
+%To update the bib file with latest papers info: papers texnote generate_bib
+\bibliographystyle{IEEE}
+\bibliography{template/bib}
 \end{document}
 %}
