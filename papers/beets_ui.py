@@ -15,14 +15,11 @@
 # included in all copies or substantial portions of the Software.
 
 
-#import locale
+import locale
 import sys
 
 from . import p3
 from p3 import input
-from p3 import configparser
-
-from . import configs
 
 
 class UserError(Exception):
@@ -35,16 +32,14 @@ class UserError(Exception):
 def _encoding(config):
     """Tries to guess the encoding used by the terminal."""
     # Configured override?
+    # Determine from locale settings.
     try:
-        return config.get(configs.MAIN_SECTION, 'terminal-encoding')
-    except configparser.NoOptionError:
-        # Determine from locale settings.
-        try:
-            return locale.getdefaultlocale()[1] or 'utf8'
-        except ValueError:
-            # Invalid locale environment variable setting. To avoid
-            # failing entirely for no good reason, assume UTF-8.
-            return 'utf8'
+        default_enc = locale.getdefaultlocale()[1] or 'utf8'
+    except ValueError:
+        # Invalid locale environment variable setting. To avoid
+        # failing entirely for no good reason, assume UTF-8.
+        default_enc = 'utf8'
+    return config.get('terminal-encoding', default_enc)
 
 
 def input_():
