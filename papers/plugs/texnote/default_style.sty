@@ -1,4 +1,11 @@
 %DO_NOT_MODIFY{
 %Dummy command used as marker for the autofill
 \newcommand{\autofill}[2]{#2}
+%command for easy glossary, requires to run: 'makeglossaries filename'
+\usepackage[nonumberlist]{glossaries}
+\newcommand{\dictentry}[2]{%
+  \newglossaryentry{#1}{name=#1,description={#2}}%
+  \glslink{#1}{}%
+}
+\makeglossaries
 %}

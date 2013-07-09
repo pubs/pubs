@@ -9,7 +9,7 @@
 %}
 %HEADER{
 %This part is the header, you can modify it as you wish. It will be removed when compiling higher level notes 
-%TITLE, AUTHOR, YEAR, ABSTRACT will be automatyically replaced with respect to the associated bibfile thanks to the \autofill{*FIELD*}{} marker.
+%TITLE, AUTHOR, YEAR, ABSTRACT will be automatically replaced with respect to the associated bibfile thanks to the \autofill{*FIELD*}{} marker.
 \begin{center}
     \Large{\textbf{\autofill{TITLE}{Title not found}}} \\ [0.2cm]
     \small{\textsc{\autofill{AUTHOR}{Author(s) not found}}} \\ [0.2cm]
@@ -19,7 +19,7 @@
     \autofill{ABSTRACT}{Abstract not found}
 \end{abstract}
 %Write your notes below
-%Do not use \section{} or \subsection{} as they may be source of problems when concatenating notes.
+%Do not use \section{} or \subsection{} as they may be source of problems when concatenating notes. Use \paragraph{} instead.
 %}
 
 
@@ -34,5 +34,8 @@
 %[texnote]
 %bib_style = plain
 \bibliography{INFO} %The bibliography location is automatically filled
+%The glossary style is default
+\printglossary
+%You can add a new glossary entry using \dictentry{'name'}{'description'} (see style file). This will automatically add a new reference and display it in the glossary even if never referenced (using \gls{'name'}).
 \end{document}
 %}

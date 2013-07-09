@@ -125,8 +125,11 @@ class TexnotePlugin(PapersPlugin):
     def _texfile(self, citekey):
         return os.path.join(DIR, citekey + '.tex')
 
+    def _exist_texfile(self, citekey):
+        return files.check_file(self._texfile(citekey))
+
     def _ensure_texfile(self, citekey):
-        if not files.check_file(self._texfile(citekey)):
+        if not self._exist_texfile(citekey):
             shutil.copy(TPL_BODY, self._texfile(citekey))
 
     def get_bib_style(self):
@@ -189,7 +192,13 @@ class TexnotePlugin(PapersPlugin):
             os.remove(self.get_texfile(citekey))
 
     def rename(self, old_citekey, new_citekey, overwrite=False):
-        shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
+        if self._exist_texfile(old_citekey):
+            if not overwrite and self._exist_texfile(new_citekey):
+                ui = get_ui()
+                are_you_sure = 'Are you sure you want to delete [{}]'.format(citekey)
+                sure = ui.input_yn(question=are_you_sure, default='n')
+            if overwrite or sure:
+                shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
 
     def generate_bib(self):
         if files.check_file(TPL_BIB):

@@ -30,6 +30,7 @@ def full_compile(full_path_to_file, verbose=False):
     filename, extension = os.path.splitext(full_path_to_file)
     run_pdflatex(filename, stdout=FNULL)
     run_bibtex(filename, stdout=FNULL)
+    run_makeglossaries(filename, stdout=FNULL)
     run_pdflatex(filename, stdout=FNULL, nb_time=3)
 
 
@@ -50,3 +51,6 @@ def run_pdflatex(full_path_to_file, stdout=None, nb_time=1):
 
 def run_bibtex(full_path_to_file, stdout=None, nb_time=1):
     run_command('bibtex', full_path_to_file, stdout, nb_time)
+
+def run_makeglossaries(full_path_to_file, stdout=None, nb_time=1):
+    run_command('makeglossaries', full_path_to_file, stdout, nb_time)
