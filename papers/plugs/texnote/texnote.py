@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 import subprocess
 import collections
@@ -33,6 +32,7 @@ BIB_PATTERN = '\\bibliography{INFO}'
 BIB_INFO = os.path.splitext(TPL_BIB)[0].replace(DIR, '')[1:]
 BIBSTYLE_PATTERN = '\\bibliographystyle{INFO}'
 DFT_BIBSTYLE_INFO = 'ieeetr'
+
 
 class TexnotePlugin(PapersPlugin):
 
@@ -254,7 +254,7 @@ def create(addevent):
 @RemoveEvent.listen()
 def remove(rmevent):
     texplug = TexnotePlugin.get_instance()
-    texplug.remove(rmevent.citekey)
+    texplug.remove(rmevent.citekey, force=True)
 
 
 @RenameEvent.listen()
