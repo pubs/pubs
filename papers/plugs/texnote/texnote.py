@@ -192,6 +192,8 @@ class TexnotePlugin(PapersPlugin):
         shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
 
     def generate_bib(self):
+        if files.check_file(TPL_BIB):
+            os.remove(TPL_BIB)
         cmd = 'papers list -k |xargs papers export >> {}'.format(TPL_BIB)
         os.system(cmd)
 
