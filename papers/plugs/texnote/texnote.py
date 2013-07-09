@@ -9,7 +9,7 @@ from ... import files
 from ...uis import get_ui
 from ...configs import config
 from ...plugins import PapersPlugin
-from ...events import RemoveEvent, RenameEvent, AddEvent
+from ...events import RemoveEvent, RenameEvent
 from ...commands.helpers import add_references_argument, parse_reference
 
 from . import latex_tools
@@ -178,9 +178,6 @@ class TexnotePlugin(PapersPlugin):
         if style:
             files.edit_file(with_command, TPL_STYLE, temporary=False)
 
-    def create(self, citekey):
-        self._autofill_texfile(citekey)
-
     def remove(self, reference, force=False):
         rp = repo.Repository(config())
         citekey = parse_reference(rp, reference)
@@ -243,12 +240,6 @@ class TexnotePlugin(PapersPlugin):
         with open(path) as f:
             text = f.read()
         print latex_tools.extract_note(text)
-
-
-@AddEvent.listen()
-def create(addevent):
-    texplug = TexnotePlugin.get_instance()
-    texplug.create(addevent.citekey)
 
 
 @RemoveEvent.listen()
