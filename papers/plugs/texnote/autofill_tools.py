@@ -1,3 +1,5 @@
+from .latex_tools import format_for_latex
+
 AUTOFILL_TPL = '\\autofill{FIELD}{INFO}'
 
 
@@ -9,12 +11,13 @@ def autofill(text, paper):
     for field, info in get_autofill_info(paper):
         text = replace_pattern(text,
                                get_autofill_pattern(field),
-                               info)
+                               format_for_latex(info))
     return text
+
 
 def get_autofill_info(paper):
     fields = paper.bibentry.fields
-
+    tags = paper.tags
     info = []
     if 'year' in fields:
         info.append(('YEAR', fields['year']))
@@ -23,12 +26,13 @@ def get_autofill_info(paper):
     if 'abstract' in fields:
         info.append(('ABSTRACT', fields['abstract']))
     info.append(('AUTHOR', get_author_as_str(paper)))
+    info.append(('TAG', ', '.join(tags)))
     return info
 
 
 def find_first_level_delimiter(text, opening='{', closing='}'):
     if opening in text:
-        match = text.split(opening,1)[1]
+        match = text.split(opening, 1)[1]
         cnt = 1
         for index in xrange(len(match)):
             if match[index] in (opening + closing):

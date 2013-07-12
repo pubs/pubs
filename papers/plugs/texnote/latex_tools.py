@@ -1,10 +1,16 @@
 import os
 import subprocess
 
-from .autofill_tools import replace_pattern
 
 DO_NOT_MODIFY_PATTERN = '%DO_NOT_MODIFY{INFO}'
 HEADER_PATTERN = '%HEADER{INFO}'
+
+
+def format_for_latex(text):
+    text = text.replace('_', '\_')
+    return text
+
+from .autofill_tools import replace_pattern
 
 
 def extract_note(text):
@@ -35,14 +41,14 @@ def full_compile(full_path_to_file, verbose=False):
 
 
 def run_command(command, full_path_to_file, stdout=None, nb_time=1):
-    origWD = os.getcwd() # remember our original working directory
+    origWD = os.getcwd()  # remember our original working directory
     folder, filename = os.path.split(full_path_to_file)
     os.chdir(folder)
     for _ in xrange(nb_time):
         cmd = command.split()
         cmd.append(filename)
         subprocess.call(cmd, stdout=stdout)
-    os.chdir(origWD) # get back to our original working directory
+    os.chdir(origWD)  # get back to our original working directory
 
 
 def run_pdflatex(full_path_to_file, stdout=None, nb_time=1):
@@ -51,6 +57,7 @@ def run_pdflatex(full_path_to_file, stdout=None, nb_time=1):
 
 def run_bibtex(full_path_to_file, stdout=None, nb_time=1):
     run_command('bibtex', full_path_to_file, stdout, nb_time)
+
 
 def run_makeglossaries(full_path_to_file, stdout=None, nb_time=1):
     run_command('makeglossaries', full_path_to_file, stdout, nb_time)
