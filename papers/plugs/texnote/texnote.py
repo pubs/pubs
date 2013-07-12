@@ -36,9 +36,9 @@ DFT_BIBSTYLE_INFO = 'ieeetr'
 
 class TexnotePlugin(PapersPlugin):
 
-    def __init__(self):
-        self.name = SECTION
+    name = SECTION
 
+    def __init__(self):
         self.texcmds = collections.OrderedDict([
                         ('remove', self.remove),
                         ('edit', self.edit),
@@ -61,7 +61,7 @@ class TexnotePlugin(PapersPlugin):
         if not files.check_file(TPL_BIB):
             self.generate_bib()
 
-    def parser(self, subparsers):
+    def get_commands(self, subparsers):
         parser = subparsers.add_parser(self.name, help='edit advance note in latex')
         sub = parser.add_subparsers(title='valid texnote commands', dest='texcmd')
         # remove
@@ -113,7 +113,7 @@ class TexnotePlugin(PapersPlugin):
         p = sub.add_parser('extract_note',
                 help='extract core note from its reference')
         add_references_argument(p, single=True)
-        return parser
+        return [(self.name, self.command)]
 
     def command(self, args):
         self._ensure_init()

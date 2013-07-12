@@ -11,34 +11,14 @@ class PapersPlugin(object):
     functionality by defining a subclass of PapersPlugin and overriding
     the abstract methods defined here.
     """
-    def __init__(self):
-        """Perform one-time plugin setup.
+
+    name = None
+
+    def get_commands(self, subparsers):
+        """Populates the parser with plugins specific command.
+        Returns iterable of pairs (command name, command function to call).
         """
-        self.name = self.__module__.split('.')[-1]
-
-    #ui and given again to stay consistent with the core papers cmd.
-    #two options:
-    #- create specific cases in script papers/papers
-    #- do not store self.ui and use them if needed when command is called
-    #this may end up with a lot of function with config/ui in argument
-    #or just keep it that way...
-    def parser(self, subparsers):
-        """ Should return the parser with plugins specific command.
-        This is a basic example
-        """
-        parser = subparsers.add_parser(self.name, help="echo string in argument")
-        parser.add_argument('strings', nargs='*', help='the strings')
-        return parser
-
-    def command(self, args):
-        """This function will be called with argument defined in the parser above
-        This is a basic example
-        """
-
-        strings = args.strings
-
-        for s in strings:
-            print(s)
+        return []
 
     @classmethod
     def get_instance(cls):
