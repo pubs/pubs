@@ -12,7 +12,7 @@ from . import plugins
 from .__init__ import __version__
 
 
-cmds = collections.OrderedDict([
+CORE_CMDS = collections.OrderedDict([
         ('init',        commands.init_cmd),
         ('add',         commands.add_cmd),
         ('import',      commands.import_cmd),
@@ -64,16 +64,19 @@ def execute(raw_args=sys.argv):
     parser = argparse.ArgumentParser(description="research papers repository")
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
 
-    for cmd_mod in cmds.values():
+    cmd_funcs = collections.OrderedDict()
+    for cmd_name, cmd_mod in CORE_CMDS.items():
         cmd_mod.parser(subparsers)
+        cmd_funcs[cmd_name] = cmd_mod.command
 
     # Extend with plugin commands
     plugins.load_plugins(ui, config.plugins.split())
     for p in plugins.get_plugins().values():
-        cmds.update(p.get_commands(subparsers))
+        cmd_funcs.update(p.get_commands(subparsers))
 
     args = parser.parse_args(raw_args[1:])
+    args.prog = parser.prog  # Hack: there might be a better way...
     cmd = args.command
     del args.command
 
-    cmds[cmd].command(args)
+    cmd_funcs[cmd](args)
