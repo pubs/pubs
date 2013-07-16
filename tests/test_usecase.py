@@ -102,12 +102,12 @@ def redirect(f):
     return newf
 
 
-
 # Test helpers
 
 # automating input
 
 real_input = input
+
 
 class FakeInput():
     """ Replace the input() command, and mock user input during tests
@@ -253,6 +253,7 @@ class TestList(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
 
+
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
@@ -360,6 +361,15 @@ class TestUsecase(DataCommandTestCase):
 
         outs = self.execute_cmds(cmds)
         self.assertEqual(4 + 1, len(outs[-1].split('\n')))
+
+    def test_import_one(self):
+        cmds = ['papers init',
+                'papers import data/ Page99',
+                'papers list'
+               ]
+
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
     def test_open(self):
         cmds = ['papers init',

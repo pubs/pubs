@@ -227,8 +227,15 @@ class Paper(object):
         return BASE_META.copy()
 
     @classmethod
-    def many_from_path(cls, bibpath, fatal=True):
+    def many_from_path(cls, bibpath):
         """Extract list of papers found in bibliographic files in path.
+
+        The behavior is to:
+            - ignore wrong entries,
+            - overwrite duplicated entries.
+        :returns: dictionary of (key, paper | exception)
+            if loading of entry failed, the excpetion is returned in the
+            dictionary in place of the paper
         """
         bibpath = files.clean_path(bibpath)
         if os.path.isdir(bibpath):
@@ -237,18 +244,14 @@ class Paper(object):
         else:
             all_files = [bibpath]
         bib_data = [files.load_externalbibfile(f) for f in all_files]
-        if fatal:
-            return [Paper(bibentry=b.entries[k], citekey=k)
-                    for b in bib_data for k in b.entries]
-        else:
-            papers = []
-            for b in bib_data:
-                for k in b.entries:
-                    try:
-                        papers.append(Paper(bibentry=b.entries[k], citekey=k))
-                    except ValueError, e:
-                        print('Warning, skipping paper ({}).'.format(e))
-            return papers
+        papers = {}
+        for b in bib_data:
+            for k in b.entries:
+                try:
+                    papers[k] = Paper(bibentry=b.entries[k], citekey=k)
+                except ValueError, e:
+                    papers[k] = e
+        return papers
 
 
     # tags
