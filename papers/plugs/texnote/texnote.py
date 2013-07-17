@@ -120,6 +120,7 @@ class TexnotePlugin(PapersPlugin):
 
         texcmd = args.texcmd
         del args.texcmd
+        del args.prog
         self.texcmds[texcmd](**vars(args))
 
     def _texfile(self, citekey):
@@ -195,7 +196,7 @@ class TexnotePlugin(PapersPlugin):
         if self._exist_texfile(old_citekey):
             if not overwrite and self._exist_texfile(new_citekey):
                 ui = get_ui()
-                are_you_sure = 'Are you sure you want to delete [{}]'.format(citekey)
+                are_you_sure = 'Are you sure you want to delete [{}]'.format(old_citekey)
                 sure = ui.input_yn(question=are_you_sure, default='n')
             if overwrite or sure:
                 shutil.move(self.get_texfile(old_citekey), self.get_texfile(new_citekey))
