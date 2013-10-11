@@ -1,3 +1,6 @@
+Papers
+======
+
 Papers brings your bibliography to the command line.
 
 Papers organizes your bibliographic documents together with the bibliographic data associated to them and provides command line access to basic and advanced manipulation of your library.
