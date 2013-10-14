@@ -1,7 +1,6 @@
 from pybtex.database import Person
 
-from papers.paper import Paper
-
+from papers.paper import Paper, get_bibentry_from_string
 
 turing1950 = Paper()
 turing1950.bibentry.fields['title'] = u'Computing machinery and intelligence.'
@@ -32,6 +31,8 @@ institution = {Stanford InfoLab},
         url = {http://ilpubs.stanford.edu:8090/422/},
 }
 """
+
+page99 = Paper(bibentry=get_bibentry_from_string(pagerankbib)[1])
 
 pagerankbib_generated = """@techreport{
     Page99,

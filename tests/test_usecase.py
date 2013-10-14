@@ -253,6 +253,35 @@ class TestList(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
 
+    def test_list_smart_case(self):
+        cmds = ['papers init',
+                'papers list',
+                'papers import data/',
+                'papers list title:language author:Saunders',
+                ]
+        outs = self.execute_cmds(cmds)
+        print outs[-1]
+        self.assertEquals(1, len(outs[-1].split('/n')))
+
+    def test_list_ignore_case(self):
+        cmds = ['papers init',
+                'papers list',
+                'papers import data/',
+                'papers list --ignore-case title:lAnguAge author:saunders',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEquals(1, len(outs[-1].split('/n')))
+
+    def test_list_force_case(self):
+        cmds = ['papers init',
+                'papers list',
+                'papers import data/',
+                'papers list --force-case title:Language author:saunders',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEquals(0 + 1, len(outs[-1].split('/n')))
+
+
 
 class TestUsecase(DataCommandTestCase):
 
