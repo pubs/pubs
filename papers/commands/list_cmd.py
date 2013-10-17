@@ -25,12 +25,12 @@ def parser(subparsers):
 def command(args):
     ui = get_ui()
     rp = repo.Repository(config())
-    papers = filter(lambda p: filter_paper(p, args.query,
-                                           case_sensitive=args.case_sensitive),
-                    rp.all_papers())
+    papers = filter(lambda (n, p):
+            filter_paper(p, args.query, case_sensitive=args.case_sensitive),
+            enumerate(rp.all_papers()))
     ui.print_('\n'.join(
         helpers.paper_oneliner(p, n=n, citekey_only=args.citekeys)
-        for n, p in enumerate(papers)))
+        for n, p in papers))
 
 
 FIELD_ALIASES = {
