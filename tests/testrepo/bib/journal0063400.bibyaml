@@ -1,0 +1,15 @@
+entries:
+    journal0063400:
+        author:
+        -   first: Lawrence
+            last: Page
+        -   first: Sergey
+            last: Brin
+        -   first: Rajeev
+            last: Motwani
+        -   first: Terry
+            last: Winograd
+        journal: PLoS ONE
+        publisher: Public Library of Science
+        title: Information Driven Self-Organization of Complex Robotic Behaviors
+        type: article

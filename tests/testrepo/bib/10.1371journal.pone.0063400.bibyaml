@@ -1,0 +1,36 @@
+entries:
+    10.1371journal.pone.0063400:
+        abstract: <p>Information theory is a powerful tool to express principles to
+            drive autonomous systems because it is domain invariant and allows for
+            an intuitive interpretation. This paper studies the use of the predictive
+            information (PI), also called excess entropy or effective measure complexity,
+            of the sensorimotor process as a driving force to generate behavior. We
+            study nonlinear and nonstationary systems and introduce the time-local
+            predicting information (TiPI) which allows us to derive exact results
+            together with explicit update rules for the parameters of the controller
+            in the dynamical systems framework. In this way the information principle,
+            formulated at the level of behavior, is translated to the dynamics of
+            the synapses. We underpin our results with a number of case studies with
+            high-dimensional robotic systems. We show the spontaneous cooperativity
+            in a complex physical system with decentralized control. Moreover, a jointly
+            controlled humanoid robot develops a high behavioral variety depending
+            on its physics and the environment it is dynamically embedded into. The
+            behavior can be decomposed into a succession of low-dimensional modes
+            that increasingly explore the behavior space. This is a promising way
+            to avoid the curse of dimensionality which hinders learning systems to
+            scale well.</p>
+        author:
+        -   first: Georg
+            last: Ay
+            middle: Martius AND Ralf Der AND Nihat
+        doi: 10.1371/journal.pone.0063400
+        journal: PLoS ONE
+        month: '05'
+        number: '5'
+        pages: e63400
+        publisher: Public Library of Science
+        title: Information Driven Self-Organization of Complex Robotic Behaviors
+        type: article
+        url: http://dx.doi.org/10.1371%2Fjournal.pone.0063400
+        volume: '8'
+        year: '2013'
