@@ -1,4 +1,6 @@
 import os
+import collections
+
 from .p3 import configparser
 
 # constant stuff (DFT = DEFAULT)
@@ -12,18 +14,18 @@ except KeyError:
 
 DFT_PLUGINS = ''
 
-DFT_CONFIG = {'papers_dir'  : os.path.expanduser('~/.papers'),
-              'doc_dir'     : 'doc',
-              'import_copy' : True,
-              'import_move' : False,
-              'color'       : True,
-              'version'     : 3,
-              'version_warning' : True,
-
-              'open_cmd'    : 'open',
-              'edit_cmd'    : DFT_EDIT_CMD,
-              'plugins'     : DFT_PLUGINS
-             }
+DFT_CONFIG = collections.OrderedDict([
+              ('pubsdir',         os.path.expanduser('~/.papers')),
+              ('docsdir',         ''),
+              ('import_copy',     True),
+              ('import_move',     False),
+              ('color',           True),
+              ('version',         4),
+              ('version_warning', True),
+              ('open_cmd',       'open'),
+              ('edit_cmd',        DFT_EDIT_CMD),
+              ('plugins',         DFT_PLUGINS)
+             ])
 
 BOOLEANS = {'import_copy', 'import_move', 'color', 'version_warning'}
 
