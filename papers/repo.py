@@ -1,16 +1,14 @@
-import os
 import shutil
 import glob
 import itertools
 
-from . import files
-from .paper import PaperInRepo, NoDocumentFile, check_citekey
-from .events import RemoveEvent, RenameEvent, AddEvent
+from . import bibstruct
+from . import events 
+from . import datacache
+from .paper import Paper
 
-BASE_FILE = 'papers.yaml'
-BIB_DIR = 'bibdata'
-META_DIR = 'meta'
-DOC_DIR = 'doc'
+def _base27(n):
+    return _base27((n - 1) // 26) + chr(ord('a') + ((n - 1) % 26)) if n else ''
 
 
 class CiteKeyCollision(Exception):
@@ -23,199 +21,110 @@ class InvalidReference(Exception):
 
 class Repository(object):
 
-    def __init__(self, config, load=True):
-        """Initialize the repository.
-
-        :param load:  if load is True, load the repository from disk,
-                      from path config.papers_dir.
-        """
+    def __init__(self, config):
         self.config = config
-        self.citekeys = []
-        if load:
-            self.load()
+        self._citekeys = None
+        self.databroker = datacache.DataCache(self.config.pubsdir)
 
-    # @classmethod
-    # def from_directory(cls, config, papersdir=None):
-    #     repo = cls(config)
-    #     if papersdir is None:
-    #         papersdir = config.papers_dir
-    #     repo.papersdir = files.clean_path(papersdir)
-    #     repo.load()
-    #     return repo
+    @property
+    def citekeys(self):
+        if self._citekeys is None:
+            self._citekeys = self.databroker.citekeys()
+        return self._citekeys
 
     def __contains__(self, citekey):
-        """Allows to use 'if citekey in repo' pattern"""
+        """ Allows to use 'if citekey in repo' pattern
+
+            Warning: costly the first time.
+        """
         return citekey in self.citekeys
 
     def __len__(self):
+        """Warning: costly the first time."""
         return len(self.citekeys)
-
-    # load, save repo
-    def _init_dirs(self, autodoc=True):
-        """Create, if necessary, the repository directories.
-
-        Should only be called by load or save.
-        """
-        self.bib_dir = files.clean_path(self.config.papers_dir, BIB_DIR)
-        self.meta_dir = files.clean_path(self.config.papers_dir, META_DIR)
-        if self.config.doc_dir == 'doc':
-            self.doc_dir = files.clean_path(self.config.papers_dir, DOC_DIR)
-        else:
-            self.doc_dir = files.clean_path(self.config.doc_dir)
-        self.cfg_path = files.clean_path(self.config.papers_dir, 'papers.yaml')
-
-        for d in [self.bib_dir, self.meta_dir, self.doc_dir]:
-            if not os.path.exists(d):
-                os.makedirs(d)
-
-    def load(self):
-        """Load the repository, creating dirs if necessary"""
-        self._init_dirs()
-        repo_config = files.read_yamlfile(self.cfg_path)
-        self.citekeys = repo_config['citekeys']
-
-    def save(self):
-        """Save the repo, creating dirs if necessary"""
-        self._init_dirs()
-        repo_cfg = {'citekeys': self.citekeys}
-        files.write_yamlfile(self.cfg_path, repo_cfg)
-
-    # reference
-    def ref2citekey(self, ref):
-        """Tries to get citekey from given reference.
-        Ref can be a citekey or a number.
-        """
-        if ref in self.citekeys:
-            return ref
-        else:
-            try:
-                return self.citekeys[int(ref)]
-            except (IndexError, ValueError):
-                raise InvalidReference
 
     # papers
     def all_papers(self):
         for key in self.citekeys:
-            yield self.get_paper(key)
+            yield self.pull_paper(key)
 
-    def get_paper(self, citekey):
+    def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        if citekey in self.citekeys:
-            return PaperInRepo.load(self, self._bibfile(citekey),
-                                    self._metafile(citekey))
+        if self.databroker.exists(paper.citekey, both = True):
+            return Paper(self, self.databroker.pull_bibdata(citekey),
+                               self.databroker.pull_metadata(citekey))
         else:
             raise InvalidReference
 
-    def _add_citekey(self, citekey):
-        if citekey not in self.citekeys:
-            self.citekeys.append(citekey)
-            self.save()
+    def push_paper(self, paper, overwrite=False, event=True):
+        """ Push a paper to disk
 
-    def _write_paper(self, paper):
-        """Warning: overwrites the paper without checking if it exists."""
-        paper.save(self._bibfile(paper.citekey),
-                   self._metafile(paper.citekey))
-        self._add_citekey(paper.citekey)
+            :param overwrite:  if False, mimick the behavior of adding a paper
+                               if True, mimick the behavior of updating a paper
+        """
+        bibstruct.check_citekey(paper.citekey)
+        if (not overwrite) and self.databroker.exists(paper.citekey, both = False):
+            raise IOError('files using this the {} citekey already exists'.format(citekey))
+        if (not overwrite) and self.citekeys is not None and paper.citekey in self.citekeys:
+            raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
+        
+        self.databroker.push_bibdata(paper.citekey, paper.bibdata)
+        self.databroker.push_metadata(paper.citekey, paper.metadata)
+        self.citekeys.add(paper.citekey)
+        if event:
+            events.AddEvent(paper.citekey).send()
 
-    def _remove_paper(self, citekey, remove_doc=True):
-        """ This version of remove is not meant to be accessed from outside.
-        It removes paper without raising the Remove Event"""
-        paper = self.get_paper(citekey)
-        self.citekeys.remove(citekey)
-        os.remove(self._metafile(citekey))
-        os.remove(self._bibfile(citekey))
-        # Eventually remove associated document
+    def remove_paper(self, citekey, remove_doc=True, event=True):
+        """ Remove a paper. Is silent if nothing needs to be done."""
+        
+        if event:
+            RemoveEvent(citekey).send()
         if remove_doc:
             try:
-                path = paper.get_document_path_in_repo()
-                os.remove(path)
-            except NoDocumentFile:
-                pass
-        self.save()
+                metadata = self.databroker.pull_metadata(paper.citekey)
+                docpath = metadata.get('docfile', '')
+                self.databroker.remove_doc(docpath)
+            except IOError:
+                pass # FXME: if IOError is about being unable to 
+                     # remove the file, we need to issue an error.I
 
-    def _move_doc(self, old_citekey, paper):
-        """Fragile. Make more robust"""
-        try:
-            old_docfile = self.find_document(old_citekey)
-            ext = os.path.splitext(old_docfile)[1]
-            new_docfile = os.path.join(self.doc_dir, paper.citekey + ext)
-            shutil.move(old_docfile, new_docfile)
-            paper.set_external_document(new_docfile)
-        except NoDocumentFile:
-            pass
+        self.citekeys.remove(citekey)
+        self.databroker.remove(citekey)
 
-    def _add_paper(self, paper, overwrite=False):
-        check_citekey(paper.citekey)
-        if not overwrite and paper.citekey in self.citekeys:
-            raise CiteKeyCollision('Citekey {} already in use'.format(
-                                   paper.citekey))
-        self._write_paper(paper)
-
-    # add, remove papers
-    def add_paper(self, paper):
-        self._add_paper(paper)
-        AddEvent(paper.citekey).send()
-
-    def save_paper(self, paper, old_citekey=None, overwrite=False):
-        if old_citekey is None:
-            old_citekey = paper.citekey
-        if not old_citekey in self.citekeys:
-            raise ValueError('Paper not in repository, first add it.')
-        if old_citekey == paper.citekey:
-            self._write_paper(paper)
+    def rename_paper(self, paper, new_citekey):
+        old_citekey = paper.citekey
+        # check if new_citekey is not the same as paper.citekey
+        if old_citekey == new_citekey:
+            push_paper(paper, overwrite=True, event=False)
         else:
-            self._add_paper(paper, overwrite=overwrite)  # This checks for collisions
-            # We do not want to send the RemoveEvent, associated documents should be moved
-            self._remove_paper(old_citekey, remove_doc=False)
-            self._move_doc(old_citekey, paper)
+            # check if new_citekey does not exists
+            if self.databroker.exists(new_citekey, both=False):
+                raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))                
+            # modify bibdata
+            raise NotImplementedError
+            # move doc file if necessary
+            if self.databroker.is_pubsdir_doc(paper.docpath):
+                new_docpath = self.databroker.copy_doc(new_citekey, paper.docpath)
+                self.databroker.remove_doc(paper.docpath)
+                paper.docpath = new_docpath
+
+            # push_paper to new_citekey
+            self.databroker.push(new_citekey, paper.metadata)
+            # remove_paper of old_citekey
+            self.databroker.remove(old_citekey)
+            # send event
             RenameEvent(paper, old_citekey).send()
 
-    def remove_paper(self, citekey, remove_doc=True):
-        RemoveEvent(citekey).send()
-        self._remove_paper(citekey, remove_doc)
-
-    def _bibfile(self, citekey):
-        return os.path.join(self.bib_dir, citekey + '.bibyaml')
-
-    def _metafile(self, citekey):
-        return os.path.join(self.meta_dir, citekey + '.meta')
-
-    def generate_citekey(self, paper, citekey=None):
-        """Create a unique citekey for the given paper."""
-        if citekey is None:
-            citekey = paper.generate_citekey()
+    def unique_citekey(self, base_key):
+        """Create a unique citekey for a given basekey."""
         for n in itertools.count():
-            if not citekey + _base27(n) in self.citekeys:
-                return citekey + _base27(n)
-
-    def find_document(self, citekey):
-        found = glob.glob('{}/{}.*'.format(self.doc_dir, citekey))
-        if found:
-            return found[0]
-        else:
-            raise NoDocumentFile
-
-    def import_document(self, citekey, doc_file):
-        if citekey not in self.citekeys:
-            raise ValueError("Unknown citekey: {}.".format(citekey))
-        else:
-            if not os.path.isfile(doc_file):
-                raise ValueError("No file {} found.".format(doc_file))
-            ext = os.path.splitext(doc_file)[1]
-            new_doc_file = os.path.join(self.doc_dir, citekey + ext)
-            shutil.copy(doc_file, new_doc_file)
+            if not base_key + _base27(n) in self.citekeys:
+                return base_key + _base27(n)
 
     def get_tags(self):
+        """FIXME: bibdata doesn't need to be read."""
         tags = set()
         for p in self.all_papers():
             tags = tags.union(p.tags)
         return tags
 
-
-def _base27(n):
-    return _base27((n - 1) // 26) + chr(ord('a') + ((n - 1) % 26)) if n else ''
-
-
-def _base(num, b):
-    q, r = divmod(num - 1, len(b))
-    return _base(q, b) + b[r] if num else ''
