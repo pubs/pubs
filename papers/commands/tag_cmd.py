@@ -18,17 +18,16 @@ The different use cases are :
 """
 
 from ..repo import Repository, InvalidReference
-from . import helpers
 from ..configs import config
 from ..uis import get_ui
+from .. import pretty
 
 def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
-    parser.add_argument('referenceOrTag', nargs='?', default = None,
-                        help='reference to the paper (citekey or number), or '
-                             'tag.')
+    parser.add_argument('citekeyOrTag', nargs='?', default = None,
+                        help='citekey or tag.')
     parser.add_argument('tags', nargs='?', default = None,
-                        help='If the previous argument was a reference, then '
+                        help='If the previous argument was a citekey, then '
                              'then a list of tags separated by a +.')
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
@@ -69,19 +68,18 @@ def command(args):
     """Add, remove and show tags"""
 
     ui = get_ui()
-    referenceOrTag = args.referenceOrTag
+    citekeyOrTag = args.citekeyOrTag
     tags = args.tags
 
 
     rp = Repository(config())
 
-    if referenceOrTag is None:
+    if citekeyOrTag is None:
         for tag in rp.get_tags():
             ui.print_(tag)
     else:
-        try:
-            citekey = rp.ref2citekey(referenceOrTag)
-            p = rp.get_paper(citekey)
+        if rp.databroker.exists(citekeyOrTag):
+            p = rp.pull_paper(citekeyOrTag)
             if tags is None:
                 ui.print_(' '.join(p.tags))
             else:
@@ -90,15 +88,15 @@ def command(args):
                     p.add_tag(tag)
                 for tag in remove_tags:
                     p.remove_tag(tag)
-                rp.save_paper(p)
-        except InvalidReference:
-            # case where we want to find paper with specific tags
-            included, excluded = _tag_groups(_parse_tags(referenceOrTag))
+                rp.push_paper(p, overwrite=True)
+        else:
+            # case where we want to find papers with specific tags
+            included, excluded = _tag_groups(_parse_tags(citekeyOrTag))
             papers_list = []
             for n, p in enumerate(rp.all_papers()):
                 if (p.tags.issuperset(included) and
                     len(p.tags.intersection(excluded)) == 0):
                     papers_list.append((p, n))
 
-            ui.print_('\n'.join(helpers.paper_oneliner(p, n)
+            ui.print_('\n'.join(pretty.paper_oneliner(p, n)
                                 for p, n in papers_list))

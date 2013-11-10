@@ -44,7 +44,6 @@ def command(args):
 
         if repo_version == 2:
             # update config
-            print 'bla'
             cfg_update = [('papers-directory', 'papers_dir'),
                           ('open-cmd', 'open_cmd'),
                           ('edit-cmd', 'edit_cmd'),

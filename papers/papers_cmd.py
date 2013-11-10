@@ -19,10 +19,10 @@ CORE_CMDS = collections.OrderedDict([
         ('open',        commands.open_cmd),
         ('websearch',   commands.websearch_cmd),
         ('remove',      commands.remove_cmd),
+        ('tag',         commands.tag_cmd),
         # ('import',      commands.import_cmd),
         # ('export',      commands.export_cmd),
         # ('edit',        commands.edit_cmd),
-        # ('tag',         commands.tag_cmd),
         # ('attach',      commands.attach_cmd),
         # ('update',      commands.update_cmd),
         ])
