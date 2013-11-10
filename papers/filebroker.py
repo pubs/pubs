@@ -1,4 +1,6 @@
 import os
+import shutil
+import re
 import urlparse
 
 from .content import check_file, check_directory, read_file, write_file

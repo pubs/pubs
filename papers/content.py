@@ -1,4 +1,6 @@
 import os
+import subprocess
+import tempfile
 
     # files i/o
 
@@ -36,18 +38,18 @@ def write_file(filepath, data):
 
     # dealing with formatless content
 
-def get_content(self, path):
+def get_content(path):
     """Will be useful when we need to get content from url"""
     return read_file(path)
 
-def move_content(self, source, target, overwrite = False):
+def move_content(source, target, overwrite = False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
         raise IOError('target file exists')
     shutil.move(source, target)
 
-def copy_content(self, source, target, overwrite = False):
+def copy_content(source, target, overwrite = False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
