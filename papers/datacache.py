@@ -47,7 +47,7 @@ class DataCache(object):
         self.databroker.remove(citekey)
 
     def exists(self, citekey, both=True):
-        self.databroker.exists(citekey, both=both)
+        return self.databroker.exists(citekey, both=both)
 
     def citekeys(self):
         listings = self.listing(filestats=False)

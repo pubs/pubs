@@ -28,12 +28,17 @@ class TestDataBroker(TestFakeFs):
         page99_metadata = ende.decode_metadata(str_fixtures.metadata_raw0)
         page99_bibdata  = ende.decode_bibdata(str_fixtures.bibyaml_raw0)
 
-        dtb = databroker.DataBroker('tmp', create=True)
-        dtc = datacache.DataCache('tmp')
+        for db_class in [databroker.DataBroker, datacache.DataCache]:
+            self.fs = fake_env.create_fake_fs([content, filebroker])
+            
+            db = db_class('tmp', create=True)
 
-        for db in [dtb, dtc]:
             db.push_metadata('citekey1', page99_metadata)
+            self.assertTrue(db.exists('citekey1', both=False))
+            self.assertFalse(db.exists('citekey1', both=True))
+
             db.push_bibdata('citekey1', page99_bibdata)
+            self.assertTrue(db.exists('citekey1', both=True))
 
             self.assertEqual(db.pull_metadata('citekey1'), page99_metadata)
             self.assertEqual(db.pull_bibdata('citekey1'), page99_bibdata)
