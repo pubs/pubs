@@ -1,10 +1,9 @@
-from .. import repo
-from .. import files
-from ..paper import Paper, NoDocumentFile, get_bibentry_from_string
-from ..configs import config
 from ..uis import get_ui
-from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
-
+from ..configs import config
+from .. import bibstruct
+from .. import content
+from .. import repo
+from .. import paper
 
 def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
@@ -12,6 +11,8 @@ def parser(subparsers):
                         help='bibtex, bibtexml or bibyaml file', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
+                        default=None)
+    parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
     parser.add_argument('-c', '--copy', action='store_true', default=None,
             help="copy document files into library directory (default)")
@@ -30,41 +31,72 @@ def command(args):
     bibfile = args.bibfile
     docfile = args.docfile
     tags = args.tags
-    copy = args.copy
+    citekey = args.copy
 
-    if copy is None:
-        copy = config().import_copy
     rp = repo.Repository(config())
+
+    # get bibfile 
+    
     if bibfile is None:
         cont = True
         bibstr = ''
         while cont:
             try:
-                bibstr = files.editor_input(config().edit_cmd, bibstr, suffix='.yaml')
-                key, bib = get_bibentry_from_string(bibstr)
+                bibstr = content.editor_input(config().edit_cmd, bibstr, suffix='.yaml')
+                bibdata = rp.databroker.verify(bibstr)
+                bibstruct.verify_bibdata(bibdata)
+                # REFACTOR Generate citykey
                 cont = False
-            except Exception:
+            except ValueError:
                 cont = ui.input_yn(
                     question='Invalid bibfile. Edit again ?',
                     default='y')
                 if not cont:
                     ui.exit(0)
-        p = Paper(bibentry=bib, citekey=key)
     else:
-        p = Paper.load(bibfile)
+        bibdata_raw = content.get_content(bibfile)
+        bibdata = rp.databroker.verify(bibdata_raw)
+        if bibdata is None:
+            ui.error('invalid bibfile {}.'.format(bibfile))
+
+    print bibdata
+    # citekey
+
+    citekey = args.citekey
+    if citekey is None:
+        base_key = bibstruct.extract_citekey(bibdata)
+        citekey = rp.unique_citekey(base_key)
+    else:
+        rp.databroker.exists(citekey, both=False)
+
+    # tags
+
     if tags is not None:
         p.tags = set(tags.split(','))
-    # Check if another doc file is specified in bibtex
-    docfile2 = extract_doc_path_from_bibdata(p)
+    
+    p = paper.Paper(citekey=citekey, bibdata=bibdata)
+
+    # document file
+
+    bib_docfile = bibstruct.extract_docfile(bibdata)
     if docfile is None:
-        docfile = docfile2
-    elif docfile2 is not None:
-        ui.warning(
-                "Skipping document file from bib file: %s, using %s instead."
-                % (docfile2, docfile))
+        docfile = bib_docfile
+    elif bib_docfile is not None:
+        ui.warning(('Skipping document file from bib file '
+                    '{}, using {} instead.').format(bib_docfile, docfile))
+
+    if docfile is not None:
+        copy_doc = args.copy
+        if copy_doc is None:
+            copy_doc = config().import_copy
+        if copy_doc:
+            docfile = rp.databroker.copy_doc(citekey, docfile) 
+
+    # create the paper
+
     try:
-        add_paper_with_docfile(rp, p, docfile=docfile, copy=copy)
+        p.docpath = docfile
+        rp.push_paper(p)
     except ValueError, v:
         ui.error(v.message)
         ui.exit(1)
-# TODO handle case where citekey exists

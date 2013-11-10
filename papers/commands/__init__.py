@@ -1,5 +1,5 @@
 import init_cmd
-# import add_cmd
+import add_cmd
 # import import_cmd
 # import export_cmd
 # import list_cmd
