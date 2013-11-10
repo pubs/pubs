@@ -1,5 +1,5 @@
 from .. import repo
-from . import helpers
+from .. import pretty
 from ..configs import config
 from ..uis import get_ui
 
@@ -29,7 +29,7 @@ def command(args):
             filter_paper(p, args.query, case_sensitive=args.case_sensitive),
             enumerate(rp.all_papers()))
     ui.print_('\n'.join(
-        helpers.paper_oneliner(p, n=n, citekey_only=args.citekeys)
+        pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
         for n, p in papers))
 
 

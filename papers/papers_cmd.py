@@ -15,9 +15,9 @@ from .__init__ import __version__
 CORE_CMDS = collections.OrderedDict([
         ('init',        commands.init_cmd),
         ('add',         commands.add_cmd),
+        ('list',        commands.list_cmd),
         # ('import',      commands.import_cmd),
         # ('export',      commands.export_cmd),
-        # ('list',        commands.list_cmd),
         # ('edit',        commands.edit_cmd),
         # ('remove',      commands.remove_cmd),
         # ('open',        commands.open_cmd),

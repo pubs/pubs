@@ -50,3 +50,16 @@ def bib_desc(bib_data):
     s += '\n'
     s += '\n'.join('{}: {}'.format(k, v) for k, v in article.fields.items())
     return s
+
+
+def paper_oneliner(p, n = 0, citekey_only = False):
+    if citekey_only:
+        return p.citekey
+    else:
+        bibdesc = bib_oneliner(p.bibentry)
+        return (u'[{citekey}] {descr} {tags}'.format(
+            citekey=color.dye(p.citekey, color.purple),
+            descr=bibdesc,
+            tags=color.dye(' '.join(p.tags),
+                           color.purple, bold=True),
+            )).encode('utf-8')

@@ -59,7 +59,6 @@ def command(args):
         if bibdata is None:
             ui.error('invalid bibfile {}.'.format(bibfile))
 
-    print bibdata
     # citekey
 
     citekey = args.citekey
@@ -74,7 +73,7 @@ def command(args):
     if tags is not None:
         p.tags = set(tags.split(','))
     
-    p = paper.Paper(citekey=citekey, bibdata=bibdata)
+    p = paper.Paper(bibdata, citekey=citekey)
 
     # document file
 
