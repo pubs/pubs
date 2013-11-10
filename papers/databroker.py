@@ -53,7 +53,7 @@ class DataBroker(object):
     # docbroker
 
     def is_pubsdir_doc(self, docpath):
-        return self.docbroker.is_pusdir_doc(docpath)
+        return self.docbroker.is_pubsdir_doc(docpath)
 
     def copy_doc(self, citekey, source_path, overwrite=False):
         return self.docbroker.copy_doc(citekey, source_path, overwrite=overwrite)

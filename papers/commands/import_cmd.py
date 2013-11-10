@@ -1,8 +1,15 @@
+import os
+
+from pybtex.database import Entry, BibliographyData, FieldDict, Person
+
 from .. import repo
+from .. import endecoder
+from .. import bibstruct
+from .. import color
 from ..paper import Paper
-from .helpers import add_paper_with_docfile, extract_doc_path_from_bibdata
 from ..configs import config
 from ..uis import get_ui
+
 
 
 def parser(subparsers):
@@ -19,9 +26,46 @@ def parser(subparsers):
     return parser
 
 
+def many_from_path(bibpath):
+    """Extract list of papers found in bibliographic files in path.
+
+    The behavior is to:
+        - ignore wrong entries,
+        - overwrite duplicated entries.
+    :returns: dictionary of (key, paper | exception)
+        if loading of entry failed, the excpetion is returned in the
+        dictionary in place of the paper
+    """
+    coder = endecoder.EnDecoder()
+
+    bibpath = os.path.expanduser(bibpath)
+    if os.path.isdir(bibpath):
+        all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
+                     if os.path.splitext(f)[-1][1:] in list(coder.decode_fmt.keys())]
+    else:
+        all_files = [bibpath]
+
+    biblist = []
+    for filepath in all_files:
+        with open(filepath, 'r') as f:
+            biblist.append(coder.decode_bibdata(f.read()))
+
+    papers = {}
+    for b in biblist:
+        for k in b.entries:
+            try:
+                bibdata = BibliographyData()
+                bibdata.entries[k] = b.entries[k]
+
+                papers[k] = Paper(bibdata, citekey=k)
+            except ValueError, e:
+                papers[k] = e
+    return papers
+
+
 def command(args):
     """
-    :param bibpath: path (no url yet) to a bibliography file
+        :param bibpath: path (no url yet) to a bibliography file
     """
 
     ui = get_ui()
@@ -32,17 +76,28 @@ def command(args):
         copy = config().import_copy
     rp = repo.Repository(config())
     # Extract papers from bib
-    papers = Paper.many_from_path(bibpath)
+    papers = many_from_path(bibpath)
     keys = args.keys or papers.keys()
     for k in keys:
         try:
             p = papers[k]
             if isinstance(p, Exception):
-                ui.error('Could not load entry for citekey {}.'.format(k))
+                ui.error('could not load entry for citekey {}.'.format(k))
             else:
-                doc_file = extract_doc_path_from_bibdata(p)
-                if doc_file is None:
-                    ui.warning("No file for %s." % p.citekey)
-                add_paper_with_docfile(rp, p, docfile=doc_file, copy=copy)
+                docfile = bibstruct.extract_docfile(p.bibdata)
+                if docfile is None:
+                    ui.warning("no file for {}.".format(p.citekey))
+                else:
+                    copy_doc = args.copy
+                    if copy_doc is None:
+                        copy_doc = config().import_copy
+                    if copy_doc:
+                        docfile = rp.databroker.copy_doc(p.citekey, docfile)
+                    
+                    p.docpath = docfile
+                rp.push_paper(p)
+                ui.print_('{} imported'.format(color.dye(p.citekey, color.cyan)))
         except KeyError:
-            ui.error('No entry found for citekey {}.'.format(k))
+            ui.error('no entry found for citekey {}.'.format(k))
+        except IOError, e:
+            ui.error(e.message)

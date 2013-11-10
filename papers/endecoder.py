@@ -34,10 +34,12 @@ class EnDecoder(object):
 
     decode_fmt = {'bibyaml' : pybtex.database.input.bibyaml,
                   'bibtex'  : pybtex.database.input.bibtex,
+                  'bib'     : pybtex.database.input.bibtex,
                   'bibtexml': pybtex.database.input.bibtexml}
 
     encode_fmt = {'bibyaml' : pybtex.database.output.bibyaml,
                   'bibtex'  : pybtex.database.output.bibtex,
+                  'bib'     : pybtex.database.output.bibtex,
                   'bibtexml': pybtex.database.output.bibtexml}
 
     def encode_metadata(self, metadata):

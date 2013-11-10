@@ -2,6 +2,8 @@ import shutil
 import glob
 import itertools
 
+from pybtex.database import BibliographyData
+
 from . import bibstruct
 from . import events 
 from . import datacache
@@ -65,7 +67,7 @@ class Repository(object):
         """
         bibstruct.check_citekey(paper.citekey)
         if (not overwrite) and self.databroker.exists(paper.citekey, both = False):
-            raise IOError('files using this the {} citekey already exists'.format(citekey))
+            raise IOError('files using the {} citekey already exists'.format(paper.citekey))
         if (not overwrite) and self.citekeys is not None and paper.citekey in self.citekeys:
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
         
@@ -101,8 +103,11 @@ class Repository(object):
             # check if new_citekey does not exists
             if self.databroker.exists(new_citekey, both=False):
                 raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))                
-            # modify bibdata
-            raise NotImplementedError
+            # modify bibdata (__delitem__ not implementd by pybtex)
+            new_bibdata = BibliographyData()
+            new_bibdata.entries[new_citekey] = paper.bibdata.entries[old_citekey]
+            paper.bibdata = new_bibdata
+
             # move doc file if necessary
             if self.databroker.is_pubsdir_doc(paper.docpath):
                 new_docpath = self.databroker.copy_doc(new_citekey, paper.docpath)
@@ -110,11 +115,12 @@ class Repository(object):
                 paper.docpath = new_docpath
 
             # push_paper to new_citekey
-            self.databroker.push(new_citekey, paper.metadata)
+            paper.citekey = new_citekey
+            self.push_paper(paper, event=False)
             # remove_paper of old_citekey
-            self.databroker.remove(old_citekey)
+            self.remove_paper(old_citekey, event=False)
             # send event
-            RenameEvent(paper, old_citekey).send()
+            events.RenameEvent(paper, old_citekey).send()
 
     def unique_citekey(self, base_key):
         """Create a unique citekey for a given basekey."""

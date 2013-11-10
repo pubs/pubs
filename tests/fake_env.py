@@ -140,13 +140,13 @@ class FakeInput():
         input() raise IndexError
      """
 
-    def __init__(self, module_list, inputs=None):
+    def __init__(self, inputs, module_list=tuple()):
         self.inputs = list(inputs) or []
         self.module_list = module_list
         self._cursor = 0
 
     def as_global(self):
-        for md in module_list:
+        for md in self.module_list:
             md.input = self
             md.editor_input = self
             # if mdname.endswith('files'):

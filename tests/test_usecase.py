@@ -1,159 +1,31 @@
-import sys
-import os
-import shutil
-import glob
 import unittest
-import pkgutil
 import re
+import os
 
 import testenv
-import fake_filesystem
-import fake_filesystem_shutil
-import fake_filesystem_glob
+import fake_env
 
 from papers import papers_cmd
-from papers import color, files
-from papers.p3 import io, input
+from papers import color, content, filebroker, uis, beets_ui, p3
 
-import fixtures
+import str_fixtures
 
+from papers.commands import init_cmd
 
     # code for fake fs
-
-real_os = os
-real_open = open
-real_shutil = shutil
-real_glob = glob
-
-fake_os, fake_open, fake_shutil, fake_glob = None, None, None, None
-
-
-def _mod_list():
-    ml = []
-    import papers
-    for importer, modname, ispkg in pkgutil.walk_packages(
-                                        path=papers.__path__,
-                                        prefix=papers.__name__ + '.',
-                                        onerror=lambda x: None):
-        # HACK to not load textnote
-        if not modname.startswith('papers.plugs.texnote'):
-            ml.append((modname, __import__(modname, fromlist='dummy')))
-    return ml
-
-mod_list = _mod_list()
-
-
-def _create_fake_fs():
-    global fake_os, fake_open, fake_shutil, fake_glob
-
-    fake_fs = fake_filesystem.FakeFilesystem()
-    fake_os = fake_filesystem.FakeOsModule(fake_fs)
-    fake_open = fake_filesystem.FakeFileOpen(fake_fs)
-    fake_shutil = fake_filesystem_shutil.FakeShutilModule(fake_fs)
-    fake_glob = fake_filesystem_glob.FakeGlobModule(fake_fs)
-
-    fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
-
-    try:
-        __builtins__.open = fake_open
-        __builtins__.file = fake_open
-    except AttributeError:
-        __builtins__['open'] = fake_open
-        __builtins__['file'] = fake_open
-
-    sys.modules['os']     = fake_os
-    sys.modules['shutil'] = fake_shutil
-    sys.modules['glob']   = fake_glob
-
-    for mdname, md in mod_list:
-        md.os = fake_os
-        md.shutil = fake_shutil
-        md.open = fake_open
-        md.file = fake_open
-
-    return fake_fs
-
-
-def _copy_data(fs):
-    """Copy all the data directory into the fake fs"""
-    datadir = real_os.path.join(real_os.path.dirname(__file__), 'data')
-    for filename in real_os.listdir(datadir):
-        real_path = real_os.path.join(datadir, filename)
-        fake_path = fake_os.path.join('data', filename)
-        if real_os.path.isfile(real_path):
-            with real_open(real_path, 'r') as f:
-                fs.CreateFile(fake_path, contents=f.read())
-        if real_os.path.isdir(real_path):
-            fs.CreateDirectory(fake_path)
-
-
-    # redirecting output
-
-def redirect(f):
-    def newf(*args, **kwargs):
-        old_stderr, old_stdout = sys.stderr, sys.stdout
-        stdout = io.StringIO()
-        stderr = io.StringIO()
-        sys.stdout, sys.stderr = stdout, stderr
-        try:
-            return f(*args, **kwargs), stdout, stderr
-        finally:
-            sys.stderr, sys.stdout = old_stderr, old_stdout
-    return newf
-
-
-# Test helpers
-
-# automating input
-
-real_input = input
-
-
-class FakeInput():
-    """ Replace the input() command, and mock user input during tests
-
-        Instanciate as :
-        input = FakeInput(['yes', 'no'])
-        then replace the input command in every module of the package :
-        input.as_global()
-        Then :
-        input() returns 'yes'
-        input() returns 'no'
-        input() raise IndexError
-     """
-
-    def __init__(self, inputs=None):
-        self.inputs = list(inputs) or []
-        self._cursor = 0
-
-    def as_global(self):
-        for mdname, md in mod_list:
-            md.input = self
-            md.editor_input = self
-            # if mdname.endswith('files'):
-            #     md.editor_input = self
-
-    def add_input(self, inp):
-        self.inputs.append(inp)
-
-    def __call__(self, *args, **kwargs):
-        inp = self.inputs[self._cursor]
-        self._cursor += 1
-        return inp
-
 
 class TestFakeInput(unittest.TestCase):
 
     def test_input(self):
 
-        input = FakeInput(['yes', 'no'])
+        input = fake_env.FakeInput(['yes', 'no'])
         self.assertEqual(input(), 'yes')
         self.assertEqual(input(), 'no')
         with self.assertRaises(IndexError):
             input()
 
     def test_input2(self):
-        other_input = FakeInput(['yes', 'no'])
+        other_input = fake_env.FakeInput(['yes', 'no'], module_list=[color])
         other_input.as_global()
         self.assertEqual(color.input(), 'yes')
         self.assertEqual(color.input(), 'no')
@@ -161,10 +33,11 @@ class TestFakeInput(unittest.TestCase):
             color.input()
 
     def test_editor_input(self):
-        other_input = FakeInput(['yes', 'no'])
+        other_input = fake_env.FakeInput(['yes', 'no'], 
+                                         module_list=[content, color])
         other_input.as_global()
-        self.assertEqual(files.editor_input(), 'yes')
-        self.assertEqual(files.editor_input(), 'no')
+        self.assertEqual(content.editor_input(), 'yes')
+        self.assertEqual(content.editor_input(), 'no')
         with self.assertRaises(IndexError):
             color.input()
 
@@ -173,7 +46,7 @@ class CommandTestCase(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""
 
     def setUp(self):
-        self.fs = _create_fake_fs()
+        self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd])
 
     def execute_cmds(self, cmds, fs=None):
         """ Execute a list of commands, and capture their output
@@ -189,10 +62,10 @@ class CommandTestCase(unittest.TestCase):
         for cmd in cmds:
             if hasattr(cmd, '__iter__'):
                 if len(cmd) == 2:
-                    input = FakeInput(cmd[1])
+                    input = fake_env.FakeInput(cmd[1], [content, uis, beets_ui, p3])
                     input.as_global()
 
-                _, stdout, stderr = redirect(papers_cmd.execute)(cmd[0].split())
+                _, stdout, stderr = fake_env.redirect(papers_cmd.execute)(cmd[0].split())
                 if len(cmd) == 3:
                     actual_out  = color.undye(stdout.getvalue())
                     correct_out = color.undye(cmd[2])
@@ -200,12 +73,14 @@ class CommandTestCase(unittest.TestCase):
 
             else:
                 assert type(cmd) == str
-                _, stdout, stderr = redirect(papers_cmd.execute)(cmd.split())
+                _, stdout, stderr = fake_env.redirect(papers_cmd.execute)(cmd.split())
 
             assert(stderr.getvalue() == '')
             outs.append(color.undye(stdout.getvalue()))
         return outs
 
+    def tearDown(self):
+        fake_env.unset_fake_fs([content, filebroker])
 
 class DataCommandTestCase(CommandTestCase):
     """Abstract TestCase intializing the fake filesystem and
@@ -214,7 +89,7 @@ class DataCommandTestCase(CommandTestCase):
 
     def setUp(self):
         CommandTestCase.setUp(self)
-        _copy_data(self.fs)
+        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
 
 
 # Actual tests
@@ -222,10 +97,16 @@ class DataCommandTestCase(CommandTestCase):
 class TestInit(CommandTestCase):
 
     def test_init(self):
-        papers_cmd.execute('papers init -p paper_test2'.split())
-        self.assertEqual(set(fake_os.listdir('/paper_test2/')),
-                         {'bibdata', 'doc', 'meta', 'papers.yaml'})
+        pubsdir = os.path.expanduser('~/papers_test2')
+        papers_cmd.execute('papers init -p {}'.format(pubsdir).split())
+        self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
+                         {'bib', 'doc', 'meta'})
 
+    def test_init2(self):
+        pubsdir = os.path.expanduser('~/.papers')
+        papers_cmd.execute('papers init'.split())
+        self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
+                         {'bib', 'doc', 'meta'})
 
 class TestAdd(DataCommandTestCase):
 
@@ -240,7 +121,7 @@ class TestAdd(DataCommandTestCase):
                 'papers add -b /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        self.assertEqual(set(fake_os.listdir('/not_default/doc')), {'Page99.pdf'})
+        self.assertEqual(set(self.fs['os'].listdir('/not_default/doc')), {'Page99.pdf'})
 
 
 class TestList(DataCommandTestCase):
@@ -288,12 +169,12 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing papers in /paper_first.\n',
                    '',
-                   '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
+                   '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
                    '',
                    '',
                    'search network\n',
-                   '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) search network\n',
-                   'search network\n']
+                   '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) search network\n'
+                  ]
 
         cmds = ['papers init -p paper_first/',
                 'papers add -d data/pagerank.pdf -b data/pagerank.bib',
@@ -302,7 +183,6 @@ class TestUsecase(DataCommandTestCase):
                 'papers tag Page99 network+search',
                 'papers tag Page99',
                 'papers tag search',
-                'papers tag 0',
                ]
 
         self.assertEqual(correct, self.execute_cmds(cmds))
@@ -343,18 +223,18 @@ class TestUsecase(DataCommandTestCase):
 
     def test_editor_success(self):
         cmds = ['papers init',
-                ('papers add', [fixtures.pagerankbib]),
+                ('papers add', [str_fixtures.bibtex_external0]),
                 ('papers remove Page99', ['y']),
                ]
         self.execute_cmds(cmds)
 
     def test_edit(self):
-        bib = fixtures.pagerankbib
+        bib = str_fixtures.bibtex_external0
         bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
-        line = '0: [Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n'
+        line = '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n'
         line1 = re.sub('1999', '2007', line)
         line2 = re.sub('L. Page', 'L. Ridge', line1)
         line3 = re.sub('Page99', 'Ridge07', line2)
@@ -374,9 +254,9 @@ class TestUsecase(DataCommandTestCase):
 
     def test_export(self):
         cmds = ['papers init',
-                ('papers add', [fixtures.pagerankbib]),
+                ('papers add', [str_fixtures.bibtex_external0]),
                 'papers export Page99',
-                ('papers export Page99 -f bibtex', [], fixtures.pagerankbib_generated),
+                ('papers export Page99 -f bibtex', [], str_fixtures.bibtex_raw0),
                 'papers export Page99 -f bibyaml',
                ]
 

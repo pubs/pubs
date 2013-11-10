@@ -15,14 +15,18 @@ from .__init__ import __version__
 CORE_CMDS = collections.OrderedDict([
         ('init',        commands.init_cmd),
         ('add',         commands.add_cmd),
-        ('list',        commands.list_cmd),
-        ('open',        commands.open_cmd),
-        ('websearch',   commands.websearch_cmd),
+        ('rename',      commands.rename_cmd),
         ('remove',      commands.remove_cmd),
-        ('tag',         commands.tag_cmd),
+        ('list',        commands.list_cmd),
+
         ('attach',      commands.attach_cmd),
+        ('open',        commands.open_cmd),
+        ('tag',         commands.tag_cmd),
+
         ('export',      commands.export_cmd),
-        # ('import',      commands.import_cmd),
+        ('import',      commands.import_cmd),
+
+        ('websearch',   commands.websearch_cmd),
         # ('edit',        commands.edit_cmd),
         # ('update',      commands.update_cmd),
         ])
