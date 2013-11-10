@@ -18,7 +18,9 @@ class Paper(object):
         self.citekey  = citekey
         self.metadata = metadata
         self.bibdata  = bibdata
- 
+
+        _, self.bibentry = bibstruct.get_entry(self.bibdata)
+
         if self.metadata is None:
             self.metadata = copy.deepcopy(DEFAULT_META)
         if self.citekey is None:

@@ -50,9 +50,10 @@ class Repository(object):
 
     def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        if self.databroker.exists(paper.citekey, both = True):
-            return Paper(self, self.databroker.pull_bibdata(citekey),
-                               self.databroker.pull_metadata(citekey))
+        if self.databroker.exists(citekey, both = True):
+            return Paper(self.databroker.pull_bibdata(citekey),
+                         citekey=citekey,
+                         metadata=self.databroker.pull_metadata(citekey))
         else:
             raise InvalidReference
 
