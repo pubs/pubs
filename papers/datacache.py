@@ -68,8 +68,8 @@ class DataCache(object):
     def copy_doc(self, citekey, source_path, overwrite=False):
         return self.databroker.copy_doc(citekey, source_path, overwrite=overwrite)
 
-    def remove_doc(self, docpath):
-        return self.databroker.remove_doc(docpath)
+    def remove_doc(self, docpath, silent=True):
+        return self.databroker.remove_doc(docpath, silent=silent)
 
     def real_docpath(self, docpath):
         return self.databroker.real_docpath(docpath)        

@@ -79,12 +79,12 @@ class Repository(object):
         """ Remove a paper. Is silent if nothing needs to be done."""
         
         if event:
-            RemoveEvent(citekey).send()
+            events.RemoveEvent(citekey).send()
         if remove_doc:
             try:
-                metadata = self.databroker.pull_metadata(paper.citekey)
-                docpath = metadata.get('docfile', '')
-                self.databroker.remove_doc(docpath)
+                metadata = self.databroker.pull_metadata(citekey)
+                docpath = metadata.get('docfile')
+                self.databroker.remove_doc(docpath, silent=True)
             except IOError:
                 pass # FXME: if IOError is about being unable to 
                      # remove the file, we need to issue an error.I

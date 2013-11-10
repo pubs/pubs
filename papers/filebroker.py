@@ -118,7 +118,10 @@ class DocBroker(object):
             os.mkdir(self.docdir)
 
     def is_pubsdir_doc(self, docpath):
-        parsed = urlparse.urlparse(docpath)
+        try:
+            parsed = urlparse.urlparse(docpath)
+        except Exception:
+            return False
         if parsed.scheme == 'pubsdir':
             assert parsed.netloc == 'doc'
             assert parsed.path[0] == '/'
@@ -143,14 +146,16 @@ class DocBroker(object):
 
         return target_path
 
-    def remove_doc(self, docpath):
+    def remove_doc(self, docpath, silent=True):
         """ Will remove only file hosted in pubsdir://doc/
             
-            :raise ValueError: for other paths.
+            :raise ValueError: for other paths, unless :param silent: is True
         """
         if not self.is_pubsdir_doc(docpath):
-            raise ValueError(('the file to be removed {} is set as external. '
-                              'you should remove it manually.').format(docpath))
+            if not silent:
+                raise ValueError(('the file to be removed {} is set as external. '
+                                  'you should remove it manually.').format(docpath))
+            return
         filepath = self.real_docpath(docpath)
         if check_file(filepath):
             os.remove(filepath)
