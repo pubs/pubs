@@ -1,9 +1,6 @@
 from .. import repo
 from ..configs import config
 from ..uis import get_ui
-from .helpers import (add_references_argument, parse_reference,
-                      add_docfile_to_paper)
-
 
 def parser(subparsers):
     parser = subparsers.add_parser('attach',
@@ -12,8 +9,10 @@ def parser(subparsers):
             help="copy document files into library directory (default)")
     parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
             help="don't copy document files (opposite of -c)")
-    add_references_argument(parser, single=True)
-    parser.add_argument('document', help='pdf or ps file')
+    parser.add_argument('citekey',
+            help='citekey of the paper')
+    parser.add_argument('document', 
+            help='document file')
     return parser
 
 
@@ -24,19 +23,24 @@ def command(args):
     """
 
     ui = get_ui()
+
+    rp = repo.Repository(config())
+    paper = rp.pull_paper(args.citekey)
+
     copy = args.copy
-    reference = args.reference
-    document = args.document
-
-
     if copy is None:
         copy = config().import_copy
-    rp = repo.Repository(config())
-    key = parse_reference(rp, reference)
-    paper = rp.get_paper(key)
+
     try:
-        add_docfile_to_paper(rp, paper, docfile=document, copy=copy)
+        document = args.document
+        if copy:
+            document = rp.databroker.copy_doc(paper.citekey, document)
+        else:
+            pass # TODO warn if file does not exists
+        paper.docpath = document
     except ValueError, v:
         ui.error(v.message)
         ui.exit(1)
-# TODO handle case where citekey exists
+    except IOError, v:
+        ui.error(v.message)
+        ui.exit(1)

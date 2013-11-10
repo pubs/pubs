@@ -55,7 +55,7 @@ class Repository(object):
                          citekey=citekey,
                          metadata=self.databroker.pull_metadata(citekey))
         else:
-            raise InvalidReference
+            raise InvalidReference('{} citekey not found'.format(citekey))
 
     def push_paper(self, paper, overwrite=False, event=True):
         """ Push a paper to disk

@@ -10,6 +10,8 @@ try:
     import pybtex.database.input.bibtex
     import pybtex.database.input.bibtexml
     import pybtex.database.input.bibyaml
+    import pybtex.database.output.bibtex
+    import pybtex.database.output.bibtexml
     import pybtex.database.output.bibyaml
 
 except ImportError:
@@ -30,9 +32,13 @@ class EnDecoder(object):
         * encode_bibdata will try to recognize exceptions
     """
 
-    decode_fmt = (pybtex.database.input.bibyaml,
-                  pybtex.database.input.bibtex,
-                  pybtex.database.input.bibtexml)
+    decode_fmt = {'bibyaml' : pybtex.database.input.bibyaml,
+                  'bibtex'  : pybtex.database.input.bibtex,
+                  'bibtexml': pybtex.database.input.bibtexml}
+
+    encode_fmt = {'bibyaml' : pybtex.database.output.bibyaml,
+                  'bibtex'  : pybtex.database.output.bibtex,
+                  'bibtexml': pybtex.database.output.bibtexml}
 
     def encode_metadata(self, metadata):
         return yaml.safe_dump(metadata, allow_unicode=True, encoding='UTF-8', indent = 4)
@@ -40,16 +46,16 @@ class EnDecoder(object):
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
     
-    def encode_bibdata(self, bibdata):
+    def encode_bibdata(self, bibdata, fmt='bibyaml'):
         """Encode bibdata """
         s = StringIO.StringIO()
-        pybtex.database.output.bibyaml.Writer().write_stream(bibdata, s)
+        EnDecoder.encode_fmt[fmt].Writer().write_stream(bibdata, s)
         return s.getvalue()
 
     def decode_bibdata(self, bibdata_raw):
         """"""
         bibdata_rawutf8 = unicode(bibdata_raw)
-        for fmt in EnDecoder.decode_fmt:
+        for fmt in EnDecoder.decode_fmt.values():
             try:
                 bibdata_stream = StringIO.StringIO(bibdata_rawutf8)
                 return self._decode_bibdata(bibdata_stream, fmt.Parser())
