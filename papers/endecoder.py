@@ -56,7 +56,8 @@ class EnDecoder(object):
 
     def decode_bibdata(self, bibdata_raw):
         """"""
-        bibdata_rawutf8 = unicode(bibdata_raw)
+        bibdata_rawutf8 = bibdata_raw
+#        bibdata_rawutf8 = unicode(bibdata_raw, 'utf8') # FIXME this doesn't work
         for fmt in EnDecoder.decode_fmt.values():
             try:
                 bibdata_stream = StringIO.StringIO(bibdata_rawutf8)
