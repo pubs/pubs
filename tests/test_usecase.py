@@ -10,7 +10,7 @@ from papers import color, content, filebroker, uis, beets_ui, p3
 
 import str_fixtures
 
-from papers.commands import init_cmd
+from papers.commands import init_cmd, import_cmd
 
     # code for fake fs
 
@@ -46,7 +46,7 @@ class CommandTestCase(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""
 
     def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd])
+        self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd, import_cmd])
 
     def execute_cmds(self, cmds, fs=None):
         """ Execute a list of commands, and capture their output

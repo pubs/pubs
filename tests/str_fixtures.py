@@ -82,8 +82,7 @@ institution = {Stanford InfoLab},
 }
 """
 
-bibtex_raw0 = """
-@techreport{
+bibtex_raw0 = """@techreport{
     Page99,
     author = "Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry",
     publisher = "Stanford InfoLab",
@@ -96,6 +95,7 @@ bibtex_raw0 = """
     year = "1999",
     institution = "Stanford InfoLab"
 }
+
 """
 
 metadata_raw0 = """external-document: null
