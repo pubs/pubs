@@ -114,6 +114,14 @@ class Repository(object):
                 self.databroker.remove_doc(paper.docpath)
                 paper.docpath = new_docpath
 
+            try:
+                old_notepath = 'notesdir://{}.txt'.format(old_citekey)
+                new_notepath = self.databroker.copy_note(new_citekey, old_notepath)
+                self.databroker.remove_notei(old_notepath)
+            except IOError:
+                import traceback
+                traceback.print_exc()
+
             # push_paper to new_citekey
             paper.citekey = new_citekey
             self.push_paper(paper, event=False)

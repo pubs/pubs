@@ -126,6 +126,9 @@ class DocBroker(object):
             return False
         return parsed.scheme == self.scheme
 
+    # def doc_exists(self, citekey, ext='.txt'):
+    #     return check_file(os.path.join(self.docdir, citekey + ext), fail=False)
+
     def copy_doc(self, citekey, source_path, overwrite=False):
         """ Copy a document to the pubsdir/doc, and return the location
 

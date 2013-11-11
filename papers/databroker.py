@@ -35,7 +35,7 @@ class DataBroker(object):
         
     def push(self, citekey, metadata, bibdata):
         self.filebroker.push(citekey, metadata, bibdata)
-
+        
     def remove(self, citekey):
         self.filebroker.remove(citekey)
 
@@ -65,11 +65,17 @@ class DataBroker(object):
     def real_docpath(self, docpath):
         return self.docbroker.real_docpath(docpath)        
 
-
     # notesbroker
 
     def in_notesdir(self, docpath):
         return self.notebroker.in_docsdir(docpath)
+
+    def copy_note(self, citekey, source_path, overwrite=False):
+        return self.notebroker.copy_doc(citekey, source_path, overwrite=overwrite)
+
+    def remove_note(self, docpath, silent=True):
+        return self.notebroker.remove_doc(docpath, silent=silent)
+
 
     def real_notepath(self, docpath):
         return self.notebroker.real_docpath(docpath)        

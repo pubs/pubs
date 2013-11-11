@@ -79,6 +79,12 @@ class DataCache(object):
     def in_notesdir(self, docpath):
         return self.databroker.in_notesdir(docpath)
 
+    def copy_note(self, citekey, source_path, overwrite=False):
+        return self.databroker.copy_note(citekey, source_path, overwrite=overwrite)
+
+    def remove_note(self, docpath, silent=True):
+        return self.databroker.remove_note(docpath, silent=silent)
+
     def real_notepath(self, docpath):
         return self.databroker.real_notepath(docpath)        
 
