@@ -67,8 +67,8 @@ class TestDataBroker(TestFakeFs):
             with self.assertRaises(IOError):
                 db.pull_metadata('citekey')
 
-            db.copy_doc('Larry99', 'pubsdir://doc/Page99.pdf')
+            db.copy_doc('Larry99', 'docsdir://Page99.pdf')
             self.assertTrue(content.check_file('repo/doc/Page99.pdf', fail=False))
             self.assertTrue(content.check_file('repo/doc/Larry99.pdf', fail=False))
 
-            db.remove_doc('pubsdir://doc/Page99.pdf')
+            db.remove_doc('docsdir://Page99.pdf')

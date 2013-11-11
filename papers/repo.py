@@ -109,7 +109,7 @@ class Repository(object):
             paper.bibdata = new_bibdata
 
             # move doc file if necessary
-            if self.databroker.is_pubsdir_doc(paper.docpath):
+            if self.databroker.in_docsdir(paper.docpath):
                 new_docpath = self.databroker.copy_doc(new_citekey, paper.docpath)
                 self.databroker.remove_doc(paper.docpath)
                 paper.docpath = new_docpath

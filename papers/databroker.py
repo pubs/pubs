@@ -12,7 +12,8 @@ class DataBroker(object):
     def __init__(self, directory, create=False):
         self.filebroker = filebroker.FileBroker(directory, create=create)
         self.endecoder  = endecoder.EnDecoder()
-        self.docbroker  = filebroker.DocBroker(directory) 
+        self.docbroker  = filebroker.DocBroker(directory, scheme='docsdir', subdir='doc') 
+        self.notebroker = filebroker.DocBroker(directory, scheme='notesdir', subdir='notes') 
 
     # filebroker+endecoder
 
@@ -52,8 +53,8 @@ class DataBroker(object):
 
     # docbroker
 
-    def is_pubsdir_doc(self, docpath):
-        return self.docbroker.is_pubsdir_doc(docpath)
+    def in_docsdir(self, docpath):
+        return self.docbroker.in_docsdir(docpath)
 
     def copy_doc(self, citekey, source_path, overwrite=False):
         return self.docbroker.copy_doc(citekey, source_path, overwrite=overwrite)
@@ -63,3 +64,12 @@ class DataBroker(object):
 
     def real_docpath(self, docpath):
         return self.docbroker.real_docpath(docpath)        
+
+
+    # notesbroker
+
+    def in_notesdir(self, docpath):
+        return self.notebroker.in_docsdir(docpath)
+
+    def real_notepath(self, docpath):
+        return self.notebroker.real_docpath(docpath)        

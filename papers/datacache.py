@@ -60,10 +60,10 @@ class DataCache(object):
         """Will return None if bibdata_raw can't be decoded"""
         return self.databroker.verify(bibdata_raw)
     
-        # docbroker
+    # docbroker
 
-    def is_pubsdir_doc(self, docpath):
-        return self.databroker.is_pubsdir_doc(docpath)
+    def in_docsdir(self, docpath):
+        return self.databroker.in_docsdir(docpath)
 
     def copy_doc(self, citekey, source_path, overwrite=False):
         return self.databroker.copy_doc(citekey, source_path, overwrite=overwrite)
@@ -73,6 +73,15 @@ class DataCache(object):
 
     def real_docpath(self, docpath):
         return self.databroker.real_docpath(docpath)        
+
+    # notesbroker
+
+    def in_notesdir(self, docpath):
+        return self.databroker.in_notesdir(docpath)
+
+    def real_notepath(self, docpath):
+        return self.databroker.real_notepath(docpath)        
+
 
 # class ChangeTracker(object):
 

@@ -22,6 +22,7 @@ CORE_CMDS = collections.OrderedDict([
         ('attach',      commands.attach_cmd),
         ('open',        commands.open_cmd),
         ('tag',         commands.tag_cmd),
+        ('note',        commands.note_cmd),
 
         ('export',      commands.export_cmd),
         ('import',      commands.import_cmd),
