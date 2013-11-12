@@ -107,38 +107,53 @@ class DocBroker(object):
 
         * only one document can be attached to a paper (might change in the future)
         * this document can be anything, the content is never processed.
-        * these document have an adress of the type "pubsdir://doc/citekey.pdf"
+        * these document have an adress of the type "docsdir://citekey.pdf"
+        * docsdir:// correspond to /path/to/pubsdir/doc (configurable)
         * document outside of the repository will not be removed.
-        * deliberately, there is no move_doc method.
+        * move_doc only applies from inside to inside the docsdir
     """
 
-    def __init__(self, directory):
-        self.docdir = os.path.join(directory, 'doc')
+    def __init__(self, directory, scheme='docsdir', subdir='doc'):
+        self.scheme = scheme
+        self.docdir = os.path.join(directory, subdir)
         if not check_directory(self.docdir, fail = False):
             os.mkdir(self.docdir)
 
-    def is_pubsdir_doc(self, docpath):
+    def in_docsdir(self, docpath):
         try:
             parsed = urlparse.urlparse(docpath)
         except Exception:
             return False
-        if parsed.scheme == 'pubsdir':
-            assert parsed.netloc == 'doc'
-            assert parsed.path[0] == '/'
-        return parsed.scheme == 'pubsdir'
+        return parsed.scheme == self.scheme
 
-    def copy_doc(self, citekey, source_path, overwrite=False):
-        """ Copy a document to the pubsdir/doc, and return the location
+    # def doc_exists(self, citekey, ext='.txt'):
+    #     return check_file(os.path.join(self.docdir, citekey + ext), fail=False)
+
+    def real_docpath(self, docpath):
+        """Return the full path
+            Essentially transform pubsdir://doc/{citekey}.{ext} to /path/to/pubsdir/doc/{citekey}.{ext}.
+            Return absoluted paths of regular ones otherwise. 
+        """
+        if self.in_docsdir(docpath):
+            parsed = urlparse.urlparse(docpath)
+            if parsed.path == '':
+                docpath = os.path.join(self.docdir, parsed.netloc)
+            else:
+                docpath = os.path.join(self.docdir, parsed.netloc, parsed.path[1:])
+        return os.path.normpath(os.path.abspath(docpath))
+
+    def add_doc(self, citekey, source_path, overwrite=False):
+        """ Add a document to the docsdir, and return its location.
 
             The document will be named {citekey}.{ext}.
-            The location will be pubsdir://doc/{citekey}.{ext}.
+            The location will be docsdir://{citekey}.{ext}.
             :param overwrite: will overwrite existing file.
             :return: the above location
         """
         full_source_path = self.real_docpath(source_path)
         check_file(full_source_path)
 
-        target_path = 'pubsdir://' + os.path.join('doc', citekey + os.path.splitext(source_path)[-1]) 
+        target_path = '{}://{}'.format(self.scheme, citekey + os.path.splitext(source_path)[-1])
         full_target_path = self.real_docpath(target_path)
         if not overwrite and check_file(full_target_path, fail=False):
             raise IOError('{} file exists.'.format(full_target_path))
@@ -147,11 +162,11 @@ class DocBroker(object):
         return target_path
 
     def remove_doc(self, docpath, silent=True):
-        """ Will remove only file hosted in pubsdir://doc/
+        """ Will remove only file hosted in docsdir://
             
             :raise ValueError: for other paths, unless :param silent: is True
         """
-        if not self.is_pubsdir_doc(docpath):
+        if not self.in_docsdir(docpath):
             if not silent:
                 raise ValueError(('the file to be removed {} is set as external. '
                                   'you should remove it manually.').format(docpath))
@@ -160,12 +175,17 @@ class DocBroker(object):
         if check_file(filepath):
             os.remove(filepath)
 
-    def real_docpath(self, docpath):
-        """Return the full path
-            Essentially transform pubsdir://doc/{citekey}.{ext} to /path/to/pubsdir/doc/{citekey}.{ext}.
-            Return absoluted paths of regular ones otherwise. 
+    def rename_doc(self, docpath, new_citekey):
+        """ Move a document inside the docsdir
+
+            :raise IOError: if docpath doesn't point to a file
+                            if new_citekey doc exists already.
+            :raise ValueError: if docpath is not in docsdir().
+
+            if an exception is raised, the files on disk haven't changed.
         """
-        if self.is_pubsdir_doc(docpath):
-            parsed = urlparse.urlparse(docpath)
-            docpath = os.path.join(self.docdir, parsed.path[1:])
-        return os.path.normpath(os.path.abspath(docpath))
+        if not self.in_docsdir(docpath):
+            raise ValueError('cannot rename an external file ({}).'.format(docpath))
+
+        new_notepath = self.add_doc(new_citekey, docpath)
+        self.remove_doc(docpath)

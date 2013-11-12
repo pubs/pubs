@@ -101,9 +101,9 @@ class TestDocBroker(TestFakeFs):
         docpath = docb.copy_doc('Page99', 'data/pagerank.pdf')
         self.assertTrue(content.check_file(os.path.join('tmpdir', 'doc/Page99.pdf')))
 
-        self.assertTrue(docb.is_pubsdir_doc(docpath))
-        self.assertEqual(docpath, 'pubsdir://doc/Page99.pdf')
-        docb.remove_doc('pubsdir://doc/Page99.pdf')
+        self.assertTrue(docb.in_docsdir(docpath))
+        self.assertEqual(docpath,  'docsdir://Page99.pdf')
+        docb.remove_doc('docsdir://Page99.pdf')
 
         self.assertFalse(content.check_file(os.path.join('tmpdir', 'doc/Page99.pdf'), fail=False))
         with self.assertRaises(IOError):

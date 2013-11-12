@@ -8,6 +8,7 @@ import list_cmd
 import attach_cmd
 import open_cmd
 import tag_cmd
+import note_cmd
 # bulk
 import export_cmd
 import import_cmd

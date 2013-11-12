@@ -100,13 +100,13 @@ class TestInit(CommandTestCase):
         pubsdir = os.path.expanduser('~/papers_test2')
         papers_cmd.execute('papers init -p {}'.format(pubsdir).split())
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
-                         {'bib', 'doc', 'meta'})
+                         {'bib', 'doc', 'meta', 'notes'})
 
     def test_init2(self):
         pubsdir = os.path.expanduser('~/.papers')
         papers_cmd.execute('papers init'.split())
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
-                         {'bib', 'doc', 'meta'})
+                         {'bib', 'doc', 'meta', 'notes'})
 
 class TestAdd(DataCommandTestCase):
 
