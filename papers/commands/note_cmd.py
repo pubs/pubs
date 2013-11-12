@@ -23,5 +23,5 @@ def command(args):
         ui.error("citekey {} not found".format(args.citekey))
         ui.exit(1)
 
-    notepath = rp.databroker.real_notepath('notesdir://{}.txt'.format(args.citekey))
+    notepath = rp.databroker.real_notepath(args.citekey)
     content.edit_file(config().edit_cmd, notepath, temporary=False)

@@ -56,26 +56,29 @@ class DataBroker(object):
     def in_docsdir(self, docpath):
         return self.docbroker.in_docsdir(docpath)
 
-    def copy_doc(self, citekey, source_path, overwrite=False):
-        return self.docbroker.copy_doc(citekey, source_path, overwrite=overwrite)
+    def real_docpath(self, docpath):
+        return self.docbroker.real_docpath(docpath)   
+
+    def add_doc(self, citekey, source_path, overwrite=False):
+        return self.docbroker.add_doc(citekey, source_path, overwrite=overwrite)
 
     def remove_doc(self, docpath, silent=True):
         return self.docbroker.remove_doc(docpath, silent=silent)
 
-    def real_docpath(self, docpath):
-        return self.docbroker.real_docpath(docpath)        
+    def rename_doc(self, docpath, new_citekey):
+        return self.docbroker.rename_doc(docpath, new_citekey)
 
     # notesbroker
 
-    def in_notesdir(self, docpath):
-        return self.notebroker.in_docsdir(docpath)
+    def real_notepath(self, citekey):
+        notepath = 'notesdir://{}.txt'.format(citekey)
+        return self.notebroker.real_docpath(notepath)
 
-    def copy_note(self, citekey, source_path, overwrite=False):
-        return self.notebroker.copy_doc(citekey, source_path, overwrite=overwrite)
+    def remove_note(self, citekey, silent=True):
+        notepath = 'notesdir://{}.txt'.format(citekey)
+        return self.notebroker.remove_doc(notepath, silent=silent)
 
-    def remove_note(self, docpath, silent=True):
-        return self.notebroker.remove_doc(docpath, silent=silent)
+    def rename_note(self, old_citekey, new_citekey):
+        notepath = 'notesdir://{}.txt'.format(old_citekey)
+        return self.notebroker.rename_doc(notepath, new_citekey)
 
-
-    def real_notepath(self, docpath):
-        return self.notebroker.real_docpath(docpath)        

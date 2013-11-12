@@ -87,6 +87,7 @@ class Repository(object):
                 metadata = self.databroker.pull_metadata(citekey)
                 docpath = metadata.get('docfile')
                 self.databroker.remove_doc(docpath, silent=True)
+                self.databroker.remove_note(citekey, silent=True)
             except IOError:
                 pass # FXME: if IOError is about being unable to 
                      # remove the file, we need to issue an error.I
@@ -103,6 +104,7 @@ class Repository(object):
             # check if new_citekey does not exists
             if self.databroker.exists(new_citekey, both=False):
                 raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))                
+
             # modify bibdata (__delitem__ not implementd by pybtex)
             new_bibdata = BibliographyData()
             new_bibdata.entries[new_citekey] = paper.bibdata.entries[old_citekey]
@@ -110,17 +112,13 @@ class Repository(object):
 
             # move doc file if necessary
             if self.databroker.in_docsdir(paper.docpath):
-                new_docpath = self.databroker.copy_doc(new_citekey, paper.docpath)
-                self.databroker.remove_doc(paper.docpath)
-                paper.docpath = new_docpath
+                paper.docpath = self.databroker.rename_doc(paper.docpath, new_citekey)
 
+            # move note file if necessary
             try:
-                old_notepath = 'notesdir://{}.txt'.format(old_citekey)
-                new_notepath = self.databroker.copy_note(new_citekey, old_notepath)
-                self.databroker.remove_notei(old_notepath)
+                self.databroker.rename_note(old_citekey, new_citekey)
             except IOError:
-                import traceback
-                traceback.print_exc()
+                pass
 
             # push_paper to new_citekey
             paper.citekey = new_citekey

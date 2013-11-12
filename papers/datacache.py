@@ -65,28 +65,28 @@ class DataCache(object):
     def in_docsdir(self, docpath):
         return self.databroker.in_docsdir(docpath)
 
+    def real_docpath(self, docpath):
+        return self.databroker.real_docpath(docpath)      
+
     def copy_doc(self, citekey, source_path, overwrite=False):
-        return self.databroker.copy_doc(citekey, source_path, overwrite=overwrite)
+        return self.databroker.add_doc(citekey, source_path, overwrite=overwrite)
 
     def remove_doc(self, docpath, silent=True):
         return self.databroker.remove_doc(docpath, silent=silent)
 
-    def real_docpath(self, docpath):
-        return self.databroker.real_docpath(docpath)        
+    def rename_doc(self, docpath, new_citekey):
+        return self.databroker.rename_doc(docpath, new_citekey)  
 
     # notesbroker
 
-    def in_notesdir(self, docpath):
-        return self.databroker.in_notesdir(docpath)
+    def real_notepath(self, citekey):
+        return self.databroker.real_notepath(citekey)
 
-    def copy_note(self, citekey, source_path, overwrite=False):
-        return self.databroker.copy_note(citekey, source_path, overwrite=overwrite)
+    def remove_note(self, citekey, silent=True):
+        return self.databroker.remove_note(citekey, silent=True)
 
-    def remove_note(self, docpath, silent=True):
-        return self.databroker.remove_note(docpath, silent=silent)
-
-    def real_notepath(self, docpath):
-        return self.databroker.real_notepath(docpath)        
+    def rename_note(self, old_citekey, new_citekey):
+        return self.databroker.rename_note(old_citekey, new_citekey)
 
 
 # class ChangeTracker(object):
