@@ -1,6 +1,12 @@
 import os
 import subprocess
 import tempfile
+import shutil
+
+import urlparse
+import httplib
+import urllib2
+
 
     # files i/o
 
@@ -38,9 +44,34 @@ def write_file(filepath, data):
 
     # dealing with formatless content
 
+def content_type(path):
+    parsed = urlparse.urlparse(path)
+    if parsed.scheme == 'http':
+        return 'url'
+    else:
+        return 'file'
+
+def url_exists(url):
+    parsed = urlparse.urlparse(url)
+    conn = httplib.HTTPConnection(parsed.netloc)
+    conn.request('HEAD', parsed.path)
+    response = conn.getresponse()
+    conn.close()
+    return response.status == 200
+
+    
+def check_content(path):
+    if content_type(path) == 'url':
+        return url_exists(path)
+    else:
+        return check_file(path)
+
 def get_content(path):
     """Will be useful when we need to get content from url"""
-    return read_file(path)
+    if content_type(path) == 'url':
+        return urllib2.urlopen(path)
+    else:
+        return read_file(path)
 
 def move_content(source, target, overwrite = False):
     if source == target:

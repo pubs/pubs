@@ -89,7 +89,7 @@ def command(args):
         if copy_doc is None:
             copy_doc = config().import_copy
         if copy_doc:
-            docfile = rp.databroker.copy_doc(citekey, docfile) 
+            docfile = rp.databroker.copy_doc(citekey, docfile)
 
     # create the paper
 

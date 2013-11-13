@@ -4,6 +4,7 @@ import re
 import urlparse
 
 from .content import check_file, check_directory, read_file, write_file
+from .content import check_content, content_type, get_content
 
 def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
@@ -140,6 +141,8 @@ class DocBroker(object):
                 docpath = os.path.join(self.docdir, parsed.netloc)
             else:
                 docpath = os.path.join(self.docdir, parsed.netloc, parsed.path[1:])
+        elif content_type(docpath) != 'file':
+            return docpath
         return os.path.normpath(os.path.abspath(docpath))
 
     def add_doc(self, citekey, source_path, overwrite=False):
@@ -151,13 +154,16 @@ class DocBroker(object):
             :return: the above location
         """
         full_source_path = self.real_docpath(source_path)
-        check_file(full_source_path)
+        check_content(full_source_path)
 
         target_path = '{}://{}'.format(self.scheme, citekey + os.path.splitext(source_path)[-1])
         full_target_path = self.real_docpath(target_path)
         if not overwrite and check_file(full_target_path, fail=False):
             raise IOError('{} file exists.'.format(full_target_path))
-        shutil.copy(full_source_path, full_target_path)
+        
+        doc_content = get_content(full_source_path)
+        with open(full_target_path, 'wb') as f:
+            f.write(doc_content.read())
 
         return target_path
 

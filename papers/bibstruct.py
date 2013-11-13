@@ -67,16 +67,19 @@ def extract_docfile(bibdata, remove=False):
     citekey, entry = get_entry(bibdata)
 
     try:
-        field = entry.fields['file']
-        # Check if this is mendeley specific
-        for f in field.split(':'):
-            if len(f) > 0:
-                break
-        if remove:
-            entry.fields.pop('file')
-        # This is a hck for Mendeley. Make clean
-        if f[0] != '/':
-            f = '/' + f
-        return f
+        if 'file' in entry.fields:
+            field = entry.fields['file']
+            # Check if this is mendeley specific
+            for f in field.split(':'):
+                if len(f) > 0:
+                    break
+            if remove:
+                entry.fields.pop('file')
+            # This is a hck for Mendeley. Make clean
+            if f[0] != '/':
+                f = '/' + f
+            return f
+        if 'attachments' in entry.fields:
+            return entry.fields['attachments']
     except (KeyError, IndexError):
         return None
