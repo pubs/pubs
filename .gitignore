@@ -2,5 +2,5 @@ build/
 dist/
 *~
 *.pyc
-papers.egg-info
+*.egg-info
 .DS_Store

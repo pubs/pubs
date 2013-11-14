@@ -5,10 +5,10 @@ import os
 import testenv
 import fake_env
 
-from papers import content, filebroker, databroker, datacache
+from pubs import content, filebroker, databroker, datacache
 
 import str_fixtures
-from papers import endecoder
+from pubs import endecoder
 
 class TestFakeFs(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""

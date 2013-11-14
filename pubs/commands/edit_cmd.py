@@ -1,7 +1,6 @@
-from ..files import editor_input
+from ..content import editor_input
 from .. import repo
 from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
-from .helpers import add_references_argument, parse_reference
 from ..configs import config
 from ..uis import get_ui
 
@@ -11,7 +10,8 @@ def parser(subparsers):
             help='open the paper bibliographic file in an editor')
     parser.add_argument('-m', '--meta', action='store_true', default=False,
             help='edit metadata')
-    add_references_argument(parser, single=True)
+    parser.add_argument('citekey',
+            help='citekey of the paper')
     return parser
 
 
@@ -19,12 +19,15 @@ def command(args):
 
     ui = get_ui()
     meta = args.meta
-    reference = args.reference
+    citekey = args.citekey
 
     rp = repo.Repository(config())
-    key = parse_reference(rp, reference)
-    paper = rp.get_paper(key)
-    filepath = rp._metafile(key) if meta else rp._bibfile(key)
+    coder = endecoder.EnDecoder()
+    if meta:
+        filepath = os.path.join(rp.databroker.databroker.filebroker.metadir(), citekey+'.yaml')
+    else:
+        filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bibyaml')
+
 
     with open(filepath) as f:
         content = f.read()
@@ -49,7 +52,7 @@ def command(args):
             options = ['overwrite', 'edit again', 'abort']
             choice = options[ui.input_choice(
                         options, ['o', 'e', 'a'],
-                        question='A paper already exist with this citekey.'
+                        question='A paper already exists with this citekey.'
                         )]
 
             if choice == 'abort':

@@ -4,7 +4,7 @@ import unittest
 import yaml
 
 import testenv
-from papers import endecoder
+from pubs import endecoder
 
 from str_fixtures import bibyaml_raw0, bibtexml_raw0, bibtex_raw0, metadata_raw0
 

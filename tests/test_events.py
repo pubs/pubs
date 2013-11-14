@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 import testenv
-from papers.events import Event
+from pubs.events import Event
 
 
 _output = None

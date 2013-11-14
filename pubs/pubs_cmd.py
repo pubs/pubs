@@ -41,17 +41,17 @@ def _update_check(config, ui):
         if repo_version > code_version:
             ui.warning(
                     'your repository was generated with an newer version'
-                    ' of papers (v{}) than the one you are using (v{}).'
+                    ' of pubs (v{}) than the one you are using (v{}).'
                     '\n'.format(repo_version, code_version) +
-                    'You should not use papers until you install the '
-                    'newest version. (use version_warning in you papersrc '
+                    'You should not use pubs until you install the '
+                    'newest version. (use version_warning in you pubsrc '
                     'to bypass this error)')
             sys.exit()
         elif repo_version < code_version:
             ui.print_(
                 'warning: your repository version (v{})'.format(repo_version)
                 + 'must be updated to version {}.\n'.format(code_version)
-                + "run 'papers update'.")
+                + "run 'pubs update'.")
             sys.exit()
 
 

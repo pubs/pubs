@@ -4,10 +4,10 @@ import shutil
 import os
 
 import fixtures
-from papers.repo import (Repository, _base27, BIB_DIR, META_DIR,
+from pubs.repo import (Repository, _base27, BIB_DIR, META_DIR,
                          CiteKeyCollision)
-from papers.paper import PaperInRepo
-from papers import configs, files
+from pubs.paper import PaperInRepo
+from pubs import configs, files
 
 
 class TestCitekeyGeneration(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestRepo(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        self.repo = Repository(configs.Config(papers_dir=self.tmpdir), load=False)
+        self.repo = Repository(configs.Config(pubs_dir=self.tmpdir), load=False)
         self.repo.save()
         self.repo.add_paper(fixtures.turing1950)
 

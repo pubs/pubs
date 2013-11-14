@@ -35,7 +35,7 @@ def load_plugins(ui, names):
     PapersPlugin subclasses desired.
     """
     for name in names:
-        modname = '%s.%s.%s.%s' % ('papers', PLUGIN_NAMESPACE, name, name)
+        modname = '%s.%s.%s.%s' % ('pubs', PLUGIN_NAMESPACE, name, name)
         try:
             namespace = importlib.import_module(modname)
         except ImportError as exc:

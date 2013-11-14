@@ -11,8 +11,8 @@ import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob
 
-from papers import color
-from papers.p3 import io, input
+from pubs import color
+from pubs.p3 import io, input
 
     # code for fake fs
 
@@ -26,13 +26,13 @@ real_glob = glob
 
 # def _mod_list():
 #     ml = []
-#     import papers
+#     import pubs
 #     for importer, modname, ispkg in pkgutil.walk_packages(
-#                                         path=papers.__path__,
-#                                         prefix=papers.__name__ + '.',
+#                                         path=pubs.__path__,
+#                                         prefix=pubs.__name__ + '.',
 #                                         onerror=lambda x: None):
 #         # HACK to not load textnote
-#         if not modname.startswith('papers.plugs.texnote'):
+#         if not modname.startswith('pubs.plugs.texnote'):
 #             ml.append((modname, __import__(modname, fromlist='dummy')))
 #     return ml
 

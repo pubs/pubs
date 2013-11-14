@@ -2,7 +2,7 @@
 import unittest
 
 import testenv
-from papers.commands.tag_cmd import _parse_tags, _tag_groups
+from pubs.commands.tag_cmd import _parse_tags, _tag_groups
 
 class TestTag(unittest.TestCase):
 

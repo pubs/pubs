@@ -5,8 +5,8 @@ from .p3 import configparser
 
 # constant stuff (DFT = DEFAULT)
 
-MAIN_SECTION = 'papers'
-DFT_CONFIG_PATH = os.path.expanduser('~/.papersrc')
+MAIN_SECTION = 'pubs'
+DFT_CONFIG_PATH = os.path.expanduser('~/.pubsrc')
 try:
     DFT_EDIT_CMD = os.environ['EDITOR']
 except KeyError:
@@ -15,7 +15,7 @@ except KeyError:
 DFT_PLUGINS = ''
 
 DFT_CONFIG = collections.OrderedDict([
-              ('pubsdir',         os.path.expanduser('~/.papers')),
+              ('pubsdir',         os.path.expanduser('~/.pubs')),
               ('docsdir',         ''),
               ('import_copy',     True),
               ('import_move',     False),

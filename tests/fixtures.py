@@ -1,6 +1,8 @@
 from pybtex.database import Person
 
-from papers.paper import Paper, get_bibentry_from_string
+import testenv
+from pubs import endecoder
+import str_fixtures
 
 turing1950 = Paper()
 turing1950.bibentry.fields['title'] = u'Computing machinery and intelligence.'
@@ -16,35 +18,7 @@ doe2013.bibentry.fields['year'] = u'2013'
 doe2013.bibentry.persons['author'] = [Person(u'John Doe')]
 doe2013.citekey = doe2013.generate_citekey()
 
+coder = endecoder.EnDecoder()
+bibdata = coder.decode_bibdata(str_fixtures.bibtex_external0, fmt='bibtex')
+page99 = Paper(bibdata)
 
-pagerankbib = """
-@techreport{Page99,
-     number = {1999-66},
-      month = {November},
-     author = {Lawrence Page and Sergey Brin and Rajeev Motwani and Terry Winograd},
-       note = {Previous number = SIDL-WP-1999-0120},
-      title = {The PageRank Citation Ranking: Bringing Order to the Web.},
-       type = {Technical Report},
-  publisher = {Stanford InfoLab},
-       year = {1999},
-institution = {Stanford InfoLab},
-        url = {http://ilpubs.stanford.edu:8090/422/},
-}
-"""
-
-page99 = Paper(bibentry=get_bibentry_from_string(pagerankbib)[1])
-
-pagerankbib_generated = """@techreport{
-    Page99,
-    author = "Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry",
-    publisher = "Stanford InfoLab",
-    title = "The PageRank Citation Ranking: Bringing Order to the Web.",
-    url = "http://ilpubs.stanford.edu:8090/422/",
-    number = "1999-66",
-    month = "November",
-    note = "Previous number = SIDL-WP-1999-0120",
-    year = "1999",
-    institution = "Stanford InfoLab"
-}
-
-"""

@@ -3,7 +3,7 @@ import shlex
 
 from ...plugins import PapersPlugin
 from ...configs import config
-from ...papers_cmd import execute
+from ...pubs_cmd import execute
 
 
 class Alias(object):

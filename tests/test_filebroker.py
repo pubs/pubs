@@ -5,7 +5,7 @@ import os
 import testenv
 import fake_env
 
-from papers import content, filebroker
+from pubs import content, filebroker
 
 class TestFakeFs(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""

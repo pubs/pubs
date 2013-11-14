@@ -1,19 +1,19 @@
 """
 This command is all about tags.
 The different use cases are :
-1. > papers tag
+1. > pubs tag
     Returns the list of all tags
-2. > papers tag citekey
+2. > pubs tag citekey
     Return the list of tags of the given citekey
-3. > papers tag citekey math
+3. > pubs tag citekey math
     Add 'math' to the list of tags of the given citekey
-4. > papers tag citekey :math
+4. > pubs tag citekey :math
     Remove 'math' for the list of tags of the given citekey
-5. > papers tag citekey math+romance-war
+5. > pubs tag citekey math+romance-war
     Add 'math' and 'romance' tags to the given citekey, and remove the 'war' tag
-6. > papers tag math
+6. > pubs tag math
     If 'math' is not a citekey, then display all papers with the tag 'math'
-7. > papers tag -war+math+romance
+7. > pubs tag -war+math+romance
     display all papers with the tag 'math', 'romance' but not 'war'
 """
 

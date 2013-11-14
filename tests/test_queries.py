@@ -66,24 +66,24 @@ class TestCheckQueryBlock(TestCase):
 class TestFilterPaper(TestCase):
 
     def test_case(self):
-        self.assertTrue(filter_paper(fixtures.doe2013, ['title:nice']))
-        self.assertTrue(filter_paper(fixtures.doe2013, ['title:Nice']))
+        self.assertTrue (filter_paper(fixtures.doe2013, ['title:nice']))
+        self.assertTrue (filter_paper(fixtures.doe2013, ['title:Nice']))
         self.assertFalse(filter_paper(fixtures.doe2013, ['title:nIce']))
 
     def test_fields(self):
-        self.assertTrue(filter_paper(fixtures.doe2013, ['year:2013']))
+        self.assertTrue (filter_paper(fixtures.doe2013, ['year:2013']))
         self.assertFalse(filter_paper(fixtures.doe2013, ['year:2014']))
-        self.assertTrue(filter_paper(fixtures.doe2013, ['author:doe']))
-        self.assertTrue(filter_paper(fixtures.doe2013, ['author:Doe']))
+        self.assertTrue (filter_paper(fixtures.doe2013, ['author:doe']))
+        self.assertTrue (filter_paper(fixtures.doe2013, ['author:Doe']))
 
     def test_tags(self):
-        self.assertTrue(filter_paper(fixtures.turing1950, ['tag:computer']))
+        self.assertTrue (filter_paper(fixtures.turing1950, ['tag:computer']))
         self.assertFalse(filter_paper(fixtures.turing1950, ['tag:Ai']))
-        self.assertTrue(filter_paper(fixtures.turing1950, ['tag:AI']))
-        self.assertTrue(filter_paper(fixtures.turing1950, ['tag:ai']))
+        self.assertTrue (filter_paper(fixtures.turing1950, ['tag:AI']))
+        self.assertTrue (filter_paper(fixtures.turing1950, ['tag:ai']))
 
     def test_multiple(self):
-        self.assertTrue(filter_paper(fixtures.doe2013,
+        self.assertTrue (filter_paper(fixtures.doe2013,
                                      ['author:doe', 'year:2013']))
         self.assertFalse(filter_paper(fixtures.doe2013,
                                       ['author:doe', 'year:2014']))
