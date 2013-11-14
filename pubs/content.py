@@ -69,7 +69,8 @@ def check_content(path):
 def get_content(path):
     """Will be useful when we need to get content from url"""
     if content_type(path) == 'url':
-        return urllib2.urlopen(path)
+        response = urllib2.urlopen(path)
+        return response.read()
     else:
         return read_file(path)
 

@@ -44,7 +44,7 @@ class FileBroker(object):
         return read_file(filepath)
 
     def pull_bibfile(self, citekey):
-        filepath = os.path.join(self.bibdir, citekey + '.bibyaml')
+        filepath = os.path.join(self.bibdir, citekey + '.bib')
         return read_file(filepath)
         
     def push_metafile(self, citekey, metadata):
@@ -54,7 +54,7 @@ class FileBroker(object):
     
     def push_bibfile(self, citekey, bibdata):
         """Put content to disk. Will gladly override anything standing in its way."""
-        filepath = os.path.join(self.bibdir, citekey + '.bibyaml')
+        filepath = os.path.join(self.bibdir, citekey + '.bib')
         write_file(filepath, bibdata)
         
     def push(self, citekey, metadata, bibdata):
@@ -66,17 +66,17 @@ class FileBroker(object):
         metafilepath = os.path.join(self.metadir, citekey + '.yaml')
         if check_file(metafilepath):
             os.remove(metafilepath)
-        bibfilepath = os.path.join(self.bibdir, citekey + '.bibyaml')
+        bibfilepath = os.path.join(self.bibdir, citekey + '.bib')
         if check_file(bibfilepath):
             os.remove(bibfilepath)
 
     def exists(self, citekey, both=True):
         if both:
             return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) and 
-                    check_file(os.path.join(self.bibdir, citekey + '.bibyaml'), fail=False))
+                    check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False))
         else:
             return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) or  
-                    check_file(os.path.join(self.bibdir, citekey + '.bibyaml'), fail=False))
+                    check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False))
 
 
     def listing(self, filestats=True):
@@ -92,7 +92,7 @@ class FileBroker(object):
 
         bibfiles = []
         for filename in os.listdir(self.bibdir):
-            citekey = filter_filename(filename, '.bibyaml')
+            citekey = filter_filename(filename, '.bib')
             if citekey is not None:
                 if filestats:
                     stats = os.stat(os.path.join(path, filename))
@@ -163,7 +163,7 @@ class DocBroker(object):
         
         doc_content = get_content(full_source_path)
         with open(full_target_path, 'wb') as f:
-            f.write(doc_content.read())
+            f.write(doc_content)
 
         return target_path
 
@@ -193,5 +193,7 @@ class DocBroker(object):
         if not self.in_docsdir(docpath):
             raise ValueError('cannot rename an external file ({}).'.format(docpath))
 
-        new_notepath = self.add_doc(new_citekey, docpath)
+        new_docpath = self.add_doc(new_citekey, docpath)
         self.remove_doc(docpath)
+
+        return new_docpath

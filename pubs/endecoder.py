@@ -32,13 +32,13 @@ class EnDecoder(object):
         * encode_bibdata will try to recognize exceptions
     """
 
-    decode_fmt = {'bibyaml' : pybtex.database.input.bibyaml,
-                  'bibtex'  : pybtex.database.input.bibtex,
+    decode_fmt = {'bibtex'  : pybtex.database.input.bibtex,
+                  'bibyaml' : pybtex.database.input.bibyaml,
                   'bib'     : pybtex.database.input.bibtex,
                   'bibtexml': pybtex.database.input.bibtexml}
 
-    encode_fmt = {'bibyaml' : pybtex.database.output.bibyaml,
-                  'bibtex'  : pybtex.database.output.bibtex,
+    encode_fmt = {'bibtex'  : pybtex.database.output.bibtex,
+                  'bibyaml' : pybtex.database.output.bibyaml,
                   'bib'     : pybtex.database.output.bibtex,
                   'bibtexml': pybtex.database.output.bibtexml}
 
@@ -48,7 +48,7 @@ class EnDecoder(object):
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
     
-    def encode_bibdata(self, bibdata, fmt='bibyaml'):
+    def encode_bibdata(self, bibdata, fmt='bib'):
         """Encode bibdata """
         s = StringIO.StringIO()
         EnDecoder.encode_fmt[fmt].Writer().write_stream(bibdata, s)
