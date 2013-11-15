@@ -4,6 +4,8 @@ from .. import bibstruct
 from .. import content
 from .. import repo
 from .. import paper
+from .. import templates
+
 
 def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
@@ -40,13 +42,21 @@ def command(args):
     if bibfile is None:
         cont = True
         bibstr = ''
-        while cont:
             try:
-                bibstr = content.editor_input(config().edit_cmd, bibstr, suffix='.yaml')
-                bibdata = rp.databroker.verify(bibstr)
-                bibstruct.verify_bibdata(bibdata)
-                # REFACTOR Generate citykey
-                cont = False
+                bibstr = content.editor_input(config().edit_cmd, 
+                                              templates.add_bib, 
+                                              suffix='.bib')
+                if bibstr == templates.add_bib:
+                    cont = ui.input_yn(
+                        question='Bibfile not edited. Edit again ?',
+                        default='y')
+                    if not cont:
+                        ui.exit(0)
+                else:
+                    bibdata = rp.databroker.verify(bibstr)
+                    bibstruct.verify_bibdata(bibdata)
+                    # REFACTOR Generate citykey
+                    cont = False
             except ValueError:
                 cont = ui.input_yn(
                     question='Invalid bibfile. Edit again ?',
