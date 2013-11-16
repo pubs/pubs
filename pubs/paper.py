@@ -1,17 +1,21 @@
 import copy
 import collections
+import datetime
 
 from . import bibstruct
 
-DEFAULT_META = collections.OrderedDict([('docfile', None), ('tags', set()), ('notes', [])])
-DEFAULT_META = {'docfile': None, 'tags': set(), 'notes': []}
+#DEFAULT_META = collections.OrderedDict([('docfile', None), ('tags', set()), ('added', )])
+DEFAULT_META = {'docfile': None, 'tags': set(), 'added': None}
 
 class Paper(object):
-    """ Paper class. The object is responsible for the integrity of its data
+    """ Paper class.
 
-        The object is not responsible of any disk i/o.
-        self.bibdata is a pybtex.database.BibliographyData object
+        The object is not responsible of any disk I/O.
+        self.bibdata  is a pybtex.database.BibliographyData object
         self.metadata is a dictionary
+
+        The paper class provides methods to access the fields for its metadata
+        in a pythonic manner.
     """
 
     def __init__(self, bibdata, citekey=None, metadata=None):
@@ -42,6 +46,8 @@ class Paper(object):
                      metadata=copy.deepcopy(self.metadata),
                      bibdata=copy.deepcopy(self.bibdata))
 
+        # docpath
+
     @property
     def docpath(self):
         return self.metadata.get('docfile', '')
@@ -69,3 +75,13 @@ class Paper(object):
     def remove_tag(self, tag):
         """Remove a tag from a paper if present."""
         self.tags.discard(tag)
+
+        # added date
+
+    @property
+    def added(self):
+        datetime.datetime.strptime(self.metadata['added'], '%Y-%m-%d %H:%M:%S')
+
+    @added.setter
+    def added(self, value):
+        self.metadata['added'] = value.strftime('%Y-%m-%d %H:%M:%S')

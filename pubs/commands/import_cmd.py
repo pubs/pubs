@@ -1,4 +1,5 @@
 import os
+import datetime
 
 from pybtex.database import Entry, BibliographyData, FieldDict, Person
 
@@ -58,6 +59,7 @@ def many_from_path(bibpath):
                 bibdata.entries[k] = b.entries[k]
 
                 papers[k] = Paper(bibdata, citekey=k)
+                p.added = datetime.datetime.now()
             except ValueError, e:
                 papers[k] = e
     return papers

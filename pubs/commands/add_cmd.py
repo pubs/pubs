@@ -1,3 +1,5 @@
+import datetime
+
 from ..uis import get_ui
 from ..configs import config
 from .. import bibstruct
@@ -23,6 +25,32 @@ def parser(subparsers):
     return parser
 
 
+def bibdata_from_editor(rp):
+    again = True
+    try:
+        bibstr = content.editor_input(config().edit_cmd,
+                                      templates.add_bib,
+                                      suffix='.bib')
+        if bibstr == templates.add_bib:
+            cont = ui.input_yn(
+                question='Bibfile not edited. Edit again ?',
+                default='y')
+            if not cont:
+                ui.exit(0)
+        else:
+            bibdata = rp.databroker.verify(bibstr)
+            bibstruct.verify_bibdata(bibdata)
+            # REFACTOR Generate citykey
+            cont = False
+    except ValueError:
+        again = ui.input_yn(
+            question='Invalid bibfile. Edit again ?',
+            default='y')
+        if not again:
+            ui.exit(0)
+
+    return bibdata
+
 def command(args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
@@ -37,32 +65,10 @@ def command(args):
 
     rp = repo.Repository(config())
 
-    # get bibfile 
-    
+    # get bibfile
+
     if bibfile is None:
-        cont = True
-        bibstr = ''
-            try:
-                bibstr = content.editor_input(config().edit_cmd, 
-                                              templates.add_bib, 
-                                              suffix='.bib')
-                if bibstr == templates.add_bib:
-                    cont = ui.input_yn(
-                        question='Bibfile not edited. Edit again ?',
-                        default='y')
-                    if not cont:
-                        ui.exit(0)
-                else:
-                    bibdata = rp.databroker.verify(bibstr)
-                    bibstruct.verify_bibdata(bibdata)
-                    # REFACTOR Generate citykey
-                    cont = False
-            except ValueError:
-                cont = ui.input_yn(
-                    question='Invalid bibfile. Edit again ?',
-                    default='y')
-                if not cont:
-                    ui.exit(0)
+        bibdata = bibdata_from_editor(rp)
     else:
         bibdata_raw = content.get_content(bibfile)
         bibdata = rp.databroker.verify(bibdata_raw)
@@ -82,8 +88,9 @@ def command(args):
 
     if tags is not None:
         p.tags = set(tags.split(','))
-    
+
     p = paper.Paper(bibdata, citekey=citekey)
+    p.added = datetime.datetime.now()
 
     # document file
 
