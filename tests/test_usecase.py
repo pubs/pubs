@@ -6,9 +6,11 @@ import testenv
 import fake_env
 
 from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, beets_ui, p3
+from pubs import color, content, filebroker, uis, beets_ui, p3, endecoder
 
 import str_fixtures
+import fixtures
+
 
 from pubs.commands import init_cmd, import_cmd
 
@@ -33,7 +35,7 @@ class TestFakeInput(unittest.TestCase):
             color.input()
 
     def test_editor_input(self):
-        other_input = fake_env.FakeInput(['yes', 'no'], 
+        other_input = fake_env.FakeInput(['yes', 'no'],
                                          module_list=[content, color])
         other_input.as_global()
         self.assertEqual(content.editor_input(), 'yes')
@@ -112,13 +114,13 @@ class TestAdd(DataCommandTestCase):
 
     def test_add(self):
         cmds = ['pubs init',
-                'pubs add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
 
     def test_add2(self):
         cmds = ['pubs init -p /not_default',
-                'pubs add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
         self.assertEqual(set(self.fs['os'].listdir('/not_default/doc')), {'Page99.pdf'})
@@ -129,7 +131,7 @@ class TestList(DataCommandTestCase):
     def test_list(self):
         cmds = ['pubs init -p /not_default2',
                 'pubs list',
-                'pubs add -b /data/pagerank.bib -d /data/pagerank.pdf',
+                'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 'pubs list',
                 ]
         self.execute_cmds(cmds)
@@ -177,7 +179,7 @@ class TestUsecase(DataCommandTestCase):
                   ]
 
         cmds = ['pubs init -p paper_first/',
-                'pubs add -d data/pagerank.pdf -b data/pagerank.bib',
+                'pubs add -d data/pagerank.pdf data/pagerank.bib',
                 'pubs list',
                 'pubs tag',
                 'pubs tag Page99 network+search',
@@ -189,10 +191,10 @@ class TestUsecase(DataCommandTestCase):
 
     def test_second(self):
         cmds = ['pubs init -p paper_second/',
-                'pubs add -b data/pagerank.bib',
-                'pubs add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
-                'pubs add -b data/martius.bib',
-                'pubs add -b data/10.1371%2Fjournal.pone.0038236.bib',
+                'pubs add data/pagerank.bib',
+                'pubs add -d data/turing-mind-1950.pdf data/turing1950.bib',
+                'pubs add data/martius.bib',
+                'pubs add data/10.1371%2Fjournal.pone.0038236.bib',
                 'pubs list',
                 'pubs attach Page99 data/pagerank.pdf'
                ]
@@ -200,10 +202,10 @@ class TestUsecase(DataCommandTestCase):
 
     def test_third(self):
         cmds = ['pubs init',
-                'pubs add -b data/pagerank.bib',
-                'pubs add -d data/turing-mind-1950.pdf -b data/turing1950.bib',
-                'pubs add -b data/martius.bib',
-                'pubs add -b data/10.1371%2Fjournal.pone.0038236.bib',
+                'pubs add data/pagerank.bib',
+                'pubs add -d data/turing-mind-1950.pdf data/turing1950.bib',
+                'pubs add data/martius.bib',
+                'pubs add data/10.1371%2Fjournal.pone.0038236.bib',
                 'pubs list',
                 'pubs attach Page99 data/pagerank.pdf',
                 ('pubs remove Page99', ['y']),
@@ -216,7 +218,7 @@ class TestUsecase(DataCommandTestCase):
             cmds = ['pubs init',
                     ('pubs add', ['abc', 'n']),
                     ('pubs add', ['abc', 'y', 'abc', 'n']),
-                    'pubs add -b data/pagerank.bib',
+                    'pubs add data/pagerank.bib',
                     ('pubs edit Page99', ['', 'a']),
                    ]
             self.execute_cmds(cmds)
@@ -240,7 +242,7 @@ class TestUsecase(DataCommandTestCase):
         line3 = re.sub('Page99', 'Ridge07', line2)
 
         cmds = ['pubs init',
-                'pubs add -b data/pagerank.bib',
+                'pubs add data/pagerank.bib',
                 ('pubs list', [], line),
                 ('pubs edit Page99', [bib1]),
                 ('pubs list', [], line1),
@@ -256,11 +258,12 @@ class TestUsecase(DataCommandTestCase):
         cmds = ['pubs init',
                 ('pubs add', [str_fixtures.bibtex_external0]),
                 'pubs export Page99',
-                ('pubs export Page99 -f bibtex', [], str_fixtures.bibtex_raw0),
+                ('pubs export Page99 -f bibtex', []),
                 'pubs export Page99 -f bibyaml',
                ]
 
-        self.execute_cmds(cmds)
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[3]), fixtures.page_bibdata)
 
     def test_import(self):
         cmds = ['pubs init',
@@ -282,7 +285,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_open(self):
         cmds = ['pubs init',
-                'pubs add -b data/pagerank.bib',
+                'pubs add data/pagerank.bib',
                 'pubs open Page99'
                ]
 
@@ -295,7 +298,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_update(self):
         cmds = ['pubs init',
-                'pubs add -b data/pagerank.bib',
+                'pubs add data/pagerank.bib',
                 'pubs update'
                ]
 
