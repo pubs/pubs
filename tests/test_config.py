@@ -17,7 +17,7 @@ class TestConfig(unittest.TestCase):
         a = configs.Config()
         a.as_global()
 
-        self.assertEqual(config().pubs_dir, configs.DFT_CONFIG['pubs_dir'])
+        self.assertEqual(config().pubsdir, configs.DFT_CONFIG['pubsdir'])
         self.assertEqual(config().color, configs.str2bool(configs.DFT_CONFIG['color']))
 
     def test_set(self):
