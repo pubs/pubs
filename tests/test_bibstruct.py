@@ -13,6 +13,10 @@ import fixtures
 
 class TestGenerateCitekey(unittest.TestCase):
 
+    def test_fails_on_empty_paper(self):
+        with self.assertRaises(ValueError):
+            bibstruct.generate_citekey(None)
+
     def test_escapes_chars(self):
         doe_bibdata = copy.deepcopy(fixtures.doe_bibdata)
         citekey, entry = bibstruct.get_entry(doe_bibdata)

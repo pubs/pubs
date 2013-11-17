@@ -98,7 +98,20 @@ bibtex_raw0 = """@techreport{
 
 """
 
-metadata_raw0 = """external-document: null
-notes: []
+metadata_raw0 = """docfile: null
 tags: [search, network]
+added: '2013-11-14 13:14:20'
+"""
+
+turing_bib = """@article{turing1950computing,
+  title={Computing machinery and intelligence},
+  author={Turing, Alan M},
+  journal={Mind},
+  volume={59},
+  number={236},
+  pages={433--460},
+  year={1950},
+  publisher={JSTOR}
+}
+
 """

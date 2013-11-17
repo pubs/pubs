@@ -36,21 +36,6 @@ class TestCreateCitekey(unittest.TestCase):
         with self.assertRaises(ValueError):
             paper.generate_citekey()
 
-    def test_escapes_chars(self):
-        paper = Paper()
-        paper.bibentry.persons['author'] = [
-                Person(last=u'Z ôu\\@/', first='Zde'),
-                Person(string='John Doe')]
-        key = paper.generate_citekey()
-        self.assertEqual(key, 'Zou')
-
-    def test_simple(self):
-        paper = Paper()
-        paper.bibentry.persons['author'] = [Person(string='John Doe')]
-        paper.bibentry.fields['year'] = '2001'
-        key = paper.generate_citekey()
-        self.assertEqual(key, 'Doe2001')
-
 
 class TestSaveLoad(unittest.TestCase):
 
