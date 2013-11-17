@@ -11,8 +11,8 @@ from .. import templates
 
 def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
-    parser.add_argument('-b', '--bibfile',
-                        help='bibtex, bibtexml or bibyaml file', default=None)
+    parser.add_argument('bibfile', nargs='?', default = None,
+                        help='bibtex, bibtexml or bibyaml file')
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
                         default=None)
@@ -25,7 +25,7 @@ def parser(subparsers):
     return parser
 
 
-def bibdata_from_editor(rp):
+def bibdata_from_editor(ui, rp):
     again = True
     try:
         bibstr = content.editor_input(config().edit_cmd,
@@ -68,7 +68,7 @@ def command(args):
     # get bibfile
 
     if bibfile is None:
-        bibdata = bibdata_from_editor(rp)
+        bibdata = bibdata_from_editor(ui, rp)
     else:
         bibdata_raw = content.get_content(bibfile)
         bibdata = rp.databroker.verify(bibdata_raw)
