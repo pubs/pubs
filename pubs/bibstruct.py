@@ -25,9 +25,9 @@ def verify_bibdata(bibdata):
         raise ValueError('no entries in the bibdata.')
     if len(bibdata.entries) > 1:
         raise ValueError('ambiguous: multiple entries in the bibdata.')
-    
+
 def get_entry(bibdata):
-    verify_bibdata(bibdata)        
+    verify_bibdata(bibdata)
     return bibdata.entries.iteritems().next()
 
 def extract_citekey(bibdata):
@@ -38,7 +38,7 @@ def extract_citekey(bibdata):
 def generate_citekey(bibdata):
     """ Generate a citekey from bib_data.
 
-        :param generate:  if False, return the citekey defined in the file, 
+        :param generate:  if False, return the citekey defined in the file,
                           does not generate a new one.
         :raise ValueError:  if no author nor editor is defined.
     """
@@ -46,18 +46,18 @@ def generate_citekey(bibdata):
 
     author_key = 'author' if 'author' in entry.persons else 'editor'
     try:
-        first_author = self.bibentry.persons[author_key][0]
+        first_author = entry.persons[author_key][0]
     except KeyError:
         raise ValueError(
                 'No author or editor defined: cannot generate a citekey.')
     try:
-        year = self.bibentry.fields['year']
+        year = entry.fields['year']
     except KeyError:
         year = ''
     citekey = u'{}{}'.format(u''.join(first_author.last()), year)
-    
+
     return str2citekey(citekey)
-    
+
 def extract_docfile(bibdata, remove=False):
     """ Try extracting document file from bib data.
         Returns None if not found.
