@@ -7,6 +7,8 @@ import urlparse
 import httplib
 import urllib2
 
+import uis
+
 
     # files i/o
 
@@ -35,7 +37,7 @@ def read_file(filepath):
     with open(filepath, 'r') as f:
         s = f.read()
     return s
-        
+
 def write_file(filepath, data):
     check_directory(os.path.dirname(filepath))
     with open(filepath, 'w') as f:
@@ -59,7 +61,7 @@ def url_exists(url):
     conn.close()
     return response.status == 200
 
-    
+
 def check_content(path):
     if content_type(path) == 'url':
         return url_exists(path)
@@ -69,6 +71,7 @@ def check_content(path):
 def get_content(path):
     """Will be useful when we need to get content from url"""
     if content_type(path) == 'url':
+        uis.get_ui().print_('dowloading {}'.format(path))
         response = urllib2.urlopen(path)
         return response.read()
     else:
