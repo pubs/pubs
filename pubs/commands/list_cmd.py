@@ -22,6 +22,10 @@ def parser(subparsers):
     return parser
 
 
+def date_added(np):
+    n, p = np
+    return p.metadata['added']
+
 def command(args):
     ui = get_ui()
     rp = repo.Repository(config())
@@ -30,7 +34,7 @@ def command(args):
             enumerate(rp.all_papers()))
     ui.print_('\n'.join(
         pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
-        for n, p in papers))
+        for n, p in sorted(papers, key=date_added)))
 
 
 FIELD_ALIASES = {
