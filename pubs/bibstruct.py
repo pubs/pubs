@@ -81,5 +81,7 @@ def extract_docfile(bibdata, remove=False):
             return f
         if 'attachments' in entry.fields:
             return entry.fields['attachments']
+        if 'pdf' in entry.fields:
+            return entry.fields['pdf']
     except (KeyError, IndexError):
         return None
