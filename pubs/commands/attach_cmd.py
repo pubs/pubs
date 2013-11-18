@@ -11,7 +11,7 @@ def parser(subparsers):
             help="don't copy document files (opposite of -c)")
     parser.add_argument('citekey',
             help='citekey of the paper')
-    parser.add_argument('document', 
+    parser.add_argument('document',
             help='document file')
     return parser
 
@@ -38,6 +38,7 @@ def command(args):
         else:
             pass # TODO warn if file does not exists
         paper.docpath = document
+        rp.push_paper(paper, overwrite=True, event=False)
     except ValueError, v:
         ui.error(v.message)
         ui.exit(1)
