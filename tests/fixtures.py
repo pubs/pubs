@@ -23,5 +23,6 @@ doe_bib = """
 
 franny_bibdata = coder.decode_bibdata(franny_bib)
 doe_bibdata    = coder.decode_bibdata(doe_bib)
-page_bibdata   = coder.decode_bibdata(str_fixtures.bibtex_raw0)
 turing_bibdata = coder.decode_bibdata(str_fixtures.turing_bib)
+page_bibdata   = coder.decode_bibdata(str_fixtures.bibtex_raw0)
+page_metadata  = coder.decode_metadata(str_fixtures.metadata_raw0)

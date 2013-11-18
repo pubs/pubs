@@ -28,8 +28,10 @@ class Paper(object):
         if self.metadata is None:
             self.metadata = copy.deepcopy(DEFAULT_META)
         if self.citekey is None:
-            self.citekey = bibstruct.extract_citekey(self.bibdata)                            
+            self.citekey = bibstruct.extract_citekey(self.bibdata)
             bibstruct.check_citekey(self.citekey)
+
+        self.metadata['tags'] = set(self.metadata.get('tags', []))
 
     def __eq__(self, other):
         return (isinstance(self, Paper) and type(other) is type(self)
@@ -61,7 +63,7 @@ class Paper(object):
 
     @property
     def tags(self):
-        return self.metadata.setdefault('tags', set())
+        return self.metadata['tags']
 
     @tags.setter
     def tags(self, value):

@@ -99,7 +99,7 @@ bibtex_raw0 = """@techreport{
 
 """
 
-metadata_raw0 = """docfile: null
+metadata_raw0 = """docfile: docsdir://Page99.pdf
 tags: [search, network]
 added: '2013-11-14 13:14:20'
 """
