@@ -27,27 +27,29 @@ def parser(subparsers):
 
 def bibdata_from_editor(ui, rp):
     again = True
-    try:
-        bibstr = content.editor_input(config().edit_cmd,
-                                      templates.add_bib,
-                                      suffix='.bib')
-        if bibstr == templates.add_bib:
-            cont = ui.input_yn(
-                question='Bibfile not edited. Edit again ?',
+    bibstr = templates.add_bib
+    while again:
+        try:
+            bibstr = content.editor_input(config().edit_cmd,
+                                          bibstr,
+                                          suffix='.bib')
+            if bibstr == templates.add_bib:
+                again = ui.input_yn(
+                    question='Bibfile not edited. Edit again ?',
+                    default='y')
+                if not again:
+                    ui.exit(0)
+            else:
+                bibdata = rp.databroker.verify(bibstr)
+                bibstruct.verify_bibdata(bibdata)
+                # REFACTOR Generate citykey
+                again = False
+        except ValueError:
+            again = ui.input_yn(
+                question='Invalid bibfile. Edit again ?',
                 default='y')
-            if not cont:
+            if not again:
                 ui.exit(0)
-        else:
-            bibdata = rp.databroker.verify(bibstr)
-            bibstruct.verify_bibdata(bibdata)
-            # REFACTOR Generate citykey
-            cont = False
-    except ValueError:
-        again = ui.input_yn(
-            question='Invalid bibfile. Edit again ?',
-            default='y')
-        if not again:
-            ui.exit(0)
 
     return bibdata
 
