@@ -20,6 +20,7 @@ error    = red
 normal   = grey
 citekey  = purple
 filepath = cyan
+tag      = blue
 
 def dye(s, color=end, bold=False):
     assert color[0] == '\033'

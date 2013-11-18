@@ -61,5 +61,5 @@ def paper_oneliner(p, n = 0, citekey_only = False):
             citekey=color.dye(p.citekey, color.purple),
             descr=bibdesc,
             tags=color.dye(' '.join(p.tags),
-                           color.purple, bold=True),
+                           color.tag, bold=False),
             )).encode('utf-8')

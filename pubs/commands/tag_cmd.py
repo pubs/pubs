@@ -17,25 +17,33 @@ The different use cases are :
     display all papers with the tag 'math', 'romance' but not 'war'
 """
 
+import re
+
 from ..repo import Repository, InvalidReference
 from ..configs import config
 from ..uis import get_ui
 from .. import pretty
+from .. import color
 
 def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('citekeyOrTag', nargs='?', default = None,
                         help='citekey or tag.')
-    parser.add_argument('tags', nargs='?', default = None,
+    parser.add_argument('tags', nargs='*', default = None,
                         help='If the previous argument was a citekey, then '
                              'then a list of tags separated by a +.')
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
 
+def _parse_tags(list_tags):
+    """Transform 'math-ai network -search' in ['+math', '-ai', '+network', '-search']"""
+    tags = []
+    for s in list_tags:
+        tags += _parse_tag_seq(s)
+    return tags
 
-import re
-def _parse_tags(s):
+def _parse_tag_seq(s):
     """Transform 'math-ai' in ['+math', '-ai']"""
     tags = []
     if s[0] not in ['+', '-']:
@@ -76,12 +84,14 @@ def command(args):
 
     if citekeyOrTag is None:
         for tag in rp.get_tags():
-            ui.print_(tag)
+            ui.print_(color.dye(' '.join(rp.get_tags()),
+                      color=color.blue))
     else:
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)
-            if tags is None:
-                ui.print_(' '.join(p.tags))
+            if tags == []:
+                ui.print_(color.dye(' '.join(p.tags),
+                          color=color.blue))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tags(tags))
                 for tag in add_tags:
@@ -91,7 +101,9 @@ def command(args):
                 rp.push_paper(p, overwrite=True)
         else:
             # case where we want to find papers with specific tags
-            included, excluded = _tag_groups(_parse_tags(citekeyOrTag))
+            all_tags = [citekeyOrTag]
+            all_tags += tags
+            included, excluded = _tag_groups(_parse_tags(all_tags))
             papers_list = []
             for n, p in enumerate(rp.all_papers()):
                 if (p.tags.issuperset(included) and
