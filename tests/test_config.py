@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import testenv
+import dotdot
 from pubs import configs
 from pubs.configs import config
 from pubs.p3 import configparser
@@ -67,3 +67,7 @@ class TestConfig(unittest.TestCase):
     def test_keywords(self):
         a = configs.Config(pubs_dir = '/blabla')
         self.assertEqual(a.pubs_dir, '/blabla')
+
+
+if __name__ == '__main__':
+    unittest.main()

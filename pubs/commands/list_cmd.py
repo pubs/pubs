@@ -1,8 +1,8 @@
 from .. import repo
 from .. import pretty
+from .. import bibstruct
 from ..configs import config
 from ..uis import get_ui
-
 
 class InvalidQuery(ValueError):
     pass
@@ -56,20 +56,15 @@ def _get_field_value(query_block):
     return (field, value)
 
 
-def _lower(string, lower=True):
-    if lower:
-        return string.lower()
-    else:
-        return string
-
+def _lower(s, lower=True):
+    return s.lower() if lower else s
 
 def _check_author_match(paper, query, case_sensitive=False):
     """Only checks within last names."""
-    if not 'author' in paper.bibentry.persons:
+    if not 'author' in paper.bibentry:
         return False
-    return any([query in _lower(name, lower=(not case_sensitive))
-                for p in paper.bibentry.persons['author']
-                for name in p.last()])
+    return any([query == _lower(bibstruct.author_last(p), lower=(not case_sensitive))
+                for p in paper.bibentry['author']])
 
 
 def _check_tag_match(paper, query, case_sensitive=False):
@@ -78,7 +73,7 @@ def _check_tag_match(paper, query, case_sensitive=False):
 
 
 def _check_field_match(paper, field, query, case_sensitive=False):
-    return query in _lower(paper.bibentry.fields[field],
+    return query in _lower(paper.bibentry[field],
                        lower=(not case_sensitive))
 
 
@@ -92,7 +87,7 @@ def _check_query_block(paper, query_block, case_sensitive=None):
         return _check_tag_match(paper, value, case_sensitive=case_sensitive)
     elif field == 'author':
         return _check_author_match(paper, value, case_sensitive=case_sensitive)
-    elif field in paper.bibentry.fields:
+    elif field in paper.bibentry:
         return _check_field_match(paper, field, value,
                                   case_sensitive=case_sensitive)
     else:

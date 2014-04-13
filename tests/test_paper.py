@@ -2,7 +2,7 @@
 import os
 import unittest
 
-import testenv
+import dotdot
 import fixtures
 from pubs.paper import Paper
 
@@ -41,3 +41,7 @@ class TestAttributes(unittest.TestCase):
         p.remove_tag('ranking')
         self.assertEqual(p.tags, set())
         p.remove_tag('ranking')
+
+
+if __name__ == '__main__':
+    unittest.main()

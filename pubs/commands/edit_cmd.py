@@ -15,6 +15,24 @@ def parser(subparsers):
     return parser
 
 
+def edit_meta(citekey):
+    rp = repo.Repository(config())
+    coder = endecoder.EnDecoder()
+    filepath = os.path.join(rp.databroker.databroker.filebroker.metadir(), citekey+'.yaml')
+    with open(filepath) as f:
+        content = f.read()
+
+
+
+def edit_bib(citekey):
+    rp = repo.Repository(config())
+    coder = endecoder.EnDecoder()
+    filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bib')
+    with open(filepath) as f:
+        content = f.read()
+
+
+
 def command(args):
 
     ui = get_ui()
@@ -26,8 +44,7 @@ def command(args):
     if meta:
         filepath = os.path.join(rp.databroker.databroker.filebroker.metadir(), citekey+'.yaml')
     else:
-        filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bibyaml')
-
+        filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bib')
 
     with open(filepath) as f:
         content = f.read()

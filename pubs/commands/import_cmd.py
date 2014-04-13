@@ -1,8 +1,6 @@
 import os
 import datetime
 
-from pybtex.database import Entry, BibliographyData, FieldDict, Person
-
 from .. import repo
 from .. import endecoder
 from .. import bibstruct
@@ -41,8 +39,9 @@ def many_from_path(bibpath):
 
     bibpath = os.path.expanduser(bibpath)
     if os.path.isdir(bibpath):
+        print([os.path.splitext(f)[-1][1:] for f in os.listdir(bibpath)])
         all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
-                     if os.path.splitext(f)[-1][1:] in list(coder.decode_fmt.keys())]
+                     if os.path.splitext(f)[-1][1:] == 'bib']
     else:
         all_files = [bibpath]
 
@@ -53,10 +52,10 @@ def many_from_path(bibpath):
 
     papers = {}
     for b in biblist:
-        for k in b.entries:
+        for k in b.keys():
             try:
-                bibdata = BibliographyData()
-                bibdata.entries[k] = b.entries[k]
+                bibdata = {}
+                bibdata[k] = b[k]
 
                 papers[k] = Paper(bibdata, citekey=k)
                 papers[k].added = datetime.datetime.now()
@@ -94,7 +93,7 @@ def command(args):
                     if copy_doc is None:
                         copy_doc = config().import_copy
                     if copy_doc:
-                        docfile = rp.databroker.copy_doc(p.citekey, docfile)
+                        docfile = rp.databroker.add_doc(p.citekey, docfile)
 
                     p.docpath = docfile
                 rp.push_paper(p)

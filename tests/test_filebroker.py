@@ -2,7 +2,7 @@
 import unittest
 import os
 
-import testenv
+import dotdot
 import fake_env
 
 from pubs import content, filebroker
@@ -35,10 +35,10 @@ class TestFileBroker(TestFakeFs):
 
     def test_existing_data(self):
 
-        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'tmpdir'), 'tmpdir')    
+        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'tmpdir'), 'tmpdir')
         fb = filebroker.FileBroker('tmpdir', create = True)
 
-        with open('tmpdir/bib/Page99.bibyaml', 'r') as f:
+        with open('tmpdir/bib/Page99.bib', 'r') as f:
             self.assertEqual(fb.pull_bibfile('Page99'), f.read())
 
         with open('tmpdir/meta/Page99.yaml', 'r') as f:
@@ -93,12 +93,12 @@ class TestDocBroker(TestFakeFs):
 
     def test_doccopy(self):
 
-        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data') 
+        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
 
         fb = filebroker.FileBroker('tmpdir', create = True)
         docb = filebroker.DocBroker('tmpdir')
 
-        docpath = docb.copy_doc('Page99', 'data/pagerank.pdf')
+        docpath = docb.add_doc('Page99', 'data/pagerank.pdf')
         self.assertTrue(content.check_file(os.path.join('tmpdir', 'doc/Page99.pdf')))
 
         self.assertTrue(docb.in_docsdir(docpath))
@@ -108,3 +108,7 @@ class TestDocBroker(TestFakeFs):
         self.assertFalse(content.check_file(os.path.join('tmpdir', 'doc/Page99.pdf'), fail=False))
         with self.assertRaises(IOError):
             self.assertFalse(content.check_file(os.path.join('tmpdir', 'doc/Page99.pdf'), fail=True))
+
+
+if __name__ == '__main__':
+    unittest.main()

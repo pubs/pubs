@@ -1,1 +1,2 @@
 --ignore-directory=is:build
+--ignore-directory=is:pubs.egg-info

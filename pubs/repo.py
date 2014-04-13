@@ -2,10 +2,8 @@ import shutil
 import glob
 import itertools
 
-from pybtex.database import BibliographyData
-
 from . import bibstruct
-from . import events 
+from . import events
 from . import datacache
 from .paper import Paper
 
@@ -70,7 +68,7 @@ class Repository(object):
             raise IOError('files using the {} citekey already exists'.format(paper.citekey))
         if (not overwrite) and self.citekeys is not None and paper.citekey in self.citekeys:
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
-        
+
         self.databroker.push_bibdata(paper.citekey, paper.bibdata)
         self.databroker.push_metadata(paper.citekey, paper.metadata)
         self.citekeys.add(paper.citekey)
@@ -79,7 +77,7 @@ class Repository(object):
 
     def remove_paper(self, citekey, remove_doc=True, event=True):
         """ Remove a paper. Is silent if nothing needs to be done."""
-        
+
         if event:
             events.RemoveEvent(citekey).send()
         if remove_doc:
@@ -89,7 +87,7 @@ class Repository(object):
                 self.databroker.remove_doc(docpath, silent=True)
                 self.databroker.remove_note(citekey, silent=True)
             except IOError:
-                pass # FXME: if IOError is about being unable to 
+                pass # FXME: if IOError is about being unable to
                      # remove the file, we need to issue an error.I
 
         self.citekeys.remove(citekey)
@@ -103,11 +101,10 @@ class Repository(object):
         else:
             # check if new_citekey does not exists
             if self.databroker.exists(new_citekey, both=False):
-                raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))                
+                raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))
 
-            # modify bibdata (__delitem__ not implementd by pybtex)
-            new_bibdata = BibliographyData()
-            new_bibdata.entries[new_citekey] = paper.bibdata.entries[old_citekey]
+            new_bibdata = {}
+            new_bibdata[new_citekey] = paper.bibdata[old_citekey]
             paper.bibdata = new_bibdata
 
             # move doc file if necessary

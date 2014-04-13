@@ -1,23 +1,19 @@
 # display formatting
 
 from . import color
-from pybtex.bibtex.utils import bibtex_purify
 
 
-# A bug in pybtex makes the abbreviation wrong here
-# (Submitted with racker ID: ID: 3605659)
-# The purification should also be applied to names but unfortunately
-# it removes dots which is annoying on abbreviations.
+# should be adaptated to bibtexparser dicts
 def person_repr(p):
+    raise NotImplementedError
     return ' '.join(s for s in [
         ' '.join(p.first(abbr=True)),
         ' '.join(p.last(abbr=False)),
         ' '.join(p.lineage(abbr=True))] if s)
 
-
 def short_authors(bibentry):
     try:
-        authors = [person_repr(p) for p in bibentry.persons['author']]
+        authors = [p for p in bibentry['author']]
         if len(authors) < 3:
             return ', '.join(authors)
         else:
@@ -28,27 +24,26 @@ def short_authors(bibentry):
 
 def bib_oneliner(bibentry):
     authors = short_authors(bibentry)
-    title = bibtex_purify(bibentry.fields['title'])
-    year = bibtex_purify(bibentry.fields.get('year', ''))
-    journal = ''
-    field = 'journal'
-    if bibentry.type == 'inproceedings':
-        field = 'booktitle'
-    journal = bibtex_purify(bibentry.fields.get(field, ''))
+    journal, journal_field = '', 'journal'
+    if 'journal' in bibentry:
+        journal = bibentry['journal']['name']
+    elif bibentry['type'] == 'inproceedings':
+        journal = bibentry.get('booktitle', '')
+
     return u'{authors} \"{title}\" {journal} ({year})'.format(
             authors=color.dye(authors, color.cyan),
-            title=title,
+            title=bibentry['title'],
             journal=color.dye(journal, color.yellow),
-            year=year,
+            year=bibentry['year'],
             )
 
 
 def bib_desc(bib_data):
-    article = bib_data.entries[list(bib_data.entries.keys())[0]]
-    s = '\n'.join('author: {}'.format(person_repr(p))
-            for p in article.persons['author'])
+    article = bib_data[list(bib_data.keys())[0]]
+    s = '\n'.join('author: {}'.format(p)
+            for p in article['author'])
     s += '\n'
-    s += '\n'.join('{}: {}'.format(k, v) for k, v in article.fields.items())
+    s += '\n'.join('{}: {}'.format(k, v) for k, v in article.items())
     return s
 
 

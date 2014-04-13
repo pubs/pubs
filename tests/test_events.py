@@ -1,6 +1,6 @@
-from unittest import TestCase
+import unittest
 
-import testenv
+import dotdot
 from pubs.events import Event
 
 
@@ -62,7 +62,7 @@ def test_info_instance(infoevent):
         _output.append(infoevent.specific)
 
 
-class TestEvents(TestCase):
+class TestEvents(unittest.TestCase):
 
     def setUp(self):
         global _output
@@ -88,3 +88,7 @@ class TestEvents(TestCase):
         SpecificInfo('info', 'specific').send()
         correct = ['info', 'info', 'specific']
         self.assertEquals(_output, correct)
+
+
+if __name__ == '__main__':
+    unittest.main()

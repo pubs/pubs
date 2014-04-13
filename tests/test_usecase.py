@@ -2,7 +2,7 @@ import unittest
 import re
 import os
 
-import testenv
+import dotdot
 import fake_env
 
 from pubs import pubs_cmd
@@ -19,7 +19,6 @@ from pubs.commands import init_cmd, import_cmd
 class TestFakeInput(unittest.TestCase):
 
     def test_input(self):
-
         input = fake_env.FakeInput(['yes', 'no'])
         self.assertEqual(input(), 'yes')
         self.assertEqual(input(), 'no')
@@ -50,7 +49,7 @@ class CommandTestCase(unittest.TestCase):
     def setUp(self):
         self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd, import_cmd])
 
-    def execute_cmds(self, cmds, fs=None):
+    def execute_cmds(self, cmds, fs=None, capture_output=True):
         """ Execute a list of commands, and capture their output
 
         A command can be a string, or a tuple of size 2 or 3.
@@ -67,18 +66,25 @@ class CommandTestCase(unittest.TestCase):
                     input = fake_env.FakeInput(cmd[1], [content, uis, beets_ui, p3])
                     input.as_global()
 
-                _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd[0].split())
-                if len(cmd) == 3:
-                    actual_out  = color.undye(stdout.getvalue())
-                    correct_out = color.undye(cmd[2])
-                    self.assertEqual(actual_out, correct_out)
+                if capture_output:
+                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd[0].split())
+                    if len(cmd) == 3 and capture_output:
+                        actual_out  = color.undye(stdout.getvalue())
+                        correct_out = color.undye(cmd[2])
+                        self.assertEqual(actual_out, correct_out)
+                else:
+                    pubs_cmd.execute(cmd.split())
 
             else:
-                assert type(cmd) == str
-                _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd.split())
+                if capture_output:
+                    assert isinstance(cmd, str)
+                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd.split())
+                else:
+                    pubs_cmd.execute(cmd.split())
 
-            assert(stderr.getvalue() == '')
-            outs.append(color.undye(stdout.getvalue()))
+            if capture_output:
+                assert(stderr.getvalue() == '')
+                outs.append(color.undye(stdout.getvalue()))
         return outs
 
     def tearDown(self):
@@ -171,11 +177,11 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing pubs in /paper_first.\n',
                    '',
-                   '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) \n',
                    '',
                    '',
                    'search network\n',
-                   '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) search network\n'
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) search network\n'
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -236,7 +242,7 @@ class TestUsecase(DataCommandTestCase):
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
-        line = '[Page99] L. Page et al. "The PageRank Citation Ranking Bringing Order to the Web"  (1999) \n'
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) \n'
         line1 = re.sub('1999', '2007', line)
         line2 = re.sub('L. Page', 'L. Ridge', line1)
         line3 = re.sub('Page99', 'Ridge07', line2)
@@ -258,12 +264,10 @@ class TestUsecase(DataCommandTestCase):
         cmds = ['pubs init',
                 ('pubs add', [str_fixtures.bibtex_external0]),
                 'pubs export Page99',
-                ('pubs export Page99 -f bibtex', []),
-                'pubs export Page99 -f bibyaml',
                ]
 
         outs = self.execute_cmds(cmds)
-        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[3]), fixtures.page_bibdata)
+        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]), fixtures.page_bibdata)
 
     def test_import(self):
         cmds = ['pubs init',
@@ -304,3 +308,7 @@ class TestUsecase(DataCommandTestCase):
 
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
+
+
+if __name__ == '__main__':
+    unittest.main()

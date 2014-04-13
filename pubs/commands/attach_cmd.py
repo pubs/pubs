@@ -34,7 +34,7 @@ def command(args):
     try:
         document = args.document
         if copy:
-            document = rp.databroker.copy_doc(paper.citekey, document)
+            document = rp.databroker.add_doc(paper.citekey, document)
         else:
             pass # TODO warn if file does not exists
         paper.docpath = document

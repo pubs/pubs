@@ -11,7 +11,7 @@ class Paper(object):
     """ Paper class.
 
         The object is not responsible of any disk I/O.
-        self.bibdata  is a pybtex.database.BibliographyData object
+        self.bibdata  is a dictionary of bibligraphic fields
         self.metadata is a dictionary
 
         The paper class provides methods to access the fields for its metadata
@@ -43,10 +43,18 @@ class Paper(object):
         return 'Paper(%s, %s, %s)' % (
                 self.citekey, self.bibentry, self.metadata)
 
-    def deepcopy(self):
+    def __deepcopy__(self, memo):
         return Paper(citekey =self.citekey,
-                     metadata=copy.deepcopy(self.metadata),
-                     bibdata=copy.deepcopy(self.bibdata))
+                     metadata=copy.deepcopy(self.metadata, memo),
+                     bibdata=copy.deepcopy(self.bibdata, memo))
+
+    def __copy__(self):
+        return Paper(citekey =self.citekey,
+                     metadata=self.metadata,
+                     bibdata=self.bibdata)
+
+    def deepcopy(self):
+        return self.__deepcopy__({})
 
         # docpath
 

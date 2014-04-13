@@ -6,7 +6,7 @@ import unittest
 import pkgutil
 import re
 
-import testenv
+import dotdot
 import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob

@@ -4,7 +4,7 @@ from . import databroker
 class DataCache(object):
     """ DataCache class, provides a very similar interface as DataBroker
 
-        Has two roles : 
+        Has two roles :
         1. Provides a buffer between the commands and the hard drive.
            Until a command request a hard drive ressource, it does not touch it.
         2. Keeps a up-to-date, pickled version of the repository, to speed up things
@@ -12,7 +12,7 @@ class DataCache(object):
            Changes are detected using data modification timestamps.
 
         For the moment, only (1) is implemented.
-    """ 
+    """
     def __init__(self, directory, create=False):
         self.directory = directory
         self._databroker = None
@@ -30,16 +30,16 @@ class DataCache(object):
 
     def pull_metadata(self, citekey):
         return self.databroker.pull_metadata(citekey)
-        
+
     def pull_bibdata(self, citekey):
         return self.databroker.pull_bibdata(citekey)
-        
+
     def push_metadata(self, citekey, metadata):
         self.databroker.push_metadata(citekey, metadata)
-    
+
     def push_bibdata(self, citekey, bibdata):
         self.databroker.push_bibdata(citekey, bibdata)
-        
+
     def push(self, citekey, metadata, bibdata):
         self.databroker.push(citekey, metadata, bibdata)
 
@@ -59,23 +59,23 @@ class DataCache(object):
     def verify(self, bibdata_raw):
         """Will return None if bibdata_raw can't be decoded"""
         return self.databroker.verify(bibdata_raw)
-    
+
     # docbroker
 
     def in_docsdir(self, docpath):
         return self.databroker.in_docsdir(docpath)
 
     def real_docpath(self, docpath):
-        return self.databroker.real_docpath(docpath)      
+        return self.databroker.real_docpath(docpath)
 
-    def copy_doc(self, citekey, source_path, overwrite=False):
+    def add_doc(self, citekey, source_path, overwrite=False):
         return self.databroker.add_doc(citekey, source_path, overwrite=overwrite)
 
     def remove_doc(self, docpath, silent=True):
         return self.databroker.remove_doc(docpath, silent=silent)
 
     def rename_doc(self, docpath, new_citekey):
-        return self.databroker.rename_doc(docpath, new_citekey)  
+        return self.databroker.rename_doc(docpath, new_citekey)
 
     # notesbroker
 
@@ -94,7 +94,7 @@ class DataCache(object):
 #     def __init__(self, cache, directory):
 #         self.cache = cache
 #         self.directory = directory
-    
+
 #     def changes(self):
 #         """ Returns the list of modified files since the last cache was saved to disk"""
 #         pass

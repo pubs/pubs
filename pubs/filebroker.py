@@ -22,7 +22,7 @@ class FileBroker(object):
     """
 
     def __init__(self, directory, create=False):
-        self.directory = directory        
+        self.directory = directory
         self.metadir = os.path.join(self.directory, 'meta')
         self.bibdir  = os.path.join(self.directory, 'bib')
         if create:
@@ -30,7 +30,7 @@ class FileBroker(object):
         check_directory(self.directory)
         check_directory(self.metadir)
         check_directory(self.bibdir)
-                
+
     def _create(self):
         if not check_directory(self.directory, fail = False):
             os.mkdir(self.directory)
@@ -38,7 +38,7 @@ class FileBroker(object):
             os.mkdir(self.metadir)
         if not check_directory(self.bibdir, fail = False):
             os.mkdir(self.bibdir)
-    
+
     def pull_metafile(self, citekey):
         filepath = os.path.join(self.metadir, citekey + '.yaml')
         return read_file(filepath)
@@ -46,17 +46,17 @@ class FileBroker(object):
     def pull_bibfile(self, citekey):
         filepath = os.path.join(self.bibdir, citekey + '.bib')
         return read_file(filepath)
-        
+
     def push_metafile(self, citekey, metadata):
         """Put content to disk. Will gladly override anything standing in its way."""
         filepath = os.path.join(self.metadir, citekey + '.yaml')
         write_file(filepath, metadata)
-    
+
     def push_bibfile(self, citekey, bibdata):
         """Put content to disk. Will gladly override anything standing in its way."""
         filepath = os.path.join(self.bibdir, citekey + '.bib')
         write_file(filepath, bibdata)
-        
+
     def push(self, citekey, metadata, bibdata):
         """Put content to disk. Will gladly override anything standing in its way."""
         self.push_metafile(citekey, metadata)
@@ -72,10 +72,10 @@ class FileBroker(object):
 
     def exists(self, citekey, both=True):
         if both:
-            return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) and 
+            return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) and
                     check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False))
         else:
-            return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) or  
+            return (check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False) or
                     check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False))
 
 
@@ -131,9 +131,9 @@ class DocBroker(object):
     #     return check_file(os.path.join(self.docdir, citekey + ext), fail=False)
 
     def real_docpath(self, docpath):
-        """Return the full path
+        """ Return the full path
             Essentially transform pubsdir://doc/{citekey}.{ext} to /path/to/pubsdir/doc/{citekey}.{ext}.
-            Return absoluted paths of regular ones otherwise. 
+            Return absoluted paths of regular ones otherwise.
         """
         if self.in_docsdir(docpath):
             parsed = urlparse.urlparse(docpath)
@@ -160,7 +160,7 @@ class DocBroker(object):
         full_target_path = self.real_docpath(target_path)
         if not overwrite and check_file(full_target_path, fail=False):
             raise IOError('{} file exists.'.format(full_target_path))
-        
+
         doc_content = get_content(full_source_path)
         with open(full_target_path, 'wb') as f:
             f.write(doc_content)
@@ -169,7 +169,7 @@ class DocBroker(object):
 
     def remove_doc(self, docpath, silent=True):
         """ Will remove only file hosted in docsdir://
-            
+
             :raise ValueError: for other paths, unless :param silent: is True
         """
         if not self.in_docsdir(docpath):
