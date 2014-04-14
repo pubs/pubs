@@ -1,50 +1,36 @@
-from pybtex.database import Person
+# -*- coding: utf-8 -*-
 
-from papers.paper import Paper, get_bibentry_from_string
+import dotdot
+from pubs import endecoder
+import str_fixtures
 
-turing1950 = Paper()
-turing1950.bibentry.fields['title'] = u'Computing machinery and intelligence.'
-turing1950.bibentry.fields['year'] = u'1950'
-turing1950.bibentry.persons['author'] = [Person(u'Alan Turing')]
-turing1950.citekey = turing1950.generate_citekey()
-turing1950.tags = ['computer', 'AI']
+coder = endecoder.EnDecoder()
 
-
-doe2013 = Paper()
-doe2013.bibentry.fields['title'] = u'Nice title.'
-doe2013.bibentry.fields['year'] = u'2013'
-doe2013.bibentry.persons['author'] = [Person(u'John Doe')]
-doe2013.citekey = doe2013.generate_citekey()
-
-
-pagerankbib = """
-@techreport{Page99,
-     number = {1999-66},
-      month = {November},
-     author = {Lawrence Page and Sergey Brin and Rajeev Motwani and Terry Winograd},
-       note = {Previous number = SIDL-WP-1999-0120},
-      title = {The PageRank Citation Ranking: Bringing Order to the Web.},
-       type = {Technical Report},
-  publisher = {Stanford InfoLab},
-       year = {1999},
-institution = {Stanford InfoLab},
-        url = {http://ilpubs.stanford.edu:8090/422/},
-}
+franny_bib = """@article{Franny1961,
+    author = "Salinger, J. D.",
+    title = "Franny and Zooey",
+    year = "1961"}
 """
 
-page99 = Paper(bibentry=get_bibentry_from_string(pagerankbib)[1])
-
-pagerankbib_generated = """@techreport{
-    Page99,
-    author = "Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry",
-    publisher = "Stanford InfoLab",
-    title = "The PageRank Citation Ranking: Bringing Order to the Web.",
-    url = "http://ilpubs.stanford.edu:8090/422/",
-    number = "1999-66",
-    month = "November",
-    note = "Previous number = SIDL-WP-1999-0120",
-    year = "1999",
-    institution = "Stanford InfoLab"
-}
-
+doe_bib = """
+@article{Doe2013,
+    author = "Doe, John",
+    title = "Nice Title",
+    year = "2013"}
 """
+
+franny_bibdata  = coder.decode_bibdata(franny_bib)
+franny_bibentry = franny_bibdata['Franny1961']
+
+doe_bibdata     = coder.decode_bibdata(doe_bib)
+doe_bibentry    = doe_bibdata['Doe2013']
+
+turing_bibdata  = coder.decode_bibdata(str_fixtures.turing_bib)
+turing_bibentry = turing_bibdata['turing1950computing']
+turing_metadata = coder.decode_metadata(str_fixtures.turing_meta)
+
+page_bibdata    = coder.decode_bibdata(str_fixtures.bibtex_raw0)
+page_bibentry   = page_bibdata['Page99']
+page_metadata   = coder.decode_metadata(str_fixtures.metadata_raw0)
+
+page_metadata   = coder.decode_metadata(str_fixtures.metadata_raw0)

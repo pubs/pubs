@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import testenv
-from papers import configs
-from papers.configs import config
-from papers.p3 import configparser
+import dotdot
+from pubs import configs
+from pubs.configs import config
+from pubs.p3 import configparser
 
 class TestConfig(unittest.TestCase):
 
@@ -17,7 +17,7 @@ class TestConfig(unittest.TestCase):
         a = configs.Config()
         a.as_global()
 
-        self.assertEqual(config().papers_dir, configs.DFT_CONFIG['papers_dir'])
+        self.assertEqual(config().pubsdir, configs.DFT_CONFIG['pubsdir'])
         self.assertEqual(config().color, configs.str2bool(configs.DFT_CONFIG['color']))
 
     def test_set(self):
@@ -25,11 +25,11 @@ class TestConfig(unittest.TestCase):
         a.as_global()
         config().color = 'no'
         self.assertEqual(config().color, False)
-        self.assertEqual(config('papers').color, False)
+        self.assertEqual(config('pubs').color, False)
         # booleans type for new variables are memorized, but not saved.
         config().bla = True
         self.assertEqual(config().bla, True)
-        self.assertEqual(config('papers').bla, True)
+        self.assertEqual(config('pubs').bla, True)
 
         with self.assertRaises(configparser.NoOptionError):
             config()._cfg.get(configs.MAIN_SECTION, '_section')
@@ -65,5 +65,9 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config(section = 'bla3').get('color', default = config().color), True)
 
     def test_keywords(self):
-        a = configs.Config(papers_dir = '/blabla')
-        self.assertEqual(a.papers_dir, '/blabla')
+        a = configs.Config(pubs_dir = '/blabla')
+        self.assertEqual(a.pubs_dir, '/blabla')
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,5 +1,5 @@
-import testenv
-from papers import color
+import dotdot
+from pubs import color
 
 def perf_color():
     s = str(range(1000))

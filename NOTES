@@ -14,13 +14,12 @@ A paper correspond to 3 files :
 
 About strings:
 --------------
-- pybtex seems to store entries as utf-8 (TODO: check)
 - so assumption is made that everything is utf-8
 - conversions are performed at print time
 
 Config values:
 --------------
-[papers]
+[pubs]
 open-cmd = open
 edit-cmd = edit
 import-copy = True

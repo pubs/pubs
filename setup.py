@@ -2,16 +2,16 @@
 
 from setuptools import setup, find_packages
 
-setup(name='papers',
-      version='3',
+setup(name='pubs',
+      version='4',
       author='Fabien Benureau, Olivier Mangin, Jonathan Grizou',
       author_email='fabien.benureau+inria@gmail.com',
       url='',
       description='research papers manager',
-      requires=['pybtex'],
+      requires=['bibtexparser'],
       packages=find_packages(),
       package_data={'': ['*.tex', '*.sty']},
-      scripts=['papers/papers']
+      scripts=['pubs/pubs']
       )
 
 # TODO include proper package data from plugins (08/06/2013)
