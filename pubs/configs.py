@@ -20,7 +20,7 @@ DFT_CONFIG = collections.OrderedDict([
               ('import_copy',     True),
               ('import_move',     False),
               ('color',           True),
-              ('version',         4),
+              ('version',         5),
               ('version_warning', True),
               ('open_cmd',       'open'),
               ('edit_cmd',        DFT_EDIT_CMD),
