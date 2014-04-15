@@ -1,11 +1,10 @@
-import shutil
-import glob
 import itertools
 
 from . import bibstruct
 from . import events
 from . import datacache
 from .paper import Paper
+
 
 def _base27(n):
     return _base27((n - 1) // 26) + chr(ord('a') + ((n - 1) % 26)) if n else ''
@@ -65,9 +64,8 @@ class Repository(object):
                                if True, mimick the behavior of updating a paper
         """
         bibstruct.check_citekey(paper.citekey)
-        if (not overwrite) and self.databroker.exists(paper.citekey, both = False):
-            raise IOError('files using the {} citekey already exists'.format(paper.citekey))
-        if (not overwrite) and self.citekeys is not None and paper.citekey in self.citekeys:
+        if (not overwrite) and (self.databroker.exists(paper.citekey, both=False)
+                                or (citekey in self)):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
 
         self.databroker.push_bibdata(paper.citekey, paper.bibdata)
@@ -138,4 +136,3 @@ class Repository(object):
         for p in self.all_papers():
             tags = tags.union(p.tags)
         return tags
-
