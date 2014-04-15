@@ -10,15 +10,6 @@ from pubs import content, filebroker, databroker, datacache
 import str_fixtures
 from pubs import endecoder
 
-class TestFakeFs(unittest.TestCase):
-    """Abstract TestCase intializing the fake filesystem."""
-
-    def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker])
-
-    def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker])
-
 
 class TestDataBroker(unittest.TestCase):
 

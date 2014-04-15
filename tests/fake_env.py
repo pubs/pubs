@@ -3,16 +3,14 @@ import os
 import shutil
 import glob
 import unittest
-import pkgutil
-import re
 
 import dotdot
 import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob
 
-from pubs import color
 from pubs.p3 import io, input
+from pubs import content, filebroker
 
     # code for fake fs
 
@@ -48,12 +46,7 @@ def create_fake_fs(module_list):
 
     fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
 
-    try:
-        __builtins__.open = fake_open
-        __builtins__.file = fake_open
-    except AttributeError:
-        __builtins__['open'] = fake_open
-        __builtins__['file'] = fake_open
+    __builtins__.update({'open': fake_open, 'file': fake_open})
 
     sys.modules['os']     = fake_os
     sys.modules['shutil'] = fake_shutil
@@ -160,3 +153,12 @@ class FakeInput():
         self._cursor += 1
         return inp
 
+
+class TestFakeFs(unittest.TestCase):
+    """Abstract TestCase intializing the fake filesystem."""
+
+    def setUp(self):
+        self.fs = create_fake_fs([content, filebroker])
+
+    def tearDown(self):
+        unset_fake_fs([content, filebroker])

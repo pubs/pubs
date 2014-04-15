@@ -7,17 +7,8 @@ import fake_env
 
 from pubs import content, filebroker
 
-class TestFakeFs(unittest.TestCase):
-    """Abstract TestCase intializing the fake filesystem."""
 
-    def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker])
-
-    def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker])
-
-
-class TestFileBroker(TestFakeFs):
+class TestFileBroker(fake_env.TestFakeFs):
 
     def test_pushpull1(self):
 
@@ -89,7 +80,7 @@ class TestFileBroker(TestFakeFs):
         self.assertFalse(fb.exists('citekey1'))
 
 
-class TestDocBroker(TestFakeFs):
+class TestDocBroker(fake_env.TestFakeFs):
 
     def test_doccopy(self):
 
