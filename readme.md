@@ -11,7 +11,7 @@ Pubs is built with the following principles in mind:
  - everything is stored in plain text so it can be manually edited or version controlled.
 
 
-Notice: papers is still in early development and cannot be considered as stable
+**Notice:** papers is still in early development and cannot be considered as stable
 
 
 Getting started
@@ -22,10 +22,16 @@ Create your library (by default, goes to '~/.papers/').
 
 Import existing data from bibtex (papers will try to automatically copy documents defined as 'file' in bibtex):
 
-    pubss import path/to/collection.bib
+    pubs import path/to/collection.bib
+
 or for bibtex containing a single file:
 
     pubs add --bibfile article.bib --docfile article.pdf
+
+
+Dependencies
+------------
+- [bibtexparser](https://github.com/sciunto/python-bibtexparser)
 
 
 Authors
