@@ -65,7 +65,7 @@ class Repository(object):
         """
         bibstruct.check_citekey(paper.citekey)
         if (not overwrite) and (self.databroker.exists(paper.citekey, both=False)
-                                or (citekey in self)):
+                                or (paper.citekey in self)):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
 
         self.databroker.push_bibdata(paper.citekey, paper.bibdata)

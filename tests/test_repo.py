@@ -1,16 +1,24 @@
 import unittest
-import tempfile
-import shutil
-import os
 
+import dotdot
+import fake_env
 import fixtures
-from pubs.repo import (Repository, _base27,
-                         CiteKeyCollision)
-from pubs.paper import PaperInRepo
-from pubs import configs, files
+
+from pubs.repo import Repository, _base27, CiteKeyCollision, InvalidReference
+from pubs.paper import Paper
+from pubs import configs
 
 
-class TestCitekeyGeneration(unittest.TestCase):
+class TestRepo(fake_env.TestFakeFs):
+
+    def setUp(self):
+        super(TestRepo, self).setUp()
+        self.repo = Repository(configs.Config(), create=True)
+        self.repo.push_paper(Paper(fixtures.turing_bibdata))
+
+
+class TestCitekeyGeneration(TestRepo):
+
     def test_string_increment(self):
         self.assertEqual(_base27(0), '')
         for i in range(26):
@@ -18,164 +26,54 @@ class TestCitekeyGeneration(unittest.TestCase):
             self.assertEqual(_base27(26 + i + 1), 'a' + chr(97 + i))
 
     def test_generated_key_is_unique(self):
-        repo = Repository(configs.Config(), load=False)
-        repo.citekeys = ['Turing1950', 'Doe2003']
-        c = repo.generate_citekey(fixtures.turing1950)
-        repo.citekeys.append('Turing1950a')
-        c = repo.generate_citekey(fixtures.turing1950)
-        self.assertEqual(c, 'Turing1950b')
+        self.repo.push_paper(Paper(fixtures.doe_bibdata))
+        c = self.repo.unique_citekey('Doe2013')
+        self.repo.push_paper(Paper(fixtures.doe_bibdata, citekey='Doe2013a'))
+        c = self.repo.unique_citekey('Doe2013')
+        self.assertEqual(c, 'Doe2013b')
 
 
-class TestRepo(unittest.TestCase):
-
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp()
-        self.repo = Repository(configs.Config(pubs_dir=self.tmpdir), load=False)
-        self.repo.save()
-        self.repo.add_paper(fixtures.turing1950)
-
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
-
-class TestAddPaper(TestRepo):
+class TestPushPaper(TestRepo):
 
     def test_raises_value_error_on_existing_key(self):
         with self.assertRaises(CiteKeyCollision):
-            self.repo.add_paper(fixtures.turing1950)
+            self.repo.push_paper(Paper(fixtures.turing_bibdata))
 
-    def test_saves_bib(self):
-        self.assertEqual(files.clean_path(self.tmpdir, BIB_DIR),
-                         files.clean_path(self.repo.bib_dir))
-        self.assertTrue(os.path.exists(os.path.join(self.repo.bib_dir,
-            'Turing1950.bibyaml')))
+    def test_pushes_paper_bibdata(self):
+        orig = fixtures.doe_bibdata
+        self.repo.push_paper(Paper(orig))
+        retrieved = self.repo.databroker.pull_bibdata('Doe2013')
+        retrieved['Doe2013'].pop('id')
+        self.assertEquals(orig, retrieved)
 
-    def test_saves_meta(self):
-        self.assertEqual(files.clean_path(self.tmpdir, META_DIR),
-                         files.clean_path(self.repo.meta_dir))
-        self.assertTrue(os.path.exists(os.path.join(self.repo.meta_dir,
-            'Turing1950.meta')))
+    def test_pushes_paper_metadata(self):
+        orig = {'docfile': 'dummy', 'tags': set(['tag', 'another'])}
+        self.repo.push_paper(Paper(fixtures.doe_bibdata, metadata=orig))
+        retrieved = self.repo.databroker.pull_metadata('Doe2013')
+        self.assertEquals(orig, retrieved)
 
 
 class TestUpdatePaper(TestRepo):
 
-    def test_raises_value_error_on_unknown_paper(self):
-        with self.assertRaises(ValueError):
-            self.repo.save_paper(fixtures.doe2013)
-        with self.assertRaises(ValueError):
-            self.repo.save_paper(fixtures.doe2013, 'zou')
-
-    def test_error_on_existing_destination(self):
-        self.repo.add_paper(fixtures.doe2013)
-        with self.assertRaises(CiteKeyCollision):
-            self.repo.save_paper(fixtures.turing1950, old_citekey='Doe2013')
-
     def test_updates_same_key(self):
-        new = self.repo.get_paper('Turing1950')
-        new.bibentry.fields['journal'] = u'Mind'
-        self.repo.save_paper(new)
-        self.assertEqual(new, self.repo.get_paper('Turing1950'))
-
-    def test_updates_same_key_with_old_arg(self):
-        new = self.repo.get_paper('Turing1950')
-        new.bibentry.fields['journal'] = u'Mind'
-        self.repo.save_paper(new, old_citekey='Turing1950')
-        self.assertEqual(new, self.repo.get_paper('Turing1950'))
+        new = self.repo.pull_paper('turing1950computing')
+        new.bibentry['year'] = '51'
+        self.repo.push_paper(new, overwrite=True)
+        self.assertEqual(new, self.repo.pull_paper('turing1950computing'))
 
     def test_update_new_key_removes_old(self):
-        self.repo.add_paper(fixtures.doe2013)
-        fixtures.doe2013.update(key='JohnDoe2003')
-        self.repo.save_paper(fixtures.doe2013, old_citekey='Doe2013')
-        self.assertFalse('Doe2013' in self.repo)
+        paper = self.repo.pull_paper('turing1950computing')
+        self.repo.rename_paper(paper, 'Turing1950')
+        with self.assertRaises(InvalidReference):
+            self.repo.pull_paper('turing1950computing')
+        self.assertNotIn('turing1950computing', self.repo)
 
     def test_update_new_key_updates(self):
-#        self.repo.rename(fixtures.doe2013, old_citekey='Turing1950')
-        fixtures.doe2013.citekey = 'Doe2013'
-        self.repo.add_paper(fixtures.doe2013)
-        self.assertTrue('Doe2013' in self.repo)
-        self.assertEqual(self.repo.get_paper('Doe2013'),
-                         PaperInRepo.from_paper(fixtures.doe2013, self.repo))
+        paper = self.repo.pull_paper('turing1950computing')
+        self.repo.rename_paper(paper, 'Turing1950')
+        self.assertEqual(paper, self.repo.pull_paper('Turing1950'))
 
-    def test_update_new_key_moves_doc(self):
-        self.repo.import_document('Turing1950',
-                                  os.path.join(os.path.dirname(__file__),
-                                               'data/pagerank.pdf'))
-        paper = self.repo.get_paper('Turing1950')
-        paper.update('Doe2003')
-        self.repo.save_paper(paper, old_citekey='Turing1950')
-        self.assertFalse(os.path.exists(os.path.join(
-            self.repo.doc_dir, 'Turing1950.pdf')))
-        self.assertTrue(os.path.exists(os.path.join(
-            self.repo.doc_dir, 'Doe2003.pdf')))
-
-class TestSaveLoad(unittest.TestCase):
-
-    def setUp(self):
-
-
-        self.tmpdir = tempfile.mkdtemp()
-        os.makedirs(os.path.join(self.tmpdir, 'bibdata'))
-        os.makedirs(os.path.join(self.tmpdir, 'meta'))
-        self.bibfile = os.path.join(self.tmpdir, 'bib.bibyaml')
-        with open(self.bibfile, 'w') as f:
-            f.write(BIB)
-        self.metafile = os.path.join(self.tmpdir, 'meta.meta')
-        with open(self.metafile, 'w') as f:
-            f.write(META)
-        self.dest_bibfile = os.path.join(self.tmpdir, 'written_bib.yaml')
-        self.dest_metafile = os.path.join(self.tmpdir, 'written_meta.yaml')
-
-    def test_load_valid(self):
-        p = Paper.load(self.bibfile, metapath=self.metafile)
-        self.assertEqual(fixtures.turing1950, p)
-
-    def test_save_fails_with_no_citekey(self):
-        p = Paper()
-        with self.assertRaises(ValueError):
-            p.save(self.dest_bibfile, self.dest_metafile)
-
-    def test_save_creates_bib(self):
-        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
-        self.assertTrue(os.path.exists(self.dest_bibfile))
-
-    def test_save_creates_meta(self):
-        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
-        self.assertTrue(os.path.exists(self.dest_metafile))
-
-    def test_save_right_bib(self):
-        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
-        with open(self.dest_bibfile, 'r') as f:
-            written = yaml.load(f)
-            ok = yaml.load(BIB)
-            self.assertEqual(written, ok)
-
-    def test_save_right_meta(self):
-        fixtures.turing1950.save(self.dest_bibfile, self.dest_metafile)
-        with open(self.dest_metafile, 'r') as f:
-            written = yaml.load(f)
-            ok = yaml.load(META)
-            self.assertEqual(written, ok)
-
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
-class TestCopy(unittest.TestCase):
-
-    def setUp(self):
-        self.orig = Paper()
-        self.orig.bibentry.fields['title'] = u'Nice title.'
-        self.orig.bibentry.fields['year'] = u'2013'
-        self.orig.bibentry.persons['author'] = [Person(u'John Doe')]
-        self.orig.citekey = self.orig.generate_citekey()
-
-    def test_copy_equal(self):
-        copy = self.orig.copy()
-        self.assertEqual(copy, self.orig)
-
-    def test_copy_can_be_changed(self):
-        copy = self.orig.copy()
-        copy.bibentry.fields['year'] = 2014
-        self.assertEqual(self.orig.bibentry.fields['year'], u'2013')
+    # TODO: should also check that associated files are updated
 
 
 if __name__ == '__main__':
