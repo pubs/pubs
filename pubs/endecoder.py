@@ -9,14 +9,11 @@ except ImportError:
 try:
     import bibtexparser as bp
 except ImportError:
-    print(color.dye('error', color.error) +
-          ": you need to install bibterxparser; try running 'pip install "
+    print("error: you need to install bibterxparser; try running 'pip install "
           "bibtexparser'.")
     exit(-1)
 
 import yaml
-
-from . import color
 
 
 def sanitize_citekey(record):
