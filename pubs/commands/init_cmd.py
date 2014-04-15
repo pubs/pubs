@@ -6,6 +6,7 @@ from .. import databroker
 from ..configs import config
 from ..uis import get_ui
 from .. import color
+from ..repo import Repository
 
 
 def parser(subparsers):
@@ -28,19 +29,19 @@ def command(args):
 
     if pubsdir is None:
         pubsdir = '~/.pubs'
-    
+
     pubsdir = os.path.normpath(os.path.abspath(os.path.expanduser(pubsdir)))
 
     if os.path.exists(pubsdir) and len(os.listdir(pubsdir)) > 0:
-            ui.error('directory {} is not empty.'.format(
-                                 color.dye(pubsdir, color.filepath)))
-            ui.exit()
+        ui.error('directory {} is not empty.'.format(
+            color.dye(pubsdir, color.filepath)))
+        ui.exit()
 
     ui.print_('Initializing pubs in {}.'.format(
-              color.dye(pubsdir, color.filepath)))
+        color.dye(pubsdir, color.filepath)))
 
     config().pubsdir = pubsdir
     config().docsdir = docsdir
     config().save()
 
-    databroker.DataBroker(pubsdir, create=True)
+    Repository(config(), create=True)

@@ -21,10 +21,11 @@ class InvalidReference(Exception):
 
 class Repository(object):
 
-    def __init__(self, config):
+    def __init__(self, config, create=False):
         self.config = config
         self._citekeys = None
-        self.databroker = datacache.DataCache(self.config.pubsdir)
+        self.databroker = datacache.DataCache(self.config.pubsdir,
+                                              create=create)
 
     @property
     def citekeys(self):
