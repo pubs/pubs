@@ -24,8 +24,6 @@ class Paper(object):
         self.bibdata  = bibdata
 
         _, self.bibentry = bibstruct.get_entry(self.bibdata)
-        if 'id' in self.bibentry:
-            self.bibentry.pop('id')
 
         if self.metadata is None:
             self.metadata = copy.deepcopy(DEFAULT_META)

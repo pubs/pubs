@@ -43,7 +43,6 @@ class TestPushPaper(TestRepo):
         orig = fixtures.doe_bibdata
         self.repo.push_paper(Paper(orig))
         retrieved = self.repo.databroker.pull_bibdata('Doe2013')
-        retrieved['Doe2013'].pop('id')
         self.assertEquals(orig, retrieved)
 
     def test_pushes_paper_metadata(self):

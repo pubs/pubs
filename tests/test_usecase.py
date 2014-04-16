@@ -46,6 +46,8 @@ class TestFakeInput(unittest.TestCase):
 class CommandTestCase(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""
 
+    maxDiff = None
+
     def setUp(self):
         self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd, import_cmd])
 

@@ -100,6 +100,9 @@ class EnDecoder(object):
     def _decode_bibdata(self, bibdata_stream):
         try:
             entries = bp.bparser.BibTexParser(bibdata_stream, customization=customizations).get_entry_dict()
+            # Remove 'id' attribute which is stored as citekey
+            for e in entries:
+                entries[e].pop('id')
             if len(entries) > 0:
                 return entries
         except Exception:
