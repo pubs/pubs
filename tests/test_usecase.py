@@ -92,6 +92,7 @@ class CommandTestCase(unittest.TestCase):
     def tearDown(self):
         fake_env.unset_fake_fs([content, filebroker])
 
+
 class DataCommandTestCase(CommandTestCase):
     """Abstract TestCase intializing the fake filesystem and
     copying fake data.
@@ -117,6 +118,7 @@ class TestInit(CommandTestCase):
         pubs_cmd.execute('pubs init'.split())
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
+
 
 class TestAdd(DataCommandTestCase):
 
@@ -246,7 +248,7 @@ class TestUsecase(DataCommandTestCase):
 
         line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) \n'
         line1 = re.sub('1999', '2007', line)
-        line2 = re.sub('L. Page', 'L. Ridge', line1)
+        line2 = re.sub('Page,', 'Ridge,', line1)
         line3 = re.sub('Page99', 'Ridge07', line2)
 
         cmds = ['pubs init',
@@ -259,7 +261,6 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs edit Page99', [bib3]),
                 ('pubs list', [], line3),
                ]
-
         self.execute_cmds(cmds)
 
     def test_export(self):

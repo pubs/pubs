@@ -1,8 +1,8 @@
-from ..content import editor_input
+from ..paper import Paper
 from .. import repo
-from ..paper import get_bibentry_from_string, get_safe_metadata_from_content
 from ..configs import config
 from ..uis import get_ui
+from ..endecoder import EnDecoder
 
 
 def parser(subparsers):
@@ -15,24 +15,6 @@ def parser(subparsers):
     return parser
 
 
-def edit_meta(citekey):
-    rp = repo.Repository(config())
-    coder = endecoder.EnDecoder()
-    filepath = os.path.join(rp.databroker.databroker.filebroker.metadir(), citekey+'.yaml')
-    with open(filepath) as f:
-        content = f.read()
-
-
-
-def edit_bib(citekey):
-    rp = repo.Repository(config())
-    coder = endecoder.EnDecoder()
-    filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bib')
-    with open(filepath) as f:
-        content = f.read()
-
-
-
 def command(args):
 
     ui = get_ui()
@@ -40,41 +22,46 @@ def command(args):
     citekey = args.citekey
 
     rp = repo.Repository(config())
-    coder = endecoder.EnDecoder()
-    if meta:
-        filepath = os.path.join(rp.databroker.databroker.filebroker.metadir(), citekey+'.yaml')
-    else:
-        filepath = os.path.join(rp.databroker.databroker.filebroker.bibdir(), citekey+'.bib')
+    paper = rp.pull_paper(citekey)
 
-    with open(filepath) as f:
-        content = f.read()
+    coder = EnDecoder()
+    if meta:
+        encode = coder.encode_metadata
+        decode = coder.decode_metadata
+        suffix = '.yaml'
+        raw_content = encode(paper.metadata)
+    else:
+        encode = coder.encode_bibdata
+        decode = coder.decode_bibdata
+        suffix = '.bib'
+        raw_content = encode(paper.bibdata)
 
     while True:
         # Get new content from user
-        content = editor_input(config().edit_cmd, content)
-        new_key = key
-        bib = None
-        metadata = None
+        raw_content = ui.editor_input(initial=raw_content, suffix=suffix)
         # Parse new content
-        if meta:
-            metadata = get_safe_metadata_from_content(content)
-        else:
-            new_key, bib = get_bibentry_from_string(content)
-        paper.update(key=new_key, bib=bib, meta=metadata)
-
         try:
-            paper = rp.save_paper(paper, old_citekey=key)
+            content = decode(raw_content)
+
+            if meta:
+                new_paper = Paper(paper.bibdata, citekey=paper.citekey,
+                                  metadata=content)
+            else:
+                new_paper = Paper(content, metadata=paper.metadata)
+                rp.rename_paper(new_paper, old_citekey=paper.citekey)
             break
+
         except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']
             choice = options[ui.input_choice(
-                        options, ['o', 'e', 'a'],
-                        question='A paper already exists with this citekey.'
-                        )]
+                options, ['o', 'e', 'a'],
+                question='A paper already exists with this citekey.'
+                )]
 
             if choice == 'abort':
                 break
             elif choice == 'overwrite':
-                paper = rp.save_paper(paper, old_citekey=key, overwrite=True)
+                paper = rp.push_paper(paper, overwrite=True)
                 break
             # else edit again
+        # Also handle malformed bibtex and metadata

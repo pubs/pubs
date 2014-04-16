@@ -72,7 +72,7 @@ def command(args):
     if bibfile is None:
         bibdata = bibdata_from_editor(ui, rp)
     else:
-        bibdata_raw = content.get_content(bibfile)
+        bibdata_raw = content.get_content(bibfile, ui=ui)
         bibdata = rp.databroker.verify(bibdata_raw)
         if bibdata is None:
             ui.error('invalid bibfile {}.'.format(bibfile))

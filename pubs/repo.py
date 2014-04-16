@@ -2,7 +2,7 @@ import itertools
 
 from . import bibstruct
 from . import events
-from . import datacache
+from datacache import DataCache
 from .paper import Paper
 
 
@@ -23,8 +23,7 @@ class Repository(object):
     def __init__(self, config, create=False):
         self.config = config
         self._citekeys = None
-        self.databroker = datacache.DataCache(self.config.pubsdir,
-                                              create=create)
+        self.databroker = DataCache(self.config.pubsdir, create=create)
 
     @property
     def citekeys(self):
@@ -92,19 +91,19 @@ class Repository(object):
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
 
-    def rename_paper(self, paper, new_citekey):
-        old_citekey = paper.citekey
+    def rename_paper(self, paper, new_citekey=None, old_citekey=None):
+        if old_citekey is None:
+            old_citekey = paper.citekey
+        if new_citekey is None:
+            new_citekey = paper.citekey
+        paper.citekey = new_citekey
         # check if new_citekey is not the same as paper.citekey
         if old_citekey == new_citekey:
-            push_paper(paper, overwrite=True, event=False)
+            self.push_paper(paper, overwrite=True, event=False)
         else:
             # check if new_citekey does not exists
-            if self.databroker.exists(new_citekey, both=False):
-                raise IOError("can't rename paper to {}, conflicting files exists".format(new_citekey))
-
-            new_bibdata = {}
-            new_bibdata[new_citekey] = paper.bibdata[old_citekey]
-            paper.bibdata = new_bibdata
+            if new_citekey in self:
+                raise CiteKeyCollision("can't rename paper to {}, conflicting files exists".format(new_citekey))
 
             # move doc file if necessary
             if self.databroker.in_docsdir(paper.docpath):
@@ -116,8 +115,6 @@ class Repository(object):
             except IOError:
                 pass
 
-            # push_paper to new_citekey
-            paper.citekey = new_citekey
             self.push_paper(paper, event=False)
             # remove_paper of old_citekey
             self.remove_paper(old_citekey, event=False)

@@ -15,5 +15,5 @@ import import_cmd
 # bonus
 import websearch_cmd
 
-# import edit_cmd
+import edit_cmd
 # import update_cmd

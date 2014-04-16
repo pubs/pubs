@@ -7,10 +7,8 @@ import urlparse
 import httplib
 import urllib2
 
-import uis
 
-
-    # files i/o
+# files i/o
 
 def check_file(path, fail=True):
     if fail:
@@ -44,7 +42,7 @@ def write_file(filepath, data):
         f.write(data)
 
 
-    # dealing with formatless content
+# dealing with formatless content
 
 def content_type(path):
     parsed = urlparse.urlparse(path)
@@ -68,10 +66,11 @@ def check_content(path):
     else:
         return check_file(path)
 
-def get_content(path):
+def get_content(path, ui=None):
     """Will be useful when we need to get content from url"""
     if content_type(path) == 'url':
-        uis.get_ui().print_('dowloading {}'.format(path))
+        if ui is not None:
+            ui.print_('dowloading {}'.format(path))
         response = urllib2.urlopen(path)
         return response.read()
     else:
@@ -92,23 +91,19 @@ def copy_content(source, target, overwrite = False):
     shutil.copy(source, target)
 
 
-    # editor input
-
-def editor_input(editor, initial="", suffix=None):
+def editor_input(editor, initial="", suffix='.tmp'):
     """Use an editor to get input"""
-    if suffix is None:
-        suffix = '.tmp'
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(initial)
-        temp_file.flush()
-        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
-        cmd.append(tfile_name)
-        subprocess.call(cmd)
+    cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
+    cmd.append(tfile_name)
+    subprocess.call(cmd)
     with open(tfile_name) as temp_file:
         content = temp_file.read()
-        os.remove(tfile_name)
+    os.remove(tfile_name)
     return content
+
 
 def edit_file(editor, path_to_file, temporary=True):
     if temporary:

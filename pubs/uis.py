@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 
 from .beets_ui import _encoding, input_
+from .content import editor_input
 from . import color
 
 # package-shared ui that can be accessed using :
@@ -30,6 +31,7 @@ class UI:
     def __init__(self, config):
         self.encoding = _encoding(config)
         color.setup(config.color)
+        self.editor = config.edit_cmd
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character
@@ -86,3 +88,6 @@ class UI:
 
     def warning(self, message):
         self.print_("%s: %s" % (color.dye('warning', color.yellow), message))
+
+    def editor_input(self, initial="", suffix='.tmp'):
+        return editor_input(self.editor, initial=initial, suffix=suffix)
