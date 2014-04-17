@@ -11,6 +11,7 @@ def person_repr(p):
         ' '.join(p.last(abbr=False)),
         ' '.join(p.lineage(abbr=True))] if s)
 
+
 def short_authors(bibentry):
     try:
         authors = [p for p in bibentry['author']]
@@ -24,17 +25,17 @@ def short_authors(bibentry):
 
 def bib_oneliner(bibentry):
     authors = short_authors(bibentry)
-    journal, journal_field = '', 'journal'
+    journal = ''
     if 'journal' in bibentry:
         journal = bibentry['journal']['name']
     elif bibentry['type'] == 'inproceedings':
         journal = bibentry.get('booktitle', '')
 
-    return u'{authors} \"{title}\" {journal} ({year})'.format(
+    return u'{authors} \"{title}\" {journal} {year}'.format(
             authors=color.dye(authors, color.cyan),
             title=bibentry['title'],
             journal=color.dye(journal, color.yellow),
-            year=bibentry['year'],
+            year='({})'.format(bibentry['year']) if 'year' in bibentry else '',
             )
 
 
