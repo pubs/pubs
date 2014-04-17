@@ -1,3 +1,3 @@
-docfile: pubsdir://doc/Page99.pdf
+docfile: docsdir://doc/Page99.pdf
 notes: []
 tags: [search, network]

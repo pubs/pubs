@@ -4,7 +4,7 @@ from .. import repo
 from ..configs import config
 from ..uis import get_ui
 from .. import color
-#from .helpers import add_references_argument, parse_reference
+from ..content import system_path
 
 
 def parser(subparsers):
@@ -34,7 +34,7 @@ def command(args):
         ui.exit()
 
     try:
-        docpath = rp.databroker.real_docpath(paper.docpath)
+        docpath = system_path(rp.databroker.real_docpath(paper.docpath))
         cmd = with_command.split()
         cmd.append(docpath)
         subprocess.Popen(cmd)
