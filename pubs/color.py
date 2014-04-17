@@ -29,7 +29,7 @@ def dye(s, color=end, bold=False):
     return color + s + end
 
 _dye = dye
-def _nodye(s, **kwargs):
+def _nodye(s, *args, **kwargs):
     return s
 
 def setup(enable = True):

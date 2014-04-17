@@ -181,11 +181,11 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing pubs in /paper_first.\n',
                    '',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '',
                    '',
                    'search network\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) search network\n'
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -246,7 +246,7 @@ class TestUsecase(DataCommandTestCase):
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
-        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."  (1999) \n'
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
         line1 = re.sub('1999', '2007', line)
         line2 = re.sub('Page,', 'Ridge,', line1)
         line3 = re.sub('Page99', 'Ridge07', line2)
