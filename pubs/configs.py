@@ -2,6 +2,7 @@ import os
 import collections
 
 from .p3 import configparser
+from .content import system_path
 
 # constant stuff (DFT = DEFAULT)
 
@@ -64,7 +65,7 @@ class Config(object):
         return self
 
     def save(self, path=DFT_CONFIG_PATH):
-        with open(path, 'w') as f:
+        with open(system_path(path), 'w') as f:
             self._cfg.write(f)
 
     def __setattr__(self, name, value):

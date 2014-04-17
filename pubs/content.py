@@ -10,36 +10,53 @@ import urllib2
 
 # files i/o
 
-def check_file(path, fail=True):
-    if fail:
-        if not os.path.exists(path):
-            raise IOError("File does not exist: {}.".format(path))
-        if not os.path.isfile(path):
-            raise IOError("{} is not a file.".format(path))
-        return True
+def _check_system_path_exists(path, fail=True):
+    answer = os.path.exists(path)
+    if not answer and fail:
+        raise IOError("File does not exist: {}.".format(path))
     else:
-        return os.path.exists(path) and os.path.isfile(path)
+        return answer
+
+
+def _check_system_path_is(nature, path, fail=True):
+    if nature == 'file':
+        check_fun = os.path.isfile
+    elif nature == 'dir':
+        check_fun = os.path.isdir
+    answer = check_fun(path)
+    if not answer and fail:
+        raise IOError("{} is not a {}.".format(path, nature))
+    else:
+        return answer
+
+
+def check_file(path, fail=True):
+    syspath = system_path(path)
+    return (_check_system_path_exists(syspath, fail=fail)
+            and _check_system_path_is('file', syspath, fail=fail))
+
 
 def check_directory(path, fail=True):
-    if fail:
-        if not os.path.exists(path):
-            raise IOError("File does not exist: {}.".format(path))
-        if not os.path.isdir(path):
-            raise IOError("{} is not a directory.".format(path))
-        return True
-    else:
-        return os.path.exists(path) and os.path.isdir(path)
+    syspath = system_path(path)
+    return (_check_system_path_exists(syspath, fail=fail)
+            and _check_system_path_is('dir', syspath, fail=fail))
+
 
 def read_file(filepath):
     check_file(filepath)
-    with open(filepath, 'r') as f:
+    with open(system_path(filepath), 'r') as f:
         s = f.read()
     return s
 
+
 def write_file(filepath, data):
     check_directory(os.path.dirname(filepath))
-    with open(filepath, 'w') as f:
+    with open(system_path(filepath), 'w') as f:
         f.write(data)
+
+
+def system_path(path):
+    return os.path.abspath(os.path.expanduser(path))
 
 
 # dealing with formatless content
@@ -50,6 +67,7 @@ def content_type(path):
         return 'url'
     else:
         return 'file'
+
 
 def url_exists(url):
     parsed = urlparse.urlparse(url)
@@ -66,6 +84,7 @@ def check_content(path):
     else:
         return check_file(path)
 
+
 def get_content(path, ui=None):
     """Will be useful when we need to get content from url"""
     if content_type(path) == 'url':
@@ -76,12 +95,14 @@ def get_content(path, ui=None):
     else:
         return read_file(path)
 
+
 def move_content(source, target, overwrite = False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
         raise IOError('target file exists')
     shutil.move(source, target)
+
 
 def copy_content(source, target, overwrite = False):
     if source == target:

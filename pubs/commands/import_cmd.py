@@ -8,7 +8,7 @@ from .. import color
 from ..paper import Paper
 from ..configs import config
 from ..uis import get_ui
-
+from ..content import system_path, read_file
 
 
 def parser(subparsers):
@@ -37,7 +37,7 @@ def many_from_path(bibpath):
     """
     coder = endecoder.EnDecoder()
 
-    bibpath = os.path.expanduser(bibpath)
+    bibpath = system_path(bibpath)
     if os.path.isdir(bibpath):
         print([os.path.splitext(f)[-1][1:] for f in os.listdir(bibpath)])
         all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
@@ -47,8 +47,7 @@ def many_from_path(bibpath):
 
     biblist = []
     for filepath in all_files:
-        with open(filepath, 'r') as f:
-            biblist.append(coder.decode_bibdata(f.read()))
+        biblist.append(coder.decode_bibdata(read_file(filepath)))
 
     papers = {}
     for b in biblist:
@@ -59,7 +58,7 @@ def many_from_path(bibpath):
 
                 papers[k] = Paper(bibdata, citekey=k)
                 papers[k].added = datetime.datetime.now()
-            except ValueError, e:
+            except ValueError as e:
                 papers[k] = e
     return papers
 
@@ -100,5 +99,5 @@ def command(args):
                 ui.print_('{} imported'.format(color.dye(p.citekey, color.cyan)))
         except KeyError:
             ui.error('no entry found for citekey {}.'.format(k))
-        except IOError, e:
+        except IOError as e:
             ui.error(e.message)

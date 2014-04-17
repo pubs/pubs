@@ -1,10 +1,10 @@
 import os
-import shutil
 import re
 import urlparse
 
-from .content import check_file, check_directory, read_file, write_file
-from .content import check_content, content_type, get_content
+from .content import (check_file, check_directory, read_file, write_file,
+                      system_path, check_content, content_type, get_content)
+
 
 def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
@@ -13,6 +13,7 @@ def filter_filename(filename, ext):
     pattern ='.*\{}$'.format(ext)
     if re.match(pattern, filename) is not None:
         return filename[:-len(ext)]
+
 
 class FileBroker(object):
     """ Handles all access to meta and bib files of the repository.
@@ -33,11 +34,11 @@ class FileBroker(object):
 
     def _create(self):
         if not check_directory(self.directory, fail = False):
-            os.mkdir(self.directory)
+            os.mkdir(system_path(self.directory))
         if not check_directory(self.metadir, fail = False):
-            os.mkdir(self.metadir)
+            os.mkdir(system_path(self.metadir))
         if not check_directory(self.bibdir, fail = False):
-            os.mkdir(self.bibdir)
+            os.mkdir(system_path(self.bibdir))
 
     def pull_metafile(self, citekey):
         filepath = os.path.join(self.metadir, citekey + '.yaml')
@@ -78,24 +79,23 @@ class FileBroker(object):
         else:
             return meta_exists or bib_exists
 
-
     def listing(self, filestats=True):
         metafiles = []
-        for filename in os.listdir(self.metadir):
+        for filename in os.listdir(system_path(self.metadir)):
             citekey = filter_filename(filename, '.yaml')
             if citekey is not None:
                 if filestats:
-                    stats = os.stat(os.path.join(path, filename))
+                    stats = os.stat(system_path(os.path.join(self.metadir, filename)))
                     metafiles.append(citekey, stats)
                 else:
                     metafiles.append(citekey)
 
         bibfiles = []
-        for filename in os.listdir(self.bibdir):
+        for filename in os.listdir(system_path(self.bibdir)):
             citekey = filter_filename(filename, '.bib')
             if citekey is not None:
                 if filestats:
-                    stats = os.stat(os.path.join(path, filename))
+                    stats = os.stat(system_path(os.path.join(self.bibdir, filename)))
                     bibfiles.append(citekey, stats)
                 else:
                     bibfiles.append(citekey)
@@ -118,7 +118,7 @@ class DocBroker(object):
         self.scheme = scheme
         self.docdir = os.path.join(directory, subdir)
         if not check_directory(self.docdir, fail = False):
-            os.mkdir(self.docdir)
+            os.mkdir(system_path(self.docdir))
 
     def in_docsdir(self, docpath):
         try:
@@ -143,7 +143,7 @@ class DocBroker(object):
                 docpath = os.path.join(self.docdir, parsed.netloc, parsed.path[1:])
         elif content_type(docpath) != 'file':
             return docpath
-        return os.path.normpath(os.path.abspath(docpath))
+        return docpath
 
     def add_doc(self, citekey, source_path, overwrite=False):
         """ Add a document to the docsdir, and return its location.
@@ -162,8 +162,7 @@ class DocBroker(object):
             raise IOError('{} file exists.'.format(full_target_path))
 
         doc_content = get_content(full_source_path)
-        with open(full_target_path, 'wb') as f:
-            f.write(doc_content)
+        write_file(full_target_path, doc_content)
 
         return target_path
 

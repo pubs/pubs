@@ -88,7 +88,7 @@ def copy_dir(fs, real_dir, fake_dir = None):
     if fake_dir is None:
         fake_dir = real_dir
     for filename in real_os.listdir(real_dir):
-        real_path = real_os.path.join(real_dir, filename)
+        real_path = os.path.abspath(real_os.path.join(real_dir, filename))
         fake_path = fs['os'].path.join(fake_dir, filename)
         if real_os.path.isfile(real_path):
             with real_open(real_path, 'r') as f:
@@ -98,7 +98,7 @@ def copy_dir(fs, real_dir, fake_dir = None):
             copy_dir(fs, real_path, fake_path)
 
 
-    # redirecting output
+# redirecting output
 
 def redirect(f):
     def newf(*args, **kwargs):
