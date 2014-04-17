@@ -1,4 +1,5 @@
 import itertools
+from datetime import datetime
 
 from . import bibstruct
 from . import events
@@ -66,7 +67,8 @@ class Repository(object):
         if (not overwrite) and (self.databroker.exists(paper.citekey, both=False)
                                 or (paper.citekey in self)):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
-
+        if not paper.added:
+            paper.added = datetime.now()
         self.databroker.push_bibdata(paper.citekey, paper.bibdata)
         self.databroker.push_metadata(paper.citekey, paper.metadata)
         self.citekeys.add(paper.citekey)

@@ -4,6 +4,7 @@ from .. import bibstruct
 from ..configs import config
 from ..uis import get_ui
 
+
 class InvalidQuery(ValueError):
     pass
 
@@ -24,7 +25,8 @@ def parser(subparsers):
 
 def date_added(np):
     n, p = np
-    return p.metadata['added']
+    return p.added
+
 
 def command(args):
     ui = get_ui()
@@ -59,12 +61,14 @@ def _get_field_value(query_block):
 def _lower(s, lower=True):
     return s.lower() if lower else s
 
+
 def _check_author_match(paper, query, case_sensitive=False):
     """Only checks within last names."""
     if not 'author' in paper.bibentry:
         return False
     return any([query == _lower(bibstruct.author_last(p), lower=(not case_sensitive))
                 for p in paper.bibentry['author']])
+
 
 
 def _check_tag_match(paper, query, case_sensitive=False):

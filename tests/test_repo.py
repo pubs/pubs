@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 import dotdot
 import fake_env
@@ -46,10 +47,19 @@ class TestPushPaper(TestRepo):
         self.assertEquals(orig, retrieved)
 
     def test_pushes_paper_metadata(self):
-        orig = {'docfile': 'dummy', 'tags': set(['tag', 'another'])}
+        orig = {'docfile': 'dummy', 'tags': set(['tag', 'another']),
+                'added': datetime(2012, 12, 12, 12, 12, 12, 12)}
         self.repo.push_paper(Paper(fixtures.doe_bibdata, metadata=orig))
         retrieved = self.repo.databroker.pull_metadata('Doe2013')
         self.assertEquals(orig, retrieved)
+
+    def test_pushes_paper_metadata_set_added(self):
+        orig = {'docfile': 'dummy', 'tags': set(['tag', 'another'])}
+        now = datetime.now()
+        self.repo.push_paper(Paper(fixtures.doe_bibdata, metadata=orig))
+        retrieved = self.repo.databroker.pull_metadata('Doe2013')
+        self.assertIn('added', retrieved)
+        self.assertTrue(now < retrieved['added'])
 
 
 class TestUpdatePaper(TestRepo):

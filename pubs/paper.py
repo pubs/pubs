@@ -1,11 +1,20 @@
 import copy
-import collections
-import datetime
+from dateutil.parser import parse as datetime_parse
 
 from . import bibstruct
 
-#DEFAULT_META = collections.OrderedDict([('docfile', None), ('tags', set()), ('added', )])
-DEFAULT_META = {'docfile': None, 'tags': set(), 'added': None}
+
+DEFAULT_META = {'docfile': None, 'tags': set()}
+
+
+def _clean_metadata(metadata):
+    meta = copy.deepcopy(DEFAULT_META)
+    meta.update(metadata or {})  # handles None metadata
+    meta['tags'] = set(meta.get('tags', []))  # tags should be a set
+    if 'added' in meta and isinstance(meta['added'], basestring):
+        meta['added'] = datetime_parse(meta['added'])
+    return meta
+
 
 class Paper(object):
     """ Paper class.
@@ -19,19 +28,15 @@ class Paper(object):
     """
 
     def __init__(self, bibdata, citekey=None, metadata=None):
-        self.citekey  = citekey
-        self.metadata = metadata
-        self.bibdata  = bibdata
+        self.citekey = citekey
+        self.metadata = _clean_metadata(metadata)
+        self.bibdata = bibdata
 
         _, self.bibentry = bibstruct.get_entry(self.bibdata)
 
-        if self.metadata is None:
-            self.metadata = copy.deepcopy(DEFAULT_META)
         if self.citekey is None:
             self.citekey = bibstruct.extract_citekey(self.bibdata)
             bibstruct.check_citekey(self.citekey)
-
-        self.metadata['tags'] = set(self.metadata.get('tags', []))
 
     def __eq__(self, other):
         return (isinstance(self, Paper) and type(other) is type(self)
@@ -88,10 +93,11 @@ class Paper(object):
 
         # added date
 
+    # Added time, supposed to be stored as datetime object
     @property
     def added(self):
-        datetime.datetime.strptime(self.metadata['added'], '%Y-%m-%d %H:%M:%S')
+        return self.metadata.get('added', None)
 
     @added.setter
     def added(self, value):
-        self.metadata['added'] = value.strftime('%Y-%m-%d %H:%M:%S')
+        self.metadata['added'] = value
