@@ -71,6 +71,8 @@ class EnDecoder(object):
             return ', '.join(link['url'] for link in value)
         elif key == 'author':
             return ' and '.join(author for author in value)
+        elif key == 'editor':
+            return ' and '.join(editor['name'] for editor in value)
         elif key == 'journal':
             return value['name']
         else:

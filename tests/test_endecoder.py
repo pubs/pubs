@@ -6,7 +6,7 @@ import yaml
 import dotdot
 from pubs import endecoder
 
-from str_fixtures import bibtex_raw0, metadata_raw0
+from str_fixtures import bibtex_raw0, metadata_raw0, turing_bib
 
 def compare_yaml_str(s1, s2):
     if s1 == s2:
@@ -23,6 +23,23 @@ class TestEnDecode(unittest.TestCase):
 
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
+
+        bibraw1 = decoder.encode_bibdata(entry)
+        entry1  = decoder.decode_bibdata(bibraw1)
+        bibraw2 = decoder.encode_bibdata(entry1)
+        entry2  = decoder.decode_bibdata(bibraw2)
+
+        for citekey in entry1.keys():
+            bibentry1 = entry1[citekey]
+            bibentry2 = entry2[citekey]
+            for key, value in bibentry1.items():
+                self.assertEqual(bibentry1[key], bibentry2[key])
+
+        self.assertEqual(bibraw1, bibraw2)
+
+    def test_endecode_bibtex_editor(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(turing_bib)
 
         bibraw1 = decoder.encode_bibdata(entry)
         entry1  = decoder.decode_bibdata(bibraw1)
