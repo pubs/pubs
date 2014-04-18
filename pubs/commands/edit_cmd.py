@@ -22,7 +22,11 @@ def command(args):
     citekey = args.citekey
 
     rp = repo.Repository(config())
-    paper = rp.pull_paper(citekey)
+    try:
+        paper = rp.pull_paper(citekey)
+    except repo.InvalidReference as v:
+        ui.error(v)
+        ui.exit(1)
 
     coder = EnDecoder()
     if meta:

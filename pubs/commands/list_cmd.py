@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .. import repo
 from .. import pretty
 from .. import bibstruct
@@ -25,7 +27,7 @@ def parser(subparsers):
 
 def date_added(np):
     n, p = np
-    return p.added
+    return p.added or datetime(1, 1, 1)
 
 
 def command(args):
@@ -34,9 +36,10 @@ def command(args):
     papers = filter(lambda (n, p):
             filter_paper(p, args.query, case_sensitive=args.case_sensitive),
             enumerate(rp.all_papers()))
-    ui.print_('\n'.join(
-        pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
-        for n, p in sorted(papers, key=date_added)))
+    if len(papers) > 0:
+        ui.print_('\n'.join(
+            pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
+            for n, p in sorted(papers, key=date_added)))
 
 
 FIELD_ALIASES = {

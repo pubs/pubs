@@ -66,10 +66,10 @@ class FileBroker(object):
     def remove(self, citekey):
         metafilepath = os.path.join(self.metadir, citekey + '.yaml')
         if check_file(metafilepath):
-            os.remove(metafilepath)
+            os.remove(system_path(metafilepath))
         bibfilepath = os.path.join(self.bibdir, citekey + '.bib')
         if check_file(bibfilepath):
-            os.remove(bibfilepath)
+            os.remove(system_path(bibfilepath))
 
     def exists(self, citekey, both=True):
         meta_exists = check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False)
@@ -178,7 +178,7 @@ class DocBroker(object):
             return
         filepath = self.real_docpath(docpath)
         if check_file(filepath):
-            os.remove(filepath)
+            os.remove(system_path(filepath))
 
     def rename_doc(self, docpath, new_citekey):
         """ Move a document inside the docsdir

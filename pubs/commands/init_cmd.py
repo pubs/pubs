@@ -2,11 +2,11 @@
 
 import os
 
-from .. import databroker
 from ..configs import config
 from ..uis import get_ui
 from .. import color
 from ..repo import Repository
+from ..content import system_path, check_directory
 
 
 def parser(subparsers):
@@ -30,9 +30,9 @@ def command(args):
     if pubsdir is None:
         pubsdir = '~/.pubs'
 
-    pubsdir = os.path.normpath(os.path.abspath(os.path.expanduser(pubsdir)))
+    pubsdir = system_path(pubsdir)
 
-    if os.path.exists(pubsdir) and len(os.listdir(pubsdir)) > 0:
+    if check_directory(pubsdir, fail=False) and len(os.listdir(pubsdir)) > 0:
         ui.error('directory {} is not empty.'.format(
             color.dye(pubsdir, color.filepath)))
         ui.exit()
