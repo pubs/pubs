@@ -1,6 +1,8 @@
 import unicodedata
 import re
 
+from .p3 import ustr
+
     # citekey stuff
 
 CONTROL_CHARS = ''.join(map(unichr, range(0, 32) + range(127, 160)))
@@ -10,14 +12,14 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
         % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
 
 def str2citekey(s):
-    key = unicodedata.normalize('NFKD', unicode(s)).encode('ascii', 'ignore')
+    key = unicodedata.normalize('NFKD', ustr(s)).encode('ascii', 'ignore')
     key = CITEKEY_EXCLUDE_RE.sub('', key)
     # Normalize chars and remove non-ascii
     return key
 
 def check_citekey(citekey):
     # TODO This is not the right way to test that (17/12/2012)
-    if unicode(citekey) != str2citekey(citekey):
+    if ustr(citekey) != str2citekey(citekey):
         raise ValueError("Invalid citekey: %s" % citekey)
 
 def verify_bibdata(bibdata):

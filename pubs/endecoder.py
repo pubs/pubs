@@ -20,6 +20,7 @@ def sanitize_citekey(record):
     record['id'] = record['id'].strip('\n')
     return record
 
+
 def customizations(record):
     """ Use some functions delivered by the library
 
@@ -75,6 +76,8 @@ class EnDecoder(object):
             return ' and '.join(editor['name'] for editor in value)
         elif key == 'journal':
             return value['name']
+        elif key == 'keyword':
+            return ', '.join(keyword for keyword in value)
         else:
             return value
 

@@ -4,6 +4,7 @@ import sys
 
 from .beets_ui import _encoding, input_
 from .content import editor_input
+from .p3 import ustr
 from . import color
 
 # package-shared ui that can be accessed using :
@@ -39,7 +40,7 @@ class UI:
         replaces it.
         """
         txt = [s.encode(self.encoding, 'replace')
-               if isinstance(s, unicode) else s
+               if isinstance(s, ustr) else s
                for s in strings]
         print(' '.join(txt))
 

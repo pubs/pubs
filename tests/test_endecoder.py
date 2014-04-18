@@ -51,15 +51,39 @@ class TestEnDecode(unittest.TestCase):
             bibentry2 = entry2[citekey]
             for key, value in bibentry1.items():
                 self.assertEqual(bibentry1[key], bibentry2[key])
-
         self.assertEqual(bibraw1, bibraw2)
 
-    def test_endecode_metadata(self):
+    def test_endecode_keyword(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(turing_bib)
+        keywords = ['artificial intelligence', 'Turing test']
+        entry['turing1950computing']['keyword'] = keywords
+        bibraw = decoder.encode_bibdata(entry)
+        entry1 = decoder.decode_bibdata(bibraw)
+        self.assertIn('keyword', entry1['turing1950computing'])
+        self.assertEqual(set(keywords),
+                         set(entry1['turing1950computing']['keyword']))
 
+    def test_endecode_keyword_as_keywords(self):
+        decoder = endecoder.EnDecoder()
+        keywords = [u'artificial intelligence', u'Turing test']
+        # Add keywords to bibraw
+        keyword_str = 'keywords = {artificial intelligence, Turing test},\n'
+        biblines = turing_bib.splitlines()
+        biblines.insert(-3, keyword_str)
+        bibsrc = '\n'.join(biblines)
+        print bibsrc
+        entry = decoder.decode_bibdata(bibsrc)['turing1950computing']
+        print entry
+        self.assertNotIn(u'keywords', entry)
+        self.assertIn(u'keyword', entry)
+        self.assertEqual(set(keywords), set(entry[u'keyword']))
+
+
+    def test_endecode_metadata(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_metadata(metadata_raw0)
         metadata_output0 = decoder.encode_metadata(entry)
-
         self.assertEqual(set(metadata_raw0.split('\n')), set(metadata_output0.split('\n')))
 
 
