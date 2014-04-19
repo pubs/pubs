@@ -341,6 +341,14 @@ class TestUsecase(DataCommandTestCase):
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
 
+    def test_add_with_tag(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib --tags junk',
+                'pubs tag junk'
+               ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1, len(outs[2].splitlines()))
+
 
 if __name__ == '__main__':
     unittest.main()

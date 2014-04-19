@@ -1,5 +1,3 @@
-import datetime
-
 from ..uis import get_ui
 from ..configs import config
 from .. import bibstruct
@@ -86,13 +84,12 @@ def command(args):
     else:
         rp.databroker.exists(citekey, both=False)
 
+    p = paper.Paper(bibdata, citekey=citekey)
+
     # tags
 
     if tags is not None:
         p.tags = set(tags.split(','))
-
-    p = paper.Paper(bibdata, citekey=citekey)
-    p.added = datetime.datetime.now()
 
     # document file
 
