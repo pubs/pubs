@@ -8,7 +8,7 @@ setup(name='pubs',
       author_email='fabien.benureau+inria@gmail.com',
       url='',
       description='research papers manager',
-      requires=['bibtexparser', 'pyyaml'],
+      requires=['pyyaml', 'bibtexparser', 'dateutil'],
       packages=find_packages(),
       scripts=['pubs/pubs']
       )
