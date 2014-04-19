@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest
 import re
 import os
@@ -145,9 +146,9 @@ class TestList(DataCommandTestCase):
                 'pubs list',
                 ]
         outs = self.execute_cmds(cmds)
-        print outs[1].splitlines()
+        print(outs[1].splitlines())
         self.assertEquals(0, len(outs[1].splitlines()))
-        print outs[3].splitlines()
+        print(outs[3].splitlines())
         self.assertEquals(1, len(outs[3].splitlines()))
 
     def test_list_several_no_date(self):
@@ -162,11 +163,11 @@ class TestList(DataCommandTestCase):
                 'pubs list',
                 ]
         outs = self.execute_cmds(cmds)
-        print outs[0].splitlines()
+        print(outs[0].splitlines())
         self.assertEquals(4, len(outs[0].splitlines()))
-        print outs[2].splitlines()
+        print(outs[2].splitlines())
         self.assertEquals(3, len(outs[2].splitlines()))
-        print outs[4].splitlines()
+        print(outs[4].splitlines())
         self.assertEquals(4, len(outs[4].splitlines()))
         # Last added should be last
         self.assertEquals('[Page99]', outs[4].splitlines()[-1][:8])
@@ -178,7 +179,7 @@ class TestList(DataCommandTestCase):
                 'pubs list title:language author:Saunders',
                 ]
         outs = self.execute_cmds(cmds)
-        print outs[-1]
+        print(outs[-1])
         self.assertEquals(1, len(outs[-1].splitlines()))
 
     def test_list_ignore_case(self):
@@ -188,7 +189,7 @@ class TestList(DataCommandTestCase):
                 'pubs list --ignore-case title:lAnguAge author:saunders',
                 ]
         outs = self.execute_cmds(cmds)
-        print outs[-1]
+        print(outs[-1])
         self.assertEquals(1, len(outs[-1].splitlines()))
 
     def test_list_force_case(self):
@@ -249,7 +250,7 @@ class TestUsecase(DataCommandTestCase):
                ]
         self.execute_cmds(cmds)
         docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
-        print self.fs['os'].listdir(docdir)
+        print(self.fs['os'].listdir(docdir))
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
 
     def test_editor_abort(self):

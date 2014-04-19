@@ -39,9 +39,9 @@ def command(args):
             pass # TODO warn if file does not exists
         paper.docpath = document
         rp.push_paper(paper, overwrite=True, event=False)
-    except ValueError, v:
+    except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
-    except IOError, v:
+    except IOError as v:
         ui.error(v.message)
         ui.exit(1)

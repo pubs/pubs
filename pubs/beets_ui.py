@@ -18,8 +18,7 @@
 import locale
 import sys
 
-from . import p3
-from p3 import input
+from .p3 import input
 
 
 class UserError(Exception):

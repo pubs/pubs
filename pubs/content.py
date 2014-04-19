@@ -3,9 +3,7 @@ import subprocess
 import tempfile
 import shutil
 
-import urlparse
-import httplib
-import urllib2
+from .p3 import urlparse, HTTPConnection, urlopen
 
 
 # files i/o
@@ -62,7 +60,7 @@ def system_path(path):
 # dealing with formatless content
 
 def content_type(path):
-    parsed = urlparse.urlparse(path)
+    parsed = urlparse(path)
     if parsed.scheme == 'http':
         return 'url'
     else:
@@ -70,8 +68,8 @@ def content_type(path):
 
 
 def url_exists(url):
-    parsed = urlparse.urlparse(url)
-    conn = httplib.HTTPConnection(parsed.netloc)
+    parsed = urlparse(url)
+    conn = HTTPConnection(parsed.netloc)
     conn.request('HEAD', parsed.path)
     response = conn.getresponse()
     conn.close()

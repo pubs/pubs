@@ -1,6 +1,6 @@
 import os
 import re
-import urlparse
+from .p3 import urlparse
 
 from .content import (check_file, check_directory, read_file, write_file,
                       system_path, check_content, content_type, get_content)
@@ -125,7 +125,7 @@ class DocBroker(object):
 
     def in_docsdir(self, docpath):
         try:
-            parsed = urlparse.urlparse(docpath)
+            parsed = urlparse(docpath)
         except Exception:
             return False
         return parsed.scheme == self.scheme
@@ -139,7 +139,7 @@ class DocBroker(object):
             Return absoluted paths of regular ones otherwise.
         """
         if self.in_docsdir(docpath):
-            parsed = urlparse.urlparse(docpath)
+            parsed = urlparse(docpath)
             if parsed.path == '':
                 docpath = os.path.join(self.docdir, parsed.netloc)
             else:

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import unittest
 
 import yaml
@@ -7,6 +8,7 @@ import dotdot
 from pubs import endecoder
 
 from str_fixtures import bibtex_raw0, metadata_raw0, turing_bib
+
 
 def compare_yaml_str(s1, s2):
     if s1 == s2:
@@ -72,9 +74,9 @@ class TestEnDecode(unittest.TestCase):
         biblines = turing_bib.splitlines()
         biblines.insert(-3, keyword_str)
         bibsrc = '\n'.join(biblines)
-        print bibsrc
+        print(bibsrc)
         entry = decoder.decode_bibdata(bibsrc)['turing1950computing']
-        print entry
+        print(entry)
         self.assertNotIn(u'keywords', entry)
         self.assertIn(u'keyword', entry)
         self.assertEqual(set(keywords), set(entry[u'keyword']))

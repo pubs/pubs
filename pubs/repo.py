@@ -3,7 +3,7 @@ from datetime import datetime
 
 from . import bibstruct
 from . import events
-from datacache import DataCache
+from .datacache import DataCache
 from .paper import Paper
 
 
