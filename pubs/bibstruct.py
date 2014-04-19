@@ -1,12 +1,11 @@
 import unicodedata
 import re
 
-from .p3 import ustr, unichr
+from .p3 import ustr, uchr
 
     # citekey stuff
 
-CONTROL_CHARS = ''.join(map(unichr,
-                            list(range(0, 32)) + list(range(127, 160))))
+CONTROL_CHARS = ''.join(map(uchr, list(range(0, 32)) + list(range(127, 160))))
 CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/'  # '/' is OK for bibtex but forbidden
 # here since we transform citekeys into filenames
 CITEKEY_EXCLUDE_RE = re.compile('[%s]'
