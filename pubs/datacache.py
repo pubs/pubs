@@ -7,7 +7,7 @@ class DataCache(object):
         Has two roles :
         1. Provides a buffer between the commands and the hard drive.
            Until a command request a hard drive ressource, it does not touch it.
-        2. Keeps a up-to-date, pickled version of the repository, to speed up things
+        2. Keeps an up-to-date, pickled version of the repository, to speed up things
            when they are a lot of files. Update are also done only when required.
            Changes are detected using data modification timestamps.
 
@@ -46,18 +46,16 @@ class DataCache(object):
     def remove(self, citekey):
         self.databroker.remove(citekey)
 
-    def exists(self, citekey, both=True):
-        return self.databroker.exists(citekey, both=both)
+    def exists(self, citekey, meta_check=False):
+        return self.databroker.exists(citekey, meta_check=meta_check)
 
     def citekeys(self):
-        listings = self.listing(filestats=False)
-        return set(listings['metafiles']).intersection(listings['bibfiles'])
+        return self.databroker.citekeys()
 
     def listing(self, filestats=True):
         return self.databroker.listing(filestats=filestats)
 
     def verify(self, bibdata_raw):
-        """Will return None if bibdata_raw can't be decoded"""
         return self.databroker.verify(bibdata_raw)
 
     # docbroker

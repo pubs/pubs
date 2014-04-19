@@ -50,7 +50,8 @@ class Repository(object):
 
     def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        if self.databroker.exists(citekey, both = True):
+        if self.databroker.exists(citekey, meta_check=True):
+            #TODO meta_check=False and default meta generation
             return Paper(self.databroker.pull_bibdata(citekey),
                          citekey=citekey,
                          metadata=self.databroker.pull_metadata(citekey))
@@ -64,7 +65,7 @@ class Repository(object):
                                if True, mimick the behavior of updating a paper
         """
         bibstruct.check_citekey(paper.citekey)
-        if (not overwrite) and (self.databroker.exists(paper.citekey, both=False)
+        if (not overwrite) and (self.databroker.exists(paper.citekey, meta_check=False)
                                 or (paper.citekey in self)):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
         if not paper.added:

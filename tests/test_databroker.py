@@ -25,11 +25,12 @@ class TestDataBroker(unittest.TestCase):
             db = db_class('tmp', create=True)
 
             db.push_metadata('citekey1', page99_metadata)
-            self.assertTrue(db.exists('citekey1', both=False))
-            self.assertFalse(db.exists('citekey1', both=True))
+            self.assertFalse(db.exists('citekey1', meta_check=True))
+            self.assertFalse(db.exists('citekey1', meta_check=False))
 
             db.push_bibdata('citekey1', page99_bibdata)
-            self.assertTrue(db.exists('citekey1', both=True))
+            self.assertTrue(db.exists('citekey1', meta_check=False))
+            self.assertTrue(db.exists('citekey1', meta_check=True))
 
             self.assertEqual(db.pull_metadata('citekey1'), page99_metadata)
             pulled = db.pull_bibdata('citekey1')['Page99']
