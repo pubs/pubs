@@ -1,7 +1,7 @@
 import unicodedata
 import re
 
-from .p3 import ustr
+from .p3 import ustr, unichr
 
     # citekey stuff
 
