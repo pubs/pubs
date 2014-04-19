@@ -71,13 +71,16 @@ class FileBroker(object):
         if check_file(bibfilepath):
             os.remove(system_path(bibfilepath))
 
-    def exists(self, citekey, both=True):
-        meta_exists = check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False)
-        bib_exists = check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False)
-        if both:
-            return meta_exists and bib_exists
-        else:
-            return meta_exists or bib_exists
+    def exists(self, citekey, meta_check=False):
+        """ Checks wether the bibtex of a citekey exists.
+
+            :param meta_check:  if True, will return if both the bibtex and the meta file exists.
+        """
+        does_exists = check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False)
+        if meta_check:
+            meta_exists = check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False)
+            does_exists = does_exists and meta_exists
+        return does_exists
 
     def listing(self, filestats=True):
         metafiles = []

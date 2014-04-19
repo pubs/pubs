@@ -82,7 +82,7 @@ def command(args):
         base_key = bibstruct.extract_citekey(bibdata)
         citekey = rp.unique_citekey(base_key)
     else:
-        rp.databroker.exists(citekey, both=False)
+        rp.databroker.exists(citekey, meta_check=False)
 
     p = paper.Paper(bibdata, citekey=citekey)
 

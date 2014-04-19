@@ -32,6 +32,7 @@ or for bibtex containing a single file:
 Requirements
 ------------
 - python >= 2.6
+- [pyYaml](http://pyyaml.org)
 - [bibtexparser](https://github.com/sciunto/python-bibtexparser)
 
 
