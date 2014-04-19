@@ -29,8 +29,9 @@ or for bibtex containing a single file:
     pubs add --bibfile article.bib --docfile article.pdf
 
 
-Dependencies
+Requirements
 ------------
+- python >= 2.6
 - [bibtexparser](https://github.com/sciunto/python-bibtexparser)
 
 
