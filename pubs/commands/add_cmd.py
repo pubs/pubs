@@ -112,6 +112,6 @@ def command(args):
     try:
         p.docpath = docfile
         rp.push_paper(p)
-    except ValueError, v:
+    except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
