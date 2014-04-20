@@ -58,7 +58,12 @@ def _update_check(config, ui):
 def execute(raw_args=sys.argv):
     # loading config
     config = configs.Config()
-    config.load()
+    if raw_args[1] != 'init':
+        try:
+            config.load()
+        except IOError as e:
+            print('error: {}'.format(str(e)))
+            sys.exit()
     config.as_global()
 
     uis.init_ui(config)

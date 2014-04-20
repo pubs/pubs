@@ -11,7 +11,7 @@ from .p3 import urlparse, HTTPConnection, urlopen
 def _check_system_path_exists(path, fail=True):
     answer = os.path.exists(path)
     if not answer and fail:
-        raise IOError("File does not exist: {}.".format(path))
+        raise IOError("File does not exist: {}".format(path))
     else:
         return answer
 

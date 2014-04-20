@@ -7,13 +7,18 @@ import dotdot
 import fake_env
 
 from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, beets_ui, p3, endecoder
+from pubs import color, content, filebroker, uis, beets_ui, p3, endecoder, configs
 
 import str_fixtures
 import fixtures
 
-
 from pubs.commands import init_cmd, import_cmd
+
+
+# makes the tests very noisy
+PRINT_OUTPUT=False
+CAPTURE_OUTPUT=True
+
 
     # code for fake fs
 
@@ -50,9 +55,9 @@ class CommandTestCase(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker, init_cmd, import_cmd])
+        self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
 
-    def execute_cmds(self, cmds, fs=None, capture_output=True):
+    def execute_cmds(self, cmds, fs=None, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
 
         A command can be a string, or a tuple of size 2 or 3.
@@ -88,10 +93,12 @@ class CommandTestCase(unittest.TestCase):
             if capture_output:
                 assert(stderr.getvalue() == '')
                 outs.append(color.undye(stdout.getvalue()))
+        if PRINT_OUTPUT:
+            print(outs)
         return outs
 
     def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker])
+        fake_env.unset_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
 
 
 class DataCommandTestCase(CommandTestCase):
@@ -206,7 +213,7 @@ class TestList(DataCommandTestCase):
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
-        correct = ['Initializing pubs in /paper_first.\n',
+        correct = ['Initializing pubs in /paper_first\n',
                    '',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '',

@@ -5,7 +5,7 @@ import os
 import dotdot
 import fake_env
 
-from pubs import content, filebroker, databroker, datacache
+from pubs import content, filebroker, databroker, datacache, configs
 
 import str_fixtures
 from pubs import endecoder
@@ -20,7 +20,7 @@ class TestDataBroker(unittest.TestCase):
         page99_bibdata  = ende.decode_bibdata(str_fixtures.bibtex_raw0)
 
         for db_class in [databroker.DataBroker, datacache.DataCache]:
-            self.fs = fake_env.create_fake_fs([content, filebroker])
+            self.fs = fake_env.create_fake_fs([content, filebroker, configs])
 
             db = db_class('tmp', create=True)
 
