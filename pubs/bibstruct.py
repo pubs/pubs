@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unicodedata
 import re
 
@@ -12,7 +14,7 @@ CITEKEY_EXCLUDE_RE = re.compile('[%s]'
         % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
 
 def str2citekey(s):
-    key = unicodedata.normalize('NFKD', ustr(s)).encode('ascii', 'ignore')
+    key = unicodedata.normalize('NFKD', ustr(s)).encode('ascii', 'ignore').decode()
     key = CITEKEY_EXCLUDE_RE.sub('', key)
     # Normalize chars and remove non-ascii
     return key

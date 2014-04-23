@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import dotdot
 from pubs import endecoder
 import str_fixtures
@@ -18,6 +20,8 @@ doe_bib = """
     title = "Nice Title",
     year = "2013"}
 """
+
+dummy_metadata = {'docfile': 'docsdir://hop.la', 'tags': set(['a', 'b'])}
 
 franny_bibdata  = coder.decode_bibdata(franny_bib)
 franny_bibentry = franny_bibdata['Franny1961']

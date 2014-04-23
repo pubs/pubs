@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
+
 import unittest
 import re
 import os
@@ -85,7 +86,7 @@ class CommandTestCase(unittest.TestCase):
 
             else:
                 if capture_output:
-                    assert isinstance(cmd, str)
+                    assert p3.isbasestr(cmd)
                     _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd.split())
                 else:
                     pubs_cmd.execute(cmd.split())
@@ -213,13 +214,13 @@ class TestList(DataCommandTestCase):
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
-        correct = ['Initializing pubs in /paper_first\n',
-                   '',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
-                   '',
-                   '',
-                   'search network\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
+        correct = [b'Initializing pubs in /paper_first\n',
+                   b'',
+                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   b'',
+                   b'',
+                   b'search network\n',
+                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -305,9 +306,9 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs add', [str_fixtures.bibtex_external0]),
                 'pubs export Page99',
                ]
-
         outs = self.execute_cmds(cmds)
-        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]), fixtures.page_bibdata)
+        out_raw = outs[2].decode()
+        self.assertEqual(endecoder.EnDecoder().decode_bibdata(out_raw), fixtures.page_bibdata)
 
     def test_import(self):
         cmds = ['pubs init',

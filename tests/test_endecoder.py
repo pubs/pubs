@@ -6,7 +6,9 @@ import yaml
 
 import dotdot
 from pubs import endecoder
+from pubs.p3 import ustr
 
+from fixtures import dummy_metadata
 from str_fixtures import bibtex_raw0, metadata_raw0, turing_bib
 
 
@@ -21,8 +23,19 @@ def compare_yaml_str(s1, s2):
 
 class TestEnDecode(unittest.TestCase):
 
-    def test_endecode_bibtex(self):
+    def test_encode_bibtex_is_unicode(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+        bibraw = decoder.encode_bibdata(entry)
+        self.assertIsInstance(bibraw, ustr)
 
+    def test_encode_metadat_is_unicode(self):
+        decoder = endecoder.EnDecoder()
+        data = decoder.encode_metadata(dummy_metadata)
+        self.assertIsInstance(data, ustr)
+
+
+    def test_endecode_bibtex(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
 

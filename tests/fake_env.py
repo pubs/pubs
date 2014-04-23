@@ -1,4 +1,5 @@
 import sys
+import io
 import os
 import shutil
 import glob
@@ -9,7 +10,7 @@ import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob
 
-from pubs.p3 import io, input
+from pubs.p3 import input
 from pubs import content, filebroker
 
     # code for fake fs
@@ -19,6 +20,7 @@ real_open = open
 real_file = file
 real_shutil = shutil
 real_glob = glob
+real_io = io
 
 
 
@@ -35,6 +37,57 @@ real_glob = glob
 #     return ml
 
 
+ENCODING = 'utf8'
+
+
+class UnicodeStringIOWrapper(object):
+    """This is a hack because fake_filesystem does not provied mock of io.
+    """
+
+    override = ['read', 'readline', 'readlines', 'write', 'writelines']
+
+    def __init__(self, strio):
+        self._strio = strio  # The real StringIO
+
+    def __getattr__(self, name):
+        if name in UnicodeStringIOWrapper.override:
+            return object.__getattribute__(self, name)
+        else:
+            return self._strio.__getattribute__(name)
+
+    def read(self, *args):
+        return self._strio.read(*args).decode(ENCODING)
+
+    def readline(self, *args):
+        return self._strio.readline(*args).decode(ENCODING)
+
+    def readlines(self, *args):
+        return [l.decode(ENCODING) for l in self._strio.readlines(*args)]
+
+    def write(self, data):
+        self._strio.write(data.encode(ENCODING))
+
+    def writelines(self, data):
+        self._strio.write([l.encode(ENCODING) for l in data])
+
+    def __enter__(self):
+        self._strio.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        return self._strio.__exit__(*args)
+
+
+class FakeIO(object):
+
+    def __init__(self, fake_open):
+        self.fake_open = fake_open
+
+    def open(self, *args, **kwargs):
+        # Forces python3 mode for FakeFileOpen
+        fakefs_stringio = self.fake_open.Call(*args, **kwargs)
+        return UnicodeStringIOWrapper(fakefs_stringio)
+
 
 def create_fake_fs(module_list):
 
@@ -43,6 +96,7 @@ def create_fake_fs(module_list):
     fake_open = fake_filesystem.FakeFileOpen(fake_fs)
     fake_shutil = fake_filesystem_shutil.FakeShutilModule(fake_fs)
     fake_glob = fake_filesystem_glob.FakeGlobModule(fake_fs)
+    fake_io = FakeIO(fake_open)
 
     fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
 
@@ -51,18 +105,22 @@ def create_fake_fs(module_list):
     sys.modules['os']     = fake_os
     sys.modules['shutil'] = fake_shutil
     sys.modules['glob']   = fake_glob
+    sys.modules['io']     = fake_io
 
     for md in module_list:
         md.os = fake_os
         md.shutil = fake_shutil
         md.open = fake_open
         md.file = fake_open
+        md.io = fake_io
 
     return {'fs': fake_fs,
             'os': fake_os,
             'open': fake_open,
+            'io': fake_io,
             'shutil': fake_shutil,
             'glob': fake_glob}
+
 
 def unset_fake_fs(module_list):
     try:
@@ -75,12 +133,14 @@ def unset_fake_fs(module_list):
     sys.modules['os']     = real_os
     sys.modules['shutil'] = real_shutil
     sys.modules['glob']   = real_glob
+    sys.modules['io']     = real_io
 
     for md in module_list:
         md.os = real_os
         md.shutil = real_shutil
         md.open = real_open
         md.file = real_file
+        md.io = real_io
 
 
 def copy_dir(fs, real_dir, fake_dir = None):
@@ -91,7 +151,7 @@ def copy_dir(fs, real_dir, fake_dir = None):
         real_path = os.path.abspath(real_os.path.join(real_dir, filename))
         fake_path = fs['os'].path.join(fake_dir, filename)
         if real_os.path.isfile(real_path):
-            with real_open(real_path, 'r') as f:
+            with real_open(real_path, 'rb') as f:
                 fs['fs'].CreateFile(fake_path, contents=f.read())
         if real_os.path.isdir(real_path):
             fs['fs'].CreateDirectory(fake_path)
@@ -103,8 +163,8 @@ def copy_dir(fs, real_dir, fake_dir = None):
 def redirect(f):
     def newf(*args, **kwargs):
         old_stderr, old_stdout = sys.stderr, sys.stdout
-        stdout = io.StringIO()
-        stderr = io.StringIO()
+        stdout = io.BytesIO()
+        stderr = io.BytesIO()
         sys.stdout, sys.stderr = stdout, stderr
         try:
             return f(*args, **kwargs), stdout, stderr

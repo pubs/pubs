@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+
+
 bibtex_external0 = """
 @techreport{Page99,
      number = {1999-66},

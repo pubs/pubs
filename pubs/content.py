@@ -1,9 +1,20 @@
 import os
+import io
 import subprocess
 import tempfile
 import shutil
 
 from .p3 import urlparse, HTTPConnection, urlopen
+
+
+"""Conventions:
+    - all files are written using utf8 encoding by default,
+    - any function returning or variable containing byte data should
+    be prefixed by 'byte_'
+"""
+
+
+ENCODING = 'utf8'
 
 
 # files i/o
@@ -42,14 +53,14 @@ def check_directory(path, fail=True):
 
 def read_file(filepath):
     check_file(filepath)
-    with open(system_path(filepath), 'r') as f:
-        s = f.read()
-    return s
+    with io.open(system_path(filepath), 'r', encoding=ENCODING) as f:
+        content = f.read()
+    return content
 
 
 def write_file(filepath, data):
     check_directory(os.path.dirname(filepath))
-    with open(system_path(filepath), 'w') as f:
+    with io.open(system_path(filepath), 'w', encoding=ENCODING) as f:
         f.write(data)
 
 
@@ -83,13 +94,25 @@ def check_content(path):
         return check_file(path)
 
 
+def _get_byte_url_content(path, ui=None):
+    if ui is not None:
+        ui.print_('dowloading {}'.format(path))
+    response = urlopen(path)
+    return response.read()
+
+
+def _dump_byte_url_content(source, target):
+    """Caution: this method does not test for existing destination.
+    """
+    byte_content = _get_byte_url_content(source)
+    with io.open(target, 'wb') as f:
+        f.write(byte_content)
+
+
 def get_content(path, ui=None):
     """Will be useful when we need to get content from url"""
     if content_type(path) == 'url':
-        if ui is not None:
-            ui.print_('dowloading {}'.format(path))
-        response = urlopen(path)
-        return response.read()
+        return _get_byte_url_content(path, ui=ui).decode(encoding=ENCODING)
     else:
         return read_file(path)
 
@@ -102,24 +125,27 @@ def move_content(source, target, overwrite = False):
     shutil.move(source, target)
 
 
-def copy_content(source, target, overwrite = False):
+def copy_content(source, target, overwrite=False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
-        raise IOError('target file exists')
-    shutil.copy(source, target)
+        raise IOError('{} file exists.'.format(target))
+    if content_type(source) == 'url':
+        _dump_byte_url_content(source, target)
+    else:
+        shutil.copy(source, target)
 
 
-def editor_input(editor, initial="", suffix='.tmp'):
+def editor_input(editor, initial=u"", suffix='.tmp'):
     """Use an editor to get input"""
+    str_initial = initial.encode(ENCODING)  # TODO: make it a configuration item
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
-        temp_file.write(initial)
+        temp_file.write(str_initial)
     cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
     cmd.append(tfile_name)
     subprocess.call(cmd)
-    with open(tfile_name) as temp_file:
-        content = temp_file.read()
+    content = read_file(tfile_name)
     os.remove(tfile_name)
     return content
 
@@ -127,11 +153,9 @@ def editor_input(editor, initial="", suffix='.tmp'):
 def edit_file(editor, path_to_file, temporary=True):
     if temporary:
         check_file(path_to_file, fail=True)
-        with open(path_to_file) as f:
-            content = f.read()
+        content = read_file(path_to_file)
         content = editor_input(editor, content)
-        with open(path_to_file, 'w') as f:
-            f.write(content)
+        write_file(path_to_file, content)
     else:
         cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
         cmd.append(path_to_file)

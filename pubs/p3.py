@@ -2,7 +2,6 @@ import sys
 
 if sys.version_info[0] == 2:
     import ConfigParser as configparser
-    import StringIO as io
     input = raw_input
     ustr = unicode
     uchr = unichr
@@ -11,7 +10,6 @@ if sys.version_info[0] == 2:
     from httplib import HTTPConnection
 else:
     import configparser
-    import io
     ustr = str
     uchr = chr
     from urllib.parse import urlparse
@@ -19,5 +17,11 @@ else:
     from http.client import HTTPConnection
 
 configparser = configparser
-io = io
 input = input
+
+
+def isbasestr(obj):
+    try:
+        return isinstance(obj, basestring)
+    except NameError:
+        return isinstance(obj, str) or isinstance(obj, bytes)

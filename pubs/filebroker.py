@@ -3,7 +3,8 @@ import re
 from .p3 import urlparse
 
 from .content import (check_file, check_directory, read_file, write_file,
-                      system_path, check_content, content_type, get_content)
+                      system_path, check_content, content_type, get_content,
+                      copy_content)
 
 
 def filter_filename(filename, ext):
@@ -161,12 +162,7 @@ class DocBroker(object):
 
         target_path = '{}://{}'.format(self.scheme, citekey + os.path.splitext(source_path)[-1])
         full_target_path = self.real_docpath(target_path)
-        if not overwrite and check_file(full_target_path, fail=False):
-            raise IOError('{} file exists.'.format(full_target_path))
-
-        doc_content = get_content(full_source_path)
-        write_file(full_target_path, doc_content)
-
+        copy_content(full_source_path, full_target_path, overwrite=overwrite)
         return target_path
 
     def remove_doc(self, docpath, silent=True):

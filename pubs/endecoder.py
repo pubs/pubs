@@ -1,10 +1,7 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
-import copy
 
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
+import io
+import copy
 
 try:
     import bibtexparser as bp
@@ -14,6 +11,12 @@ except ImportError:
     exit(-1)
 
 import yaml
+
+
+
+"""Important notice:
+    All functions and methods in this file assume and produce unicode data.
+"""
 
 
 def sanitize_citekey(record):
@@ -56,7 +59,8 @@ class EnDecoder(object):
     """
 
     def encode_metadata(self, metadata):
-        return yaml.safe_dump(metadata, allow_unicode=True, encoding='UTF-8', indent = 4)
+        return yaml.safe_dump(metadata, allow_unicode=True,
+                              encoding=None, indent = 4)
 
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
@@ -97,9 +101,7 @@ class EnDecoder(object):
 
     def decode_bibdata(self, bibdata_raw):
         """"""
-        bibdata_rawutf8 = bibdata_raw
-        #bibdata_rawutf8 = unicode(bibdata_raw, 'utf8') # FIXME this doesn't work
-        bibdata_stream = StringIO.StringIO(bibdata_rawutf8)
+        bibdata_stream = io.StringIO(bibdata_raw)
         return self._decode_bibdata(bibdata_stream)
 
     def _decode_bibdata(self, bibdata_stream):
