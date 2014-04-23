@@ -88,7 +88,7 @@ def get_content(path, ui=None):
     if content_type(path) == 'url':
         if ui is not None:
             ui.print_('dowloading {}'.format(path))
-        response = urllib2.urlopen(path)
+        response = urlopen(path)
         return response.read()
     else:
         return read_file(path)
