@@ -151,6 +151,14 @@ class TestAdd(DataCommandTestCase):
         self.execute_cmds(cmds)
         self.assertEqual(set(self.fs['os'].listdir('/not_default/doc')), {'Page99.pdf'})
 
+    def test_add_citekey(self):
+        cmds = ['pubs init',
+                'pubs add -k CustomCitekey /data/pagerank.bib',
+                ]
+        self.execute_cmds(cmds)
+        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
+        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'CustomCitekey.bib'})
+
     def test_add_doc_nocopy_does_not_copy(self):
         cmds = ['pubs init',
                 'pubs add /data/pagerank.bib -C -d /data/pagerank.pdf',
@@ -159,6 +167,14 @@ class TestAdd(DataCommandTestCase):
         self.assertEqual(self.fs['os'].listdir(
                 self.fs['os'].path.join(self.default_pubs_dir, 'doc')),
             [])
+
+    def test_add_twice_fails(self):
+        cmds = ['pubs init',
+                'pubs add /data/pagerank.bib',
+                'pubs add -k Page99 /data/turing1950.bib',
+                ]
+        with self.assertRaises(SystemExit):
+            self.execute_cmds(cmds)
 
 
 class TestList(DataCommandTestCase):

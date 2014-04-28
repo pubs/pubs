@@ -81,8 +81,9 @@ def command(args):
     if citekey is None:
         base_key = bibstruct.extract_citekey(bibdata)
         citekey = rp.unique_citekey(base_key)
-    else:
-        rp.databroker.exists(citekey, meta_check=False)
+    elif citekey in rp:
+        ui.error('citekey already exist {}.'.format(citekey))
+        ui.exit(1)
 
     p = paper.Paper(bibdata, citekey=citekey)
 

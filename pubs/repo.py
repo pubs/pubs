@@ -36,9 +36,10 @@ class Repository(object):
     def __contains__(self, citekey):
         """ Allows to use 'if citekey in repo' pattern
 
-            Warning: costly the first time.
+        The convention is that the paper is in the repository
+        if and only if a bibfile is in the repository.
         """
-        return citekey in self.citekeys
+        return self.databroker.exists(citekey)
 
     def __len__(self):
         """Warning: costly the first time."""
@@ -51,8 +52,7 @@ class Repository(object):
 
     def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
-        if self.databroker.exists(citekey, meta_check=True):
-            #TODO meta_check=False and default meta generation
+        if citekey in self:
             return Paper(self.databroker.pull_bibdata(citekey),
                          citekey=citekey,
                          metadata=self.databroker.pull_metadata(citekey))
@@ -66,8 +66,7 @@ class Repository(object):
                                if True, mimick the behavior of updating a paper
         """
         bibstruct.check_citekey(paper.citekey)
-        if (not overwrite) and (self.databroker.exists(paper.citekey, meta_check=False)
-                                or (paper.citekey in self)):
+        if (not overwrite) and (paper.citekey in self):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
         if not paper.added:
             paper.added = datetime.now()
