@@ -145,8 +145,6 @@ class DocBroker(object):
                 docpath = os.path.join(self.docdir, parsed.netloc)
             else:
                 docpath = os.path.join(self.docdir, parsed.netloc, parsed.path[1:])
-        elif content_type(docpath) != 'file':
-            return docpath
         return docpath
 
     def add_doc(self, citekey, source_path, overwrite=False):

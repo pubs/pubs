@@ -100,12 +100,16 @@ def command(args):
         ui.warning(('Skipping document file from bib file '
                     '{}, using {} instead.').format(bib_docfile, docfile))
 
+    docfile = docfile
+
     if docfile is not None:
         copy_doc = args.copy
         if copy_doc is None:
             copy_doc = config().import_copy
         if copy_doc:
             docfile = rp.databroker.add_doc(citekey, docfile)
+        else:
+            raise NotImplementedError
 
     # create the paper
 

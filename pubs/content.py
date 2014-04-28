@@ -39,6 +39,10 @@ def _check_system_path_is(nature, path, fail=True):
         return answer
 
 
+def system_path(path):
+    return os.path.abspath(os.path.expanduser(path))
+
+
 def check_file(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail)
@@ -62,10 +66,6 @@ def write_file(filepath, data):
     check_directory(os.path.dirname(filepath))
     with io.open(system_path(filepath), 'w', encoding=ENCODING) as f:
         f.write(data)
-
-
-def system_path(path):
-    return os.path.abspath(os.path.expanduser(path))
 
 
 # dealing with formatless content
@@ -117,7 +117,9 @@ def get_content(path, ui=None):
         return read_file(path)
 
 
-def move_content(source, target, overwrite = False):
+def move_content(source, target, overwrite=False):
+    source = system_path(source)
+    target = system_path(target)
     if source == target:
         return
     if not overwrite and os.path.exists(target):
@@ -126,6 +128,8 @@ def move_content(source, target, overwrite = False):
 
 
 def copy_content(source, target, overwrite=False):
+    source = system_path(source)
+    target = system_path(target)
     if source == target:
         return
     if not overwrite and os.path.exists(target):
