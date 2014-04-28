@@ -57,6 +57,7 @@ class CommandTestCase(unittest.TestCase):
 
     def setUp(self):
         self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
+        self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
 
     def execute_cmds(self, cmds, fs=None, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
@@ -136,6 +137,12 @@ class TestAdd(DataCommandTestCase):
                 'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
+        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
+        meta_dir = self.fs['os'].path.join(self.default_pubs_dir, 'meta')
+        doc_dir = self.fs['os'].path.join(self.default_pubs_dir, 'doc')
+        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'Page99.bib'})
+        self.assertEqual(set(self.fs['os'].listdir(meta_dir)), {'Page99.yaml'})
+        self.assertEqual(set(self.fs['os'].listdir(doc_dir)), {'Page99.pdf'})
 
     def test_add2(self):
         cmds = ['pubs init -p /not_default',
@@ -143,6 +150,15 @@ class TestAdd(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
         self.assertEqual(set(self.fs['os'].listdir('/not_default/doc')), {'Page99.pdf'})
+
+    def test_add_doc_nocopy_does_not_copy(self):
+        cmds = ['pubs init',
+                'pubs add /data/pagerank.bib -C -d /data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(self.fs['os'].listdir(
+                self.fs['os'].path.join(self.default_pubs_dir, 'doc')),
+            [])
 
 
 class TestList(DataCommandTestCase):

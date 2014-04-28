@@ -84,19 +84,13 @@ def command(args):
             if isinstance(p, Exception):
                 ui.error('could not load entry for citekey {}.'.format(k))
             else:
+                rp.push_paper(p)
+                ui.print_('{} imported'.format(color.dye(p.citekey, color.cyan)))
                 docfile = bibstruct.extract_docfile(p.bibdata)
                 if docfile is None:
                     ui.warning("no file for {}.".format(p.citekey))
                 else:
-                    copy_doc = args.copy
-                    if copy_doc is None:
-                        copy_doc = config().import_copy
-                    if copy_doc:
-                        docfile = rp.databroker.add_doc(p.citekey, docfile)
-
-                    p.docpath = docfile
-                rp.push_paper(p)
-                ui.print_('{} imported'.format(color.dye(p.citekey, color.cyan)))
+                    rp.push_doc(p.citekey, docfile, copy=args.copy)
         except KeyError:
             ui.error('no entry found for citekey {}.'.format(k))
         except IOError as e:

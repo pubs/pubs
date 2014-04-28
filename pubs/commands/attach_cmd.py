@@ -27,18 +27,9 @@ def command(args):
     rp = repo.Repository(config())
     paper = rp.pull_paper(args.citekey)
 
-    copy = args.copy
-    if copy is None:
-        copy = config().import_copy
-
     try:
         document = args.document
-        if copy:
-            document = rp.databroker.add_doc(paper.citekey, document)
-        else:
-            pass # TODO warn if file does not exists
-        paper.docpath = document
-        rp.push_paper(paper, overwrite=True, event=False)
+        document = rp.push_doc(paper.citekey, document, copy=args.copy)
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)

@@ -5,6 +5,7 @@ from . import bibstruct
 from . import events
 from .datacache import DataCache
 from .paper import Paper
+from .content import system_path
 
 
 def _base27(n):
@@ -123,6 +124,17 @@ class Repository(object):
             self.remove_paper(old_citekey, event=False)
             # send event
             events.RenameEvent(paper, old_citekey).send()
+
+    def push_doc(self, citekey, docfile, copy=None):
+        p = self.pull_paper(citekey)
+        if copy is None:
+            copy = self.config.import_copy
+        if copy:
+            docfile = self.databroker.add_doc(citekey, docfile)
+        else:
+            docfile = system_path(docfile)
+        p.docpath = docfile
+        self.push_paper(p, overwrite=True, event=False)
 
     def unique_citekey(self, base_key):
         """Create a unique citekey for a given basekey."""
