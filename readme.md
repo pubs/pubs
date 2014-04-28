@@ -34,7 +34,7 @@ Requirements
 - python >= 2.6
 - [dateutil](http://labix.org/python-dateutil)
 - [pyYaml](http://pyyaml.org)
-- [bibtexparser](https://github.com/sciunto/python-bibtexparser)
+- [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.5.3
 
 
 Authors

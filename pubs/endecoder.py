@@ -1,6 +1,5 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 
-import io
 import copy
 
 try:
@@ -11,7 +10,6 @@ except ImportError:
     exit(-1)
 
 import yaml
-
 
 
 """Important notice:
@@ -44,7 +42,9 @@ def customizations(record):
 
     return record
 
-bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher', 'year', 'month', 'number', 'pages', 'link', 'doi', 'id', 'note', 'abstract']
+bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher',
+                  'year', 'month', 'number', 'pages', 'link', 'doi', 'id',
+                  'note', 'abstract']
 
 
 class EnDecoder(object):
@@ -60,7 +60,7 @@ class EnDecoder(object):
 
     def encode_metadata(self, metadata):
         return yaml.safe_dump(metadata, allow_unicode=True,
-                              encoding=None, indent = 4)
+                              encoding=None, indent=4)
 
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
@@ -99,14 +99,20 @@ class EnDecoder(object):
         bibraw += '}\n'
         return bibraw
 
-    def decode_bibdata(self, bibdata_raw):
+    def decode_bibdata(self, bibdata_unicode):
         """"""
-        bibdata_stream = io.StringIO(bibdata_raw)
-        return self._decode_bibdata(bibdata_stream)
+        if isinstance(bibdata_unicode, str):
+            # Nothing to do for python3
+            bibdata_string = bibdata_unicode
+        else:
+            # For python2 bibtexparser expects utf8 encoded string
+            bibdata_string = bibdata_unicode.encode('utf8')
+        return self._decode_bibdata(bibdata_string)
 
-    def _decode_bibdata(self, bibdata_stream):
+    def _decode_bibdata(self, bibdata_string):
         try:
-            entries = bp.bparser.BibTexParser(bibdata_stream, customization=customizations).get_entry_dict()
+            entries = bp.bparser.BibTexParser(
+                bibdata_string, customization=customizations).get_entry_dict()
             # Remove 'id' attribute which is stored as citekey
             for e in entries:
                 entries[e].pop('id')
