@@ -83,9 +83,7 @@ def command(args):
     rp = Repository(config())
 
     if citekeyOrTag is None:
-        for tag in rp.get_tags():
-            ui.print_(color.dye(' '.join(rp.get_tags()),
-                      color=color.blue))
+        ui.print_(color.dye(' '.join(rp.get_tags()), color=color.blue))
     else:
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)

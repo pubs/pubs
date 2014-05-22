@@ -249,7 +249,7 @@ class TestUsecase(DataCommandTestCase):
         correct = [b'Initializing pubs in /paper_first\n',
                    b'',
                    b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
-                   b'',
+                   b'\n',
                    b'',
                    b'search network\n',
                    b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
@@ -292,6 +292,29 @@ class TestUsecase(DataCommandTestCase):
         docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
         print(self.fs['os'].listdir(docdir))
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
+
+    def test_tag_list(self):
+        correct = [b'Initializing pubs in /paper_first\n',
+                   b'',
+                   b'',
+                   b'',
+                   b'search network\n',
+                  ]
+
+        cmds = ['pubs init -p paper_first/',
+                'pubs add -d data/pagerank.pdf data/pagerank.bib',
+                'pubs tag',
+                'pubs tag Page99 network+search',
+                'pubs tag',
+               ]
+
+        out = self.execute_cmds(cmds)
+
+        def clean(s):
+            return set(s.strip().split(' '))
+
+        self.assertEqual(clean(correct[2]), clean(out[2]))
+        self.assertEqual(clean(correct[4]), clean(out[4]))
 
     def test_editor_abort(self):
         with self.assertRaises(SystemExit):
