@@ -69,7 +69,7 @@ def _check_author_match(paper, query, case_sensitive=False):
     """Only checks within last names."""
     if not 'author' in paper.bibentry:
         return False
-    return any([query == _lower(bibstruct.author_last(p), lower=(not case_sensitive))
+    return any([query in _lower(bibstruct.author_last(p), lower=(not case_sensitive))
                 for p in paper.bibentry['author']])
 
 
