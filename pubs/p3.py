@@ -12,12 +12,14 @@ else:
     import configparser
     ustr = str
     uchr = chr
+    file = None
     from urllib.parse import urlparse
     from urllib.request import urlopen
     from http.client import HTTPConnection
 
 configparser = configparser
 input = input
+file = file
 
 
 def isbasestr(obj):
