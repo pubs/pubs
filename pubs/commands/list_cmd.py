@@ -19,7 +19,10 @@ def parser(subparsers):
     parser.add_argument('-i', '--ignore-case', action='store_false',
             default=None, dest='case_sensitive')
     parser.add_argument('-I', '--force-case', action='store_true',
-             dest='case_sensitive')
+            dest='case_sensitive')
+    parser.add_argument('-a', '--alphabetical', action='store_true',
+            dest='alphabetical', default=False,
+            help='lexicographic order on the citekeys.')
     parser.add_argument('query', nargs='*',
             help='Paper query (e.g. "year: 2000" or "tags: math")')
     return parser
@@ -36,10 +39,14 @@ def command(args):
     papers = filter(lambda (n, p):
             filter_paper(p, args.query, case_sensitive=args.case_sensitive),
             enumerate(rp.all_papers()))
+    if args.alphabetical:
+        papers = sorted(papers, key=lambda p: p[1].citekey)
+    else:
+        papers = sorted(papers, key=date_added)
     if len(papers) > 0:
         ui.print_('\n'.join(
             pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
-            for n, p in sorted(papers, key=date_added)))
+            for n, p in papers))
 
 
 FIELD_ALIASES = {
