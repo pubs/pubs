@@ -29,11 +29,11 @@ class TestFileBroker(fake_env.TestFakeFs):
         fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'testrepo'), 'testrepo')
         fb = filebroker.FileBroker('testrepo', create = True)
 
-        with open('testrepo/bib/Page99.bib', 'r') as f:
-            self.assertEqual(fb.pull_bibfile('Page99'), f.read())
+        bib_content = content.read_file('testrepo/bib/Page99.bib')
+        self.assertEqual(fb.pull_bibfile('Page99'), bib_content)
 
-        with open('testrepo/meta/Page99.yaml', 'r') as f:
-            self.assertEqual(fb.pull_metafile('Page99'), f.read())
+        meta_content = content.read_file('testrepo/meta/Page99.yaml')
+        self.assertEqual(fb.pull_metafile('Page99'), meta_content)
 
     def test_errors(self):
 

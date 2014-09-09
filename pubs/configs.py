@@ -1,10 +1,9 @@
 import os
 import collections
 
-from .p3 import configparser
-from . import content
+from .p3 import configparser, _read_config
 
-from .content import system_path, check_file
+from .content import check_file, _open
 
 
 # constant stuff (DFT = DEFAULT)
@@ -64,17 +63,15 @@ class Config(object):
         _config = self
 
     def load(self, path=DFT_CONFIG_PATH):
-        if not content.check_file(path, fail=False):
+        if not check_file(path, fail=False):
             raise IOError(("The configuration file {} does not exist."
                            " Did you run 'pubs init' ?").format(path))
-        with open(content.system_path(path), 'r') as f:
-            read = self._cfg.readfp(f)
-        # if len(read) == 0:
-        #     raise IOError("Syntax error in {} config file. Aborting.".format(path))
+        with _open(path, 'r') as f:
+            _read_config(self._cfg, f)
         return self
 
     def save(self, path=DFT_CONFIG_PATH):
-        with open(content.system_path(path), 'w') as f:
+        with _open(path, 'w') as f:
             self._cfg.write(f)
 
     def __setattr__(self, name, value):

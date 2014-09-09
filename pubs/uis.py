@@ -4,7 +4,6 @@ import sys
 
 from .beets_ui import _encoding, input_
 from .content import editor_input
-from .p3 import ustr
 from . import color
 
 # package-shared ui that can be accessed using :
@@ -39,10 +38,7 @@ class UI:
         is not in the terminal's encoding's character set, just silently
         replaces it.
         """
-        txt = [s.encode(self.encoding, 'replace')
-               if isinstance(s, ustr) else s
-               for s in strings]
-        print(' '.join(txt))
+        print(' '.join(strings).encode(self.encoding, 'replace'))
 
     def input_choice(self, options, option_chars, default=None, question=''):
         """Ask the user to chose between a set of options. The iser is asked

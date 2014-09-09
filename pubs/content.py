@@ -43,6 +43,10 @@ def system_path(path):
     return os.path.abspath(os.path.expanduser(path))
 
 
+def _open(path, mode):
+        return io.open(system_path(path), mode, encoding=ENCODING)
+
+
 def check_file(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail)
@@ -57,14 +61,14 @@ def check_directory(path, fail=True):
 
 def read_file(filepath):
     check_file(filepath)
-    with io.open(system_path(filepath), 'r', encoding=ENCODING) as f:
+    with _open(filepath, 'r') as f:
         content = f.read()
     return content
 
 
 def write_file(filepath, data):
     check_directory(os.path.dirname(filepath))
-    with io.open(system_path(filepath), 'w', encoding=ENCODING) as f:
+    with _open(filepath, 'w') as f:
         f.write(data)
 
 

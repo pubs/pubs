@@ -66,12 +66,12 @@ class CommandTestCase(unittest.TestCase):
         In the latter case, the command is :
         1. a string reprensenting the command to execute
         2. the user inputs to feed to the command during execution
-        3. the output excpected, verified with assertEqual
+        3. the output expected, verified with assertEqual
 
         """
         outs = []
         for cmd in cmds:
-            if hasattr(cmd, '__iter__'):
+            if not isinstance(cmd, p3.ustr):
                 if len(cmd) == 2:
                     input = fake_env.FakeInput(cmd[1], [content, uis, beets_ui, p3])
                     input.as_global()
@@ -292,6 +292,7 @@ class TestUsecase(DataCommandTestCase):
         docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
         print(self.fs['os'].listdir(docdir))
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
+
 
     def test_tag_list(self):
         correct = [b'Initializing pubs in /paper_first\n',

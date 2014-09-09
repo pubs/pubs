@@ -10,14 +10,13 @@ import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob
 
-from pubs.p3 import input
+from pubs.p3 import input, _fake_stdio
 from pubs import content, filebroker
 
     # code for fake fs
 
 real_os = os
 real_open = open
-real_file = file
 real_shutil = shutil
 real_glob = glob
 real_io = io
@@ -41,7 +40,7 @@ ENCODING = 'utf8'
 
 
 class UnicodeStringIOWrapper(object):
-    """This is a hack because fake_filesystem does not provied mock of io.
+    """This is a hack because fake_filesystem does not provide mock of io.
     """
 
     override = ['read', 'readline', 'readlines', 'write', 'writelines']
@@ -54,6 +53,10 @@ class UnicodeStringIOWrapper(object):
             return object.__getattribute__(self, name)
         else:
             return self._strio.__getattribute__(name)
+
+    def __iter__(self):
+        for l in self.readlines():
+            yield l
 
     def read(self, *args):
         return self._strio.read(*args).decode(ENCODING)
@@ -78,13 +81,24 @@ class UnicodeStringIOWrapper(object):
         return self._strio.__exit__(*args)
 
 
+def _force_binary_mode(mode):
+    if 'b' in mode:
+        raise ValueError('Open should not happen in binary mode.')
+    return mode + 'b'
+
+
 class FakeIO(object):
 
     def __init__(self, fake_open):
         self.fake_open = fake_open
 
     def open(self, *args, **kwargs):
-        # Forces python3 mode for FakeFileOpen
+        # Forces binary mode for FakeFileOpen
+        args = list(args)
+        if len(args) > 1:
+            args[1] = _force_binary_mode(args[1])
+        else:
+            kwargs['mode'] = _force_binary_mode(kwargs.get('mode', 'r'))
         fakefs_stringio = self.fake_open.Call(*args, **kwargs)
         return UnicodeStringIOWrapper(fakefs_stringio)
 
@@ -100,8 +114,6 @@ def create_fake_fs(module_list):
 
     fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
 
-    __builtins__.update({'open': fake_open, 'file': fake_open})
-
     sys.modules['os']     = fake_os
     sys.modules['shutil'] = fake_shutil
     sys.modules['glob']   = fake_glob
@@ -111,7 +123,7 @@ def create_fake_fs(module_list):
         md.os = fake_os
         md.shutil = fake_shutil
         md.open = fake_open
-        md.file = fake_open
+        md.file = None
         md.io = fake_io
 
     return {'fs': fake_fs,
@@ -125,10 +137,8 @@ def create_fake_fs(module_list):
 def unset_fake_fs(module_list):
     try:
         __builtins__.open = real_open
-        __builtins__.file = real_file
     except AttributeError:
         __builtins__['open'] = real_open
-        __builtins__['file'] = real_file
 
     sys.modules['os']     = real_os
     sys.modules['shutil'] = real_shutil
@@ -139,7 +149,6 @@ def unset_fake_fs(module_list):
         md.os = real_os
         md.shutil = real_shutil
         md.open = real_open
-        md.file = real_file
         md.io = real_io
 
 
@@ -163,8 +172,8 @@ def copy_dir(fs, real_dir, fake_dir = None):
 def redirect(f):
     def newf(*args, **kwargs):
         old_stderr, old_stdout = sys.stderr, sys.stdout
-        stdout = io.BytesIO()
-        stderr = io.BytesIO()
+        stdout = _fake_stdio()
+        stderr = _fake_stdio()
         sys.stdout, sys.stderr = stdout, stderr
         try:
             return f(*args, **kwargs), stdout, stderr
@@ -190,7 +199,7 @@ class FakeInput():
         Then :
         input() returns 'yes'
         input() returns 'no'
-        input() raise IndexError
+        input() raises IndexError
      """
 
     def __init__(self, inputs, module_list=tuple()):
