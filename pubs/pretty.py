@@ -53,9 +53,9 @@ def paper_oneliner(p, citekey_only = False):
         return p.citekey
     else:
         bibdesc = bib_oneliner(p.bibentry)
-        return (u'[{citekey}] {descr} {tags}'.format(
+        return u'[{citekey}] {descr} {tags}'.format(
             citekey=color.dye(p.citekey, color.purple),
             descr=bibdesc,
             tags=color.dye(' '.join(p.tags),
                            color.tag, bold=False),
-            )).encode('utf-8')
+            )
