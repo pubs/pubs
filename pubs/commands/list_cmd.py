@@ -28,25 +28,24 @@ def parser(subparsers):
     return parser
 
 
-def date_added(np):
-    n, p = np
+def date_added(p):
     return p.added or datetime(1, 1, 1)
 
 
 def command(args):
     ui = get_ui()
     rp = repo.Repository(config())
-    papers = filter(lambda (n, p):
-            filter_paper(p, args.query, case_sensitive=args.case_sensitive),
-            enumerate(rp.all_papers()))
+    papers = filter(lambda p: filter_paper(p, args.query,
+                                           case_sensitive=args.case_sensitive),
+                    rp.all_papers())
     if args.alphabetical:
-        papers = sorted(papers, key=lambda p: p[1].citekey)
+        papers = sorted(papers, key=lambda p: p.citekey)
     else:
         papers = sorted(papers, key=date_added)
     if len(papers) > 0:
         ui.print_('\n'.join(
-            pretty.paper_oneliner(p, n=n, citekey_only=args.citekeys)
-            for n, p in papers))
+            pretty.paper_oneliner(p, citekey_only=args.citekeys)
+            for p in papers))
 
 
 FIELD_ALIASES = {

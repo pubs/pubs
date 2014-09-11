@@ -48,7 +48,7 @@ def bib_desc(bib_data):
     return s
 
 
-def paper_oneliner(p, n = 0, citekey_only = False):
+def paper_oneliner(p, citekey_only = False):
     if citekey_only:
         return p.citekey
     else:

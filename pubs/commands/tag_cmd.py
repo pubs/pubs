@@ -103,10 +103,10 @@ def command(args):
             all_tags += tags
             included, excluded = _tag_groups(_parse_tags(all_tags))
             papers_list = []
-            for n, p in enumerate(rp.all_papers()):
+            for p in rp.all_papers():
                 if (p.tags.issuperset(included) and
                     len(p.tags.intersection(excluded)) == 0):
-                    papers_list.append((p, n))
+                    papers_list.append(p)
 
-            ui.print_('\n'.join(pretty.paper_oneliner(p, n)
-                                for p, n in papers_list))
+            ui.print_('\n'.join(pretty.paper_oneliner(p)
+                                for p in papers_list))
