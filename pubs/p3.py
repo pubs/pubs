@@ -4,7 +4,10 @@ import sys
 if sys.version_info[0] == 2:
     import ConfigParser as configparser
     _read_config = configparser.SafeConfigParser.readfp
-    input = raw_input
+
+    def input():
+        raw_input().decode(sys.stdin.encoding or 'utf8', 'ignore')
+
     ustr = unicode
     uchr = unichr
     from urlparse import urlparse

@@ -2,15 +2,26 @@ from __future__ import print_function
 
 import sys
 
-from .beets_ui import _encoding, input_
 from .content import editor_input
 from . import color
+import locale
+
 
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
 # you must instanciate ui with a Config instance using init_ui(config)
 _ui = None
+
+
+def _get_encoding(config):
+    """Get local terminal encoding or user preference in config."""
+    enc = 'utf8'
+    try:
+        enc = locale.getdefaultlocale()[1] or 'utf8'
+    except ValueError:
+        pass  # Keep default
+    return config.get('terminal-encoding', enc)
 
 
 def get_ui():
@@ -29,7 +40,7 @@ class UI:
     """
 
     def __init__(self, config):
-        self.encoding = _encoding(config)
+        self.encoding = _get_encoding(config)
         color.setup(config.color)
         self.editor = config.edit_cmd
 
@@ -39,6 +50,14 @@ class UI:
         replaces it.
         """
         print(' '.join(strings).encode(self.encoding, 'replace'))
+
+    def input(self):
+        try:
+            data = input()
+        except EOFError:
+            self.error('Standard input ended while waiting for answer.')
+            self.exit(1)
+        return data
 
     def input_choice(self, options, option_chars, default=None, question=''):
         """Ask the user to chose between a set of options. The iser is asked
@@ -61,7 +80,7 @@ class UI:
                                 for c, o in zip(displayed_chars, options)])
         self.print_(question, option_str)
         while True:
-            answer = input_()
+            answer = self.input()
             if answer is None or answer == '':
                 if default is not None:
                     return default

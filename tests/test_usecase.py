@@ -8,7 +8,7 @@ import dotdot
 import fake_env
 
 from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, beets_ui, p3, endecoder, configs
+from pubs import color, content, filebroker, uis, p3, endecoder, configs
 
 import str_fixtures
 import fixtures
@@ -73,7 +73,7 @@ class CommandTestCase(unittest.TestCase):
         for cmd in cmds:
             if not isinstance(cmd, p3.ustr):
                 if len(cmd) == 2:
-                    input = fake_env.FakeInput(cmd[1], [content, uis, beets_ui, p3])
+                    input = fake_env.FakeInput(cmd[1], [content, uis, p3])
                     input.as_global()
 
                 if capture_output:
