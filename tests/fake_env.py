@@ -10,7 +10,7 @@ import fake_filesystem
 import fake_filesystem_shutil
 import fake_filesystem_glob
 
-from pubs.p3 import input, _fake_stdio
+from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
 from pubs import content, filebroker
 
     # code for fake fs
@@ -176,7 +176,7 @@ def redirect(f):
         stderr = _fake_stdio()
         sys.stdout, sys.stderr = stdout, stderr
         try:
-            return f(*args, **kwargs), stdout, stderr
+            return f(*args, **kwargs), _get_fake_stdio_ucontent(stdout), _get_fake_stdio_ucontent(stderr)
         finally:
             sys.stderr, sys.stdout = old_stderr, old_stdout
     return newf

@@ -1,10 +1,12 @@
 from __future__ import print_function
 
 import sys
+import locale
+import codecs
 
 from .content import editor_input
 from . import color
-import locale
+from .p3 import _get_raw_stdout
 
 
 # package-shared ui that can be accessed using :
@@ -16,12 +18,12 @@ _ui = None
 
 def _get_encoding(config):
     """Get local terminal encoding or user preference in config."""
-    enc = 'utf8'
+    enc = None
     try:
-        enc = locale.getdefaultlocale()[1] or 'utf8'
+        enc = locale.getdefaultlocale()[1]
     except ValueError:
         pass  # Keep default
-    return config.get('terminal-encoding', enc)
+    return config.get('terminal-encoding', enc or 'utf8')
 
 
 def get_ui():
@@ -40,16 +42,18 @@ class UI:
     """
 
     def __init__(self, config):
-        self.encoding = _get_encoding(config)
         color.setup(config.color)
         self.editor = config.edit_cmd
+        self.encoding = _get_encoding(config)
+        self._stdout = codecs.getwriter(self.encoding)(_get_raw_stdout(),
+                                                       errors='replace')
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character
         is not in the terminal's encoding's character set, just silently
         replaces it.
         """
-        print(' '.join(strings).encode(self.encoding, 'replace'))
+        print(' '.join(strings), file=self._stdout)
 
     def input(self):
         try:

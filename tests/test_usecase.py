@@ -59,7 +59,7 @@ class CommandTestCase(unittest.TestCase):
         self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
         self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
 
-    def execute_cmds(self, cmds, fs=None, capture_output=CAPTURE_OUTPUT):
+    def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
 
         A command can be a string, or a tuple of size 2 or 3.
@@ -79,7 +79,7 @@ class CommandTestCase(unittest.TestCase):
                 if capture_output:
                     _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd[0].split())
                     if len(cmd) == 3 and capture_output:
-                        actual_out  = color.undye(stdout.getvalue())
+                        actual_out  = color.undye(stdout)
                         correct_out = color.undye(cmd[2])
                         self.assertEqual(actual_out, correct_out)
                 else:
@@ -93,8 +93,8 @@ class CommandTestCase(unittest.TestCase):
                     pubs_cmd.execute(cmd.split())
 
             if capture_output:
-                assert(stderr.getvalue() == '')
-                outs.append(color.undye(stdout.getvalue()))
+                assert(stderr == '')
+                outs.append(color.undye(stdout))
         if PRINT_OUTPUT:
             print(outs)
         return outs
@@ -119,13 +119,13 @@ class TestInit(CommandTestCase):
 
     def test_init(self):
         pubsdir = os.path.expanduser('~/pubs_test2')
-        pubs_cmd.execute('pubs init -p {}'.format(pubsdir).split())
+        self.execute_cmds(['pubs init -p {}'.format(pubsdir)])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
 
     def test_init2(self):
         pubsdir = os.path.expanduser('~/.pubs')
-        pubs_cmd.execute('pubs init'.split())
+        self.execute_cmds(['pubs init'])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
 
@@ -295,11 +295,11 @@ class TestUsecase(DataCommandTestCase):
 
 
     def test_tag_list(self):
-        correct = [b'Initializing pubs in /paper_first\n',
-                   b'',
-                   b'',
-                   b'',
-                   b'search network\n',
+        correct = ['Initializing pubs in /paper_first\n',
+                   '',
+                   '',
+                   '',
+                   'search network\n',
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -363,8 +363,8 @@ class TestUsecase(DataCommandTestCase):
                 'pubs export Page99',
                ]
         outs = self.execute_cmds(cmds)
-        out_raw = outs[2].decode()
-        self.assertEqual(endecoder.EnDecoder().decode_bibdata(out_raw), fixtures.page_bibdata)
+        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]),
+                         fixtures.page_bibdata)
 
     def test_import(self):
         cmds = ['pubs init',
