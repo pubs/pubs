@@ -83,12 +83,12 @@ def command(args):
     rp = Repository(config())
 
     if citekeyOrTag is None:
-        ui.print_(color.dye(' '.join(rp.get_tags()), color=color.blue))
+        ui.print_(color.dye(' '.join(sorted(rp.get_tags())), color=color.blue))
     else:
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)
             if tags == []:
-                ui.print_(color.dye(' '.join(p.tags),
+                ui.print_(color.dye(' '.join(sorted(p.tags)),
                           color=color.blue))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tags(tags))

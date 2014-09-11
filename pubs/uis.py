@@ -1,17 +1,29 @@
 from __future__ import print_function
 
 import sys
+import locale
+import codecs
 
-from .beets_ui import _encoding, input_
 from .content import editor_input
-from .p3 import ustr
 from . import color
+from .p3 import _get_raw_stdout
+
 
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
 # you must instanciate ui with a Config instance using init_ui(config)
 _ui = None
+
+
+def _get_encoding(config):
+    """Get local terminal encoding or user preference in config."""
+    enc = None
+    try:
+        enc = locale.getdefaultlocale()[1]
+    except ValueError:
+        pass  # Keep default
+    return config.get('terminal-encoding', enc or 'utf8')
 
 
 def get_ui():
@@ -30,19 +42,26 @@ class UI:
     """
 
     def __init__(self, config):
-        self.encoding = _encoding(config)
         color.setup(config.color)
         self.editor = config.edit_cmd
+        self.encoding = _get_encoding(config)
+        self._stdout = codecs.getwriter(self.encoding)(_get_raw_stdout(),
+                                                       errors='replace')
 
     def print_(self, *strings):
         """Like print, but rather than raising an error when a character
         is not in the terminal's encoding's character set, just silently
         replaces it.
         """
-        txt = [s.encode(self.encoding, 'replace')
-               if isinstance(s, ustr) else s
-               for s in strings]
-        print(' '.join(txt))
+        print(' '.join(strings), file=self._stdout)
+
+    def input(self):
+        try:
+            data = input()
+        except EOFError:
+            self.error('Standard input ended while waiting for answer.')
+            self.exit(1)
+        return data
 
     def input_choice(self, options, option_chars, default=None, question=''):
         """Ask the user to chose between a set of options. The iser is asked
@@ -65,7 +84,7 @@ class UI:
                                 for c, o in zip(displayed_chars, options)])
         self.print_(question, option_str)
         while True:
-            answer = input_()
+            answer = self.input()
             if answer is None or answer == '':
                 if default is not None:
                     return default

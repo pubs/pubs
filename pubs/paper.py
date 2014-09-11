@@ -2,6 +2,7 @@ import copy
 from dateutil.parser import parse as datetime_parse
 
 from . import bibstruct
+from .p3 import ustr
 
 
 DEFAULT_META = {'docfile': None, 'tags': set()}
@@ -11,7 +12,7 @@ def _clean_metadata(metadata):
     meta = copy.deepcopy(DEFAULT_META)
     meta.update(metadata or {})  # handles None metadata
     meta['tags'] = set(meta.get('tags', []))  # tags should be a set
-    if 'added' in meta and isinstance(meta['added'], basestring):
+    if 'added' in meta and isinstance(meta['added'], ustr):
         meta['added'] = datetime_parse(meta['added'])
     return meta
 

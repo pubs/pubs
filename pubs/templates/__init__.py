@@ -1,1 +1,1 @@
-from str_templates import *
+from . str_templates import *

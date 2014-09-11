@@ -8,7 +8,7 @@ import dotdot
 import fake_env
 
 from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, beets_ui, p3, endecoder, configs
+from pubs import color, content, filebroker, uis, p3, endecoder, configs
 
 import str_fixtures
 import fixtures
@@ -59,27 +59,27 @@ class CommandTestCase(unittest.TestCase):
         self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
         self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
 
-    def execute_cmds(self, cmds, fs=None, capture_output=CAPTURE_OUTPUT):
+    def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
 
         A command can be a string, or a tuple of size 2 or 3.
         In the latter case, the command is :
         1. a string reprensenting the command to execute
         2. the user inputs to feed to the command during execution
-        3. the output excpected, verified with assertEqual
+        3. the output expected, verified with assertEqual
 
         """
         outs = []
         for cmd in cmds:
-            if hasattr(cmd, '__iter__'):
+            if not isinstance(cmd, p3.ustr):
                 if len(cmd) == 2:
-                    input = fake_env.FakeInput(cmd[1], [content, uis, beets_ui, p3])
+                    input = fake_env.FakeInput(cmd[1], [content, uis, p3])
                     input.as_global()
 
                 if capture_output:
                     _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd[0].split())
                     if len(cmd) == 3 and capture_output:
-                        actual_out  = color.undye(stdout.getvalue())
+                        actual_out  = color.undye(stdout)
                         correct_out = color.undye(cmd[2])
                         self.assertEqual(actual_out, correct_out)
                 else:
@@ -93,8 +93,8 @@ class CommandTestCase(unittest.TestCase):
                     pubs_cmd.execute(cmd.split())
 
             if capture_output:
-                assert(stderr.getvalue() == '')
-                outs.append(color.undye(stdout.getvalue()))
+                assert(stderr == '')
+                outs.append(color.undye(stdout))
         if PRINT_OUTPUT:
             print(outs)
         return outs
@@ -119,13 +119,13 @@ class TestInit(CommandTestCase):
 
     def test_init(self):
         pubsdir = os.path.expanduser('~/pubs_test2')
-        pubs_cmd.execute('pubs init -p {}'.format(pubsdir).split())
+        self.execute_cmds(['pubs init -p {}'.format(pubsdir)])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
 
     def test_init2(self):
         pubsdir = os.path.expanduser('~/.pubs')
-        pubs_cmd.execute('pubs init'.split())
+        self.execute_cmds(['pubs init'])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
 
@@ -246,13 +246,13 @@ class TestList(DataCommandTestCase):
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
-        correct = [b'Initializing pubs in /paper_first\n',
-                   b'',
-                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
-                   b'\n',
-                   b'',
-                   b'search network\n',
-                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
+        correct = ['Initializing pubs in /paper_first\n',
+                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   '\n',
+                   '',
+                   'network search\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) network search\n'
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -293,12 +293,13 @@ class TestUsecase(DataCommandTestCase):
         print(self.fs['os'].listdir(docdir))
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
 
+
     def test_tag_list(self):
-        correct = [b'Initializing pubs in /paper_first\n',
-                   b'',
-                   b'',
-                   b'',
-                   b'search network\n',
+        correct = ['Initializing pubs in /paper_first\n',
+                   '',
+                   '',
+                   '',
+                   'search network\n',
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -362,8 +363,8 @@ class TestUsecase(DataCommandTestCase):
                 'pubs export Page99',
                ]
         outs = self.execute_cmds(cmds)
-        out_raw = outs[2].decode()
-        self.assertEqual(endecoder.EnDecoder().decode_bibdata(out_raw), fixtures.page_bibdata)
+        self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]),
+                         fixtures.page_bibdata)
 
     def test_import(self):
         cmds = ['pubs init',

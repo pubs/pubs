@@ -34,7 +34,6 @@ class TestEnDecode(unittest.TestCase):
         data = decoder.encode_metadata(dummy_metadata)
         self.assertIsInstance(data, ustr)
 
-
     def test_endecode_bibtex(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
