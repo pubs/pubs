@@ -246,13 +246,13 @@ class TestList(DataCommandTestCase):
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
-        correct = [b'Initializing pubs in /paper_first\n',
-                   b'',
-                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
-                   b'\n',
-                   b'',
-                   b'search network\n',
-                   b'[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) search network\n'
+        correct = ['Initializing pubs in /paper_first\n',
+                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   '\n',
+                   '',
+                   'network search\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) network search\n'
                   ]
 
         cmds = ['pubs init -p paper_first/',

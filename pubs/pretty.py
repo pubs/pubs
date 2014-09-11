@@ -56,6 +56,6 @@ def paper_oneliner(p, citekey_only = False):
         return u'[{citekey}] {descr} {tags}'.format(
             citekey=color.dye(p.citekey, color.purple),
             descr=bibdesc,
-            tags=color.dye(' '.join(p.tags),
+            tags=color.dye(' '.join(sorted(p.tags)),
                            color.tag, bold=False),
             )
