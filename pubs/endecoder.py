@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import (print_function, absolute_import, division,
+                        unicode_literals)
 
 import copy
 
@@ -92,27 +93,20 @@ class EnDecoder(object):
         for key in bibfield_order:
             if key in bibentry:
                 value = bibentry.pop(key)
-                bibraw += '    {} = {{{}}},\n'.format(key, EnDecoder._encode_field(key, value))
+                bibraw += '    {} = {{{}}},\n'.format(
+                    key, EnDecoder._encode_field(key, value))
         for key, value in bibentry.items():
             if key != 'type':
-                bibraw += '    {} = {{{}}},\n'.format(key, EnDecoder._encode_field(key, value))
+                bibraw += '    {} = {{{}}},\n'.format(
+                    key, EnDecoder._encode_field(key, value))
         bibraw += '}\n'
         return bibraw
 
-    def decode_bibdata(self, bibdata_unicode):
+    def decode_bibdata(self, bibdata):
         """"""
-        if isinstance(bibdata_unicode, str):
-            # Nothing to do for python3
-            bibdata_string = bibdata_unicode
-        else:
-            # For python2 bibtexparser expects utf8 encoded string
-            bibdata_string = bibdata_unicode.encode('utf8')
-        return self._decode_bibdata(bibdata_string)
-
-    def _decode_bibdata(self, bibdata_string):
         try:
             entries = bp.bparser.BibTexParser(
-                bibdata_string, customization=customizations).get_entry_dict()
+                bibdata, customization=customizations).get_entry_dict()
             # Remove 'id' attribute which is stored as citekey
             for e in entries:
                 entries[e].pop('id')
