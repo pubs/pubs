@@ -6,7 +6,7 @@ import codecs
 
 from .content import editor_input
 from . import color
-from .p3 import _get_raw_stdout
+from .p3 import _get_raw_stdout, input
 
 
 # package-shared ui that can be accessed using :
