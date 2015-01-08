@@ -26,8 +26,13 @@ Import existing data from bibtex (pubs will try to automatically copy documents 
 
 or for bibtex containing a single file:
 
-    pubs add --bibfile article.bib --docfile article.pdf
+    pubs add reference.bib -d article.pdf
 
+you can also retrieve the bibtex from doi.org by giving the DOI:
+
+    pubs add -D 10.1007/s00422-012-0514-6
+
+The pdf must still be downloaded manually.
 
 Requirements
 ------------
