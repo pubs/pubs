@@ -12,9 +12,10 @@ setup(
     url          = '',
 
     description  = 'command-line scientific bibliography manager',
-    requires     = ['pyyaml', 'bibtexparser', 'dateutil'],
     packages     = find_packages(),
     scripts      = ['pubs/pubs'],
+
+    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests'],
 
     classifiers=[
         'Development Status :: 4 - Beta',

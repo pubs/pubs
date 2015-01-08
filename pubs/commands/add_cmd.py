@@ -5,12 +5,14 @@ from .. import content
 from .. import repo
 from .. import paper
 from .. import templates
+from .. import apis
 
 
 def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('bibfile', nargs='?', default = None,
-                        help='bibtex, bibtexml or bibyaml file')
+                        help='bibtex file')
+    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
                         default=None)
@@ -65,10 +67,17 @@ def command(args):
 
     rp = repo.Repository(config())
 
-    # get bibfile
-
+    # get bibtex entry
     if bibfile is None:
-        bibdata = bibdata_from_editor(ui, rp)
+        if args.doi is None:
+            bibdata = bibdata_from_editor(ui, rp)
+        else:
+            bibdata_raw = apis.doi2bibtex(args.doi)
+            bibdata = rp.databroker.verify(bibdata_raw)
+            if bibdata is None:
+                ui.error('invalid doi {} or unable to retreive bibfile.'.format(doi))
+                # TODO distinguish between cases, offer to open the error page in a webbrowser.
+                # TODO offer to confirm/change citekey
     else:
         bibdata_raw = content.get_content(bibfile, ui=ui)
         bibdata = rp.databroker.verify(bibdata_raw)
