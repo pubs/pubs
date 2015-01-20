@@ -75,7 +75,8 @@ def command(args):
             bibdata_raw = apis.doi2bibtex(args.doi)
             bibdata = rp.databroker.verify(bibdata_raw)
             if bibdata is None:
-                ui.error('invalid doi {} or unable to retreive bibfile.'.format(doi))
+                ui.error('invalid doi {} or unable to retreive bibfile.'.format(args.doi))
+                ui.exit(1)
                 # TODO distinguish between cases, offer to open the error page in a webbrowser.
                 # TODO offer to confirm/change citekey
     else:
