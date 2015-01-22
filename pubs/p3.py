@@ -6,8 +6,8 @@ if sys.version_info[0] == 2:
     _read_config = configparser.SafeConfigParser.readfp
 
     def input():
-        raw_input().decode(sys.stdin.encoding or 'utf8', 'ignore')
-    
+        return raw_input().decode(sys.stdin.encoding or 'utf8', 'ignore')
+
     # The following has to be a function so that it can be mocked
     # for test_usecase.
     def _get_raw_stdout():
