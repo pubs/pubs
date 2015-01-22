@@ -3,6 +3,7 @@ import io
 import subprocess
 import tempfile
 import shutil
+import shlex
 
 from .p3 import urlparse, HTTPConnection, urlopen
 
@@ -64,6 +65,11 @@ def read_file(filepath):
     with _open(filepath, 'r') as f:
         content = f.read()
     return content
+
+
+def remove_file(filepath):
+    check_file(filepath)
+    os.remove(filepath)
 
 
 def write_file(filepath, data):
@@ -150,7 +156,7 @@ def editor_input(editor, initial=u"", suffix='.tmp'):
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(str_initial)
-    cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
+    cmd = shlex.split(editor)  # this enable editor command with option, e.g. gvim -f
     cmd.append(tfile_name)
     subprocess.call(cmd)
     content = read_file(tfile_name)
