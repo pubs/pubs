@@ -18,7 +18,7 @@ def parser(subparsers):
                         default=None)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
-    parser.add_argument('-c', '--copy', action='store_true', default=None,
+    parser.add_argument('-c', '--copy', action='store_true', default=True,
             help="copy document files into library directory (default)")
     parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
             help="don't copy document files (opposite of -c)")
@@ -111,13 +111,15 @@ def command(args):
         ui.warning(('Skipping document file from bib file '
                     '{}, using {} instead.').format(bib_docfile, docfile))
 
-
     # create the paper
 
     try:
         rp.push_paper(p)
         if docfile is not None:
             rp.push_doc(p.citekey, docfile, copy=args.copy)
+            if args.copy:
+                if ui.input_yn('The file {} has been copied to the pubs repository. Should the original be removed?'.format(docfile)):
+                    content.remove_file(docfile)
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
