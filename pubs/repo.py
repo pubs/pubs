@@ -50,6 +50,11 @@ class Repository(object):
         for key in self.citekeys:
             yield self.pull_paper(key)
 
+    def citekeys_from_prefix(self, prefix):
+        """Return all citekey beginning with prefix."""
+        return tuple(citekey for citekey in self.citekeys
+                     if citekey.startswith(prefix))
+
     def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
         if citekey in self:

@@ -89,7 +89,7 @@ class UI:
                 if default is not None:
                     return default
             else:
-                try:
+                try: # FIXME options handling !!!
                     return option_chars.index(answer.lower())
                 except ValueError:
                     pass

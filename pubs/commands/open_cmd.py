@@ -5,7 +5,7 @@ from ..configs import config
 from ..uis import get_ui
 from .. import color
 from ..content import system_path
-
+from ..utils import resolve_citekey
 
 def parser(subparsers):
     parser = subparsers.add_parser('open',
@@ -21,10 +21,11 @@ def command(args):
 
     ui = get_ui()
     with_command = args.with_command
-    citekey = args.citekey
 
     rp = repo.Repository(config())
+    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
+
     if with_command is None:
         with_command = config().open_cmd
 

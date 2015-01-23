@@ -3,7 +3,7 @@ from .. import repo
 from ..configs import config
 from ..uis import get_ui
 from ..endecoder import EnDecoder
-
+from ..utils import resolve_citekey
 
 def parser(subparsers):
     parser = subparsers.add_parser('edit',
@@ -19,14 +19,10 @@ def command(args):
 
     ui = get_ui()
     meta = args.meta
-    citekey = args.citekey
 
     rp = repo.Repository(config())
-    try:
-        paper = rp.pull_paper(citekey)
-    except repo.InvalidReference as v:
-        ui.error(v)
-        ui.exit(1)
+    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
+    paper = rp.pull_paper(citekey)
 
     coder = EnDecoder()
     if meta:
