@@ -45,6 +45,6 @@ Requirements
 Authors
 -------
 
- - Fabien Benureau
+ - [Fabien Benureau](http://fabien.benureau.com)
  - Olivier Mangin
  - Jonathan Grizou
