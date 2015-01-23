@@ -16,7 +16,7 @@ def short_authors(bibentry):
     try:
         authors = [p for p in bibentry['author']]
         if len(authors) < 3:
-            return ', '.join(authors)
+            return ' and '.join(authors)
         else:
             return authors[0] + (' et al.' if len(authors) > 1 else '')
     except KeyError:  # When no author is defined
@@ -31,7 +31,7 @@ def bib_oneliner(bibentry):
     elif bibentry['type'] == 'inproceedings':
         journal = ' ' + bibentry.get('booktitle', '')
 
-    return u'{authors} \"{title}\"{journal}{year}'.format(
+    return u'{authors}z \"{title}\"{journal}{year}'.format(
             authors=color.dye(authors, color.grey, bold=True),
             title=bibentry['title'],
             journal=color.dye(journal, color.yellow),
@@ -53,9 +53,8 @@ def paper_oneliner(p, citekey_only = False):
         return p.citekey
     else:
         bibdesc = bib_oneliner(p.bibentry)
+        tags = '' if len(p.tags) == 0 else '| {}'.format(
+            ','.join(color.dye(t, color.tag) for t in sorted(p.tags)))
         return u'[{citekey}] {descr} {tags}'.format(
             citekey=color.dye(p.citekey, color.purple),
-            descr=bibdesc,
-            tags=color.dye(' '.join(sorted(p.tags)),
-                           color.tag, bold=False),
-            )
+            descr=bibdesc, tags=tags)
