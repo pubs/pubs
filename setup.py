@@ -2,7 +2,6 @@
 
 from setuptools import setup, find_packages
 
-
 setup(
     name         = 'pubs',
     version      = '0.5.0',
@@ -12,7 +11,7 @@ setup(
     url          = '',
 
     description  = 'command-line scientific bibliography manager',
-    packages     = find_packages(),
+    packages     = find_packages(), #['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
     scripts      = ['pubs/pubs'],
 
     install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests'],
@@ -24,5 +23,9 @@ setup(
         'Programming Language :: Python :: 3',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-    ]
+    ],
+
+    # in order to avoid 'zipimport.ZipImportError: bad local file header'
+    zip_safe=False,
+
 )
