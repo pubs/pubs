@@ -48,12 +48,12 @@ class UI:
         self._stdout = codecs.getwriter(self.encoding)(_get_raw_stdout(),
                                                        errors='replace')
 
-    def print_(self, *strings):
+    def print_(self, *strings, **kwargs):
         """Like print, but rather than raising an error when a character
         is not in the terminal's encoding's character set, just silently
         replaces it.
         """
-        print(' '.join(strings), file=self._stdout)
+        print(' '.join(strings), file=self._stdout, **kwargs)
 
     def input(self):
         try:
@@ -62,6 +62,48 @@ class UI:
             self.error('Standard input ended while waiting for answer.')
             self.exit(1)
         return data
+
+    def input_choice_ng(self, options, option_chars=None, default=None, question=''):
+        """Ask the user to chose between a set of options. The iser is asked
+        to input a char corresponding to the option he choses.
+
+        :param options: list of strings
+            list of options
+        :param default: int
+            default if no option is accepted, if None answer is required
+        :param question: string
+        :returns: int
+            the index of the chosen option
+        """
+        char_color = color.bold
+        option_chars = [s[0] for s in options]
+        displayed_chars = [c.upper() if i == default else c
+                           for i, c in enumerate(option_chars)]
+
+        if len(set(option_chars)) != len(option_chars): # duplicate chars, char choices are deactivated. #FIXME: should only deactivate ambiguous chars
+            option_chars = []
+            char_color = color.end
+
+        option_str = '/'.join(["{}{}".format(color.dye(c, color.bold), s[1:])
+                                for c, s in zip(displayed_chars, options)])
+
+        self.print_('{} {}: '.format(question, option_str), end='')
+        while True:
+            answer = self.input()
+            if answer is None or answer == '':
+                if default is not None:
+                    return default
+            else:
+                try:
+                    return options.index(answer.lower())
+                except ValueError:
+                    try: # FIXME options handling !!!
+                        return option_chars.index(answer.lower())
+                    except ValueError:
+                        pass
+            self.print_('Incorrect option.', option_str)
+
+
 
     def input_choice(self, options, option_chars, default=None, question=''):
         """Ask the user to chose between a set of options. The iser is asked
@@ -97,8 +139,8 @@ class UI:
 
     def input_yn(self, question='', default='y'):
         d = 0 if default in (True, 'y', 'yes') else 1
-        return (True, False)[self.input_choice(['yes', 'no'], ['y', 'n'],
-                                               default=d, question=question)]
+        answer = self.input_choice_ng(['yes', 'no'], default=d, question=question)
+        return [True, False][answer]
 
     def exit(self, error_code=1):
         sys.exit(error_code)

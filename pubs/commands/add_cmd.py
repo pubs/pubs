@@ -6,6 +6,8 @@ from .. import repo
 from .. import paper
 from .. import templates
 from .. import apis
+from .. import color
+from .. import pretty
 
 
 def parser(subparsers):
@@ -75,7 +77,7 @@ def command(args):
             bibdata_raw = apis.doi2bibtex(args.doi)
             bibdata = rp.databroker.verify(bibdata_raw)
             if bibdata is None:
-                ui.error('invalid doi {} or unable to retreive bibfile.'.format(args.doi))
+                ui.error('invalid doi {} or unable to retrieve bibfile.'.format(args.doi))
                 ui.exit(1)
                 # TODO distinguish between cases, offer to open the error page in a webbrowser.
                 # TODO offer to confirm/change citekey
@@ -118,8 +120,9 @@ def command(args):
         if docfile is not None:
             rp.push_doc(p.citekey, docfile, copy=args.copy)
             if args.copy:
-                if ui.input_yn('The file {} has been copied to the pubs repository. Should the original be removed?'.format(docfile)):
+                if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(docfile, color.bold))):
                     content.remove_file(docfile)
+        ui.print_('{}\nwas added to pubs.'.format(pretty.paper_oneliner(p)))
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
