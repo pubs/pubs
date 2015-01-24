@@ -31,7 +31,7 @@ def bib_oneliner(bibentry):
     elif bibentry['type'] == 'inproceedings':
         journal = ' ' + bibentry.get('booktitle', '')
 
-    return u'{authors}z \"{title}\"{journal}{year}'.format(
+    return u'{authors} \"{title}\"{journal}{year}'.format(
             authors=color.dye(authors, color.grey, bold=True),
             title=bibentry['title'],
             journal=color.dye(journal, color.yellow),
