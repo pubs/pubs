@@ -1,6 +1,7 @@
 # Function here may belong somewhere else. In the mean time...
 
 from . import color
+from . import pretty
 
 def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
     """Check that a citekey exists, or autocompletes it if not ambiguous."""
@@ -18,8 +19,12 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
             citekey = citekeys[0]
     elif citekey not in citekeys:
         if ui is not None:
-            ui.error("be more specific; provided citekey '{}' matches multiples citekeys: {}".format(
-                     citekey, ', '.join(color.dye(citekey, color.citekey) for citekey in citekeys)))
+            citekeys = sorted(citekeys)
+            ui.error("be more specific; provided citekey '{}' matches multiples citekeys:".format(
+                     citekey))
+            for c in citekeys:
+                p = repo.pull_paper(c)
+                ui.print_(u'    {}'.format(pretty.paper_oneliner(p)))
             if exit_on_fail:
                 ui.exit()
     return citekey

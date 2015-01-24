@@ -16,10 +16,8 @@ def parser(subparsers):
             help='import paper(s) to the repository')
     parser.add_argument('bibpath',
             help='path to bibtex, bibtexml or bibyaml file (or directory)')
-    parser.add_argument('-c', '--copy', action='store_true', default=None,
-            help="copy document files into library directory (default)")
-    parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
-            help="don't copy document files (opposite of -c)")
+    parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
+            help="don't copy document files, just create a link.")
     parser.add_argument('keys', nargs='*',
             help="one or several keys to import from the file")
     return parser

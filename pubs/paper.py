@@ -38,6 +38,9 @@ class Paper(object):
         if self.citekey is None:
             self.citekey = bibstruct.extract_citekey(self.bibdata)
             bibstruct.check_citekey(self.citekey)
+        else:
+            def_citekey = bibstruct.extract_citekey(self.bibdata)
+            self.bibdata = {citekey: self.bibdata[def_citekey]}
 
     def __eq__(self, other):
         return (isinstance(self, Paper) and type(other) is type(self)

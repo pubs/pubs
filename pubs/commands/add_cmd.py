@@ -15,15 +15,14 @@ def parser(subparsers):
     parser.add_argument('bibfile', nargs='?', default = None,
                         help='bibtex file')
     parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None)
+    parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
                         default=None)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
-    parser.add_argument('-c', '--copy', action='store_true', default=True,
-            help="copy document files into library directory (default)")
-    parser.add_argument('-C', '--nocopy', action='store_false', dest='copy',
-            help="don't copy document files (opposite of -c)")
+    parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
+            help="don't copy document files, just create a link.")
     return parser
 
 
@@ -71,14 +70,22 @@ def command(args):
 
     # get bibtex entry
     if bibfile is None:
-        if args.doi is None:
+        if args.doi is None and args.isbn is None:
             bibdata = bibdata_from_editor(ui, rp)
         else:
-            bibdata_raw = apis.doi2bibtex(args.doi)
-            bibdata = rp.databroker.verify(bibdata_raw)
-            if bibdata is None:
-                ui.error('invalid doi {} or unable to retrieve bibfile.'.format(args.doi))
-                ui.exit(1)
+            if args.doi is not None:
+                bibdata_raw = apis.doi2bibtex(args.doi)
+                bibdata = rp.databroker.verify(bibdata_raw)
+                if bibdata is None:
+                    ui.error('invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
+                    if args.isbn is None:
+                        ui.exit(1)
+            if args.isbn is not None:
+                bibdata_raw = apis.isbn2bibtex(args.isbn)
+                bibdata = rp.databroker.verify(bibdata_raw)
+                if bibdata is None:
+                    ui.error('invalid isbn {} or unable to retrieve bibfile from it.'.format(args.isbn))
+                    ui.exit(1)
                 # TODO distinguish between cases, offer to open the error page in a webbrowser.
                 # TODO offer to confirm/change citekey
     else:
