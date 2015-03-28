@@ -15,7 +15,7 @@ from .p3 import urlparse, HTTPConnection, urlopen
 """
 
 
-ENCODING = 'utf8'
+ENCODING = 'UTF-8'
 
 
 # files i/o
@@ -45,7 +45,10 @@ def system_path(path):
 
 
 def _open(path, mode):
-        return io.open(system_path(path), mode, encoding=ENCODING)
+        if mode.find('b') == -1:
+            return io.open(system_path(path), mode, encoding=ENCODING)
+        else:
+            return io.open(system_path(path), mode)#, encoding=ENCODING)
 
 
 def check_file(path, fail=True):
