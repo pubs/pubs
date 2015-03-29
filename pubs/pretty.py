@@ -33,7 +33,7 @@ def bib_oneliner(bibentry):
 
     return u'{authors} \"{title}\"{journal}{year}'.format(
             authors=color.dye(authors, color.grey, bold=True),
-            title=bibentry['title'],
+            title=bibentry.get('title', ''),
             journal=color.dye(journal, color.yellow),
             year=' ({})'.format(bibentry['year']) if 'year' in bibentry else '',
             )
