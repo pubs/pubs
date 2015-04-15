@@ -129,7 +129,7 @@ def command(args):
             if args.copy:
                 if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(docfile, color.bold))):
                     content.remove_file(docfile)
-        ui.print_('{}\nwas added to pubs.'.format(pretty.paper_oneliner(p)))
+        ui.print_('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
