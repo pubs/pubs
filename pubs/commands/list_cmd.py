@@ -23,6 +23,10 @@ def parser(subparsers):
     parser.add_argument('-a', '--alphabetical', action='store_true',
             dest='alphabetical', default=False,
             help='lexicographic order on the citekeys.')
+    parser.add_argument('--no-docs', action='store_true',
+            dest='nodocs', default=False,
+            help='list only pubs without attached documents.')
+
     parser.add_argument('query', nargs='*',
             help='Paper query (e.g. "year: 2000" or "tags: math")')
     return parser
@@ -38,6 +42,8 @@ def command(args):
     papers = filter(lambda p: filter_paper(p, args.query,
                                            case_sensitive=args.case_sensitive),
                     rp.all_papers())
+    if args.nodocs:
+        papers = [p for p in papers if p.docpath is None]
     if args.alphabetical:
         papers = sorted(papers, key=lambda p: p.citekey)
     else:
