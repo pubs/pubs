@@ -12,14 +12,23 @@ except ImportError:
 
 import yaml
 
+from .bibstruct import TYPE_KEY
 
 """Important notice:
     All functions and methods in this file assume and produce unicode data.
 """
 
 
+if bp.__version__ > "0.6.0":
+    BP_ID_KEY = 'ID'
+    BP_ENTRYTYPE_KEY = 'ENTRYTYPE'
+else:
+    BP_ID_KEY = 'id'
+    BP_ENTRYTYPE_KEY = 'type'
+
+
 def sanitize_citekey(record):
-    record['id'] = record['id'].strip('\n')
+    record[BP_ID_KEY] = record[BP_ID_KEY].strip('\n')
     return record
 
 
@@ -44,8 +53,8 @@ def customizations(record):
     return record
 
 bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher',
-                  'year', 'month', 'number', 'pages', 'link', 'doi', 'id',
-                  'note', 'abstract']
+                  'year', 'month', 'number', 'pages', 'link', 'doi', 'note',
+                  'abstract']
 
 
 class EnDecoder(object):
@@ -88,7 +97,7 @@ class EnDecoder(object):
 
     @staticmethod
     def _encode_bibentry(citekey, bibentry):
-        bibraw = '@{}{{{},\n'.format(bibentry['type'], citekey)
+        bibraw = '@{}{{{},\n'.format(bibentry[TYPE_KEY], citekey)
         bibentry = copy.copy(bibentry)
         for key in bibfield_order:
             if key in bibentry:
@@ -96,7 +105,7 @@ class EnDecoder(object):
                 bibraw += '    {} = {{{}}},\n'.format(
                     key, EnDecoder._encode_field(key, value))
         for key, value in bibentry.items():
-            if key != 'type':
+            if key != TYPE_KEY:
                 bibraw += '    {} = {{{}}},\n'.format(
                     key, EnDecoder._encode_field(key, value))
         bibraw += '}\n'
@@ -107,9 +116,12 @@ class EnDecoder(object):
         try:
             entries = bp.bparser.BibTexParser(
                 bibdata, customization=customizations).get_entry_dict()
-            # Remove 'id' attribute which is stored as citekey
+            # Remove id from bibtexparser attribute which is stored as citekey
             for e in entries:
-                entries[e].pop('id')
+                entries[e].pop(BP_ID_KEY)
+                # Convert bibtexparser entrytype key to internal 'type'
+                t = entries[e].pop(BP_ENTRYTYPE_KEY)
+                entries[e][TYPE_KEY] = t
             if len(entries) > 0:
                 return entries
         except Exception:
