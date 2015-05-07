@@ -21,7 +21,7 @@ PRINT_OUTPUT=False
 CAPTURE_OUTPUT=True
 
 
-    # code for fake fs
+# code for fake fs
 
 class TestFakeInput(unittest.TestCase):
 
@@ -174,6 +174,13 @@ class TestAdd(DataCommandTestCase):
                 self.fs['os'].path.join(self.default_pubs_dir, 'doc')),
             [])
 
+    def test_add_move_removes_doc(self):
+        cmds = ['pubs init',
+                'pubs add /data/pagerank.bib --move -d /data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
+
     def test_add_twice_fails(self):
         cmds = ['pubs init',
                 'pubs add /data/pagerank.bib',
@@ -241,7 +248,6 @@ class TestList(DataCommandTestCase):
         self.assertEqual(0 + 1, len(outs[-1].split('\n')))
 
 
-
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
@@ -290,7 +296,6 @@ class TestUsecase(DataCommandTestCase):
         self.execute_cmds(cmds)
         docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
-
 
     def test_tag_list(self):
         correct = ['Initializing pubs in /paper_first\n',
@@ -411,6 +416,27 @@ class TestUsecase(DataCommandTestCase):
                ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(1, len(outs[2].splitlines()))
+
+    def test_attach(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs attach Page99 data/pagerank.pdf'
+               ]
+        self.execute_cmds(cmds)
+        self.assertTrue(self.fs['os'].path.exists(
+            self.fs['os'].path.join(self.default_pubs_dir,
+                                    'doc',
+                                    'Page99.pdf')))
+        # Also test that do not remove original
+        self.assertTrue(self.fs['os'].path.exists('/data/pagerank.pdf'))
+
+    def test_attach_with_move(self):
+        cmds = ['pubs init -p paper_second/',
+                'pubs add data/pagerank.bib',
+                'pubs attach --move Page99 data/pagerank.pdf'
+               ]
+        self.execute_cmds(cmds)
+        self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
 
 
 if __name__ == '__main__':

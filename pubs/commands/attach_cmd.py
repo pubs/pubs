@@ -11,6 +11,8 @@ def parser(subparsers):
     #         help="copy document files into library directory (default)")
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
             help="don't copy document files, just create a link.")
+    parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
+            help="move document instead of of copying (ignored if --link).")
     parser.add_argument('citekey',
             help='citekey of the paper')
     parser.add_argument('document',
@@ -32,6 +34,9 @@ def command(args):
     try:
         document = args.document
         rp.push_doc(paper.citekey, document, copy=args.copy)
+        if args.copy and args.move:
+            content.remove_file(document)
+
         ui.print_('{} attached to {}'.format(color.dye(document, color.bold), color.dye(paper.citekey, color.citekey)))
 
     except ValueError as v:

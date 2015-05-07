@@ -23,6 +23,8 @@ def parser(subparsers):
                         default=None)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
             help="don't copy document files, just create a link.")
+    parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
+            help="move document instead of of copying (ignored if --link).")
     return parser
 
 
@@ -127,6 +129,8 @@ def command(args):
         rp.push_paper(p)
         if docfile is not None:
             rp.push_doc(p.citekey, docfile, copy=args.copy)
+            if args.copy and args.move:
+                content.remove_file(docfile)
         ui.print_('{}\nwas added to pubs.'.format(pretty.paper_oneliner(p)))
     except ValueError as v:
         ui.error(v.message)
