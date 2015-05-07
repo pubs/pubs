@@ -57,7 +57,7 @@ and then add `\cite{Loeb_2012}` in your manuscript. After running the bash scrip
 
 Requirements
 ------------
-- python >= 2.6
+- python >= 2.7
 - [dateutil](http://labix.org/python-dateutil)
 - [pyYaml](http://pyyaml.org) (will be deprecated soon)
 - [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.5.3
