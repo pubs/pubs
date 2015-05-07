@@ -31,14 +31,14 @@ class DataCache(object):
     def pull_metadata(self, citekey):
         return self.databroker.pull_metadata(citekey)
 
-    def pull_bibdata(self, citekey):
-        return self.databroker.pull_bibdata(citekey)
+    def pull_bibentry(self, citekey):
+        return self.databroker.pull_bibentry(citekey)
 
     def push_metadata(self, citekey, metadata):
         self.databroker.push_metadata(citekey, metadata)
 
-    def push_bibdata(self, citekey, bibdata):
-        self.databroker.push_bibdata(citekey, bibdata)
+    def push_bibentry(self, citekey, bibdata):
+        self.databroker.push_bibentry(citekey, bibdata)
 
     def push(self, citekey, metadata, bibdata):
         self.databroker.push(citekey, metadata, bibdata)

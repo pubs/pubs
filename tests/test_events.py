@@ -75,19 +75,19 @@ class TestEvents(unittest.TestCase):
         correct = ['abcdefghijklmnopqrstuvwxyz 12 15',
                    'Helloword',
                    'one']
-        self.assertEquals(_output, correct)
+        self.assertEqual(_output, correct)
 
     def test_listen_AddEvent(self):
         addevent = AddEvent()
         addevent.send()
         correct = [42]
-        self.assertEquals(_output, correct)
+        self.assertEqual(_output, correct)
 
     def test_listen_Info(self):
         Info('info').send()
         SpecificInfo('info', 'specific').send()
         correct = ['info', 'info', 'specific']
-        self.assertEquals(_output, correct)
+        self.assertEqual(_output, correct)
 
 
 if __name__ == '__main__':

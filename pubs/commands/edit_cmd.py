@@ -5,6 +5,7 @@ from ..uis import get_ui
 from ..endecoder import EnDecoder
 from ..utils import resolve_citekey
 
+
 def parser(subparsers):
     parser = subparsers.add_parser('edit',
             help='open the paper bibliographic file in an editor')
@@ -34,7 +35,7 @@ def command(args):
         encode = coder.encode_bibdata
         decode = coder.decode_bibdata
         suffix = '.bib'
-        raw_content = encode(paper.bibdata)
+        raw_content = encode(paper.bibentry)
 
     while True:
         # Get new content from user
@@ -44,10 +45,11 @@ def command(args):
             content = decode(raw_content)
 
             if meta:
-                new_paper = Paper(paper.bibdata, citekey=paper.citekey,
+                new_paper = Paper(paper.citekey, paper.bibdata,
                                   metadata=content)
             else:
-                new_paper = Paper(content, metadata=paper.metadata)
+                new_paper = Paper.from_bibentry(content,
+                                                metadata=paper.metadata)
                 rp.rename_paper(new_paper, old_citekey=paper.citekey)
             break
 

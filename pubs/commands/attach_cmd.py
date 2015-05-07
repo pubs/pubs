@@ -32,9 +32,6 @@ def command(args):
     try:
         document = args.document
         rp.push_doc(paper.citekey, document, copy=args.copy)
-        if args.copy:
-            if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(document, color.bold))):
-                content.remove_file(document)
         ui.print_('{} attached to {}'.format(color.dye(document, color.bold), color.dye(paper.citekey, color.citekey)))
 
     except ValueError as v:

@@ -28,19 +28,11 @@ class Paper(object):
         in a pythonic manner.
     """
 
-    def __init__(self, bibdata, citekey=None, metadata=None):
+    def __init__(self, citekey, bibdata, metadata=None):
         self.citekey = citekey
         self.metadata = _clean_metadata(metadata)
         self.bibdata = bibdata
-
-        _, self.bibentry = bibstruct.get_entry(self.bibdata)
-
-        if self.citekey is None:
-            self.citekey = bibstruct.extract_citekey(self.bibdata)
-            bibstruct.check_citekey(self.citekey)
-        else:
-            def_citekey = bibstruct.extract_citekey(self.bibdata)
-            self.bibdata = {citekey: self.bibdata[def_citekey]}
+        bibstruct.check_citekey(self.citekey)
 
     def __eq__(self, other):
         return (isinstance(self, Paper) and type(other) is type(self)
@@ -50,15 +42,15 @@ class Paper(object):
 
     def __repr__(self):
         return 'Paper(%s, %s, %s)' % (
-                self.citekey, self.bibentry, self.metadata)
+                self.citekey, self.bibdata, self.metadata)
 
     def __deepcopy__(self, memo):
-        return Paper(citekey =self.citekey,
+        return Paper(citekey=self.citekey,
                      metadata=copy.deepcopy(self.metadata, memo),
                      bibdata=copy.deepcopy(self.bibdata, memo))
 
     def __copy__(self):
-        return Paper(citekey =self.citekey,
+        return Paper(citekey=self.citekey,
                      metadata=self.metadata,
                      bibdata=self.bibdata)
 
@@ -66,6 +58,10 @@ class Paper(object):
         return self.__deepcopy__({})
 
         # docpath
+
+    @property
+    def bibentry(self):
+        return {self.citekey: self.bibdata}
 
     @property
     def docpath(self):
@@ -105,3 +101,10 @@ class Paper(object):
     @added.setter
     def added(self, value):
         self.metadata['added'] = value
+
+    @staticmethod
+    def from_bibentry(bibentry, citekey=None, metadata=None):
+        bibentry_key, bibdata = bibstruct.get_entry(bibentry)
+        if citekey is None:
+            citekey = bibentry_key
+        return Paper(citekey, bibdata, metadata=metadata)

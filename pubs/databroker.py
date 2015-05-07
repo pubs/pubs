@@ -21,7 +21,7 @@ class DataBroker(object):
         metadata_raw = self.filebroker.pull_metafile(citekey)
         return self.endecoder.decode_metadata(metadata_raw)
 
-    def pull_bibdata(self, citekey):
+    def pull_bibentry(self, citekey):
         bibdata_raw = self.filebroker.pull_bibfile(citekey)
         return self.endecoder.decode_bibdata(bibdata_raw)
 
@@ -29,7 +29,7 @@ class DataBroker(object):
         metadata_raw = self.endecoder.encode_metadata(metadata)
         self.filebroker.push_metafile(citekey, metadata_raw)
 
-    def push_bibdata(self, citekey, bibdata):
+    def push_bibentry(self, citekey, bibdata):
         bibdata_raw = self.endecoder.encode_bibdata(bibdata)
         self.filebroker.push_bibfile(citekey, bibdata_raw)
 

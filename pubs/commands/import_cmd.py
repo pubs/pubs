@@ -49,12 +49,9 @@ def many_from_path(bibpath):
 
     papers = {}
     for b in biblist:
-        for k in b.keys():
+        for k, b in b.items():
             try:
-                bibdata = {}
-                bibdata[k] = b[k]
-
-                papers[k] = Paper(bibdata, citekey=k)
+                papers[k] = Paper(k, b)
                 papers[k].added = datetime.datetime.now()
             except ValueError as e:
                 papers[k] = e

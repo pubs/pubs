@@ -17,7 +17,7 @@ class TestDataBroker(unittest.TestCase):
 
         ende = endecoder.EnDecoder()
         page99_metadata = ende.decode_metadata(str_fixtures.metadata_raw0)
-        page99_bibdata  = ende.decode_bibdata(str_fixtures.bibtex_raw0)
+        page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
 
         for db_class in [databroker.DataBroker, datacache.DataCache]:
             self.fs = fake_env.create_fake_fs([content, filebroker, configs])
@@ -28,22 +28,22 @@ class TestDataBroker(unittest.TestCase):
             self.assertFalse(db.exists('citekey1', meta_check=True))
             self.assertFalse(db.exists('citekey1', meta_check=False))
 
-            db.push_bibdata('citekey1', page99_bibdata)
+            db.push_bibentry('citekey1', page99_bibentry)
             self.assertTrue(db.exists('citekey1', meta_check=False))
             self.assertTrue(db.exists('citekey1', meta_check=True))
 
             self.assertEqual(db.pull_metadata('citekey1'), page99_metadata)
-            pulled = db.pull_bibdata('citekey1')['Page99']
+            pulled = db.pull_bibentry('citekey1')['Page99']
             for key, value in pulled.items():
-                self.assertEqual(pulled[key], page99_bibdata['Page99'][key])
-            self.assertEqual(db.pull_bibdata('citekey1'), page99_bibdata)
+                self.assertEqual(pulled[key], page99_bibentry['Page99'][key])
+            self.assertEqual(db.pull_bibentry('citekey1'), page99_bibentry)
 
             fake_env.unset_fake_fs([content, filebroker])
 
     def test_existing_data(self):
 
         ende = endecoder.EnDecoder()
-        page99_bibdata  = ende.decode_bibdata(str_fixtures.bibtex_raw0)
+        page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
 
         for db_class in [databroker.DataBroker, datacache.DataCache]:
             self.fs = fake_env.create_fake_fs([content, filebroker])
@@ -51,16 +51,16 @@ class TestDataBroker(unittest.TestCase):
 
             db = db_class('repo', create=False)
 
-            self.assertEqual(db.pull_bibdata('Page99'), page99_bibdata)
+            self.assertEqual(db.pull_bibentry('Page99'), page99_bibentry)
 
             for citekey in ['10.1371_journal.pone.0038236',
                             '10.1371journal.pone.0063400',
                             'journal0063400']:
-                db.pull_bibdata(citekey)
+                db.pull_bibentry(citekey)
                 db.pull_metadata(citekey)
 
             with self.assertRaises(IOError):
-                db.pull_bibdata('citekey')
+                db.pull_bibentry('citekey')
             with self.assertRaises(IOError):
                 db.pull_metadata('citekey')
 

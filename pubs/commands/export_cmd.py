@@ -33,7 +33,7 @@ def command(args):
         papers = rp.all_papers()
     bib = {}
     for p in papers:
-        bib[p.citekey] = p.bibentry
+        bib[p.citekey] = p.bibdata
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib)
     ui.print_(bibdata_raw)

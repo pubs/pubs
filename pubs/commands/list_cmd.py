@@ -73,10 +73,10 @@ def _lower(s, lower=True):
 
 def _check_author_match(paper, query, case_sensitive=False):
     """Only checks within last names."""
-    if not 'author' in paper.bibentry:
+    if not 'author' in paper.bibdata:
         return False
     return any([query in _lower(bibstruct.author_last(p), lower=(not case_sensitive))
-                for p in paper.bibentry['author']])
+                for p in paper.bibdata['author']])
 
 
 
@@ -86,8 +86,8 @@ def _check_tag_match(paper, query, case_sensitive=False):
 
 
 def _check_field_match(paper, field, query, case_sensitive=False):
-    return query in _lower(paper.bibentry[field],
-                       lower=(not case_sensitive))
+    return query in _lower(paper.bibdata[field],
+                           lower=(not case_sensitive))
 
 
 def _check_query_block(paper, query_block, case_sensitive=None):
@@ -100,7 +100,7 @@ def _check_query_block(paper, query_block, case_sensitive=None):
         return _check_tag_match(paper, value, case_sensitive=case_sensitive)
     elif field == 'author':
         return _check_author_match(paper, value, case_sensitive=case_sensitive)
-    elif field in paper.bibentry:
+    elif field in paper.bibdata:
         return _check_field_match(paper, field, value,
                                   case_sensitive=case_sensitive)
     else:

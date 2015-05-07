@@ -202,6 +202,9 @@ class FakeInput():
         input() raises IndexError
      """
 
+    class UnexpectedInput(Exception):
+        pass
+
     def __init__(self, inputs, module_list=tuple()):
         self.inputs = list(inputs) or []
         self.module_list = module_list
@@ -218,9 +221,12 @@ class FakeInput():
         self.inputs.append(inp)
 
     def __call__(self, *args, **kwargs):
-        inp = self.inputs[self._cursor]
-        self._cursor += 1
-        return inp
+        try:
+            inp = self.inputs[self._cursor]
+            self._cursor += 1
+            return inp
+        except IndexError:
+            raise self.UnexpectedInput('Unexpected user input in test.')
 
 
 class TestFakeFs(unittest.TestCase):

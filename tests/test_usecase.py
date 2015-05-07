@@ -29,7 +29,7 @@ class TestFakeInput(unittest.TestCase):
         input = fake_env.FakeInput(['yes', 'no'])
         self.assertEqual(input(), 'yes')
         self.assertEqual(input(), 'no')
-        with self.assertRaises(IndexError):
+        with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
             input()
 
     def test_input2(self):
@@ -37,7 +37,7 @@ class TestFakeInput(unittest.TestCase):
         other_input.as_global()
         self.assertEqual(color.input(), 'yes')
         self.assertEqual(color.input(), 'no')
-        with self.assertRaises(IndexError):
+        with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
             color.input()
 
     def test_editor_input(self):
@@ -46,7 +46,7 @@ class TestFakeInput(unittest.TestCase):
         other_input.as_global()
         self.assertEqual(content.editor_input(), 'yes')
         self.assertEqual(content.editor_input(), 'no')
-        with self.assertRaises(IndexError):
+        with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
             color.input()
 
 
@@ -66,35 +66,41 @@ class CommandTestCase(unittest.TestCase):
         In the latter case, the command is :
         1. a string reprensenting the command to execute
         2. the user inputs to feed to the command during execution
-        3. the output expected, verified with assertEqual
+        3. the output expected, verified with assertEqual. Always captures
+        output in this case.
 
         """
         outs = []
         for cmd in cmds:
+            inputs = []
+            output = None
+            actual_cmd = cmd
+            current_capture_output = capture_output
             if not isinstance(cmd, p3.ustr):
-                if len(cmd) == 2:
-                    input = fake_env.FakeInput(cmd[1], [content, uis, p3])
-                    input.as_global()
-
-                if capture_output:
-                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd[0].split())
-                    if len(cmd) == 3 and capture_output:
-                        actual_out  = color.undye(stdout)
-                        correct_out = color.undye(cmd[2])
+                actual_cmd = cmd[0]
+                if len(cmd) == 2:  # Inputs provided
+                    inputs = cmd[1]
+                if len(cmd) == 3:  # Expected output provided
+                    current_capture_output = True
+                    output = cmd[2]
+            # Always set fake input: test should not ask unexpected user input
+            input = fake_env.FakeInput(inputs, [content, uis, p3])
+            input.as_global()
+            try:
+                if current_capture_output:
+                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
+                        actual_cmd.split())
+                    self.assertEqual(stderr, '')
+                    actual_out = color.undye(stdout)
+                    if output is not None:
+                        correct_out = color.undye(output)
                         self.assertEqual(actual_out, correct_out)
+                    outs.append(color.undye(actual_out))
                 else:
                     pubs_cmd.execute(cmd.split())
-
-            else:
-                if capture_output:
-                    assert p3.isbasestr(cmd)
-                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(cmd.split())
-                else:
-                    pubs_cmd.execute(cmd.split())
-
-            if capture_output:
-                assert(stderr == '')
-                outs.append(color.undye(stdout))
+            except fake_env.FakeInput.UnexpectedInput:
+                self.fail('Unexpected input asked by command: {}.'.format(
+                    actual_cmd))
         if PRINT_OUTPUT:
             print(outs)
         return outs
@@ -161,7 +167,7 @@ class TestAdd(DataCommandTestCase):
 
     def test_add_doc_nocopy_does_not_copy(self):
         cmds = ['pubs init',
-                'pubs add /data/pagerank.bib -C -d /data/pagerank.pdf',
+                'pubs add /data/pagerank.bib --link -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
         self.assertEqual(self.fs['os'].listdir(
@@ -186,10 +192,8 @@ class TestList(DataCommandTestCase):
                 'pubs list',
                 ]
         outs = self.execute_cmds(cmds)
-        print(outs[1].splitlines())
-        self.assertEquals(0, len(outs[1].splitlines()))
-        print(outs[3].splitlines())
-        self.assertEquals(1, len(outs[3].splitlines()))
+        self.assertEqual(0, len(outs[1].splitlines()))
+        self.assertEqual(1, len(outs[3].splitlines()))
 
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p /testrepo'])
@@ -203,14 +207,11 @@ class TestList(DataCommandTestCase):
                 'pubs list',
                 ]
         outs = self.execute_cmds(cmds)
-        print(outs[0].splitlines())
-        self.assertEquals(4, len(outs[0].splitlines()))
-        print(outs[2].splitlines())
-        self.assertEquals(3, len(outs[2].splitlines()))
-        print(outs[4].splitlines())
-        self.assertEquals(4, len(outs[4].splitlines()))
+        self.assertEqual(4, len(outs[0].splitlines()))
+        self.assertEqual(3, len(outs[2].splitlines()))
+        self.assertEqual(4, len(outs[4].splitlines()))
         # Last added should be last
-        self.assertEquals('[Page99]', outs[4].splitlines()[-1][:8])
+        self.assertEqual('[Page99]', outs[4].splitlines()[-1][:8])
 
     def test_list_smart_case(self):
         cmds = ['pubs init',
@@ -219,8 +220,7 @@ class TestList(DataCommandTestCase):
                 'pubs list title:language author:Saunders',
                 ]
         outs = self.execute_cmds(cmds)
-        print(outs[-1])
-        self.assertEquals(1, len(outs[-1].splitlines()))
+        self.assertEqual(1, len(outs[-1].splitlines()))
 
     def test_list_ignore_case(self):
         cmds = ['pubs init',
@@ -229,8 +229,7 @@ class TestList(DataCommandTestCase):
                 'pubs list --ignore-case title:lAnguAge author:saunders',
                 ]
         outs = self.execute_cmds(cmds)
-        print(outs[-1])
-        self.assertEquals(1, len(outs[-1].splitlines()))
+        self.assertEqual(1, len(outs[-1].splitlines()))
 
     def test_list_force_case(self):
         cmds = ['pubs init',
@@ -239,7 +238,7 @@ class TestList(DataCommandTestCase):
                 'pubs list --force-case title:Language author:saunders',
                 ]
         outs = self.execute_cmds(cmds)
-        self.assertEquals(0 + 1, len(outs[-1].split('\n')))
+        self.assertEqual(0 + 1, len(outs[-1].split('\n')))
 
 
 
@@ -247,12 +246,12 @@ class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
-                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \nwas added to pubs.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '\n',
                    '',
                    'network search\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) network search\n'
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n',
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -264,7 +263,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs tag search',
                ]
 
-        self.assertEqual(correct, self.execute_cmds(cmds))
+        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
 
     def test_second(self):
         cmds = ['pubs init -p paper_second/',
@@ -290,7 +289,6 @@ class TestUsecase(DataCommandTestCase):
                ]
         self.execute_cmds(cmds)
         docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
-        print(self.fs['os'].listdir(docdir))
         self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
 
 
@@ -364,7 +362,7 @@ class TestUsecase(DataCommandTestCase):
                ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]),
-                         fixtures.page_bibdata)
+                         fixtures.page_bibentry)
 
     def test_import(self):
         cmds = ['pubs init',

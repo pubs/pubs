@@ -16,18 +16,19 @@ class TestGenerateCitekey(unittest.TestCase):
             bibstruct.generate_citekey(None)
 
     def test_escapes_chars(self):
-        doe_bibdata = copy.deepcopy(fixtures.doe_bibdata)
-        citekey, entry = bibstruct.get_entry(doe_bibdata)
-        entry['author'] = [u'Zôu\\@/ , John']
-        key = bibstruct.generate_citekey(doe_bibdata)
+        doe_bibentry = copy.deepcopy(fixtures.doe_bibentry)
+        citekey, bibdata = bibstruct.get_entry(doe_bibentry)
+        bibdata['author'] = [u'Zôu\\@/ , John']
+        key = bibstruct.generate_citekey(doe_bibentry)
+        self.assertEqual(key, 'Zou2013')
 
     def test_simple(self):
-        bibdata = copy.deepcopy(fixtures.doe_bibdata)
-        key = bibstruct.generate_citekey(bibdata)
+        bibentry = copy.deepcopy(fixtures.doe_bibentry)
+        key = bibstruct.generate_citekey(bibentry)
         self.assertEqual(key, 'Doe2013')
 
-        bibdata = copy.deepcopy(fixtures.franny_bibdata)
-        key = bibstruct.generate_citekey(bibdata)
+        bibentry = copy.deepcopy(fixtures.franny_bibentry)
+        key = bibstruct.generate_citekey(bibentry)
         self.assertEqual(key, 'Salinger1961')
 
 
