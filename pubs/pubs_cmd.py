@@ -46,9 +46,9 @@ def _update_check(config, ui):
                     'to bypass this error)')
             sys.exit()
         elif repo_version < code_version:
-            ui.print_(
+            ui.print_out(
                 'warning: your repository version (v{})'.format(repo_version)
-                + 'must be updated to version {}.\n'.format(code_version)
+                + 'must   be updated to version {}.\n'.format(code_version)
                 + "run 'pubs update'.")
             sys.exit()
 

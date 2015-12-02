@@ -13,7 +13,7 @@ from str_fixtures import bibtex_raw0
 class TestPretty(unittest.TestCase):
 
     def setUp(self):
-        color.setup(enable=False)
+        color.setup()
 
     def test_oneliner(self):
         decoder = endecoder.EnDecoder()

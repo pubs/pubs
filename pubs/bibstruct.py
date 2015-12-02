@@ -54,7 +54,6 @@ def generate_citekey(bibdata):
         :raise ValueError:  if no author nor editor is defined.
     """
     citekey, entry = get_entry(bibdata)
-
     author_key = 'author' if 'author' in entry else 'editor'
     try:
         first_author = entry[author_key][0]

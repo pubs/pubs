@@ -13,6 +13,8 @@ if sys.version_info[0] == 2:
     # for test_usecase.
     def _get_raw_stdout():
         return sys.stdout
+    def _get_raw_stderr():
+        return sys.stderr
 
     ustr = unicode
     uchr = unichr
@@ -37,6 +39,13 @@ else:
     from urllib.request import urlopen
     from http.client import HTTPConnection
 
+    # The following has to be a function so that it can be mocked
+    # for test_usecase.
+    def _get_raw_stdout():
+        return sys.stdout.buffer
+    def _get_raw_stderr():
+        return sys.stderr.buffer
+
     def _fake_stdio():
         return io.TextIOWrapper(io.BytesIO())  # Only for tests to capture std{out,err}
 
@@ -45,10 +54,6 @@ else:
         stdio.seek(0)
         return stdio.read()
 
-    # The following has to be a function so that it can be mocked
-    # for test_usecase.
-    def _get_raw_stdout():
-        return sys.stdout.buffer
 
 configparser = configparser
 input = input

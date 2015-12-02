@@ -19,15 +19,15 @@ def command(args):
     repo_version = int(config().version)
 
     if repo_version == code_version:
-        ui.print_('Your pubs repository is up-to-date.')
+        ui.print_out('Your pubs repository is up-to-date.')
         sys.exit(0)
     elif repo_version > code_version:
-        ui.print_('Your repository was generated with an newer version of pubs.\n'
-                  'You should not use pubs until you install the newest version.')
+        ui.print_out('Your repository was generated with an newer version of pubs.\n'
+                     'You should not use pubs until you install the newest version.')
         sys.exit(0)
     else:
         msg = ("You should backup the pubs directory {} before continuing."
-               "Continue ?").format(color.dye(config().papers_dir, color.filepath))
+               "Continue ?").format(color.dye_out(config().papers_dir, color.filepath))
         sure = ui.input_yn(question=msg, default='n')
         if not sure:
             sys.exit(0)

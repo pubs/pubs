@@ -11,31 +11,24 @@ from .p3 import urlparse, HTTPConnection, urlopen
 """Conventions:
     - all files are written using utf8 encoding by default,
     - any function returning or variable containing byte data should
-    be prefixed by 'byte_'
+      be prefixed by 'byte_'
 """
-
-
-ENCODING = 'UTF-8'
-
 
 # files i/o
 
 def _check_system_path_exists(path, fail=True):
     answer = os.path.exists(path)
     if not answer and fail:
-        raise IOError("File does not exist: {}".format(path))
+        raise IOError(u'File does not exist: {}'.format(path))
     else:
         return answer
 
 
 def _check_system_path_is(nature, path, fail=True):
-    if nature == 'file':
-        check_fun = os.path.isfile
-    elif nature == 'dir':
-        check_fun = os.path.isdir
+    check_fun = getattr(os.path, nature)
     answer = check_fun(path)
     if not answer and fail:
-        raise IOError("{} is not a {}.".format(path, nature))
+        raise IOError(u'{} is not a {}.'.format(path, nature))
     else:
         return answer
 
@@ -46,21 +39,21 @@ def system_path(path):
 
 def _open(path, mode):
         if mode.find('b') == -1:
-            return io.open(system_path(path), mode, encoding=ENCODING)
+            return io.open(system_path(path), mode, encoding='utf-8')
         else:
-            return io.open(system_path(path), mode)#, encoding=ENCODING)
+            return io.open(system_path(path), mode)
 
 
 def check_file(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is('file', syspath, fail=fail))
+            and _check_system_path_is(u'isfile', syspath, fail=fail))
 
 
 def check_directory(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is('dir', syspath, fail=fail))
+            and _check_system_path_is(u'isdir', syspath, fail=fail))
 
 
 def read_file(filepath):
@@ -85,23 +78,23 @@ def write_file(filepath, data):
 
 def content_type(path):
     parsed = urlparse(path)
-    if parsed.scheme == 'http':
-        return 'url'
+    if parsed.scheme == u'http':
+        return u'url'
     else:
-        return 'file'
+        return u'file'
 
 
 def url_exists(url):
     parsed = urlparse(url)
     conn = HTTPConnection(parsed.netloc)
-    conn.request('HEAD', parsed.path)
+    conn.request(u'HEAD', parsed.path)
     response = conn.getresponse()
     conn.close()
     return response.status == 200
 
 
 def check_content(path):
-    if content_type(path) == 'url':
+    if content_type(path) == u'url':
         return url_exists(path)
     else:
         return check_file(path)
@@ -109,7 +102,7 @@ def check_content(path):
 
 def _get_byte_url_content(path, ui=None):
     if ui is not None:
-        ui.print_('dowloading {}'.format(path))
+        ui.print_out(u'dowloading {}'.format(path))
     response = urlopen(path)
     return response.read()
 
@@ -118,14 +111,14 @@ def _dump_byte_url_content(source, target):
     """Caution: this method does not test for existing destination.
     """
     byte_content = _get_byte_url_content(source)
-    with io.open(target, 'wb') as f:
+    with _open(target, 'wb') as f:
         f.write(byte_content)
 
 
 def get_content(path, ui=None):
     """Will be useful when we need to get content from url"""
-    if content_type(path) == 'url':
-        return _get_byte_url_content(path, ui=ui).decode(encoding=ENCODING)
+    if content_type(path) == u'url':
+        return _get_byte_url_content(path, ui=ui).decode(encoding='utf-8')
     else:
         return read_file(path)
 
@@ -136,7 +129,7 @@ def move_content(source, target, overwrite=False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
-        raise IOError('target file exists')
+        raise IOError(u'target file exists')
     shutil.move(source, target)
 
 
@@ -146,16 +139,16 @@ def copy_content(source, target, overwrite=False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
-        raise IOError('{} file exists.'.format(target))
-    if content_type(source) == 'url':
+        raise IOError(u'{} file exists.'.format(target))
+    if content_type(source) == u'url':
         _dump_byte_url_content(source, target)
     else:
         shutil.copy(source, target)
 
 
-def editor_input(editor, initial=u"", suffix='.tmp'):
+def editor_input(editor, initial=u'', suffix='.tmp'):
     """Use an editor to get input"""
-    str_initial = initial.encode(ENCODING)  # TODO: make it a configuration item
+    str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(str_initial)

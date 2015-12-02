@@ -36,4 +36,4 @@ def command(args):
         bib[p.citekey] = p.bibdata
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib)
-    ui.print_(bibdata_raw)
+    ui.print_out(bibdata_raw)
