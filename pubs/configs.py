@@ -1,7 +1,7 @@
 import os
 import collections
 
-from .p3 import configparser, _read_config
+from .p3 import configparser, ConfigParser, _read_config
 
 from .content import check_file, _open
 
@@ -49,7 +49,7 @@ class Config(object):
 
     def __init__(self, **kwargs):
         object.__setattr__(self, '_section', MAIN_SECTION)  # active section
-        object.__setattr__(self, '_cfg', configparser.SafeConfigParser())
+        object.__setattr__(self, '_cfg', ConfigParser())
 
         self._cfg.add_section(self._section)
         for name, value in DFT_CONFIG.items():
@@ -66,12 +66,12 @@ class Config(object):
         if not check_file(path, fail=False):
             raise IOError(("The configuration file {} does not exist."
                            " Did you run 'pubs init' ?").format(path))
-        with _open(path, 'rb+') as f:
+        with _open(path, 'r+') as f:
             _read_config(self._cfg, f)
         return self
 
     def save(self, path=DFT_CONFIG_PATH):
-        with _open(path, 'wb+') as f:
+        with _open(path, 'w+') as f:
             self._cfg.write(f)
 
     def __setattr__(self, name, value):

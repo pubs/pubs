@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
+
 import unittest
 
 import dotdot
@@ -9,38 +9,38 @@ from pubs.paper import Paper
 
 class TestAttributes(unittest.TestCase):
 
+    def setUp(self):
+        self.p = Paper.from_bibentry(
+            fixtures.page_bibentry,
+            metadata=fixtures.page_metadata).deepcopy()
+
     def test_tags(self):
-        p = Paper(fixtures.page_bibdata, metadata=fixtures.page_metadata).deepcopy()
-        self.assertEqual(p.tags, set(['search', 'network']))
+        self.assertEqual(self.p.tags, set(['search', 'network']))
 
     def test_add_tag(self):
-        p = Paper(fixtures.page_bibdata, metadata=fixtures.page_metadata).deepcopy()
-        p.add_tag('algorithm')
-        self.assertEqual(p.tags, set(['search', 'network', 'algorithm']))
-        p.add_tag('algorithm')
-        self.assertEqual(p.tags, set(['search', 'network', 'algorithm']))
+        self.p.add_tag('algorithm')
+        self.assertEqual(self.p.tags, set(['search', 'network', 'algorithm']))
+        self.p.add_tag('algorithm')
+        self.assertEqual(self.p.tags, set(['search', 'network', 'algorithm']))
 
     def test_set_tags(self):
-        p = Paper(fixtures.page_bibdata, metadata=fixtures.page_metadata).deepcopy()
-        p.tags = ['algorithm']
-        self.assertEqual(p.tags, set(['algorithm']))
+        self.p.tags = ['algorithm']
+        self.assertEqual(self.p.tags, set(['algorithm']))
 
     def test_remove_tags(self):
-        p = Paper(fixtures.page_bibdata, metadata=fixtures.page_metadata).deepcopy()
-        p.remove_tag('network')
-        self.assertEqual(p.tags, set(['search']))
+        self.p.remove_tag('network')
+        self.assertEqual(self.p.tags, set(['search']))
 
     def test_mixed_tags(self):
-        p = Paper(fixtures.page_bibdata, metadata=fixtures.page_metadata).deepcopy()
-        p.add_tag('algorithm')
-        self.assertEqual(p.tags, set(['search', 'network', 'algorithm']))
-        p.remove_tag('network')
-        self.assertEqual(p.tags, set(['search', 'algorithm']))
-        p.tags = ['ranking']
-        self.assertEqual(p.tags, set(['ranking']))
-        p.remove_tag('ranking')
-        self.assertEqual(p.tags, set())
-        p.remove_tag('ranking')
+        self.p.add_tag('algorithm')
+        self.assertEqual(self.p.tags, set(['search', 'network', 'algorithm']))
+        self.p.remove_tag('network')
+        self.assertEqual(self.p.tags, set(['search', 'algorithm']))
+        self.p.tags = ['ranking']
+        self.assertEqual(self.p.tags, set(['ranking']))
+        self.p.remove_tag('ranking')
+        self.assertEqual(self.p.tags, set())
+        self.p.remove_tag('ranking')
 
 
 if __name__ == '__main__':

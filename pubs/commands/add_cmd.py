@@ -12,7 +12,7 @@ from .. import pretty
 
 def parser(subparsers):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
-    parser.add_argument('bibfile', nargs='?', default = None,
+    parser.add_argument('bibfile', nargs='?', default=None,
                         help='bibtex file')
     parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
@@ -23,10 +23,12 @@ def parser(subparsers):
                         default=None)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
             help="don't copy document files, just create a link.")
+    parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
+            help="move document instead of of copying (ignored if --link).")
     return parser
 
 
-def bibdata_from_editor(ui, rp):
+def bibentry_from_editor(ui, rp):
     again = True
     bibstr = templates.add_bib
     while again:
@@ -41,8 +43,8 @@ def bibdata_from_editor(ui, rp):
                 if not again:
                     ui.exit(0)
             else:
-                bibdata = rp.databroker.verify(bibstr)
-                bibstruct.verify_bibdata(bibdata)
+                bibentry = rp.databroker.verify(bibstr)
+                bibstruct.verify_bibdata(bibentry)
                 # REFACTOR Generate citykey
                 again = False
         except ValueError:
@@ -52,7 +54,8 @@ def bibdata_from_editor(ui, rp):
             if not again:
                 ui.exit(0)
 
-    return bibdata
+    return bibentry
+
 
 def command(args):
     """
@@ -64,47 +67,47 @@ def command(args):
     bibfile = args.bibfile
     docfile = args.docfile
     tags = args.tags
-    citekey = args.copy
+    citekey = args.citekey
 
     rp = repo.Repository(config())
 
     # get bibtex entry
     if bibfile is None:
         if args.doi is None and args.isbn is None:
-            bibdata = bibdata_from_editor(ui, rp)
+            bibentry = bibentry_from_editor(ui, rp)
         else:
             if args.doi is not None:
-                bibdata_raw = apis.doi2bibtex(args.doi)
-                bibdata = rp.databroker.verify(bibdata_raw)
-                if bibdata is None:
+                bibentry_raw = apis.doi2bibtex(args.doi)
+                bibentry = rp.databroker.verify(bibentry_raw)
+                if bibentry is None:
                     ui.error('invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
                     if args.isbn is None:
                         ui.exit(1)
             if args.isbn is not None:
-                bibdata_raw = apis.isbn2bibtex(args.isbn)
-                bibdata = rp.databroker.verify(bibdata_raw)
-                if bibdata is None:
+                bibentry_raw = apis.isbn2bibtex(args.isbn)
+                bibentry = rp.databroker.verify(bibentry_raw)
+                if bibentry is None:
                     ui.error('invalid isbn {} or unable to retrieve bibfile from it.'.format(args.isbn))
                     ui.exit(1)
                 # TODO distinguish between cases, offer to open the error page in a webbrowser.
                 # TODO offer to confirm/change citekey
     else:
-        bibdata_raw = content.get_content(bibfile, ui=ui)
-        bibdata = rp.databroker.verify(bibdata_raw)
-        if bibdata is None:
+        bibentry_raw = content.get_content(bibfile, ui=ui)
+        bibentry = rp.databroker.verify(bibentry_raw)
+        if bibentry is None:
             ui.error('invalid bibfile {}.'.format(bibfile))
 
     # citekey
 
     citekey = args.citekey
     if citekey is None:
-        base_key = bibstruct.extract_citekey(bibdata)
+        base_key = bibstruct.extract_citekey(bibentry)
         citekey = rp.unique_citekey(base_key)
     elif citekey in rp:
         ui.error('citekey already exist {}.'.format(citekey))
         ui.exit(1)
 
-    p = paper.Paper(bibdata, citekey=citekey)
+    p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
 
     # tags
 
@@ -113,7 +116,7 @@ def command(args):
 
     # document file
 
-    bib_docfile = bibstruct.extract_docfile(bibdata)
+    bib_docfile = bibstruct.extract_docfile(bibentry)
     if docfile is None:
         docfile = bib_docfile
     elif bib_docfile is not None:
@@ -127,7 +130,9 @@ def command(args):
         if docfile is not None:
             rp.push_doc(p.citekey, docfile, copy=args.copy)
             if args.copy:
-                if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(docfile, color.bold))):
+                if args.move:
+                    content.remove_file(docfile)
+                elif ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(docfile, color.bold))):
                     content.remove_file(docfile)
         ui.print_('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
     except ValueError as v:

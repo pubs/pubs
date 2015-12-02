@@ -15,7 +15,7 @@ class TestRepo(fake_env.TestFakeFs):
     def setUp(self):
         super(TestRepo, self).setUp()
         self.repo = Repository(configs.Config(), create=True)
-        self.repo.push_paper(Paper(fixtures.turing_bibdata))
+        self.repo.push_paper(Paper.from_bibentry(fixtures.turing_bibentry))
 
 
 class TestCitekeyGeneration(TestRepo):
@@ -27,9 +27,10 @@ class TestCitekeyGeneration(TestRepo):
             self.assertEqual(_base27(26 + i + 1), 'a' + chr(97 + i))
 
     def test_generated_key_is_unique(self):
-        self.repo.push_paper(Paper(fixtures.doe_bibdata))
+        self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry))
         c = self.repo.unique_citekey('Doe2013')
-        self.repo.push_paper(Paper(fixtures.doe_bibdata, citekey='Doe2013a'))
+        self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry,
+                                                 citekey='Doe2013a'))
         c = self.repo.unique_citekey('Doe2013')
         self.assertEqual(c, 'Doe2013b')
 
@@ -38,25 +39,27 @@ class TestPushPaper(TestRepo):
 
     def test_raises_value_error_on_existing_key(self):
         with self.assertRaises(CiteKeyCollision):
-            self.repo.push_paper(Paper(fixtures.turing_bibdata))
+            self.repo.push_paper(Paper.from_bibentry(fixtures.turing_bibentry))
 
     def test_pushes_paper_bibdata(self):
-        orig = fixtures.doe_bibdata
-        self.repo.push_paper(Paper(orig))
-        retrieved = self.repo.databroker.pull_bibdata('Doe2013')
-        self.assertEquals(orig, retrieved)
+        orig = fixtures.doe_bibentry
+        self.repo.push_paper(Paper.from_bibentry(orig))
+        retrieved = self.repo.databroker.pull_bibentry('Doe2013')
+        self.assertEqual(orig, retrieved)
 
     def test_pushes_paper_metadata(self):
         orig = {'docfile': 'dummy', 'tags': set(['tag', 'another']),
                 'added': datetime(2012, 12, 12, 12, 12, 12, 12)}
-        self.repo.push_paper(Paper(fixtures.doe_bibdata, metadata=orig))
+        self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry,
+                                                 metadata=orig))
         retrieved = self.repo.databroker.pull_metadata('Doe2013')
-        self.assertEquals(orig, retrieved)
+        self.assertEqual(orig, retrieved)
 
     def test_pushes_paper_metadata_set_added(self):
         orig = {'docfile': 'dummy', 'tags': set(['tag', 'another'])}
         now = datetime.now()
-        self.repo.push_paper(Paper(fixtures.doe_bibdata, metadata=orig))
+        self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry,
+                                                 metadata=orig))
         retrieved = self.repo.databroker.pull_metadata('Doe2013')
         self.assertIn('added', retrieved)
         self.assertTrue(now < retrieved['added'])

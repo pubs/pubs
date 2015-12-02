@@ -5,10 +5,12 @@ import re
 
 from .p3 import ustr, uchr
 
-    # citekey stuff
+# Citekey stuff
+
+TYPE_KEY = 'type'
 
 CONTROL_CHARS = ''.join(map(uchr, list(range(0, 32)) + list(range(127, 160))))
-CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/'  # '/' is OK for bibtex but forbidden
+CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/ '  # '/' is OK for bibtex but forbidden
 # here since we transform citekeys into filenames
 CITEKEY_EXCLUDE_RE = re.compile('[%s]'
         % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
@@ -73,24 +75,22 @@ def extract_docfile(bibdata, remove=False):
 
         :param remove: remove field after extracting information (default: False)
     """
-    citekey, entry = get_entry(bibdata)
-
     try:
-        if 'file' in entry:
-            field = entry['file']
+        if 'file' in bibdata:
+            field = bibdata['file']
             # Check if this is mendeley specific
             for f in field.split(':'):
                 if len(f) > 0:
                     break
             if remove:
-                entry.pop('file')
+                bibdata.pop('file')
             # This is a hck for Mendeley. Make clean
             if f[0] != '/':
                 f = '/' + f
             return f
-        if 'attachments' in entry:
-            return entry['attachments']
-        if 'pdf' in entry:
-            return entry['pdf']
+        if 'attachments' in bibdata:
+            return bibdata['attachments']
+        if 'pdf' in bibdata:
+            return bibdata['pdf']
     except (KeyError, IndexError):
         return None

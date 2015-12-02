@@ -58,9 +58,10 @@ class Repository(object):
     def pull_paper(self, citekey):
         """Load a paper by its citekey from disk, if necessary."""
         if citekey in self:
-            return Paper(self.databroker.pull_bibdata(citekey),
-                         citekey=citekey,
-                         metadata=self.databroker.pull_metadata(citekey))
+            return Paper.from_bibentry(
+                self.databroker.pull_bibentry(citekey),
+                citekey=citekey,
+                metadata=self.databroker.pull_metadata(citekey))
         else:
             raise InvalidReference('{} citekey not found'.format(citekey))
 
@@ -75,7 +76,7 @@ class Repository(object):
             raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
         if not paper.added:
             paper.added = datetime.now()
-        self.databroker.push_bibdata(paper.citekey, paper.bibdata)
+        self.databroker.push_bibentry(paper.citekey, paper.bibentry)
         self.databroker.push_metadata(paper.citekey, paper.metadata)
         self.citekeys.add(paper.citekey)
         if event:

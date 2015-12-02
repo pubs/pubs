@@ -2,18 +2,19 @@ import unittest
 
 import dotdot
 from pubs.commands.list_cmd import (_check_author_match,
-                                      _check_field_match,
-                                      _check_query_block,
-                                      filter_paper,
-                                      InvalidQuery)
+                                    _check_field_match,
+                                    _check_query_block,
+                                    filter_paper,
+                                    InvalidQuery)
 
 from pubs.paper import Paper
 
 import fixtures
 
-doe_paper    = Paper(fixtures.doe_bibdata)
-page_paper   = Paper(fixtures.page_bibdata)
-turing_paper = Paper(fixtures.turing_bibdata, metadata=fixtures.turing_metadata)
+doe_paper    = Paper.from_bibentry(fixtures.doe_bibentry)
+page_paper   = Paper.from_bibentry(fixtures.page_bibentry)
+turing_paper = Paper.from_bibentry(fixtures.turing_bibentry,
+                                   metadata=fixtures.turing_metadata)
 
 class TestAuthorFilter(unittest.TestCase):
 

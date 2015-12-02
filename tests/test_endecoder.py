@@ -86,9 +86,7 @@ class TestEnDecode(unittest.TestCase):
         biblines = turing_bib.splitlines()
         biblines.insert(-3, keyword_str)
         bibsrc = '\n'.join(biblines)
-        print(bibsrc)
         entry = decoder.decode_bibdata(bibsrc)['turing1950computing']
-        print(entry)
         self.assertNotIn(u'keywords', entry)
         self.assertIn(u'keyword', entry)
         self.assertEqual(set(keywords), set(entry[u'keyword']))
