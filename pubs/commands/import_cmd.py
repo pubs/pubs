@@ -80,7 +80,7 @@ def command(args):
                 ui.error('could not load entry for citekey {}.'.format(k))
             else:
                 rp.push_paper(p)
-                ui.print_('{} imported'.format(color.dye(p.citekey, color.cyan)))
+                ui.print_out('{} imported'.format(color.dye_out(p.citekey, color.citekey)))
                 docfile = bibstruct.extract_docfile(p.bibdata)
                 if docfile is None:
                     ui.warning("no file for {}.".format(p.citekey))

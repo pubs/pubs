@@ -34,10 +34,14 @@ def command(args):
     try:
         document = args.document
         rp.push_doc(paper.citekey, document, copy=args.copy)
-        if args.copy and args.move:
-            content.remove_file(document)
+        if args.copy:
+            if args.move:
+                content.remove_file(document)
+            # else:
+            #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'bold'))):
+            #         content.remove_file(document)
 
-        ui.print_('{} attached to {}'.format(color.dye(document, color.bold), color.dye(paper.citekey, color.citekey)))
+        ui.print_out('{} attached to {}'.format(color.dye_out(document, 'bold'), color.dye_out(paper.citekey, color.citekey)))
 
     except ValueError as v:
         ui.error(v.message)

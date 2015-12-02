@@ -11,14 +11,16 @@ coder = endecoder.EnDecoder()
 franny_bib = """@article{Franny1961,
     author = "Salinger, J. D.",
     title = "Franny and Zooey",
-    year = "1961"}
+    year = "1961",
+}
 """
 
 doe_bib = """
 @article{Doe2013,
     author = "Doe, John",
     title = "Nice Title",
-    year = "2013"}
+    year = "2013",
+}
 """
 
 dummy_metadata = {'docfile': 'docsdir://hop.la', 'tags': set(['a', 'b'])}

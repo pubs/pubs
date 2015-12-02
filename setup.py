@@ -11,7 +11,8 @@ setup(
     url          = '',
 
     description  = 'command-line scientific bibliography manager',
-    packages     = find_packages(), #['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
+    #packages     = find_packages(), #['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
+    packages     = ['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
     scripts      = ['pubs/pubs'],
 
     install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests'],

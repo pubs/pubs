@@ -53,7 +53,7 @@ class TestFakeInput(unittest.TestCase):
 class CommandTestCase(unittest.TestCase):
     """Abstract TestCase intializing the fake filesystem."""
 
-    maxDiff = None
+    maxDiff = 1000000
 
     def setUp(self):
         self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
@@ -62,42 +62,43 @@ class CommandTestCase(unittest.TestCase):
     def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
 
-        A command can be a string, or a tuple of size 2 or 3.
+        A command can be a string, or a tuple of size 2, 3 or 4.
         In the latter case, the command is :
         1. a string reprensenting the command to execute
         2. the user inputs to feed to the command during execution
-        3. the output expected, verified with assertEqual. Always captures
-        output in this case.
-
+        3. the expected output on stdout, verified with assertEqual.
+        4. the expected output on stderr, verified with assertEqual.
         """
         outs = []
         for cmd in cmds:
             inputs = []
-            output = None
+            expected_out, expected_err = None, None
             actual_cmd = cmd
-            current_capture_output = capture_output
             if not isinstance(cmd, p3.ustr):
                 actual_cmd = cmd[0]
                 if len(cmd) == 2:  # Inputs provided
                     inputs = cmd[1]
                 if len(cmd) == 3:  # Expected output provided
-                    current_capture_output = True
-                    output = cmd[2]
+                    capture_output = True
+                    expected_out = color.undye(cmd[2])
+                if len(cmd) == 4:  # Expected error output provided
+                    expected_err = color.undye(cmd[3])
             # Always set fake input: test should not ask unexpected user input
             input = fake_env.FakeInput(inputs, [content, uis, p3])
             input.as_global()
             try:
-                if current_capture_output:
+                if capture_output:
                     _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
                         actual_cmd.split())
-                    self.assertEqual(stderr, '')
                     actual_out = color.undye(stdout)
-                    if output is not None:
-                        correct_out = color.undye(output)
-                        self.assertEqual(actual_out, correct_out)
+                    actual_err = color.undye(stderr)
+                    if expected_out is not None:
+                        self.assertEqual(actual_out, expected_out)
+                    if expected_err is not None:
+                        self.assertEqual(actual_err, expected_err)
                     outs.append(color.undye(actual_out))
                 else:
-                    pubs_cmd.execute(cmd.split())
+                    pubs_cmd.execute(actual_cmd.split())
             except fake_env.FakeInput.UnexpectedInput:
                 self.fail('Unexpected input asked by command: {}.'.format(
                     actual_cmd))
@@ -252,7 +253,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \nwas added to pubs.\n',
+                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '\n',
                    '',

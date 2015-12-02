@@ -102,7 +102,7 @@ def check_content(path):
 
 def _get_byte_url_content(path, ui=None):
     if ui is not None:
-        ui.print_(u'dowloading {}'.format(path))
+        ui.print_out(u'dowloading {}'.format(path))
     response = urlopen(path)
     return response.read()
 

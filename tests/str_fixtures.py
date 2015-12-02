@@ -29,7 +29,7 @@ bibtex_raw0 = """@techreport{
     note = "Previous number = SIDL-WP-1999-0120",
     year = "1999",
     type = "Technical Report",
-    institution = "Stanford InfoLab"
+    institution = "Stanford InfoLab",
 }
 
 """

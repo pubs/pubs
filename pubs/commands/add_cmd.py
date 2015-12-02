@@ -128,13 +128,14 @@ def command(args):
     try:
         rp.push_paper(p)
         if docfile is not None:
-            rp.push_doc(p.citekey, docfile, copy=args.copy)
+            rp.push_doc(p.citekey, docfile, copy=args.copy or args.move)
             if args.copy:
                 if args.move:
                     content.remove_file(docfile)
-                elif ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye(docfile, color.bold))):
-                    content.remove_file(docfile)
-        ui.print_('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
+                # elif ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(docfile, 'bold'))):
+                #     content.remove_file(docfile)
+
+        ui.print_out('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)
