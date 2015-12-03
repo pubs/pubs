@@ -7,6 +7,8 @@ python:
   - "3.4"
   - "3.5"
 # command to install dependencies
-install: "pip install pyfakefs"
+install:
+    - "pip install pyfakefs"
+    - "python setup.py install"
 # command to run tests
 script: nosetests
