@@ -10,10 +10,7 @@ Pubs is built with the following principles in mind:
  - bibliographic data (i.e. pure bibtex information) is kept separated from metadata (including links to pdf or tags),
  - everything is stored in plain text so it can be manually edited or version controlled.
 
-Pubs is compatible with Python 2.7 and 3.3 and higher.
-
 **Notice:** pubs is still in early development and cannot be considered as stable.
-
 
 
 Getting started
@@ -32,13 +29,11 @@ or for a .bib file containing a single reference:
 
 pubs can also automatically retrieve the bibtex from a doi:
 
-    pubs add -D 10.1007/s00422-012-0514-6
+    pubs add -D 10.1007/s00422-012-0514-6 -d article.pdf
 
 or an ISBN (dashes are ignored):
 
-    pubs add -I 978-0822324669
-
-The pdfs must still be downloaded manually.
+    pubs add -I 978-0822324669 -d article.pdf
 
 
 References always up-to-date
@@ -51,7 +46,7 @@ If you use latex, you can automatize references, by creating a bash script with:
     bibtex manuscript
     latex manuscript.tex
 
-This ensure that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in bibtex. This means that if you have, for instance, a doi on a webpage, you only need to do:
+This ensure that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
 
     pubs add -D 10.1007/s00422-012-0514-6
 
@@ -59,10 +54,10 @@ and then add `\cite{Loeb_2012}` in your manuscript. After running the bash scrip
 
 Requirements
 ------------
-- python >= 2.7
+- python >= 2.7 or >= 3.3
 - [dateutil](http://labix.org/python-dateutil)
 - [pyYaml](http://pyyaml.org) (will be deprecated soon)
-- [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.5.3
+- [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.6.1
 
 
 Authors
