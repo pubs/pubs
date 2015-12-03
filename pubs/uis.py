@@ -16,32 +16,40 @@ from .p3 import _get_raw_stdout, _get_raw_stderr, input
 _ui = None
 
 
-def _get_encoding(config):
+def _get_encoding(conf):
     """Get local terminal encoding or user preference in config."""
-    enc = None
+    enc = 'utf-8'
     try:
         enc = locale.getdefaultlocale()[1]
     except ValueError:
         pass  # Keep default
-    return config.get('terminal-encoding', enc or 'utf-8')
-
+    if conf is None:
+        return enc or 'utf-8'
+    return conf.get('terminal-encoding', enc or 'utf-8')
 
 def get_ui():
     if _ui is None:
-        raise ValueError('ui not instanciated yet')
+        return PrintUI() # no editor support. (#FIXME?)
     return _ui
 
-
-def init_ui(config):
+def init_ui(conf):
     global _ui
-    _ui = InputUI(config)
+    _ui = InputUI(conf)
 
 
 class PrintUI(object):
 
-    def __init__(self, config):
-        color.setup(config.color)
-        self.encoding = _get_encoding(config)
+    def __init__(self, conf=None):
+        """
+        :param conf: if None, conservative default values are used.
+                     Useful to instanciate the UI before parsing the config file.
+        """
+        if conf is None:
+            color.setup()
+        else:
+            color.setup(color=True, bold=True, italic=True)
+#            color.setup(color=conf.color, bold=conf.bold, italic=conf.italic)
+        self.encoding = _get_encoding(conf)
         self._stdout  = codecs.getwriter(self.encoding)(_get_raw_stdout(),
                                                         errors='replace')
         self._stderr  = codecs.getwriter(self.encoding)(_get_raw_stderr(),
@@ -61,25 +69,23 @@ class PrintUI(object):
         """
         print(' '.join(strings), file=self._stderr, **kwargs)
 
-    def error(self, message):
-        self.print_err('{}: {}'.format(color.dye_err('error', 'red'), message))
-
-
     def warning(self, message):
         self.print_err("%s: %s" % (color.dye_err('warning', 'yellow'), message))
 
+    def error(self, message):
+        self.print_err('{}: {}'.format(color.dye_err('error', 'red'), message))
+
+    def exit(self, error_code=1):
+        sys.exit(error_code)
 
 
 class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.
     """
 
-    def __init__(self, config):
-        super(InputUI, self).__init__(config)
-        self.editor = config.edit_cmd
-
-    def exit(self, error_code=1):
-        sys.exit(error_code)
+    def __init__(self, conf):
+        super(InputUI, self).__init__(conf)
+        self.editor = conf.edit_cmd
 
     def input(self):
         try:
