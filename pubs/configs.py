@@ -1,10 +1,11 @@
 import os
+import sys
 import collections
 
 from .p3 import configparser, ConfigParser, _read_config
 
 from .content import check_file, _open
-
+from . import __version__
 
 # constant stuff (DFT = DEFAULT)
 
@@ -23,7 +24,7 @@ DFT_CONFIG = collections.OrderedDict([
               ('import_copy',     True),
               ('import_move',     False),
               ('color',           True),
-              ('version',         5),
+              ('version',         __version__),
               ('version_warning', True),
               ('open_cmd',       'open'),
               ('edit_cmd',        DFT_EDIT_CMD),
@@ -66,12 +67,18 @@ class Config(object):
         if not check_file(path, fail=False):
             raise IOError(("The configuration file {} does not exist."
                            " Did you run 'pubs init' ?").format(path))
-        with _open(path, 'r+') as f:
+        b_flag = ''
+        if sys.version_info[0] == 2: # HACK, FIXME please
+            b_flag = 'b'
+        with _open(path, 'r{}+'.format(b_flag)) as f:
             _read_config(self._cfg, f)
         return self
 
     def save(self, path=DFT_CONFIG_PATH):
-        with _open(path, 'w+') as f:
+        b_flag = ''
+        if sys.version_info[0] == 2: # HACK, FIXME please
+            b_flag = 'b'
+        with _open(path, 'w{}+'.format(b_flag)) as f:
             self._cfg.write(f)
 
     def __setattr__(self, name, value):

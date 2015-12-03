@@ -34,7 +34,9 @@ CORE_CMDS = collections.OrderedDict([
 def _update_check(config, ui):
     if config.version_warning:
         code_version = __version__.split('.')
-        repo_version = ('0.{}.0'.format(config.version)).split('.') # FIXME
+        if len(config.version) == 1: # support for deprecated version scheme.
+            config.version = '0.{}.0'.format(config.version)
+        repo_version = config.version.split('.')
 
         if repo_version > code_version:
             ui.warning(

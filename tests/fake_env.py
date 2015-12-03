@@ -83,7 +83,8 @@ class UnicodeStringIOWrapper(object):
 
 def _force_binary_mode(mode):
     if 'b' in mode:
-        raise ValueError('Open should not happen in binary mode.')
+        return mode # python 2 fix.
+        # raise ValueError('Open should not happen in binary mode.')
     return mode + 'b'
 
 

@@ -6,7 +6,7 @@ import codecs
 
 from .content import editor_input
 from . import color
-from .p3 import _get_raw_stdout, _get_raw_stderr, input
+from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
 
 
 # package-shared ui that can be accessed using :
@@ -93,7 +93,7 @@ class InputUI(PrintUI):
         except EOFError:
             self.error(u'Standard input ended while waiting for answer.')
             self.exit(1)
-        return data.decode('utf-8')
+        return ustr(data) #.decode('utf-8')
 
     def input_choice_ng(self, options, option_chars=None, default=None, question=''):
         """Ask the user to chose between a set of options. The iser is asked
