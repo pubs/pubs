@@ -2,20 +2,22 @@
 
 from setuptools import setup, find_packages
 
+VERSION = '0.5.0'
+
 setup(
     name         = 'pubs',
-    version      = '0.5.0',
+    version      = VERSION,
     author       = 'Fabien Benureau, Olivier Mangin, Jonathan Grizou',
-    author_email = 'fabien.benureau+inria@gmail.com',
+    author_email = 'fabien.benureau@gmail.com',
     maintainer   = 'Olivier Mangin',
-    url          = '',
+    url          = 'https://github.com/pubs/pubs',
 
     description  = 'command-line scientific bibliography manager',
-    #packages     = find_packages(), #['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
     packages     = ['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
     scripts      = ['pubs/pubs'],
 
-    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests'],
+    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests',
+                        'beautifulsoup4'], # to be made optional?
 
     classifiers=[
         'Development Status :: 4 - Beta',
