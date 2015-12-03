@@ -33,8 +33,8 @@ CORE_CMDS = collections.OrderedDict([
 
 def _update_check(config, ui):
     if config.version_warning:
-        code_version = int(__version__)
-        repo_version = int(config.version)
+        code_version = __version__.split('.')
+        repo_version = ('0.{}.0'.format(config.version)).split('.') # FIXME
 
         if repo_version > code_version:
             ui.warning(
