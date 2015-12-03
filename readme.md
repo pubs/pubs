@@ -10,8 +10,10 @@ Pubs is built with the following principles in mind:
  - bibliographic data (i.e. pure bibtex information) is kept separated from metadata (including links to pdf or tags),
  - everything is stored in plain text so it can be manually edited or version controlled.
 
+Pubs is compatible with Python 2.7 and 3.3 and higher.
 
-**Notice:** pubs is still in early development and cannot be considered as stable
+**Notice:** pubs is still in early development and cannot be considered as stable.
+
 
 
 Getting started
