@@ -24,7 +24,7 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
                      citekey))
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.print_out(u'    {}'.format(pretty.paper_oneliner(p)))
+                ui.message(u'    {}'.format(pretty.paper_oneliner(p)))
             if exit_on_fail:
                 ui.exit()
     return citekey

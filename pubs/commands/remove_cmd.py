@@ -27,7 +27,7 @@ def command(args):
     if force or sure:
         for c in args.citekeys:
             rp.remove_paper(c)
-            ui.print_out('The paper(s) [{}] were removed'.format(', '.join([color.dye_out(c, color.citekey) for c in args.citekeys])))
+            ui.message('The paper(s) [{}] were removed'.format(', '.join([color.dye_out(c, color.citekey) for c in args.citekeys])))
             # FIXME: print should check that removal proceeded well.
     else:
-        ui.print_out('The paper(s) [{}] were *not* removed'.format(', '.join([color.dye_out(c, color.citekey) for c in args.citekeys])))
+        ui.message('The paper(s) [{}] were *not* removed'.format(', '.join([color.dye_out(c, color.citekey) for c in args.citekeys])))

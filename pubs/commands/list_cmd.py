@@ -49,7 +49,7 @@ def command(args):
     else:
         papers = sorted(papers, key=date_added)
     if len(papers) > 0:
-        ui.print_out('\n'.join(
+        ui.message('\n'.join(
             pretty.paper_oneliner(p, citekey_only=args.citekeys)
             for p in papers))
 

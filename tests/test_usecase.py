@@ -17,7 +17,7 @@ from pubs.commands import init_cmd, import_cmd
 
 
 # makes the tests very noisy
-PRINT_OUTPUT=False
+messagePUT=False
 CAPTURE_OUTPUT=True
 
 
@@ -102,7 +102,7 @@ class CommandTestCase(unittest.TestCase):
             except fake_env.FakeInput.UnexpectedInput:
                 self.fail('Unexpected input asked by command: {}.'.format(
                     actual_cmd))
-        if PRINT_OUTPUT:
+        if messagePUT:
             print(outs)
         return outs
 

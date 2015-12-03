@@ -41,7 +41,7 @@ def command(args):
             #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'bold'))):
             #         content.remove_file(document)
 
-        ui.print_out('{} attached to {}'.format(color.dye_out(document, 'bold'), color.dye_out(paper.citekey, color.citekey)))
+        ui.message('{} attached to {}'.format(color.dye_out(document, 'bold'), color.dye_out(paper.citekey, color.citekey)))
 
     except ValueError as v:
         ui.error(v.message)

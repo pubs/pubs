@@ -19,10 +19,10 @@ def command(args):
     repo_version = int(config().version)
 
     if repo_version == code_version:
-        ui.print_out('Your pubs repository is up-to-date.')
+        ui.message('Your pubs repository is up-to-date.')
         sys.exit(0)
     elif repo_version > code_version:
-        ui.print_out('Your repository was generated with an newer version of pubs.\n'
+        ui.message('Your repository was generated with an newer version of pubs.\n'
                      'You should not use pubs until you install the newest version.')
         sys.exit(0)
     else:

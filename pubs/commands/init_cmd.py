@@ -37,7 +37,7 @@ def command(args):
             color.dye_err(pubsdir, color.filepath)))
         ui.exit()
 
-    ui.print_out('Initializing pubs in {}'.format(color.dye_out(pubsdir, color.filepath)))
+    ui.message('Initializing pubs in {}'.format(color.dye_out(pubsdir, color.filepath)))
 
     config().pubsdir = pubsdir
     config().docsdir = docsdir

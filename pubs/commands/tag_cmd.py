@@ -83,12 +83,12 @@ def command(args):
     rp = Repository(config())
 
     if citekeyOrTag is None:
-        ui.print_out(color.dye_out(' '.join(sorted(rp.get_tags())), color.tag))
+        ui.message(color.dye_out(' '.join(sorted(rp.get_tags())), color.tag))
     else:
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)
             if tags == []:
-                ui.print_out(color.dye_out(' '.join(sorted(p.tags)),
+                ui.message(color.dye_out(' '.join(sorted(p.tags)),
                                            color.tag))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tags(tags))
@@ -108,5 +108,5 @@ def command(args):
                     len(p.tags.intersection(excluded)) == 0):
                     papers_list.append(p)
 
-            ui.print_out('\n'.join(pretty.paper_oneliner(p)
+            ui.message('\n'.join(pretty.paper_oneliner(p)
                                    for p in papers_list))
