@@ -13,7 +13,7 @@ def parser(subparsers):
     parser = subparsers.add_parser('init',
                                    help="initialize the pubs directory")
     parser.add_argument('-p', '--pubsdir', default=None,
-                        help='path to pubs directory (if none, ~/.ubs is used)')
+                        help='path to pubs directory (if none, ~/.pubs is used)')
     parser.add_argument('-d', '--docsdir', default='docsdir://',
                         help=('path to document directory (if not specified, documents will'
                               'be stored in /path/to/pubsdir/doc/)'))
@@ -27,7 +27,7 @@ def command(args):
     pubsdir = args.pubsdir
     docsdir = args.docsdir
 
-    if pubsdir is None:
+    if args.pubsdir is None:
         pubsdir = '~/.pubs'
 
     pubsdir = system_path(pubsdir)
@@ -41,6 +41,9 @@ def command(args):
 
     config().pubsdir = pubsdir
     config().docsdir = docsdir
-    config().save()
+    if args.config:
+        config.save(args.config)
+    else:
+        config().save()
 
     Repository(config(), create=True)
