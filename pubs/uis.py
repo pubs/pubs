@@ -39,16 +39,14 @@ def init_ui(conf):
 
 class PrintUI(object):
 
-    def __init__(self, conf=None):
+    def __init__(self, conf):
         """
         :param conf: if None, conservative default values are used.
                      Useful to instanciate the UI before parsing the config file.
         """
-        if conf is None:
-            color.setup()
-        else:
-            color.setup(color=True, bold=True, italic=True)
-#            color.setup(color=conf.color, bold=conf.bold, italic=conf.italic)
+        color.setup(color=conf['formating']['color'],
+                    bold=conf['formating']['bold'],
+                    italic=conf['formating']['italics'])
         self.encoding = _get_encoding(conf)
         self._stdout  = codecs.getwriter(self.encoding)(_get_raw_stdout(),
                                                         errors='replace')
@@ -77,7 +75,7 @@ class InputUI(PrintUI):
 
     def __init__(self, conf):
         super(InputUI, self).__init__(conf)
-        self.editor = conf.edit_cmd
+        self.editor = conf['main']['edit_cmd']
 
     def input(self):
         try:

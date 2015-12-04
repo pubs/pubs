@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 from .. import repo
-from ..configs import config
 from ..uis import get_ui
 from .. import endecoder
 
@@ -14,14 +13,14 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
     """
     """
     # :param bib_format (only 'bibtex' now)
 
     ui = get_ui()
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
 
     try:
         papers = [rp.pull_paper(c) for c in args.citekeys]

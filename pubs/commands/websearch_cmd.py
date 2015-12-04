@@ -11,7 +11,7 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
 
     ui = get_ui()
     search_string = args.search_string

@@ -8,7 +8,9 @@ import dotdot
 import fake_env
 
 from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, p3, endecoder, configs
+from pubs import color, content, filebroker, uis, p3, endecoder
+from pubs.config import conf
+import configobj
 
 import str_fixtures
 import fixtures
@@ -56,7 +58,7 @@ class CommandTestCase(unittest.TestCase):
     maxDiff = 1000000
 
     def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
+        self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj])
         self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
 
     def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
@@ -107,7 +109,7 @@ class CommandTestCase(unittest.TestCase):
         return outs
 
     def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
+        fake_env.unset_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj])
 
 
 class DataCommandTestCase(CommandTestCase):
@@ -253,7 +255,8 @@ class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
-                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+                   'data/pagerank.pdf was copied to the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '\n',
                    '',

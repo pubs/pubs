@@ -20,7 +20,7 @@ The different use cases are :
 import re
 
 from ..repo import Repository, InvalidReference
-from ..configs import config
+
 from ..uis import get_ui
 from .. import pretty
 from .. import color
@@ -72,7 +72,7 @@ def _tag_groups(tags):
             minus_tags.append(tag[1:])
     return set(plus_tags), set(minus_tags)
 
-def command(args):
+def command(conf, args):
     """Add, remove and show tags"""
 
     ui = get_ui()
@@ -80,7 +80,7 @@ def command(args):
     tags = args.tags
 
 
-    rp = Repository(config())
+    rp = Repository(conf)
 
     if citekeyOrTag is None:
         ui.message(color.dye_out(' '.join(sorted(rp.get_tags())), color.tag))

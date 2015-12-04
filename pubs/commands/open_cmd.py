@@ -1,7 +1,7 @@
 import subprocess
 
 from .. import repo
-from ..configs import config
+
 from ..uis import get_ui
 from .. import color
 from ..content import system_path
@@ -17,17 +17,19 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
 
     ui = get_ui()
     with_command = args.with_command
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
 
     if with_command is None:
-        with_command = config().open_cmd
+        with_command = conf['main']['open_cmd']
+    if with_command is None: # default in conf have not been changed
+        pass # TODO platform specific
 
     if paper.docpath is None:
         ui.error('No document associated with the entry {}.'.format(

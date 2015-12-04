@@ -1,6 +1,5 @@
 from .. import repo
 from .. import color
-from ..configs import config
 from ..uis import get_ui
 from .. import content
 
@@ -20,7 +19,7 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -28,7 +27,7 @@ def command(args):
 
     ui = get_ui()
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     paper = rp.pull_paper(args.citekey)
 
     try:

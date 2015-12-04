@@ -1,7 +1,7 @@
 from .. import repo
 from .. import content
-from ..configs import config
 from ..uis import get_ui
+
 
 def parser(subparsers):
     parser = subparsers.add_parser('note',
@@ -11,17 +11,16 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
     """
     """
 
     ui = get_ui()
 
-
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     if not rp.databroker.exists(args.citekey):
         ui.error("citekey {} not found".format(args.citekey))
         ui.exit(1)
 
     notepath = rp.databroker.real_notepath(args.citekey)
-    content.edit_file(config().edit_cmd, notepath, temporary=False)
+    content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)

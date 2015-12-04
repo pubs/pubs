@@ -1,6 +1,5 @@
 from .. import repo
 from .. import color
-from ..configs import config
 from ..uis import get_ui
 
 
@@ -13,11 +12,11 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
 
     ui = get_ui()
     force = args.force
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
 
     if force is None:
         are_you_sure = (("Are you sure you want to delete paper(s) [{}]"

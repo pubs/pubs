@@ -2,7 +2,7 @@ import sys
 
 from .. import repo
 from .. import color
-from ..configs import config
+
 from ..uis import get_ui
 from ..__init__ import __version__
 
@@ -11,12 +11,14 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
 
     ui = get_ui()
 
-    code_version = __version__
-    repo_version = int(config().version)
+    code_version = __version__.split('.')
+    if len(conf['internal']['version']) == 1: # support for deprecated version scheme.
+        conf['internal']['version'] = '0.{}.0'.format(conf['internal']['version'])
+    repo_version = conf['internal']['version'].split('.')
 
     if repo_version == code_version:
         ui.message('Your pubs repository is up-to-date.')
@@ -27,11 +29,11 @@ def command(args):
         sys.exit(0)
     else:
         msg = ("You should backup the pubs directory {} before continuing."
-               "Continue ?").format(color.dye_out(config().papers_dir, color.filepath))
+               "Continue ?").format(color.dye_out(conf['main']['pubsdir'], color.filepath))
         sure = ui.input_yn(question=msg, default='n')
         if not sure:
             sys.exit(0)
 
-
-#        config().version = repo_version
-#        config().save()
+    #TODO: update!!
+#        conf['internal']['version'] = repo_version
+#        conf['internal']['version']

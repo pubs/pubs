@@ -4,7 +4,7 @@ import argparse
 import collections
 
 from . import uis
-from . import configs
+from . import config
 from . import commands
 from . import plugins
 from .__init__ import __version__
@@ -31,45 +31,43 @@ CORE_CMDS = collections.OrderedDict([
         ])
 
 
-def _update_check(config, ui):
-    if config.version_warning:
-        code_version = __version__.split('.')
-        if len(config.version) == 1: # support for deprecated version scheme.
-            config.version = '0.{}.0'.format(config.version)
-        repo_version = config.version.split('.')
+def _update_check(conf, ui):
+    code_version = __version__.split('.')
+    if len(conf['internal']['version']) == 1: # support for deprecated version scheme.
+        conf['internal']['version'] = '0.{}.0'.format(conf['internal']['version'])
+    repo_version = conf['internal']['version'].split('.')
 
-        if repo_version > code_version:
-            ui.warning(
-                    'your repository was generated with an newer version'
-                    ' of pubs (v{}) than the one you are using (v{}).'
-                    '\n'.format(repo_version, code_version) +
-                    'You should not use pubs until you install the '
-                    'newest version. (use version_warning in you pubsrc '
-                    'to bypass this error)')
-            sys.exit()
-        elif repo_version < code_version:
-            ui.message(
-                'warning: your repository version (v{})'.format(repo_version)
-                + 'must   be updated to version {}.\n'.format(code_version)
-                + "run 'pubs update'.")
-            sys.exit()
+    if repo_version > code_version:
+        ui.warning(
+                'your repository was generated with an newer version'
+                ' of pubs (v{}) than the one you are using (v{}).'
+                '\n'.format(repo_version, code_version) +
+                'You should not use pubs until you install the '
+                'newest version.')
+        sys.exit()
+    elif repo_version < code_version:
+        ui.message(
+            'warning: your repository version (v{})'.format(repo_version)
+            + 'must   be updated to version {}.\n'.format(code_version)
+            + "run 'pubs update'.")
+        sys.exit()
 
 
 def execute(raw_args=sys.argv):
     # loading config
-    config = configs.Config()
     if len(raw_args) > 1 and raw_args[1] != 'init':
         try:
-            config.load()
+            conf = config.load_conf(check_conf=True)
         except IOError as e:
             print('error: {}'.format(str(e)))
             sys.exit()
-    config.as_global()
+    else:
+        conf = config.load_default_conf()
 
-    uis.init_ui(config)
+    uis.init_ui(conf)
     ui = uis.get_ui()
 
-    _update_check(config, ui)
+    _update_check(conf, ui)
 
     parser = argparse.ArgumentParser(description="research papers repository")
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
@@ -80,7 +78,7 @@ def execute(raw_args=sys.argv):
         cmd_funcs[cmd_name] = cmd_mod.command
 
     # Extend with plugin commands
-    plugins.load_plugins(ui, config.plugins.split())
+    plugins.load_plugins(ui, conf['plugins']['active'])
     for p in plugins.get_plugins().values():
         cmd_funcs.update(p.get_commands(subparsers))
 
@@ -89,4 +87,4 @@ def execute(raw_args=sys.argv):
     cmd = args.command
     del args.command
 
-    cmd_funcs[cmd](args)
+    cmd_funcs[cmd](conf, args)

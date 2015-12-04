@@ -22,10 +22,10 @@ class InvalidReference(Exception):
 
 class Repository(object):
 
-    def __init__(self, config, create=False):
-        self.config = config
+    def __init__(self, conf, create=False):
+        self.conf = conf
         self._citekeys = None
-        self.databroker = DataCache(self.config.pubsdir, create=create)
+        self.databroker = DataCache(self.conf['main']['pubsdir'], create=create)
 
     @property
     def citekeys(self):
@@ -133,7 +133,7 @@ class Repository(object):
     def push_doc(self, citekey, docfile, copy=None):
         p = self.pull_paper(citekey)
         if copy is None:
-            copy = self.config.import_copy
+            copy = self.conf['main']['doc_add'] in ('copy', 'move')
         if copy:
             docfile = self.databroker.add_doc(citekey, docfile)
         else:
