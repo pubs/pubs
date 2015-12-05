@@ -19,22 +19,24 @@ The different use cases are :
 
 import re
 
-from ..repo import Repository, InvalidReference
+from ..repo import Repository
 from ..configs import config
 from ..uis import get_ui
 from .. import pretty
 from .. import color
 
+
 def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
-    parser.add_argument('citekeyOrTag', nargs='?', default = None,
+    parser.add_argument('citekeyOrTag', nargs='?', default=None,
                         help='citekey or tag.')
-    parser.add_argument('tags', nargs='*', default = None,
+    parser.add_argument('tags', nargs='*', default=None,
                         help='If the previous argument was a citekey, then '
-                             'then a list of tags separated by a +.')
+                             'a list of tags separated by a +.')
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
+
 
 def _parse_tags(list_tags):
     """Transform 'math-ai network -search' in ['+math', '-ai', '+network', '-search']"""
@@ -43,9 +45,12 @@ def _parse_tags(list_tags):
         tags += _parse_tag_seq(s)
     return tags
 
+
 def _parse_tag_seq(s):
     """Transform 'math-ai' in ['+math', '-ai']"""
     tags = []
+    if s[0] == ':':
+        s = '-' + s[1:]
     if s[0] not in ['+', '-']:
         s = '+' + s
     last = 0
@@ -62,6 +67,7 @@ def _parse_tag_seq(s):
         tags.append(s[last:])
     return tags
 
+
 def _tag_groups(tags):
     plus_tags, minus_tags = [], []
     for tag in tags:
@@ -72,13 +78,13 @@ def _tag_groups(tags):
             minus_tags.append(tag[1:])
     return set(plus_tags), set(minus_tags)
 
+
 def command(args):
     """Add, remove and show tags"""
 
     ui = get_ui()
     citekeyOrTag = args.citekeyOrTag
     tags = args.tags
-
 
     rp = Repository(config())
 
@@ -88,8 +94,7 @@ def command(args):
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)
             if tags == []:
-                ui.message(color.dye_out(' '.join(sorted(p.tags)),
-                                           color.tag))
+                ui.message(color.dye_out(' '.join(sorted(p.tags)), color.tag))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tags(tags))
                 for tag in add_tags:
@@ -109,4 +114,4 @@ def command(args):
                     papers_list.append(p)
 
             ui.message('\n'.join(pretty.paper_oneliner(p)
-                                   for p in papers_list))
+                                 for p in papers_list))

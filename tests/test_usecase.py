@@ -116,7 +116,7 @@ class DataCommandTestCase(CommandTestCase):
     """
 
     def setUp(self):
-        CommandTestCase.setUp(self)
+        super(DataCommandTestCase, self).setUp()
         fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
 
 
@@ -247,6 +247,76 @@ class TestList(DataCommandTestCase):
                 ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(0 + 1, len(outs[-1].split('\n')))
+
+
+class TestTag(DataCommandTestCase):
+
+    def setUp(self):
+        super(TestTag, self).setUp()
+        init = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs add -k Turing1950 data/turing1950.bib',
+               ]
+        self.execute_cmds(init)
+
+    def test_add_tag(self):
+        cmds = ['pubs tag Page99 search',
+                'pubs tag Turing1950 ai',
+                'pubs list',
+                ]
+        correct = ['',
+                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | search\n' +
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) | ai\n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
+    def test_add_tags(self):
+        """Adds several tags at once.
+        Also checks that tags printed in alphabetic order.
+        """
+        cmds = ['pubs tag Page99 search+network',
+                'pubs list',
+                ]
+        correct = ['',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n' +
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
+    def test_remove_tag(self):
+        cmds = ['pubs tag Page99 search+network',
+                'pubs tag Page99 :network',
+                'pubs list',
+                ]
+        correct = ['',
+                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | search\n' +
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
+    def test_add_remove_tag(self):
+        cmds = ['pubs tag Page99 a',
+                'pubs tag Page99 b-a',
+                'pubs list',
+                ]
+        correct = ['',
+                   '',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | b\n' +
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
+    def test_wrong_citekey(self):
+        cmds = ['pubs tag Page999 a',
+                ]
+        with self.assertRaises(SystemExit):
+            self.execute_cmds(cmds)
 
 
 class TestUsecase(DataCommandTestCase):
@@ -438,7 +508,7 @@ class TestUsecase(DataCommandTestCase):
                ]
         self.execute_cmds(cmds)
         self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
-
+    
 
 if __name__ == '__main__':
     unittest.main()
