@@ -52,6 +52,17 @@ This ensure that your reference file is always up-to-date; you can cite a paper 
 
 and then add `\cite{Loeb_2012}` in your manuscript. After running the bash script, the citation will correctly appear in your compiled pdf.
 
+Customization
+-------------
+Pubs is designed to interact well with your command line tool chain. You can add custom commands to pubs by defining aliases in your config file. Here are a few examples.
+
+    [alias]
+    print = open -w lp
+    count = !pubs list -k | wc -l
+
+For more advanced functionalities, pubs also support plugins. Actually *alias* is itself a plugin!
+
+
 Requirements
 ------------
 - python >= 2.7 or >= 3.3
