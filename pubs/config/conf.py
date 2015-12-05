@@ -15,7 +15,7 @@ def load_default_conf():
     default_conf.validate(validator, copy=True)
     return default_conf
 
-def get_pubspath(verify=True):
+def get_confpath(verify=True):
     """Returns the pubs path.
     If verify is True, verify that pubs.conf exist in the directory,
     and exit with an error if not.
@@ -31,19 +31,26 @@ def get_pubspath(verify=True):
             ui.exit(error_code=1)
     return confpath
 
-def load_conf(check_conf=True):
+def check_conf(conf):
+    """Type checks a configuration"""
+    validator = validate.Validator()
+    results   = conf.validate(validator, copy=True)
+    assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
+
+def load_conf(check=True, path=None):
     """Load the user config"""
-    pubspath = get_pubspath(verify=True)
-    with open(pubspath, 'r') as f:
+    if path is None:
+        path = get_confpath(verify=True)
+    with open(path, 'rb') as f:
         conf = configobj.ConfigObj(f.readlines(), configspec=configspec)
 
-    if check_conf:
-        validator = validate.Validator()
-        results   = conf.validate(validator, copy=True)
-        assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
+    if check:
+        check_conf(conf)
 
     return conf
 
-def save_conf(conf):
-    with open(get_pubspath(verify=False), 'w') as f:
+def save_conf(conf, path=None):
+    if path is None:
+        path = get_confpath(verify=False)
+    with open(path, 'wb') as f:
         conf.write(outfile=f)

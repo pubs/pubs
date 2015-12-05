@@ -6,8 +6,8 @@ import collections
 from . import uis
 from . import config
 from . import commands
+from . import update
 from . import plugins
-from .__init__ import __version__
 
 
 CORE_CMDS = collections.OrderedDict([
@@ -27,37 +27,17 @@ CORE_CMDS = collections.OrderedDict([
 
         ('websearch',   commands.websearch_cmd),
         ('edit',        commands.edit_cmd),
-        # ('update',      commands.update_cmd),
         ])
-
-
-def _update_check(conf, ui):
-    code_version = __version__.split('.')
-    if len(conf['internal']['version']) == 1: # support for deprecated version scheme.
-        conf['internal']['version'] = '0.{}.0'.format(conf['internal']['version'])
-    repo_version = conf['internal']['version'].split('.')
-
-    if repo_version > code_version:
-        ui.warning(
-                'your repository was generated with an newer version'
-                ' of pubs (v{}) than the one you are using (v{}).'
-                '\n'.format(repo_version, code_version) +
-                'You should not use pubs until you install the '
-                'newest version.')
-        sys.exit()
-    elif repo_version < code_version:
-        ui.message(
-            'warning: your repository version (v{})'.format(repo_version)
-            + 'must   be updated to version {}.\n'.format(code_version)
-            + "run 'pubs update'.")
-        sys.exit()
 
 
 def execute(raw_args=sys.argv):
     # loading config
     if len(raw_args) > 1 and raw_args[1] != 'init':
         try:
-            conf = config.load_conf(check_conf=True)
+            conf = config.load_conf(check=False)
+            if update.update_check(conf): # an update happened, reload conf.
+                conf = config.load_conf(check=False)
+            config.check_conf(conf)
         except IOError as e:
             print('error: {}'.format(str(e)))
             sys.exit()
@@ -66,8 +46,6 @@ def execute(raw_args=sys.argv):
 
     uis.init_ui(conf)
     ui = uis.get_ui()
-
-    _update_check(conf, ui)
 
     parser = argparse.ArgumentParser(description="research papers repository")
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
