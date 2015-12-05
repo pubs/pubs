@@ -9,16 +9,15 @@ from .spec import configspec
 DFT_CONFIG_PATH = os.path.expanduser('~/.pubsrc')
 
 def load_default_conf():
-    """Loads the default configuration"""
+    """Load the default configuration"""
     default_conf = configobj.ConfigObj(configspec=configspec)
     validator = validate.Validator()
     default_conf.validate(validator, copy=True)
     return default_conf
 
 def get_confpath(verify=True):
-    """Returns the pubs path.
-    If verify is True, verify that pubs.conf exist in the directory,
-    and exit with an error if not.
+    """Return the configuration filepath
+    If verify is True, verify that the file exists and exit with an error if not.
     """
     confpath = DFT_CONFIG_PATH
     if 'PUBSCONF' in os.environ:
@@ -32,13 +31,13 @@ def get_confpath(verify=True):
     return confpath
 
 def check_conf(conf):
-    """Type checks a configuration"""
+    """Type check a configuration"""
     validator = validate.Validator()
     results   = conf.validate(validator, copy=True)
     assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
 
 def load_conf(check=True, path=None):
-    """Load the user config"""
+    """Load the configuration"""
     if path is None:
         path = get_confpath(verify=True)
     with open(path, 'rb') as f:
@@ -50,6 +49,7 @@ def load_conf(check=True, path=None):
     return conf
 
 def save_conf(conf, path=None):
+    """Save the configuration."""
     if path is None:
         path = get_confpath(verify=False)
     with open(path, 'wb') as f:

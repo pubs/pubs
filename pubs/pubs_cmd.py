@@ -12,6 +12,8 @@ from . import plugins
 
 CORE_CMDS = collections.OrderedDict([
         ('init',        commands.init_cmd),
+        ('conf',        commands.conf_cmd),
+
         ('add',         commands.add_cmd),
         ('rename',      commands.rename_cmd),
         ('remove',      commands.remove_cmd),
