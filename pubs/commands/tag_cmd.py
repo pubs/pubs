@@ -30,20 +30,12 @@ def parser(subparsers):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('citekeyOrTag', nargs='?', default=None,
                         help='citekey or tag.')
-    parser.add_argument('tags', nargs='*', default=None,
+    parser.add_argument('tags', nargs='?', default=None,
                         help='If the previous argument was a citekey, then '
                              'a list of tags separated by a +.')
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
-
-
-def _parse_tags(list_tags):
-    """Transform 'math-ai network -search' in ['+math', '-ai', '+network', '-search']"""
-    tags = []
-    for s in list_tags:
-        tags += _parse_tag_seq(s)
-    return tags
 
 
 def _parse_tag_seq(s):
@@ -93,20 +85,21 @@ def command(args):
     else:
         if rp.databroker.exists(citekeyOrTag):
             p = rp.pull_paper(citekeyOrTag)
-            if tags == []:
+            if tags is None:
                 ui.message(color.dye_out(' '.join(sorted(p.tags)), color.tag))
             else:
-                add_tags, remove_tags = _tag_groups(_parse_tags(tags))
+                add_tags, remove_tags = _tag_groups(_parse_tag_seq(tags))
                 for tag in add_tags:
                     p.add_tag(tag)
                 for tag in remove_tags:
                     p.remove_tag(tag)
                 rp.push_paper(p, overwrite=True)
+        elif tags is not None:
+            ui.error(ui.error('no entry found for citekey {}.'.format(citekeyOrTag)))
+            ui.exit()
         else:
             # case where we want to find papers with specific tags
-            all_tags = [citekeyOrTag]
-            all_tags += tags
-            included, excluded = _tag_groups(_parse_tags(all_tags))
+            included, excluded = _tag_groups(_parse_tag_seq(citekeyOrTag))
             papers_list = []
             for p in rp.all_papers():
                 if (p.tags.issuperset(included) and
