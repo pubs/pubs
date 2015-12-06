@@ -62,6 +62,7 @@ class PrintUI(object):
                                                         errors='replace')
         self._stderr  = codecs.getwriter(self.encoding)(_get_raw_stderr(),
                                                         errors='replace')
+        self.debug = conf.get('debug', False)
 
     def message(self, *messages, **kwargs):
         kwargs['file'] = self._stdout
@@ -81,6 +82,13 @@ class PrintUI(object):
 
     def exit(self, error_code=1):
         sys.exit(error_code)
+
+    def handle_exception(self, exc):
+        if self.debug:
+            raise exc
+        else:
+            self.error(exc)
+            self.exit()
 
 
 class InputUI(PrintUI):

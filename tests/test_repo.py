@@ -5,7 +5,7 @@ import dotdot
 import fake_env
 import fixtures
 
-from pubs.repo import Repository, _base27, CiteKeyCollision, InvalidReference
+from pubs.repo import Repository, _base27, CiteKeyCollision, CiteKeyNotFound
 from pubs.paper import Paper
 from pubs import config
 
@@ -77,7 +77,7 @@ class TestUpdatePaper(TestRepo):
     def test_update_new_key_removes_old(self):
         paper = self.repo.pull_paper('turing1950computing')
         self.repo.rename_paper(paper, 'Turing1950')
-        with self.assertRaises(InvalidReference):
+        with self.assertRaises(CiteKeyNotFound):
             self.repo.pull_paper('turing1950computing')
         self.assertNotIn('turing1950computing', self.repo)
 

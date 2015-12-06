@@ -12,12 +12,26 @@ def _base27(n):
     return _base27((n - 1) // 26) + chr(ord('a') + ((n - 1) % 26)) if n else ''
 
 
+class CiteKeyError(Exception):
+
+    default_message = "Wrong citekey: {}."
+
+    def __init__(self, citekey, message=None):
+        self.message = message
+        self.citekey = citekey
+
+    def __repr__(self):
+        return self.message or self.default_msg.format(self.citekey)
+
+
 class CiteKeyCollision(Exception):
-    pass
+
+    default_message = "Citekey already in use: {}."
 
 
-class InvalidReference(Exception):
-    pass
+class CiteKeyNotFound(Exception):
+
+    default_message = "Could not find citekey: {}."
 
 
 class Repository(object):
@@ -63,7 +77,7 @@ class Repository(object):
                 citekey=citekey,
                 metadata=self.databroker.pull_metadata(citekey))
         else:
-            raise InvalidReference('{} citekey not found'.format(citekey))
+            raise CiteKeyNotFound(citekey)
 
     def push_paper(self, paper, overwrite=False, event=True):
         """ Push a paper to disk
@@ -73,7 +87,7 @@ class Repository(object):
         """
         bibstruct.check_citekey(paper.citekey)
         if (not overwrite) and (paper.citekey in self):
-            raise CiteKeyCollision('citekey {} already in use'.format(paper.citekey))
+            raise CiteKeyCollision(paper.citekey)
         if not paper.added:
             paper.added = datetime.now()
         self.databroker.push_bibentry(paper.citekey, paper.bibentry)
@@ -130,7 +144,8 @@ class Repository(object):
         else:
             # check if new_citekey does not exists
             if new_citekey in self:
-                raise CiteKeyCollision("can't rename paper to {}, conflicting files exists".format(new_citekey))
+                msg = "Can't rename paper to {}, citekey already exists.".format(new_citekey)
+                raise CiteKeyCollision(new_citekey, message=msg)
 
             # move doc file if necessary
             if self.databroker.in_docsdir(paper.docpath):
