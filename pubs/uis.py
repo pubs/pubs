@@ -27,10 +27,12 @@ def _get_encoding(conf):
         return enc or 'utf-8'
     return conf.get('terminal-encoding', enc or 'utf-8')
 
+
 def get_ui():
     if _ui is None:
         return PrintUI() # no editor support. (#FIXME?)
     return _ui
+
 
 def init_ui(conf):
     global _ui

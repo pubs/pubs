@@ -1,6 +1,6 @@
 import shutil
-import StringIO
 
+import io
 from . import config
 from . import uis
 from . import color
@@ -81,7 +81,7 @@ def update(conf, code_version, repo_version, path=None):
         # comparing potential changes
         with open(path, 'r') as f:
             old_conf_text = f.read()
-        new_conf_text = StringIO.StringIO()
+        new_conf_text = io.BytesIO()
         default_conf.write(outfile=new_conf_text)
 
         if new_conf_text.getvalue() != old_conf_text:
