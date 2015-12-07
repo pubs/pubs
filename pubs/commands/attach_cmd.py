@@ -37,10 +37,10 @@ def command(conf, args):
             if args.move:
                 content.remove_file(document)
             # else:
-            #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'bold'))):
+            #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'filepath'))):
             #         content.remove_file(document)
 
-        ui.message('{} attached to {}'.format(color.dye_out(document, 'bold'), color.dye_out(paper.citekey, color.citekey)))
+        ui.message('{} attached to {}'.format(color.dye_out(document, 'filepath'), color.dye_out(paper.citekey, 'citekey')))
 
     except ValueError as v:
         ui.error(v.message)

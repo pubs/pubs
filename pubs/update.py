@@ -1,9 +1,13 @@
+import shutil
+import StringIO
+
 from . import config
 from . import uis
+from . import color
 from .__init__ import __version__
 
 
-def update_check(conf):
+def update_check(conf, path=None):
     """Runs an update if necessary, and return True in that case."""
 
     code_version = __version__.split('.')
@@ -24,18 +28,18 @@ def update_check(conf):
                 'newest version.')
         sys.exit()
 
-    elif repo_version < code_version:
-        return update(conf, code_version, repo_version)
+    elif repo_version <= code_version:
+        return update(conf, code_version, repo_version, path=path)
 
     return False
 
-def update(conf, code_version, repo_version):
+def update(conf, code_version, repo_version, path=None):
     """Runs an update if necessary, and return True in that case."""
+    if path is None:
+        path = config.get_confpath()
 
     if repo_version == ['0', '5', '0']: # we need to update
         default_conf = config.load_default_conf()
-        uis.init_ui(config.load_default_conf())
-        ui = uis.get_ui()
 
         for key in ['pubsdir', 'docsdir', 'edit_cmd', 'open_cmd']:
             default_conf['main'][key] = conf['pubs'][key]
@@ -46,13 +50,15 @@ def update(conf, code_version, repo_version):
         else:
             default_conf['main']['add_doc'] = 'link'
 
-        backup_path = config.get_confpath() + '.old'
-        config.save_conf(conf, path=backup_path)
+        backup_path = path + '.old'
+        shutil.move(path, backup_path)
         config.save_conf(default_conf)
 
+        uis.init_ui(default_conf)
+        ui = uis.get_ui()
         ui.warning(
             'Your configuration file has been updated. '
-            'The old file has been moved to `{}`. '.format(backup_path) +
+            'Your old configuration has been moved to `{}`. '.format(color.dye_out(backup_path, 'filepath')) +
             'Some, but not all, of your settings has been transferred '
             'to the new file.\n'
             'You can inspect and modify your configuration '
@@ -60,4 +66,35 @@ def update(conf, code_version, repo_version):
         )
 
         return True
+
+    # continuous update while configuration is stabilizing
+    if repo_version == code_version == ['0', '6', '0']:
+        default_conf = config.load_default_conf()
+        for section_name, section in conf.items():
+            for key, value in section.items():
+                try:
+                    default_conf[section_name][key]
+                    default_conf[section_name][key] = value
+                except KeyError:
+                    pass
+
+        # comparing potential changes
+        with open(path, 'r') as f:
+            old_conf_text = f.read()
+        new_conf_text = StringIO.StringIO()
+        default_conf.write(outfile=new_conf_text)
+
+        if new_conf_text.getvalue() != old_conf_text:
+
+            backup_path = path + '.old'
+            shutil.move(path, backup_path)
+            config.save_conf(default_conf)
+
+            uis.init_ui(default_conf)
+            ui = uis.get_ui()
+            ui.warning('Your configuration file has been updated.\n'
+                       'Your old configuration has been moved to `{}`.'.format(color.dye_out(backup_path, 'filepath')))
+
+        return True
+
     return False

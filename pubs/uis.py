@@ -44,9 +44,7 @@ class PrintUI(object):
         :param conf: if None, conservative default values are used.
                      Useful to instanciate the UI before parsing the config file.
         """
-        color.setup(color=conf['formating']['color'],
-                    bold=conf['formating']['bold'],
-                    italic=conf['formating']['italics'])
+        color.setup(conf)
         self.encoding = _get_encoding(conf)
         self._stdout  = codecs.getwriter(self.encoding)(_get_raw_stdout(),
                                                         errors='replace')
@@ -59,11 +57,11 @@ class PrintUI(object):
 
     def warning(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print('{}: {}'.format(color.dye_err('warning', 'yellow'), message), **kwargs)
+        print('{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
 
     def error(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print('{}: {}'.format(color.dye_err('error', 'red'), message), **kwargs)
+        print('{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
 
     def exit(self, error_code=1):
         sys.exit(error_code)
@@ -97,14 +95,12 @@ class InputUI(PrintUI):
         :returns: int
             the index of the chosen option
         """
-        char_color = 'bold'
         option_chars = [s[0] for s in options]
         displayed_chars = [c.upper() if i == default else c
                            for i, c in enumerate(option_chars)]
 
         if len(set(option_chars)) != len(option_chars): # duplicate chars, char choices are deactivated. #FIXME: should only deactivate ambiguous chars
             option_chars = []
-            char_color = color.end
 
         option_str = '/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
                                 for c, s in zip(displayed_chars, options)])

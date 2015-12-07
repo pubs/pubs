@@ -34,10 +34,10 @@ def command(conf, args):
 
     if check_directory(pubsdir, fail=False) and len(os.listdir(pubsdir)) > 0:
         ui.error('directory {} is not empty.'.format(
-            color.dye_err(pubsdir, color.filepath)))
+            color.dye_err(pubsdir, 'filepath')))
         ui.exit()
 
-    ui.message('Initializing pubs in {}'.format(color.dye_out(pubsdir, color.filepath)))
+    ui.message('Initializing pubs in {}'.format(color.dye_out(pubsdir, 'filepath')))
 
     conf['main']['pubsdir'] = pubsdir
     conf['main']['docsdir'] = docsdir

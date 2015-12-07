@@ -27,6 +27,7 @@ def generate_colors(stream, color=True, bold=True, italic=True):
     colors[u'bold']   = u''
     colors[u'italic'] = u''
     colors[u'end']    = u''
+    colors[u'']       = u''
 
     if (color or bold or italic) and _color_supported(stream):
         bold_flag, italic_flag = '', ''
@@ -36,6 +37,8 @@ def generate_colors(stream, color=True, bold=True, italic=True):
         if italic:
             colors['italic'] = u'\033[3m'
             italic_flag = '3;'
+        if bold and italic:
+            colors['bolditalic'] = u'\033[1;3m'
 
         for i, name in enumerate(COLOR_LIST):
             if color:
@@ -69,10 +72,17 @@ def dye_err(s, color='end'):
 def _nodye(s, *args, **kwargs):
     return s
 
-def setup(color=False, bold=False, italic=False):
+def setup(conf):
     global COLORS_OUT, COLORS_ERR
-    COLORS_OUT = generate_colors(sys.stdout, color=color, bold=bold, italic=italic)
-    COLORS_ERR = generate_colors(sys.stderr, color=color, bold=bold, italic=italic)
+    COLORS_OUT = generate_colors(sys.stdout, color=conf['formating']['color'],
+                                             bold=conf['formating']['bold'],
+                                             italic=conf['formating']['italics'])
+    COLORS_ERR = generate_colors(sys.stderr, color=conf['formating']['color'],
+                                             bold=conf['formating']['bold'],
+                                             italic=conf['formating']['italics'])
+    for key, value in conf['theme'].items():
+        COLORS_OUT[key] = COLORS_OUT.get(value, '')
+        COLORS_ERR[key] = COLORS_ERR.get(value, '')
 
 # undye
 undye_re = re.compile('\x1b\[[;\d]*[A-Za-z]')
@@ -80,10 +90,3 @@ undye_re = re.compile('\x1b\[[;\d]*[A-Za-z]')
 def undye(s):
     """Purge string s of color"""
     return undye_re.sub('', s)
-
-# colors
-ok       = 'green'
-error    = 'red'
-citekey  = 'purple'
-filepath = 'bold'
-tag      = 'cyan'

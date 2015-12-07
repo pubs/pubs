@@ -33,7 +33,7 @@ def command(conf, args):
 
     if paper.docpath is None:
         ui.error('No document associated with the entry {}.'.format(
-                 color.dye_err(citekey, color.citekey)))
+                 color.dye_err(citekey, 'citekey')))
         ui.exit()
 
     try:
@@ -41,7 +41,7 @@ def command(conf, args):
         cmd = with_command.split()
         cmd.append(docpath)
         subprocess.Popen(cmd)
-        ui.message('{} opened.'.format(color.dye(docpath, color.filepath)))
+        ui.message('{} opened.'.format(color.dye(docpath, 'filepath')))
     except OSError:
         ui.error("Command does not exist: %s." % with_command)
         ui.exit(127)
