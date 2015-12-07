@@ -6,6 +6,7 @@ import codecs
 
 from .content import editor_input
 from . import color
+from . import config
 from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
 
 
@@ -30,7 +31,7 @@ def _get_encoding(conf):
 
 def get_ui():
     if _ui is None:
-        return PrintUI() # no editor support. (#FIXME?)
+        return PrintUI(config.load_default_conf()) # no editor support. (#FIXME?)
     return _ui
 
 

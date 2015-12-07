@@ -2,6 +2,7 @@ import os
 import platform
 import shutil
 
+
 import configobj
 import validate
 
@@ -10,12 +11,14 @@ from .spec import configspec
 
 DFT_CONFIG_PATH = os.path.expanduser('~/.pubsrc')
 
+
 def load_default_conf():
     """Load the default configuration"""
     default_conf = configobj.ConfigObj(configspec=configspec)
     validator = validate.Validator()
     default_conf.validate(validator, copy=True)
     return default_conf
+
 
 def get_confpath(verify=True):
     """Return the configuration filepath
@@ -32,11 +35,13 @@ def get_confpath(verify=True):
             ui.exit(error_code=1)
     return confpath
 
+
 def check_conf(conf):
     """Type check a configuration"""
     validator = validate.Validator()
     results   = conf.validate(validator, copy=True)
     assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
+
 
 def load_conf(check=True, path=None):
     """Load the configuration"""
@@ -44,18 +49,21 @@ def load_conf(check=True, path=None):
         path = get_confpath(verify=True)
     with open(path, 'rb') as f:
         conf = configobj.ConfigObj(f.readlines(), configspec=configspec)
-
     if check:
         check_conf(conf)
-
+    conf.filename = path
     return conf
+
 
 def save_conf(conf, path=None):
     """Save the configuration."""
-    if path is None:
-        path = get_confpath(verify=False)
-    with open(path, 'wb') as f:
+    if path is not None:
+        conf.filename = path
+    elif conf.filename is None:
+        conf.filename = get_confpath(verify=False)
+    with open(conf.filename, 'wb') as f:
         conf.write(outfile=f)
+
 
 def default_open_cmd():
     """Chooses the default command to open documents"""
@@ -68,6 +76,7 @@ def default_open_cmd():
     else:
         return None
 
+
 def which(cmd):
     try:
         return shutil.which(cmd) # available in python 3.3
@@ -77,6 +86,7 @@ def which(cmd):
             if os.path.isfile(path) and os.access(path, os.X_OK):
                 return filepath
         return None
+
 
 def default_edit_cmd():
     """Find an available editor"""
