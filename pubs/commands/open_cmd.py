@@ -41,7 +41,7 @@ def command(conf, args):
         cmd = with_command.split()
         cmd.append(docpath)
         subprocess.Popen(cmd)
-        ui.message('{} opened.'.format(color.dye(docpath, 'filepath')))
+        ui.message('{} opened.'.format(color.dye_out(docpath, 'filepath')))
     except OSError:
         ui.error("Command does not exist: %s." % with_command)
         ui.exit(127)
