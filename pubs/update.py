@@ -42,10 +42,11 @@ def update(conf, code_version, repo_version, path=None):
         default_conf = config.load_default_conf()
 
         for key in ['pubsdir', 'docsdir', 'edit_cmd', 'open_cmd']:
-            default_conf['main'][key] = conf['pubs'][key]
-        if conf['pubs']['import_move']:
+            if key in conf['pubs']:
+                default_conf['main'][key] = conf['pubs'][key]
+        if conf.get('import_move'):
             default_conf['main']['add_doc'] = 'move'
-        elif conf['pubs']['import_copy']:
+        elif conf.get('import_copy'):
             default_conf['main']['add_doc'] = 'copy'
         else:
             default_conf['main']['add_doc'] = 'link'
