@@ -42,7 +42,7 @@ def execute(raw_args=sys.argv):
     else:
         conf_path = config.get_confpath(verify=False)  # will be checked on load
 
-    # loading config
+    # Loading config
     if len(remaining_args) > 0 and remaining_args[0] != 'init':
         try:
             conf = config.load_conf(path=conf_path, check=False)
@@ -63,19 +63,18 @@ def execute(raw_args=sys.argv):
                                      prog="pubs", add_help=True)
     parser.add_argument('--version', action='version', version=__version__)
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
-    cmd_funcs = collections.OrderedDict()
+    subparsers.required = True
+
+    # Populate the parser with core commands
     for cmd_name, cmd_mod in CORE_CMDS.items():
-        cmd_mod.parser(subparsers)
-        cmd_funcs[cmd_name] = cmd_mod.command
+        cmd_parser = cmd_mod.parser(subparsers)
+        cmd_parser.set_defaults(func=cmd_mod.command)
 
     # Extend with plugin commands
-    plugins.load_plugins(ui, conf['plugins']['active'])
+    plugins.load_plugins(conf, ui)
     for p in plugins.get_plugins().values():
-        cmd_funcs.update(p.get_commands(subparsers))
+        p.update_parser(subparsers)
 
+    # Parse and run appropriate command
     args = parser.parse_args(remaining_args)
-    args.prog = parser.prog  # Hack: there might be a better way...
-    cmd = args.command
-    del args.command
-
-    cmd_funcs[cmd](conf, args)
+    args.func(conf, args)

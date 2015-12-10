@@ -18,7 +18,7 @@ class Alias(object):
         p.add_argument('arguments', nargs='*',
                 help="arguments to be passed to the user defined command")
 
-    def run(self, args):
+    def command(self, conf, args):
         raise NotImplementedError
 
     @classmethod
@@ -35,7 +35,7 @@ class CommandAlias(Alias):
     - other arguments are passed to the command
     """
 
-    def run(self, args):
+    def command(self, conf, args):
         raw_args = ([args.prog]
                     + shlex.split(self.definition
                     + ' '
@@ -45,7 +45,7 @@ class CommandAlias(Alias):
 
 class ShellAlias(Alias):
 
-    def run(self, args):
+    def command(self, conf, args):
         """Uses a shell function so that arguments can be used in the command
         as shell arguments.
         """
@@ -59,12 +59,13 @@ class AliasPlugin(PapersPlugin):
 
     name = 'alias'
 
-    def __init__(self):
+    def __init__(self, conf):
         self.aliases = []
-        for name, definition in config('alias').items():
+        for name, definition in conf['alias'].items():
             self.aliases.append(Alias.create_alias(name, definition))
 
-    def get_commands(self, parser):
-        for a in self.aliases:
-            a.parser(parser)
-        return [(a.name, a.run) for a in self.aliases]
+    def update_parser(self, subparsers):
+        """Add subcommand to the provided subparser"""
+        for alias in self.aliases:
+            alias_parser = alias.parser(parser)
+            alias_parser.set_defaults(func=alias.command)
