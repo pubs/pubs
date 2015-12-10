@@ -59,9 +59,9 @@ def execute(raw_args=sys.argv):
     uis.init_ui(conf)
     ui = uis.get_ui()
 
-    parser = argparse.ArgumentParser(parents=[conf_parser],
-                                     description="research papers repository",
-                                     prog="pubs", version=__version__, add_help=True)
+    parser = argparse.ArgumentParser(description="research papers repository",
+                                     prog="pubs", add_help=True)
+    parser.add_argument('--version', action='version', version=__version__)
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
     cmd_funcs = collections.OrderedDict()
     for cmd_name, cmd_mod in CORE_CMDS.items():

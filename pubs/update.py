@@ -85,10 +85,12 @@ def update(conf, code_version, repo_version, path=None):
         new_conf_text = io.BytesIO()
         default_conf.write(outfile=new_conf_text)
 
+
         if new_conf_text.getvalue() != old_conf_text:
 
             backup_path = path + '.old'
             shutil.move(path, backup_path)
+            default_conf.filename = path
             config.save_conf(default_conf)
 
             uis.init_ui(default_conf)
