@@ -2,7 +2,6 @@ import subprocess
 import shlex
 
 from ...plugins import PapersPlugin
-from ...configs import config
 from ...pubs_cmd import execute
 
 
@@ -16,7 +15,7 @@ class Alias(object):
         self.parser = parser
         p = parser.add_parser(self.name, help='user defined command')
         p.add_argument('arguments', nargs='*',
-                help="arguments to be passed to the user defined command")
+            help="arguments to be passed to the user defined command")
 
     def command(self, conf, args):
         raise NotImplementedError
@@ -61,8 +60,9 @@ class AliasPlugin(PapersPlugin):
 
     def __init__(self, conf):
         self.aliases = []
-        for name, definition in conf['alias'].items():
-            self.aliases.append(Alias.create_alias(name, definition))
+        if 'alias' in conf['plugins']:
+            for name, definition in conf['plugins']['alias'].items():
+                self.aliases.append(Alias.create_alias(name, definition))
 
     def update_parser(self, subparsers):
         """Add subcommand to the provided subparser"""
