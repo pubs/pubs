@@ -8,6 +8,7 @@ from . import update
 from . import plugins
 from .__init__ import __version__
 
+
 CORE_CMDS = collections.OrderedDict([
     ('init', commands.init_cmd),
     ('conf', commands.conf_cmd),
@@ -35,6 +36,8 @@ def execute(raw_args=sys.argv):
     conf_parser = argparse.ArgumentParser(add_help=False)
     conf_parser.add_argument("-c", "--config", help="path to config file",
                              type=str, metavar="FILE")
+    conf_parser.add_argument("-u", "--update", help="update config if needed",
+                             default=False, action='store_true')
     args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
 
     if args.config:
@@ -46,7 +49,8 @@ def execute(raw_args=sys.argv):
     if len(remaining_args) > 0 and remaining_args[0] != 'init':
         try:
             conf = config.load_conf(path=conf_path, check=False)
-            if update.update_check(conf, path=conf.filename):  # an update happened, reload conf.
+            if args.update and update.update_check(conf, path=conf.filename):
+                # an update happened, reload conf.
                 conf = config.load_conf(path=conf_path, check=False)
             config.check_conf(conf)
         except IOError as e:
