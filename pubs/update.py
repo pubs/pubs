@@ -69,7 +69,7 @@ def update(conf, code_version, repo_version, path=None):
         return True
 
     # continuous update while configuration is stabilizing
-    if repo_version == code_version == ['0', '6', '0']:
+    if repo_version == ['0', '6', '0'] and repo_version < code_version:
         default_conf = config.load_default_conf()
         for section_name, section in conf.items():
             for key, value in section.items():
@@ -78,13 +78,16 @@ def update(conf, code_version, repo_version, path=None):
                     default_conf[section_name][key] = value
                 except KeyError:
                     pass
+        # we don't update plugins
+        for section_name, section in conf['plugins'].items():
+            default_conf[section_name]['plugins'][section_name] = section
+
 
         # comparing potential changes
         with open(path, 'r') as f:
             old_conf_text = f.read()
         new_conf_text = io.BytesIO()
         default_conf.write(outfile=new_conf_text)
-
 
         if new_conf_text.getvalue() != old_conf_text:
 

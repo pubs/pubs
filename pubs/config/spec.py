@@ -71,6 +71,14 @@ pages     = string(default='')
 # comma-separated list of the plugins to load
 active = list(default=list())
 
+[[alias]]
+# new subcommands can be defined, e.g.:
+# print = open --with lp
+# evince = open --with evince
+
+# shell commands can also be defined, by prefixing them with a bang `!`, e.g:
+# count = !pubs list -k | wc -l
+
 [internal]
 # The version of this configuration file. Do not edit.
 version = string(min=5, default='{}')

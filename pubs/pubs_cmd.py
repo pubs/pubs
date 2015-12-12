@@ -33,15 +33,15 @@ CORE_CMDS = collections.OrderedDict([
 
 def execute(raw_args=sys.argv):
 
-    conf_parser = argparse.ArgumentParser(add_help=False)
+    conf_parser = argparse.ArgumentParser(prog="pubs", add_help=False)
     conf_parser.add_argument("-c", "--config", help="path to config file",
                              type=str, metavar="FILE")
-    conf_parser.add_argument("-u", "--update", help="update config if needed",
-                             default=False, action='store_true')
-    args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
+    #conf_parser.add_argument("-u", "--update", help="update config if needed",
+    #                         default=False, action='store_true')
+    top_args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
 
-    if args.config:
-        conf_path = args.config
+    if top_args.config:
+        conf_path = top_args.config
     else:
         conf_path = config.get_confpath(verify=False)  # will be checked on load
 
@@ -49,7 +49,7 @@ def execute(raw_args=sys.argv):
     if len(remaining_args) > 0 and remaining_args[0] != 'init':
         try:
             conf = config.load_conf(path=conf_path, check=False)
-            if args.update and update.update_check(conf, path=conf.filename):
+            if update.update_check(conf, path=conf.filename):
                 # an update happened, reload conf.
                 conf = config.load_conf(path=conf_path, check=False)
             config.check_conf(conf)
@@ -81,4 +81,5 @@ def execute(raw_args=sys.argv):
 
     # Parse and run appropriate command
     args = parser.parse_args(remaining_args)
+    args.prog = "pubs" # FIXME?
     args.func(conf, args)
