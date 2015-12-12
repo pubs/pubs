@@ -1,6 +1,5 @@
 from .. import repo
 from .. import color
-from ..configs import config
 from ..uis import get_ui
 from .. import content
 
@@ -20,7 +19,7 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -28,7 +27,7 @@ def command(args):
 
     ui = get_ui()
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     paper = rp.pull_paper(args.citekey)
 
     try:
@@ -38,10 +37,10 @@ def command(args):
             if args.move:
                 content.remove_file(document)
             # else:
-            #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'bold'))):
+            #     if ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(document, 'filepath'))):
             #         content.remove_file(document)
 
-        ui.message('{} attached to {}'.format(color.dye_out(document, 'bold'), color.dye_out(paper.citekey, color.citekey)))
+        ui.message('{} attached to {}'.format(color.dye_out(document, 'filepath'), color.dye_out(paper.citekey, 'citekey')))
 
     except ValueError as v:
         ui.error(v.message)

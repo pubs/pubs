@@ -7,8 +7,9 @@ import os
 import dotdot
 import fake_env
 
-from pubs import pubs_cmd
-from pubs import color, content, filebroker, uis, p3, endecoder, configs
+from pubs import pubs_cmd, update, color, content, filebroker, uis, p3, endecoder
+from pubs.config import conf
+import configobj
 
 import str_fixtures
 import fixtures
@@ -17,7 +18,7 @@ from pubs.commands import init_cmd, import_cmd
 
 
 # makes the tests very noisy
-messagePUT=False
+PRINT_OUTPUT=False
 CAPTURE_OUTPUT=True
 
 
@@ -56,8 +57,9 @@ class CommandTestCase(unittest.TestCase):
     maxDiff = 1000000
 
     def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
+        self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update])
         self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
+        self.default_conf_path = self.fs['os'].path.expanduser('~/.pubsrc')
 
     def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
@@ -102,12 +104,12 @@ class CommandTestCase(unittest.TestCase):
             except fake_env.FakeInput.UnexpectedInput:
                 self.fail('Unexpected input asked by command: {}.'.format(
                     actual_cmd))
-        if messagePUT:
+        if PRINT_OUTPUT:
             print(outs)
         return outs
 
     def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker, configs, init_cmd, import_cmd])
+        fake_env.unset_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj])
 
 
 class DataCommandTestCase(CommandTestCase):
@@ -323,7 +325,8 @@ class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
-                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+                   'data/pagerank.pdf was copied to the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '\n',
                    '',
@@ -507,8 +510,21 @@ class TestUsecase(DataCommandTestCase):
                 'pubs attach --move Page99 data/pagerank.pdf'
                ]
         self.execute_cmds(cmds)
+        self.assertTrue(self.fs['os'].path.isfile(self.default_conf_path))
         self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
-    
+
+    def test_alternate_config(self):
+        alt_conf = self.fs['os'].path.expanduser('~/.alt_conf')
+        cmds = ['pubs -c ' + alt_conf + ' init',
+                'pubs --config ' + alt_conf + ' import data/ Page99',
+                'pubs list -c ' + alt_conf
+               ]
+        outs = self.execute_cmds(cmds)
+        # check if pubs works as expected
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+        # check whether we actually changed the config file
+        self.assertFalse(self.fs['os'].path.isfile(self.default_conf_path))
+        self.assertTrue(self.fs['os'].path.isfile(alt_conf))
 
 if __name__ == '__main__':
     unittest.main()

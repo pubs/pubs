@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 
 setup(
     name         = 'pubs',
@@ -13,10 +13,13 @@ setup(
     url          = 'https://github.com/pubs/pubs',
 
     description  = 'command-line scientific bibliography manager',
-    packages     = ['pubs', 'pubs.commands', 'pubs.templates', 'pubs.plugs'],
+    packages     = ['pubs', 'pubs.config',
+                            'pubs.commands',
+                            'pubs.templates',
+                            'pubs.plugs', 'pubs.plugs.alias'],
     scripts      = ['pubs/pubs'],
 
-    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests',
+    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests', 'configobj',
                         'beautifulsoup4'], # to be made optional?
 
     classifiers=[

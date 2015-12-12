@@ -1,5 +1,7 @@
 # core
 from . import init_cmd
+from . import conf_cmd
+
 from . import add_cmd
 from . import rename_cmd
 from . import remove_cmd
@@ -16,4 +18,3 @@ from . import import_cmd
 from . import websearch_cmd
 
 from . import edit_cmd
-# from . import update_cmd

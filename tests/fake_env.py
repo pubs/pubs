@@ -103,6 +103,8 @@ class FakeIO(object):
         fakefs_stringio = self.fake_open.Call(*args, **kwargs)
         return UnicodeStringIOWrapper(fakefs_stringio)
 
+    BytesIO = real_io.BytesIO
+    StringIO = real_io.StringIO
 
 def create_fake_fs(module_list):
 

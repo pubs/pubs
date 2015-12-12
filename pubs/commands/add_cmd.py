@@ -1,5 +1,4 @@
 from ..uis import get_ui
-from ..configs import config
 from .. import bibstruct
 from .. import content
 from .. import repo
@@ -28,12 +27,12 @@ def parser(subparsers):
     return parser
 
 
-def bibentry_from_editor(ui, rp):
+def bibentry_from_editor(conf, ui, rp):
     again = True
     bibstr = templates.add_bib
     while again:
         try:
-            bibstr = content.editor_input(config().edit_cmd,
+            bibstr = content.editor_input(conf['main']['edit_cmd'],
                                           bibstr,
                                           suffix='.bib')
             if bibstr == templates.add_bib:
@@ -57,7 +56,7 @@ def bibentry_from_editor(ui, rp):
     return bibentry
 
 
-def command(args):
+def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
@@ -69,12 +68,12 @@ def command(args):
     tags = args.tags
     citekey = args.citekey
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
 
     # get bibtex entry
     if bibfile is None:
         if args.doi is None and args.isbn is None:
-            bibentry = bibentry_from_editor(ui, rp)
+            bibentry = bibentry_from_editor(conf, ui, rp)
         else:
             if args.doi is not None:
                 bibentry_raw = apis.doi2bibtex(args.doi)
@@ -124,18 +123,28 @@ def command(args):
                     '{}, using {} instead.').format(bib_docfile, docfile))
 
     # create the paper
+    copy = args.copy
+    if copy is None:
+        copy = conf['main']['doc_add'] in ('copy', 'move')
+    move = args.move
+    if move is None:
+        move = conf['main']['doc_add'] == 'move'
 
     try:
         rp.push_paper(p)
         if docfile is not None:
-            rp.push_doc(p.citekey, docfile, copy=args.copy or args.move)
-            if args.copy:
-                if args.move:
+            rp.push_doc(p.citekey, docfile, copy=copy or args.move)
+            if copy:
+                if move:
                     content.remove_file(docfile)
-                # elif ui.input_yn('{} has been copied into pubs; should the original be removed?'.format(color.dye_out(docfile, 'bold'))):
-                #     content.remove_file(docfile)
 
         ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
+        if copy:
+            if move:
+                ui.message('{} was moved to the pubs repository.'.format(docfile))
+            else:
+                ui.message('{} was copied to the pubs repository.'.format(docfile))
+
     except ValueError as v:
         ui.error(v.message)
         ui.exit(1)

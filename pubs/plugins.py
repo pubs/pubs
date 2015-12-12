@@ -28,13 +28,13 @@ class PapersPlugin(object):
             raise RuntimeError("{} instance not created".format(cls.__name__))
 
 
-def load_plugins(ui, names):
+def load_plugins(conf, ui):
     """Imports the modules for a sequence of plugin names. Each name
     must be the name of a Python module under the "PLUGIN_NAMESPACE" namespace
     package in sys.path; the module indicated should contain the
     PapersPlugin subclasses desired.
     """
-    for name in names:
+    for name in conf['plugins']['active']:
         modname = '%s.%s.%s.%s' % ('pubs', PLUGIN_NAMESPACE, name, name)
         try:
             namespace = importlib.import_module(modname)
@@ -49,7 +49,7 @@ def load_plugins(ui, names):
                 if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
                         and obj != PapersPlugin:
                     _classes.append(obj)
-                    _instances[obj] = obj()
+                    _instances[obj] = obj(conf)
 
 
 def get_plugins():

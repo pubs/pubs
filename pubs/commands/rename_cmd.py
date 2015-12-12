@@ -1,5 +1,4 @@
 from ..uis import get_ui
-from ..configs import config
 from .. import bibstruct
 from .. import content
 from .. import repo
@@ -14,14 +13,14 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
     :param docfile: path (no url yet) to a pdf or ps file
     """
 
     ui = get_ui()
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
 
     paper = rp.pull_paper(args.citekey)
     rp.rename_paper(paper, args.new_citekey)

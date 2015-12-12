@@ -33,10 +33,11 @@ def bib_oneliner(bibdata):
         journal = ' ' + bibdata.get('booktitle', '')
 
     return u'{authors} \"{title}\"{journal}{year}'.format(
-        authors=color.dye_out(authors, 'bold'),
-        title=bibdata.get('title', ''),
-        journal=color.dye_out(journal, 'italic'),
-        year=' ({})'.format(bibdata['year']) if 'year' in bibdata else '',
+        authors=color.dye_out(authors, 'author'),
+        title=color.dye_out(bibdata.get('title', ''), 'title'),
+        journal=color.dye_out(journal, 'publisher'),
+        year=' ({})'.format(color.dye_out(bibdata['year'], 'year'))
+            if 'year' in bibdata else ''
         )
 
 
@@ -55,7 +56,7 @@ def paper_oneliner(p, citekey_only=False):
     else:
         bibdesc = bib_oneliner(p.bibdata)
         tags = '' if len(p.tags) == 0 else '| {}'.format(
-            ','.join(color.dye_out(t, color.tag) for t in sorted(p.tags)))
+            ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
         return u'[{citekey}] {descr} {tags}'.format(
-            citekey=color.dye_out(p.citekey, 'purple'),
+            citekey=color.dye_out(p.citekey, 'citekey'),
             descr=bibdesc, tags=tags)

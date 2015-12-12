@@ -1,6 +1,6 @@
 from ..paper import Paper
 from .. import repo
-from ..configs import config
+
 from ..uis import get_ui
 from ..endecoder import EnDecoder
 from ..utils import resolve_citekey
@@ -16,12 +16,12 @@ def parser(subparsers):
     return parser
 
 
-def command(args):
+def command(conf, args):
 
     ui = get_ui()
     meta = args.meta
 
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
 

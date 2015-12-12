@@ -3,7 +3,6 @@ from datetime import datetime
 from .. import repo
 from .. import pretty
 from .. import bibstruct
-from ..configs import config
 from ..uis import get_ui
 
 
@@ -28,7 +27,7 @@ def parser(subparsers):
             help='list only pubs without attached documents.')
 
     parser.add_argument('query', nargs='*',
-            help='Paper query (e.g. "year: 2000" or "tags: math")')
+            help='Paper query ("author:Einstein", "title:learning", "year:2000" or "tags:math")')
     return parser
 
 
@@ -36,9 +35,9 @@ def date_added(p):
     return p.added or datetime(1, 1, 1)
 
 
-def command(args):
+def command(conf, args):
     ui = get_ui()
-    rp = repo.Repository(config())
+    rp = repo.Repository(conf)
     papers = filter(lambda p: filter_paper(p, args.query,
                                            case_sensitive=args.case_sensitive),
                     rp.all_papers())

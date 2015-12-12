@@ -6,7 +6,7 @@ from .. import endecoder
 from .. import bibstruct
 from .. import color
 from ..paper import Paper
-from ..configs import config
+
 from ..uis import get_ui
 from ..content import system_path, read_file
 
@@ -58,7 +58,7 @@ def many_from_path(bibpath):
     return papers
 
 
-def command(args):
+def command(conf, args):
     """
         :param bibpath: path (no url yet) to a bibliography file
     """
@@ -66,10 +66,10 @@ def command(args):
     ui = get_ui()
     bibpath = args.bibpath
     copy = args.copy
-
     if copy is None:
-        copy = config().import_copy
-    rp = repo.Repository(config())
+        copy = conf['main']['doc_add'] in ('copy', 'move')
+
+    rp = repo.Repository(conf)
     # Extract papers from bib
     papers = many_from_path(bibpath)
     keys = args.keys or papers.keys()
@@ -80,12 +80,13 @@ def command(args):
                 ui.error('could not load entry for citekey {}.'.format(k))
             else:
                 rp.push_paper(p)
-                ui.message('{} imported'.format(color.dye_out(p.citekey, color.citekey)))
+                ui.message('{} imported'.format(color.dye_out(p.citekey, 'citekey')))
                 docfile = bibstruct.extract_docfile(p.bibdata)
                 if docfile is None:
                     ui.warning("no file for {}.".format(p.citekey))
                 else:
-                    rp.push_doc(p.citekey, docfile, copy=args.copy)
+                    rp.push_doc(p.citekey, docfile, copy=copy)
+                    #FIXME should move the file if configured to do so.
         except KeyError:
             ui.error('no entry found for citekey {}.'.format(k))
         except IOError as e:

@@ -7,14 +7,15 @@ import fixtures
 
 from pubs.repo import Repository, _base27, CiteKeyCollision, InvalidReference
 from pubs.paper import Paper
-from pubs import configs
+from pubs import config
 
 
 class TestRepo(fake_env.TestFakeFs):
 
     def setUp(self):
         super(TestRepo, self).setUp()
-        self.repo = Repository(configs.Config(), create=True)
+        default_conf = config.load_default_conf()
+        self.repo = Repository(default_conf, create=True)
         self.repo.push_paper(Paper.from_bibentry(fixtures.turing_bibentry))
 
 

@@ -1,92 +1,85 @@
 import sys
-
 import argparse
 import collections
-
 from . import uis
-from . import configs
+from . import config
 from . import commands
+from . import update
 from . import plugins
 from .__init__ import __version__
 
 
 CORE_CMDS = collections.OrderedDict([
-        ('init',        commands.init_cmd),
-        ('add',         commands.add_cmd),
-        ('rename',      commands.rename_cmd),
-        ('remove',      commands.remove_cmd),
-        ('list',        commands.list_cmd),
+    ('init', commands.init_cmd),
+    ('conf', commands.conf_cmd),
 
-        ('attach',      commands.attach_cmd),
-        ('open',        commands.open_cmd),
-        ('tag',         commands.tag_cmd),
-        ('note',        commands.note_cmd),
+    ('add', commands.add_cmd),
+    ('rename', commands.rename_cmd),
+    ('remove', commands.remove_cmd),
+    ('list', commands.list_cmd),
 
-        ('export',      commands.export_cmd),
-        ('import',      commands.import_cmd),
+    ('attach', commands.attach_cmd),
+    ('open', commands.open_cmd),
+    ('tag', commands.tag_cmd),
+    ('note', commands.note_cmd),
 
-        ('websearch',   commands.websearch_cmd),
-        ('edit',        commands.edit_cmd),
-        # ('update',      commands.update_cmd),
-        ])
+    ('export', commands.export_cmd),
+    ('import', commands.import_cmd),
 
-
-def _update_check(config, ui):
-    if config.version_warning:
-        code_version = __version__.split('.')
-        if len(config.version) == 1: # support for deprecated version scheme.
-            config.version = '0.{}.0'.format(config.version)
-        repo_version = config.version.split('.')
-
-        if repo_version > code_version:
-            ui.warning(
-                    'your repository was generated with an newer version'
-                    ' of pubs (v{}) than the one you are using (v{}).'
-                    '\n'.format(repo_version, code_version) +
-                    'You should not use pubs until you install the '
-                    'newest version. (use version_warning in you pubsrc '
-                    'to bypass this error)')
-            sys.exit()
-        elif repo_version < code_version:
-            ui.message(
-                'warning: your repository version (v{})'.format(repo_version)
-                + 'must   be updated to version {}.\n'.format(code_version)
-                + "run 'pubs update'.")
-            sys.exit()
+    ('websearch', commands.websearch_cmd),
+    ('edit', commands.edit_cmd),
+])
 
 
 def execute(raw_args=sys.argv):
-    # loading config
-    config = configs.Config()
-    if len(raw_args) > 1 and raw_args[1] != 'init':
+
+    conf_parser = argparse.ArgumentParser(prog="pubs", add_help=False)
+    conf_parser.add_argument("-c", "--config", help="path to config file",
+                             type=str, metavar="FILE")
+    #conf_parser.add_argument("-u", "--update", help="update config if needed",
+    #                         default=False, action='store_true')
+    top_args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
+
+    if top_args.config:
+        conf_path = top_args.config
+    else:
+        conf_path = config.get_confpath(verify=False)  # will be checked on load
+
+    # Loading config
+    if len(remaining_args) > 0 and remaining_args[0] != 'init':
         try:
-            config.load()
+            conf = config.load_conf(path=conf_path, check=False)
+            if update.update_check(conf, path=conf.filename):
+                # an update happened, reload conf.
+                conf = config.load_conf(path=conf_path, check=False)
+            config.check_conf(conf)
         except IOError as e:
             print('error: {}'.format(str(e)))
             sys.exit()
-    config.as_global()
+    else:
+        conf = config.load_default_conf()
+        conf.filename = conf_path
 
-    uis.init_ui(config)
+    uis.init_ui(conf)
     ui = uis.get_ui()
 
-    _update_check(config, ui)
-
-    parser = argparse.ArgumentParser(description="research papers repository")
+    parser = argparse.ArgumentParser(description="research papers repository",
+                                     prog="pubs", add_help=True)
+    parser.add_argument('--version', action='version', version=__version__)
     subparsers = parser.add_subparsers(title="valid commands", dest="command")
+    subparsers.required = True
 
-    cmd_funcs = collections.OrderedDict()
+    # Populate the parser with core commands
     for cmd_name, cmd_mod in CORE_CMDS.items():
-        cmd_mod.parser(subparsers)
-        cmd_funcs[cmd_name] = cmd_mod.command
+        cmd_parser = cmd_mod.parser(subparsers)
+        cmd_parser.set_defaults(func=cmd_mod.command)
 
     # Extend with plugin commands
-    plugins.load_plugins(ui, config.plugins.split())
+    plugins.load_plugins(conf, ui)
     for p in plugins.get_plugins().values():
-        cmd_funcs.update(p.get_commands(subparsers))
+        p.update_parser(subparsers)
 
-    args = parser.parse_args(raw_args[1:])
-    args.prog = parser.prog  # Hack: there might be a better way...
-    cmd = args.command
-    del args.command
-
-    cmd_funcs[cmd](args)
+    # Parse and run appropriate command
+    args = parser.parse_args(remaining_args)
+    args.prog = "pubs" # FIXME?
+    args.func(conf, args)

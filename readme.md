@@ -13,8 +13,8 @@ Pubs is built with the following principles in mind:
 **Notice:** pubs is still in early development and cannot be considered as stable.
 
 
-Getting started
----------------
+## Getting started
+
 Create your library (by default, goes to '~/.pubs/').
 
     pubs init
@@ -36,8 +36,8 @@ or an ISBN (dashes are ignored):
     pubs add -I 978-0822324669 -d article.pdf
 
 
-References always up-to-date
-----------------------------
+## References always up-to-date
+
 If you use latex, you can automatize references, by creating a bash script with:
 
     #!/bin/bash
@@ -52,28 +52,28 @@ This ensure that your reference file is always up-to-date; you can cite a paper 
 
 and then add `\cite{Loeb_2012}` in your manuscript. After running the bash script, the citation will correctly appear in your compiled pdf.
 
-Customization
--------------
-Pubs is designed to interact well with your command line tool chain. You can add custom commands to pubs by defining aliases in your config file. Here are a few examples.
+## Customization
 
-    [alias]
-    print = open -w lp
+Pubs is designed to interact well with your command line tool chain. You can add custom commands to pubs by defining aliases in your config file.
+
+    [[alias]]
+    evince = open --with evince
     count = !pubs list -k | wc -l
 
-For more advanced functionalities, pubs also support plugins. Actually *alias* is itself a plugin!
+The first command defines a new subcommand: `pubs open -w lp` will be executed when `pubs print` is typed.
+The second starts with a bang: `!`, and is treated as a shell command.
 
+## Requirements
 
-Requirements
-------------
 - python >= 2.7 or >= 3.3
 - [dateutil](http://labix.org/python-dateutil)
 - [pyYaml](http://pyyaml.org) (will be deprecated soon)
 - [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.6.1
 
 
-Authors
--------
+## Authors
 
- - [Fabien Benureau](http://fabien.benureau.com)
- - Olivier Mangin
- - Jonathan Grizou
+- [Fabien Benureau](http://fabien.benureau.com)
+- Olivier Mangin
+- Jonathan Grizou
+- Arnold Sykosch

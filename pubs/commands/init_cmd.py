@@ -2,25 +2,25 @@
 
 import os
 
-from ..configs import config
+
 from ..uis import get_ui
 from .. import color
 from ..repo import Repository
 from ..content import system_path, check_directory
-
+from .. import config
 
 def parser(subparsers):
     parser = subparsers.add_parser('init',
                                    help="initialize the pubs directory")
     parser.add_argument('-p', '--pubsdir', default=None,
-                        help='path to pubs directory (if none, ~/.ubs is used)')
+                        help='directory where to put the pubs repository (if none, ~/.pubs is used)')
     parser.add_argument('-d', '--docsdir', default='docsdir://',
                         help=('path to document directory (if not specified, documents will'
                               'be stored in /path/to/pubsdir/doc/)'))
     return parser
 
 
-def command(args):
+def command(conf, args):
     """Create a .pubs directory"""
 
     ui = get_ui()
@@ -34,13 +34,15 @@ def command(args):
 
     if check_directory(pubsdir, fail=False) and len(os.listdir(pubsdir)) > 0:
         ui.error('directory {} is not empty.'.format(
-            color.dye_err(pubsdir, color.filepath)))
+            color.dye_err(pubsdir, 'filepath')))
         ui.exit()
 
-    ui.message('Initializing pubs in {}'.format(color.dye_out(pubsdir, color.filepath)))
+    ui.message('Initializing pubs in {}'.format(color.dye_out(pubsdir, 'filepath')))
 
-    config().pubsdir = pubsdir
-    config().docsdir = docsdir
-    config().save()
+    conf['main']['pubsdir'] = pubsdir
+    conf['main']['docsdir'] = docsdir
+    conf['main']['open_cmd'] = config.default_open_cmd()
+    conf['main']['edit_cmd'] = config.default_edit_cmd()
+    config.save_conf(conf)
 
-    Repository(config(), create=True)
+    Repository(conf, create=True)

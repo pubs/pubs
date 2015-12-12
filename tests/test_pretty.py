@@ -5,7 +5,7 @@ import os
 import dotdot
 import fake_env
 
-from pubs import endecoder, pretty, color
+from pubs import endecoder, pretty, color, config
 
 from str_fixtures import bibtex_raw0
 
@@ -13,7 +13,8 @@ from str_fixtures import bibtex_raw0
 class TestPretty(unittest.TestCase):
 
     def setUp(self):
-        color.setup()
+        conf = config.load_default_conf()
+        color.setup(conf)
 
     def test_oneliner(self):
         decoder = endecoder.EnDecoder()
