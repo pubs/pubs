@@ -16,7 +16,7 @@ setup(
     packages     = ['pubs', 'pubs.config',
                             'pubs.commands',
                             'pubs.templates',
-                            'pubs.plugs'],
+                            'pubs.plugs', 'pubs.plugs.alias'],
     scripts      = ['pubs/pubs'],
 
     install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests', 'configobj',

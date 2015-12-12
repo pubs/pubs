@@ -16,6 +16,7 @@ class Alias(object):
         p = parser.add_parser(self.name, help='user defined command')
         p.add_argument('arguments', nargs='*',
             help="arguments to be passed to the user defined command")
+        return p
 
     def command(self, conf, args):
         raise NotImplementedError
@@ -67,5 +68,5 @@ class AliasPlugin(PapersPlugin):
     def update_parser(self, subparsers):
         """Add subcommand to the provided subparser"""
         for alias in self.aliases:
-            alias_parser = alias.parser(parser)
+            alias_parser = alias.parser(subparsers)
             alias_parser.set_defaults(func=alias.command)
