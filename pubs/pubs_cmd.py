@@ -18,8 +18,7 @@ CORE_CMDS = collections.OrderedDict([
     ('remove', commands.remove_cmd),
     ('list', commands.list_cmd),
 
-    ('attach', commands.attach_cmd),
-    ('open', commands.open_cmd),
+    ('doc', commands.doc_cmd),
     ('tag', commands.tag_cmd),
     ('note', commands.note_cmd),
 

@@ -46,7 +46,7 @@ If you use latex, you can automatize references, by creating a bash script with:
     bibtex manuscript
     latex manuscript.tex
 
-This ensure that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
+This ensures that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
 
     pubs add -D 10.1007/s00422-012-0514-6
 

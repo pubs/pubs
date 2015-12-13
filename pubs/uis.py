@@ -87,8 +87,8 @@ class InputUI(PrintUI):
         return ustr(data) #.decode('utf-8')
 
     def input_choice_ng(self, options, option_chars=None, default=None, question=''):
-        """Ask the user to chose between a set of options. The iser is asked
-        to input a char corresponding to the option he choses.
+        """Ask the user to chose between a set of options. The user is asked
+        to input a char corresponding to the option he chooses.
 
         :param options: list of strings
             list of options
@@ -126,8 +126,8 @@ class InputUI(PrintUI):
 
 
     def input_choice(self, options, option_chars, default=None, question=''):
-        """Ask the user to chose between a set of options. The iser is asked
-        to input a char corresponding to the option he choses.
+        """Ask the user to chose between a set of options. The user is asked
+        to input a char corresponding to the option he chooses.
 
         :param options: list of strings
             list of options
