@@ -1,6 +1,7 @@
 from .. import repo
 from .. import content
 from ..uis import get_ui
+from ..utils import resolve_citekey
 
 
 def parser(subparsers):
@@ -16,11 +17,10 @@ def command(conf, args):
     """
 
     ui = get_ui()
-
     rp = repo.Repository(conf)
-    if not rp.databroker.exists(args.citekey):
-        ui.error("citekey {} not found".format(args.citekey))
-        ui.exit(1)
-
-    notepath = rp.databroker.real_notepath(args.citekey)
-    content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)
+    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
+    try:
+        notepath = rp.databroker.real_notepath(citekey)
+        content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)
+    except Exception as e:
+        ui.error(e.message)

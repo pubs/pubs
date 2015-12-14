@@ -33,7 +33,7 @@ def command(conf, args):
     pubsdir = system_path(pubsdir)
 
     if check_directory(pubsdir, fail=False) and len(os.listdir(pubsdir)) > 0:
-        ui.error('directory {} is not empty.'.format(
+        ui.error('Directory {} is not empty.'.format(
             color.dye_err(pubsdir, 'filepath')))
         ui.exit()
 

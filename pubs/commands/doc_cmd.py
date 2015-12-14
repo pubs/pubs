@@ -115,7 +115,7 @@ def command(conf, args):
             if not path.endswith('/'):
                 path += '/'
         else:
-            ui.error('{} is not a directory.'.format(
+            ui.error('{} is not a directory. Quit.'.format(
                 color.dye_err(args.path[0], 'filepath')))
             ui.exit(1)
 
@@ -140,7 +140,7 @@ def command(conf, args):
         paper = rp.pull_paper(citekey)
 
         if paper.docpath is None:
-            ui.error('No document associated with the entry {}.'.format(
+            ui.error('No document associated with the entry {}. Quit.'.format(
                       color.dye_err(citekey, 'citekey')))
             ui.exit()
 

@@ -23,6 +23,7 @@ from ..repo import Repository
 from ..uis import get_ui
 from .. import pretty
 from .. import color
+from ..utils import resolve_citekey
 
 
 def parser(subparsers):
@@ -81,7 +82,12 @@ def command(conf, args):
     if citekeyOrTag is None:
         ui.message(color.dye_out(' '.join(sorted(rp.get_tags())), 'tag'))
     else:
-        if rp.databroker.exists(citekeyOrTag):
+        not_citekey = False
+        try:
+            citekeyOrTag = resolve_citekey(repo=rp, citekey=citekeyOrTag, ui=ui, exit_on_fail=True)
+        except SystemExit:
+            not_citekey = True
+        if not not_citekey:
             p = rp.pull_paper(citekeyOrTag)
             if tags is None:
                 ui.message(color.dye_out(' '.join(sorted(p.tags)), 'tag'))
@@ -93,9 +99,10 @@ def command(conf, args):
                     p.remove_tag(tag)
                 rp.push_paper(p, overwrite=True)
         elif tags is not None:
-            ui.error(ui.error('no entry found for citekey {}.'.format(citekeyOrTag)))
+            ui.error(ui.error('No entry found for citekey {}.'.format(citekeyOrTag)))
             ui.exit()
         else:
+            ui.info('Assuming {} to be a tag.'.format(color.dye_out(citekeyOrTag)))
             # case where we want to find papers with specific tags
             included, excluded = _tag_groups(_parse_tag_seq(citekeyOrTag))
             papers_list = []

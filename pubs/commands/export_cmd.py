@@ -3,7 +3,7 @@ from __future__ import print_function
 from .. import repo
 from ..uis import get_ui
 from .. import endecoder
-
+from ..utils import resolve_citekey_list
 
 def parser(subparsers):
     parser = subparsers.add_parser('export', help='export bibliography')
@@ -19,20 +19,20 @@ def command(conf, args):
     # :param bib_format (only 'bibtex' now)
 
     ui = get_ui()
-
     rp = repo.Repository(conf)
 
     try:
-        papers = [rp.pull_paper(c) for c in args.citekeys]
-    except repo.InvalidReference as v:
-        ui.error(v)
-        ui.exit(1)
-
-    if len(papers) == 0:
-        papers = rp.all_papers()
-    bib = {}
-    for p in papers:
-        bib[p.citekey] = p.bibdata
-    exporter = endecoder.EnDecoder()
-    bibdata_raw = exporter.encode_bibdata(bib)
-    ui.message(bibdata_raw)
+        papers = []
+        if len(args.citekeys) < 1:
+            papers = rp.all_papers()
+        else:
+            for key in resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True):
+                papers.append(rp.pull_paper(key))
+        bib = {}
+        for p in papers:
+            bib[p.citekey] = p.bibdata
+            exporter = endecoder.EnDecoder()
+            bibdata_raw = exporter.encode_bibdata(bib)
+            ui.message(bibdata_raw)
+    except Exception as e:
+        ui.error(e.message)

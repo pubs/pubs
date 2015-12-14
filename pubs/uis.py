@@ -112,7 +112,7 @@ class InputUI(PrintUI):
         option_str = '/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
                                 for c, s in zip(displayed_chars, options)])
 
-        self.message('{} {}: '.format(question, option_str), end='')
+        self.message('{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
         while True:
             answer = self.input()
             if answer is None or answer == '':
