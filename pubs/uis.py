@@ -58,6 +58,10 @@ class PrintUI(object):
         kwargs['file'] = self._stdout
         print(*messages, **kwargs)
 
+    def info(self, message, **kwargs):
+        kwargs['file'] = self._stderr
+        print('{}: {}'.format(color.dye_err('info', 'ok'), message), **kwargs)
+
     def warning(self, message, **kwargs):
         kwargs['file'] = self._stderr
         print('{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)

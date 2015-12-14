@@ -15,7 +15,7 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
     elif len(citekeys) == 1:
         if citekeys[0] != citekey:
             if ui is not None:
-                ui.warning("Provided citekey '{}' has been autocompleted into '{}'".format(color.dye_out(citekey, 'citekey'), color.dye_out(citekeys[0], 'citekey')))
+                ui.info("Provided citekey '{}' has been autocompleted into '{}'".format(color.dye_out(citekey, 'citekey'), color.dye_out(citekeys[0], 'citekey')))
             citekey = citekeys[0]
     elif citekey not in citekeys:
         if ui is not None:
