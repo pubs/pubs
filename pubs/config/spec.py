@@ -20,7 +20,7 @@ open_cmd = string(default=None)
 # if using a graphical editor, use the --wait or --block option, i.e.:
 # "atom --wait"
 # "kate --block"
-edit_cmd = string(default=None)
+edit_cmd = string(default='')
 
 
 [formating]

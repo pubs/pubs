@@ -32,9 +32,7 @@ def bibentry_from_editor(conf, ui, rp):
     bibstr = templates.add_bib
     while again:
         try:
-            bibstr = content.editor_input(conf['main']['edit_cmd'],
-                                          bibstr,
-                                          suffix='.bib')
+            bibstr = ui.editor_input(initial=bibstr, suffix='.bib')
             if bibstr == templates.add_bib:
                 again = ui.input_yn(
                     question='Bibfile not edited. Edit again ?',

@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os
 import sys
 import locale
 import codecs
@@ -27,6 +28,14 @@ def _get_encoding(conf):
     if conf is None:
         return enc or 'utf-8'
     return conf.get('terminal-encoding', enc or 'utf-8')
+
+
+def _get_local_editor():
+    """Get the editor from environment variables.
+
+    Use vi as a default.
+    """
+    return os.environ.get('EDITOR', 'vi')
 
 
 def get_ui():
@@ -80,7 +89,7 @@ class InputUI(PrintUI):
 
     def __init__(self, conf):
         super(InputUI, self).__init__(conf)
-        self.editor = conf['main']['edit_cmd']
+        self.editor = conf['main']['edit_cmd'] or _get_local_editor()
 
     def input(self):
         try:
