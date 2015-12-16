@@ -68,8 +68,9 @@ pages     = string(default='')
 
 
 [plugins]
-# comma-separated list of the plugins to load
-active = list(default=list())
+# Comma-separated list of the plugins to load.
+# The only current available plugin is alias.
+active = force_list(default=list('alias'))
 
 [[alias]]
 # new subcommands can be defined, e.g.:

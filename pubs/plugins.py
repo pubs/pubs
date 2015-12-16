@@ -35,21 +35,22 @@ def load_plugins(conf, ui):
     PapersPlugin subclasses desired.
     """
     for name in conf['plugins']['active']:
-        modname = '%s.%s.%s.%s' % ('pubs', PLUGIN_NAMESPACE, name, name)
-        try:
-            namespace = importlib.import_module(modname)
-        except ImportError as exc:
-            # Again, this is hacky:
-            if exc.args[0].endswith(' ' + name):
-                ui.warning('plugin {} not found'.format(name))
+        if len(name) > 0:
+            modname = '{}.{}.{}.{}'.format('pubs', PLUGIN_NAMESPACE, name, name)
+            try:
+                namespace = importlib.import_module(modname)
+            except ImportError as exc:
+                # Again, this is hacky:
+                if exc.args[0].endswith(' ' + name):
+                    ui.warning('plugin {} not found'.format(name))
+                else:
+                    raise
             else:
-                raise
-        else:
-            for obj in namespace.__dict__.values():
-                if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
-                        and obj != PapersPlugin:
-                    _classes.append(obj)
-                    _instances[obj] = obj(conf)
+                for obj in namespace.__dict__.values():
+                    if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
+                            and obj != PapersPlugin:
+                        _classes.append(obj)
+                        _instances[obj] = obj(conf)
 
 
 def get_plugins():
