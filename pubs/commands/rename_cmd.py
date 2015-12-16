@@ -1,8 +1,6 @@
 from ..uis import get_ui
-from .. import bibstruct
-from .. import content
 from .. import repo
-from .. import paper
+from ..utils import resolve_citekey
 
 def parser(subparsers):
     parser = subparsers.add_parser('rename', help='rename the citekey of a repository')
@@ -22,5 +20,10 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
 
-    paper = rp.pull_paper(args.citekey)
-    rp.rename_paper(paper, args.new_citekey)
+    # TODO: here should be a test whether the new citekey is valid
+    try:
+        key = resolve_citekey(repo=rp, citekey=args.citekey, ui=ui, exit_on_fail=True)
+        paper = rp.pull_paper(key)
+        rp.rename_paper(paper, args.new_citekey)
+    except Exception as e:
+        ui.error(e.message)
