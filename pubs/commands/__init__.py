@@ -7,8 +7,7 @@ from . import rename_cmd
 from . import remove_cmd
 from . import list_cmd
 # doc
-from . import attach_cmd
-from . import open_cmd
+from . import doc_cmd
 from . import tag_cmd
 from . import note_cmd
 # bulk

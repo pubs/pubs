@@ -58,6 +58,10 @@ class PrintUI(object):
         kwargs['file'] = self._stdout
         print(*messages, **kwargs)
 
+    def info(self, message, **kwargs):
+        kwargs['file'] = self._stderr
+        print('{}: {}'.format(color.dye_err('info', 'ok'), message), **kwargs)
+
     def warning(self, message, **kwargs):
         kwargs['file'] = self._stderr
         print('{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
@@ -87,8 +91,8 @@ class InputUI(PrintUI):
         return ustr(data) #.decode('utf-8')
 
     def input_choice_ng(self, options, option_chars=None, default=None, question=''):
-        """Ask the user to chose between a set of options. The iser is asked
-        to input a char corresponding to the option he choses.
+        """Ask the user to chose between a set of options. The user is asked
+        to input a char corresponding to the option he chooses.
 
         :param options: list of strings
             list of options
@@ -108,7 +112,7 @@ class InputUI(PrintUI):
         option_str = '/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
                                 for c, s in zip(displayed_chars, options)])
 
-        self.message('{} {}: '.format(question, option_str), end='')
+        self.message('{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
         while True:
             answer = self.input()
             if answer is None or answer == '':
@@ -126,8 +130,8 @@ class InputUI(PrintUI):
 
 
     def input_choice(self, options, option_chars, default=None, question=''):
-        """Ask the user to chose between a set of options. The iser is asked
-        to input a char corresponding to the option he choses.
+        """Ask the user to chose between a set of options. The user is asked
+        to input a char corresponding to the option he chooses.
 
         :param options: list of strings
             list of options

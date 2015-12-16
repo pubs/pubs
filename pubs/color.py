@@ -3,6 +3,7 @@ Small code to handle colored text
 """
 import sys
 import re
+import os
 
 def _color_supported(stream):
     """Returns True is the stream supports colors"""

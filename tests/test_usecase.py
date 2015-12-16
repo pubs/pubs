@@ -352,7 +352,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs add data/martius.bib',
                 'pubs add data/10.1371%2Fjournal.pone.0038236.bib',
                 'pubs list',
-                'pubs attach Page99 data/pagerank.pdf'
+                'pubs doc add data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
 
@@ -363,7 +363,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs add data/martius.bib',
                 'pubs add data/10.1371%2Fjournal.pone.0038236.bib',
                 'pubs list',
-                'pubs attach Page99 data/pagerank.pdf',
+                'pubs doc add data/pagerank.pdf Page99',
                 ('pubs remove Page99', ['y']),
                 'pubs remove -f turing1950computing',
                ]
@@ -461,19 +461,6 @@ class TestUsecase(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
-    def test_open(self):
-        cmds = ['pubs init',
-                'pubs add data/pagerank.bib',
-                'pubs open Page99'
-               ]
-
-        with self.assertRaises(SystemExit):
-            self.execute_cmds(cmds)
-
-        with self.assertRaises(SystemExit):
-            cmds[-1] == 'pubs open Page8'
-            self.execute_cmds(cmds)
-
     def test_update(self):
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
@@ -491,10 +478,21 @@ class TestUsecase(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(1, len(outs[2].splitlines()))
 
-    def test_attach(self):
+    def test_doc_open(self):
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
-                'pubs attach Page99 data/pagerank.pdf'
+                'pubs doc open Page99'
+               ]
+        with self.assertRaises(SystemExit):
+            self.execute_cmds(cmds)
+        with self.assertRaises(SystemExit):
+            cmds[-1] == 'pubs doc open Page8'
+            self.execute_cmds(cmds)
+
+    def test_doc_add(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs doc add data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
         self.assertTrue(self.fs['os'].path.exists(
@@ -504,14 +502,35 @@ class TestUsecase(DataCommandTestCase):
         # Also test that do not remove original
         self.assertTrue(self.fs['os'].path.exists('/data/pagerank.pdf'))
 
-    def test_attach_with_move(self):
+    def test_doc_add_with_move(self):
         cmds = ['pubs init -p paper_second/',
                 'pubs add data/pagerank.bib',
-                'pubs attach --move Page99 data/pagerank.pdf'
+                'pubs doc add --move data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
         self.assertTrue(self.fs['os'].path.isfile(self.default_conf_path))
         self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
+
+    def test_doc_remove(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs doc add data/pagerank.pdf Page99',
+                ('pubs doc remove Page99', ['y']),
+               ]
+        self.execute_cmds(cmds)
+        docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
+        self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
+
+    def test_doc_export(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs rename Page99 page100',
+                'pubs doc add data/pagerank.pdf page100',
+                'pubs doc export page100 /'
+                ]
+        self.execute_cmds(cmds)
+        self.assertIn('page100.pdf', self.fs['os'].listdir('/'))
+
 
     def test_alternate_config(self):
         alt_conf = self.fs['os'].path.expanduser('~/.alt_conf')

@@ -84,21 +84,39 @@ class Repository(object):
 
     def remove_paper(self, citekey, remove_doc=True, event=True):
         """ Remove a paper. Is silent if nothing needs to be done."""
-
         if event:
             events.RemoveEvent(citekey).send()
         if remove_doc:
-            try:
-                metadata = self.databroker.pull_metadata(citekey)
-                docpath = metadata.get('docfile')
-                self.databroker.remove_doc(docpath, silent=True)
-                self.databroker.remove_note(citekey, silent=True)
-            except IOError:
-                pass # FXME: if IOError is about being unable to
-                     # remove the file, we need to issue an error.I
-
+            self.remove_doc(citekey, detach_only=True)
+        try:
+            self.databroker.remove_note(citekey, silent=True)
+        except IOError:
+            pass # FIXME: if IOError is about being unable to
+                 # remove the file, we need to issue an error.I
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
+
+    def remove_doc(self, citekey, detach_only=False):
+        """ Remove a doc. Is silent if nothing needs to be done."""
+        try:
+            metadata = self.databroker.pull_metadata(citekey)
+            docpath = metadata.get('docfile')
+            self.databroker.remove_doc(docpath, silent=True)
+            if not detach_only:
+                p = self.pull_paper(citekey)
+                p.docpath = None
+                self.push_paper(p, overwrite=True, event=False)
+        except IOError:
+            pass # FIXME: if IOError is about being unable to
+                 # remove the file, we need to issue an error.I
+
+    def pull_docpath(self, citekey):
+        try:
+            p = self.pull_paper(citekey)
+            return self.databroker.real_docpath(p.docpath)
+        except IOError:
+            pass # FIXME: if IOError is about being unable to
+                 # remove the file, we need to issue an error.I
 
     def rename_paper(self, paper, new_citekey=None, old_citekey=None):
         if old_citekey is None:

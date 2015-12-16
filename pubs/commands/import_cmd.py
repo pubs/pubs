@@ -77,17 +77,17 @@ def command(conf, args):
         try:
             p = papers[k]
             if isinstance(p, Exception):
-                ui.error('could not load entry for citekey {}.'.format(k))
+                ui.error('Could not load entry for citekey {}.'.format(k))
             else:
                 rp.push_paper(p)
-                ui.message('{} imported'.format(color.dye_out(p.citekey, 'citekey')))
+                ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
                 docfile = bibstruct.extract_docfile(p.bibdata)
                 if docfile is None:
-                    ui.warning("no file for {}.".format(p.citekey))
+                    ui.warning("No file for {}.".format(p.citekey))
                 else:
                     rp.push_doc(p.citekey, docfile, copy=copy)
                     #FIXME should move the file if configured to do so.
         except KeyError:
-            ui.error('no entry found for citekey {}.'.format(k))
+            ui.error('No entry found for citekey {}.'.format(k))
         except IOError as e:
             ui.error(e.message)
