@@ -24,13 +24,15 @@ def str2citekey(s):
 def check_citekey(citekey):
     # TODO This is not the right way to test that (17/12/2012)
     if ustr(citekey) != str2citekey(citekey):
-        raise ValueError("Invalid citekey: %s" % citekey)
+        raise ValueError(u"Invalid `{}` citekey; ".format(citekey) +
+                         u"utf-8 citekeys are not supported yet.\n"
+                         u"See https://github.com/pubs/pubs/issues/28 for details.")
 
 def verify_bibdata(bibdata):
     if bibdata is None or len(bibdata) == 0:
-        raise ValueError('no valid bibdata')
+        raise ValueError(u"no valid bibdata")
     if len(bibdata) > 1:
-        raise ValueError('ambiguous: multiple entries in the bibdata.')
+        raise ValueError(u"ambiguous: multiple entries in the bibdata.")
 
 def get_entry(bibdata):
     verify_bibdata(bibdata)
@@ -59,7 +61,7 @@ def generate_citekey(bibdata):
         first_author = entry[author_key][0]
     except KeyError:
         raise ValueError(
-                'No author or editor defined: cannot generate a citekey.')
+                u"No author or editor defined: cannot generate a citekey.")
     try:
         year = entry['year']
     except KeyError:

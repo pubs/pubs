@@ -60,15 +60,15 @@ class PrintUI(object):
 
     def info(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print('{}: {}'.format(color.dye_err('info', 'ok'), message), **kwargs)
+        print(u'{}: {}'.format(color.dye_err('info', 'ok'), message), **kwargs)
 
     def warning(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print('{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
+        print(u'{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
 
     def error(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print('{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
+        print(u'{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
 
     def exit(self, error_code=1):
         sys.exit(error_code)
@@ -109,10 +109,10 @@ class InputUI(PrintUI):
         if len(set(option_chars)) != len(option_chars): # duplicate chars, char choices are deactivated. #FIXME: should only deactivate ambiguous chars
             option_chars = []
 
-        option_str = '/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
-                                for c, s in zip(displayed_chars, options)])
+        option_str = u'/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
+                               for c, s in zip(displayed_chars, options)])
 
-        self.message('{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
+        self.message(u'{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
         while True:
             answer = self.input()
             if answer is None or answer == '':
@@ -126,7 +126,7 @@ class InputUI(PrintUI):
                         return option_chars.index(answer.lower())
                     except ValueError:
                         pass
-            self.message('Incorrect option.', option_str)
+            self.message(u'Incorrect option.', option_str)
 
 
     def input_choice(self, options, option_chars, default=None, question=''):
@@ -159,7 +159,7 @@ class InputUI(PrintUI):
                     return option_chars.index(answer.lower())
                 except ValueError:
                     pass
-            self.message('Incorrect option.', option_str)
+            self.message(u'Incorrect option.', option_str)
 
     def input_yn(self, question='', default='y'):
         d = 0 if default in (True, 'y', 'yes') else 1

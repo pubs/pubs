@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
 import unittest
@@ -167,6 +168,16 @@ class TestAdd(DataCommandTestCase):
         self.execute_cmds(cmds)
         bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
         self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'CustomCitekey.bib'})
+
+    def test_add_utf8_citekey(self):
+        err = ("error: Invalid `hausdorff1949grundzüge` citekey; "
+               "utf-8 citekeys are not supported yet.\n"
+               "See https://github.com/pubs/pubs/issues/28 for details.") # actually not checked
+        cmds = ['pubs init',
+                ('pubs add /data/utf8.bib', [], '', err),
+               ]
+        with self.assertRaises(SystemExit):
+            self.execute_cmds(cmds)
 
     def test_add_doc_nocopy_does_not_copy(self):
         cmds = ['pubs init',

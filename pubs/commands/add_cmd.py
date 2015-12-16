@@ -106,7 +106,11 @@ def command(conf, args):
         ui.error('citekey already exist {}.'.format(citekey))
         ui.exit(1)
 
-    p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
+    try:
+        p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
+    except Exception as e:
+        ui.error(e.args[0])
+        ui.exit(1)
 
     # tags
 
