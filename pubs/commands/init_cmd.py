@@ -42,7 +42,6 @@ def command(conf, args):
     conf['main']['pubsdir'] = pubsdir
     conf['main']['docsdir'] = docsdir
     conf['main']['open_cmd'] = config.default_open_cmd()
-    conf['main']['edit_cmd'] = config.default_edit_cmd()
     config.save_conf(conf)
 
     Repository(conf, create=True)
