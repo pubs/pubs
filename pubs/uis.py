@@ -44,19 +44,19 @@ def get_ui():
     return _ui
 
 
-def init_ui(conf):
+def init_ui(conf, force_colors=False):
     global _ui
-    _ui = InputUI(conf)
+    _ui = InputUI(conf, force_colors=force_colors)
 
 
 class PrintUI(object):
 
-    def __init__(self, conf):
+    def __init__(self, conf, force_colors=False):
         """
         :param conf: if None, conservative default values are used.
                      Useful to instanciate the UI before parsing the config file.
         """
-        color.setup(conf)
+        color.setup(conf, force_colors=force_colors)
         self.encoding = _get_encoding(conf)
         self._stdout  = codecs.getwriter(self.encoding)(_get_raw_stdout(),
                                                         errors='replace')
@@ -87,8 +87,8 @@ class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.
     """
 
-    def __init__(self, conf):
-        super(InputUI, self).__init__(conf)
+    def __init__(self, conf, force_colors=False):
+        super(InputUI, self).__init__(conf, force_colors=force_colors)
         self.editor = conf['main']['edit_cmd'] or _get_local_editor()
 
     def input(self):

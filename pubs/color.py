@@ -6,7 +6,7 @@ import re
 import os
 
 def _color_supported(stream):
-    """Returns True is the stream supports colors"""
+    """Return True is the stream supports colors"""
     if sys.platform == 'win32' and 'ANSICON' not in os.environ:
         return False
     if hasattr(stream, 'isatty') and stream.isatty(): # we have a tty
@@ -20,7 +20,17 @@ def _color_supported(stream):
 
 COLOR_LIST = [u'black', u'red', u'green', u'yellow', u'blue', u'purple', u'cyan', u'grey']
 
-def generate_colors(stream, color=True, bold=True, italic=True):
+def generate_colors(stream, color=True, bold=True, italic=True, force_colors=False):
+    """Generate colors, based on configuration and detected support
+
+    :param color:         generate colors. If False, bold and italic will not change
+                          the current color.
+    :param bold:          generate bold colors, if False, bold color are the same as
+                          normal colors.
+    :param italic:        generate italic colors
+    :param force_colors:  generate colors whether support is detected or not. Will not
+                          overrride the `color` parameter.
+    """
     colors =            {name: u'' for name in COLOR_LIST}
     colors.update({u'b' +name: u'' for name in COLOR_LIST})
     colors.update({u'i' +name: u'' for name in COLOR_LIST})
@@ -30,7 +40,9 @@ def generate_colors(stream, color=True, bold=True, italic=True):
     colors[u'end']    = u''
     colors[u'']       = u''
 
-    if (color or bold or italic) and _color_supported(stream):
+    color_support = force_colors or _color_supported(stream)
+
+    if (color or bold or italic) and color_support:
         bold_flag, italic_flag = '', ''
         if bold:
             colors['bold'] = u'\033[1m'
@@ -64,26 +76,31 @@ def generate_colors(stream, color=True, bold=True, italic=True):
 COLORS_OUT = generate_colors(sys.stdout, color=False, bold=False, italic=False)
 COLORS_ERR = generate_colors(sys.stderr, color=False, bold=False, italic=False)
 
+
 def dye_out(s, color='end'):
+    """Color a string for output on stdout"""
     return u'{}{}{}'.format(COLORS_OUT[color], s, COLORS_OUT['end'])
 
 def dye_err(s, color='end'):
+    """Color a string for output on stderr"""
     return u'{}{}{}'.format(COLORS_ERR[color], s, COLORS_OUT['end'])
 
-def _nodye(s, *args, **kwargs):
-    return s
 
-def setup(conf):
+def setup(conf, force_colors=False):
+    """Prepare color for stdout and stderr"""
     global COLORS_OUT, COLORS_ERR
-    COLORS_OUT = generate_colors(sys.stdout, color=conf['formating']['color'],
-                                             bold=conf['formating']['bold'],
-                                             italic=conf['formating']['italics'])
-    COLORS_ERR = generate_colors(sys.stderr, color=conf['formating']['color'],
-                                             bold=conf['formating']['bold'],
-                                             italic=conf['formating']['italics'])
+    COLORS_OUT = generate_colors(sys.stdout, force_colors=force_colors,
+                                 color=conf['formating']['color'],
+                                 bold=conf['formating']['bold'],
+                                 italic=conf['formating']['italics'])
+    COLORS_ERR = generate_colors(sys.stderr, force_colors=force_colors,
+                                 color=conf['formating']['color'],
+                                 bold=conf['formating']['bold'],
+                                 italic=conf['formating']['italics'])
     for key, value in conf['theme'].items():
         COLORS_OUT[key] = COLORS_OUT.get(value, '')
         COLORS_ERR[key] = COLORS_ERR.get(value, '')
+
 
 # undye
 undye_re = re.compile('\x1b\[[;\d]*[A-Za-z]')

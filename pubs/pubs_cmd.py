@@ -35,6 +35,9 @@ def execute(raw_args=sys.argv):
     conf_parser = argparse.ArgumentParser(prog="pubs", add_help=False)
     conf_parser.add_argument("-c", "--config", help="path to config file",
                              type=str, metavar="FILE")
+    conf_parser.add_argument('--force-colors', dest='force_colors',
+                             action='store_true', default=False,
+                             help='color are not disabled when piping to a file or other commands')
     #conf_parser.add_argument("-u", "--update", help="update config if needed",
     #                         default=False, action='store_true')
     top_args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
@@ -59,7 +62,7 @@ def execute(raw_args=sys.argv):
         conf = config.load_default_conf()
         conf.filename = conf_path
 
-    uis.init_ui(conf)
+    uis.init_ui(conf, force_colors=top_args.force_colors)
     ui = uis.get_ui()
 
     parser = argparse.ArgumentParser(description="research papers repository",
