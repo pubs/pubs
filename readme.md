@@ -10,7 +10,7 @@ Pubs is built with the following principles in mind:
  - bibliographic data (i.e. pure bibtex information) is kept separated from metadata (including links to pdf or tags),
  - everything is stored in plain text so it can be manually edited or version controlled.
 
-**Notice:** pubs is still in early development and cannot be considered as stable.
+**Notice:** pubs is still in early development; you should regularly make backups of your pubs repository.
 
 
 ## Getting started
@@ -52,9 +52,22 @@ This ensures that your reference file is always up-to-date; you can cite a paper
 
 and then add `\cite{Loeb_2012}` in your manuscript. After running the bash script, the citation will correctly appear in your compiled pdf.
 
+
+## Document management
+
+You can attach a document to a reference:
+
+    pubs add Loeb2012_downloaded.pdf Loeb_2012
+
+And open your documents automatically from the command line:
+
+    pubs doc open Loeb_2012
+
+
 ## Customization
 
-Pubs is designed to interact well with your command line tool chain. You can add custom commands to pubs by defining aliases in your config file.
+Pubs is designed to interact well with your command line tool chain.
+You can add custom commands to pubs by defining aliases in your config file (make sure that the alias plugin is activated in your configuration by using `pubs conf`).
 
     [[alias]]
     evince = open --with evince
@@ -63,12 +76,15 @@ Pubs is designed to interact well with your command line tool chain. You can add
 The first command defines a new subcommand: `pubs open -w lp` will be executed when `pubs print` is typed.
 The second starts with a bang: `!`, and is treated as a shell command.
 
+
+## Need more help ?
+
+You can access the self-documented configuration by using `pubs conf`, and all the commands's help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
+
+
 ## Requirements
 
 - python >= 2.7 or >= 3.3
-- [dateutil](http://labix.org/python-dateutil)
-- [pyYaml](http://pyyaml.org) (will be deprecated soon)
-- [bibtexparser](https://github.com/sciunto/python-bibtexparser) >= 0.6.1
 
 
 ## Authors
