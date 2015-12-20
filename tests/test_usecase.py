@@ -121,6 +121,7 @@ class DataCommandTestCase(CommandTestCase):
     def setUp(self):
         super(DataCommandTestCase, self).setUp()
         fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
+        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
 
 
 # Actual tests
@@ -174,7 +175,7 @@ class TestAdd(DataCommandTestCase):
                "utf-8 citekeys are not supported yet.\n"
                "See https://github.com/pubs/pubs/issues/28 for details.") # actually not checked
         cmds = ['pubs init',
-                ('pubs add /data/utf8.bib', [], '', err),
+                ('pubs add /bibexamples/utf8.bib', [], '', err),
                ]
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
@@ -202,6 +203,16 @@ class TestAdd(DataCommandTestCase):
                 ]
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
+
+    @unittest.expectedFailure
+    def test_leading_citekey_space(self):
+        cmds = ['pubs init',
+                'pubs add /data/leadingspace.bib',
+                'pubs rename LeadingSpace NoLeadingSpace',
+                ]
+        self.execute_cmds(cmds)
+
+
 
 
 class TestList(DataCommandTestCase):
