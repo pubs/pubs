@@ -134,18 +134,18 @@ def command(conf, args):
 
     try:
         rp.push_paper(p)
+        ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
         if docfile is not None:
             rp.push_doc(p.citekey, docfile, copy=copy or args.move)
             if copy:
                 if move:
                     content.remove_file(docfile)
 
-        ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
-        if copy:
-            if move:
-                ui.message('{} was moved to the pubs repository.'.format(docfile))
-            else:
-                ui.message('{} was copied to the pubs repository.'.format(docfile))
+            if copy:
+                if move:
+                    ui.message('{} was moved to the pubs repository.'.format(docfile))
+                else:
+                    ui.message('{} was copied to the pubs repository.'.format(docfile))
 
     except ValueError as v:
         ui.error(v.message)
