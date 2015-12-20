@@ -127,4 +127,4 @@ class EnDecoder(object):
         except Exception:
             import traceback
             traceback.print_exc()
-        raise ValueError('could not parse bibdata')
+        raise ValueError('could not parse provided bibdata:\n{}'.format(bibdata))
