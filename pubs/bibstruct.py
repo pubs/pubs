@@ -40,7 +40,6 @@ def get_entry(bibdata):
         return e
 
 def extract_citekey(bibdata):
-    verify_bibdata(bibdata)
     citekey, entry = get_entry(bibdata)
     return citekey
 

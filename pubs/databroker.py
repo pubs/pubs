@@ -56,8 +56,11 @@ class DataBroker(object):
     def verify(self, bibdata_raw):
         """Will return None if bibdata_raw can't be decoded"""
         try:
+            if bibdata_raw.startswith(u'\ufeff'):
+                # remove BOM, because bibtexparser does not support it.
+                bibdata_raw = bibdata_raw[1:]
             return self.endecoder.decode_bibdata(bibdata_raw)
-        except ValueError:
+        except ValueError as e:
             return None
 
     # docbroker
@@ -90,4 +93,3 @@ class DataBroker(object):
     def rename_note(self, old_citekey, new_citekey):
         notepath = 'notesdir://{}.txt'.format(old_citekey)
         return self.notebroker.rename_doc(notepath, new_citekey)
-

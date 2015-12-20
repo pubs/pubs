@@ -155,6 +155,14 @@ class TestAdd(DataCommandTestCase):
         self.assertEqual(set(self.fs['os'].listdir(meta_dir)), {'Page99.yaml'})
         self.assertEqual(set(self.fs['os'].listdir(doc_dir)), {'Page99.pdf'})
 
+    def test_add_bibutils(self):
+        cmds = ['pubs init',
+                'pubs add /bibexamples/bibutils.bib',
+                ]
+        self.execute_cmds(cmds)
+        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
+        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'Page99.bib'})
+
     def test_add2(self):
         cmds = ['pubs init -p /not_default',
                 'pubs add /data/pagerank.bib -d /data/pagerank.pdf',

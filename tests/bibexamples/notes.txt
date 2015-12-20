@@ -1,0 +1,2 @@
++ `xml2bib.bib`: was created with: `bib2xml data/pagerank.bib | xml2bib >> bibexamples/bibutils.bib` (bibutils 5.6)  
++ `leadingspace.bib`: has a leading space in the citekey
