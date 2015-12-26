@@ -1,8 +1,15 @@
 # display formatting
 
+import re
+
 from . import color
 from .bibstruct import TYPE_KEY
 
+
+CHARS = re.compile('[{}\n\t\r]')
+
+def sanitize(s):
+    return CHARS.sub('', s)
 
 # should be adaptated to bibtexparser dicts
 def person_repr(p):
@@ -32,13 +39,13 @@ def bib_oneliner(bibdata):
     elif bibdata[TYPE_KEY] == 'inproceedings':
         journal = ' ' + bibdata.get('booktitle', '')
 
-    return u'{authors} \"{title}\"{journal}{year}'.format(
+    return sanitize(u'{authors} \"{title}\"{journal}{year}'.format(
         authors=color.dye_out(authors, 'author'),
         title=color.dye_out(bibdata.get('title', ''), 'title'),
         journal=color.dye_out(journal, 'publisher'),
         year=' ({})'.format(color.dye_out(bibdata['year'], 'year'))
             if 'year' in bibdata else ''
-        )
+        ))
 
 
 def bib_desc(bib_data):
