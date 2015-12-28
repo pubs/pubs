@@ -61,7 +61,7 @@ tag      = string(default='cyan')
 # bibliographic fields
 author    = string(default='bold')
 title     = string(default='')
-publisher = string(default='italic')
+publisher = string(default='')
 year      = string(default='bold')
 volume    = string(default='bold')
 pages     = string(default='')
