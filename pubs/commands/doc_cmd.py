@@ -17,6 +17,7 @@ def parser(subparsers):
     doc_parser = subparsers.add_parser('doc', help='manage the document relating to a publication')
     doc_subparsers = doc_parser.add_subparsers(title='document actions', help='actions to interact with the documents',
                                                dest='action')
+    doc_subparsers.required = True
 
     add_parser = doc_subparsers.add_parser('add', help='add a document to a publication')
     add_parser.add_argument('-f', '--force', action='store_true', dest='force', default=False,
