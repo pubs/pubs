@@ -39,7 +39,7 @@ color = boolean(default=True)
 
 # Here you can define the color theme used by pubs, if enabled in the
 # 'formating' section. Predefined theme are available at:
-# https://github.com/pubs/pubs/blob/master/theme.md
+# https://github.com/pubs/pubs/blob/master/extra/themes.md
 
 # Available colors are: 'black', 'red', 'green', 'yellow', 'blue', 'purple',
 # 'cyan', and 'grey'. Bold colors are available by prefixing 'b' in front of
