@@ -73,7 +73,7 @@ You can add custom commands to pubs by defining aliases in your config file (mak
     evince = open --with evince
     count = !pubs list -k | wc -l
 
-The first command defines a new subcommand: `pubs open -w lp` will be executed when `pubs print` is typed.
+The first command defines a new subcommand: `pubs open -w evince` will be executed when `pubs evince` is typed.
 The second starts with a bang: `!`, and is treated as a shell command.
 
 
