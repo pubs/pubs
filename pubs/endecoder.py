@@ -38,6 +38,7 @@ def customizations(record):
         :param record: a record
         :returns: -- customized record
     """
+
     record = bp.customization.convert_to_unicode(record)
     record = bp.customization.type(record)
     record = bp.customization.author(record)
@@ -115,7 +116,8 @@ class EnDecoder(object):
         """"""
         try:
             entries = bp.bparser.BibTexParser(
-                bibdata, customization=customizations).get_entry_dict()
+                bibdata, homogenize_fields=True,
+                customization=customizations).get_entry_dict()
             # Remove id from bibtexparser attribute which is stored as citekey
             for e in entries:
                 entries[e].pop(BP_ID_KEY)
