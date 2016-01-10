@@ -39,7 +39,7 @@ def customizations(record):
         :returns: -- customized record
     """
 
-    record = bp.customization.convert_to_unicode(record)
+    # record = bp.customization.convert_to_unicode(record) # transform \& into & ones, messing-up latex
     record = bp.customization.type(record)
     record = bp.customization.author(record)
     record = bp.customization.editor(record)
