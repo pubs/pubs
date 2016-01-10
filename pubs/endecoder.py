@@ -54,7 +54,7 @@ def customizations(record):
     return record
 
 bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher',
-                  'year', 'month', 'number', 'pages', 'link', 'doi', 'note',
+                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi', 'note',
                   'abstract']
 
 
