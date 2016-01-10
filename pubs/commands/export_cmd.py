@@ -28,11 +28,14 @@ def command(conf, args):
         else:
             for key in resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True):
                 papers.append(rp.pull_paper(key))
+
         bib = {}
         for p in papers:
             bib[p.citekey] = p.bibdata
-            exporter = endecoder.EnDecoder()
-            bibdata_raw = exporter.encode_bibdata(bib)
-            ui.message(bibdata_raw)
+
+        exporter = endecoder.EnDecoder()
+        bibdata_raw = exporter.encode_bibdata(bib)
+        ui.message(bibdata_raw)
+
     except Exception as e:
         ui.error(e.message)
