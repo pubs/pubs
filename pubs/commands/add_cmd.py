@@ -104,11 +104,7 @@ def command(conf, args):
         ui.error('citekey already exist {}.'.format(citekey))
         ui.exit(1)
 
-    try:
-        p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
-    except Exception as e:
-        ui.error(e.args[0])
-        ui.exit(1)
+    p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
 
     # tags
 
@@ -132,21 +128,16 @@ def command(conf, args):
     if move is None:
         move = conf['main']['doc_add'] == 'move'
 
-    try:
-        rp.push_paper(p)
-        ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
-        if docfile is not None:
-            rp.push_doc(p.citekey, docfile, copy=copy or args.move)
-            if copy:
-                if move:
-                    content.remove_file(docfile)
+    rp.push_paper(p)
+    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
+    if docfile is not None:
+        rp.push_doc(p.citekey, docfile, copy=copy or args.move)
+        if copy:
+            if move:
+                content.remove_file(docfile)
 
-            if copy:
-                if move:
-                    ui.message('{} was moved to the pubs repository.'.format(docfile))
-                else:
-                    ui.message('{} was copied to the pubs repository.'.format(docfile))
-
-    except ValueError as v:
-        ui.error(v.message)
-        ui.exit(1)
+        if copy:
+            if move:
+                ui.message('{} was moved to the pubs repository.'.format(docfile))
+            else:
+                ui.message('{} was copied to the pubs repository.'.format(docfile))

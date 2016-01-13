@@ -74,20 +74,15 @@ def command(conf, args):
     papers = many_from_path(bibpath)
     keys = args.keys or papers.keys()
     for k in keys:
-        try:
-            p = papers[k]
-            if isinstance(p, Exception):
-                ui.error(u'Could not load entry for citekey {}.'.format(k))
+        p = papers[k]
+        if isinstance(p, Exception):
+            ui.error(u'Could not load entry for citekey {}.'.format(k))
+        else:
+            rp.push_paper(p)
+            ui.info(u'{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
+            docfile = bibstruct.extract_docfile(p.bibdata)
+            if docfile is None:
+                ui.warning("No file for {}.".format(p.citekey))
             else:
-                rp.push_paper(p)
-                ui.info(u'{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
-                docfile = bibstruct.extract_docfile(p.bibdata)
-                if docfile is None:
-                    ui.warning("No file for {}.".format(p.citekey))
-                else:
-                    rp.push_doc(p.citekey, docfile, copy=copy)
-                    #FIXME should move the file if configured to do so.
-        except KeyError:
-            ui.error(u'No entry found for citekey {}.'.format(k))
-        except IOError as e:
-            ui.error(e.message)
+                rp.push_doc(p.citekey, docfile, copy=copy)
+                #FIXME should move the file if configured to do so.

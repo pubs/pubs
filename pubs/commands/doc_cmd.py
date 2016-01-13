@@ -65,26 +65,19 @@ def command(conf, args):
             if not ui.input_yn(question=msg, default='n'):
                 ui.exit(0)
             else:
-                try:
-                    rp.remove_doc(paper.citekey)
-                except (ValueError, IOError) as v:
-                    ui.error(v.message)
-                    ui.exit(1)
+                rp.remove_doc(paper.citekey)
 
-        try:
-            document = args.document[0]
-            if args.link:
-                rp.push_doc(paper.citekey, document, copy=False)
-            else:
-                rp.push_doc(paper.citekey, document, copy=True)
-            if not args.link and args.move:
-                content.remove_file(document)
+        document = args.document[0]
+        if args.link:
+            rp.push_doc(paper.citekey, document, copy=False)
+        else:
+            rp.push_doc(paper.citekey, document, copy=True)
+        if not args.link and args.move:
+            content.remove_file(document)
 
-            ui.message('{} added to {}'.format(color.dye_out(document, 'filepath'),
-                                                  color.dye_out(paper.citekey, 'citekey')))
-        except (ValueError, IOError) as v:
-            ui.error(v.message)
-            ui.exit(1)
+        ui.message('{} added to {}'.format(
+            color.dye_out(document, 'filepath'),
+            color.dye_out(paper.citekey, 'citekey')))
 
     elif args.action == 'remove':
 
@@ -103,11 +96,7 @@ def command(conf, args):
                 if not ui.input_yn(question=msg, default='n'):
                     continue
 
-            try:
-                rp.remove_doc(paper.citekey)
-            except (ValueError, IOError) as v:
-                ui.error(v.message)
-                ui.exit(1)
+            rp.remove_doc(paper.citekey)
 
     elif args.action == 'export':
 
@@ -133,7 +122,7 @@ def command(conf, args):
                     dest_path = path + os.path.basename(real_doc_path)
                     content.copy_content(real_doc_path, dest_path)
             except (ValueError, IOError) as e:
-                ui.error(e.message)
+                ui.error(str(e))
 
     elif args.action == 'open':
         with_command = args.cmd

@@ -24,14 +24,14 @@ class CiteKeyError(Exception):
         return self.message or self.default_msg.format(self.citekey)
 
 
-class CiteKeyCollision(Exception):
+class CiteKeyCollision(CiteKeyError):
 
     default_message = "Citekey already in use: {}."
 
 
-class CiteKeyNotFound(Exception):
+class CiteKeyNotFound(CiteKeyError):
 
-    default_message = "Could not find citekey: {}."
+    default_message = "No entry found for citekey: {}."
 
 
 class Repository(object):
