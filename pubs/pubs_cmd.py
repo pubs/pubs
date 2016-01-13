@@ -35,10 +35,10 @@ def execute(raw_args=sys.argv):
     try:
         conf_parser = argparse.ArgumentParser(prog="pubs", add_help=False)
         conf_parser.add_argument("-c", "--config", help="path to config file",
-                                type=str, metavar="FILE")
+                                 type=str, metavar="FILE")
         conf_parser.add_argument('--force-colors', dest='force_colors',
-                                action='store_true', default=False,
-                                help='color are not disabled when piping to a file or other commands')
+                                 action='store_true', default=False,
+                                 help='color are not disabled when piping to a file or other commands')
         #conf_parser.add_argument("-u", "--update", help="update config if needed",
         #                         default=False, action='store_true')
         top_args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
@@ -63,7 +63,7 @@ def execute(raw_args=sys.argv):
         ui = uis.get_ui()
 
         parser = argparse.ArgumentParser(description="research papers repository",
-                                        prog="pubs", add_help=True)
+                                         prog="pubs", add_help=True)
         parser.add_argument('--version', action='version', version=__version__)
         subparsers = parser.add_subparsers(title="valid commands", dest="command")
         subparsers.required = True
@@ -80,7 +80,7 @@ def execute(raw_args=sys.argv):
 
         # Parse and run appropriate command
         args = parser.parse_args(remaining_args)
-        args.prog = "pubs" # FIXME?
+        args.prog = "pubs"  # FIXME?
         args.func(conf, args)
 
     except Exception as e:
