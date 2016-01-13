@@ -20,7 +20,7 @@ class CiteKeyError(Exception):
         self.message = message
         self.citekey = citekey
 
-    def __repr__(self):
+    def __str__(self):
         return self.message or self.default_msg.format(self.citekey)
 
 
