@@ -21,6 +21,7 @@ setup(
 
     install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests', 'configobj',
                         'beautifulsoup4'], # to be made optional?
+    tests_require = ['pyfakefs>=2.7'],
 
     classifiers=[
         'Development Status :: 4 - Beta',
