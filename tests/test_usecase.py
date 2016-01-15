@@ -212,15 +212,13 @@ class TestAdd(DataCommandTestCase):
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
 
-    @unittest.expectedFailure
+    @unittest.skip
     def test_leading_citekey_space(self):
         cmds = ['pubs init',
                 'pubs add /data/leadingspace.bib',
                 'pubs rename LeadingSpace NoLeadingSpace',
                 ]
         self.execute_cmds(cmds)
-
-
 
 
 class TestList(DataCommandTestCase):
