@@ -3,7 +3,6 @@ import unittest
 
 import dotdot
 from pubs.config import conf
-from pubs.p3 import configparser
 
 # class TestConfig(unittest.TestCase):
 #

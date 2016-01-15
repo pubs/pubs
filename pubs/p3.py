@@ -2,9 +2,6 @@ import io
 import sys
 
 if sys.version_info[0] == 2:
-    import ConfigParser as configparser
-    ConfigParser = configparser.SafeConfigParser
-    _read_config = ConfigParser.readfp
 
     def input():
         return raw_input().decode(sys.stdin.encoding or 'utf8', 'ignore')
@@ -30,9 +27,6 @@ if sys.version_info[0] == 2:
         return ustdio.read()
 
 else:
-    import configparser
-    ConfigParser = configparser.ConfigParser
-    _read_config = ConfigParser.read_file
     ustr = str
     uchr = chr
     from urllib.parse import urlparse
@@ -55,7 +49,6 @@ else:
         return stdio.read()
 
 
-configparser = configparser
 input = input
 
 
