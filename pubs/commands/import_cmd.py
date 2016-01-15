@@ -8,7 +8,7 @@ from .. import color
 from ..paper import Paper
 
 from ..uis import get_ui
-from ..content import system_path, read_file
+from ..content import system_path, read_text_file
 
 
 def parser(subparsers):
@@ -45,7 +45,7 @@ def many_from_path(bibpath):
 
     biblist = []
     for filepath in all_files:
-        biblist.append(coder.decode_bibdata(read_file(filepath)))
+        biblist.append(coder.decode_bibdata(read_text_file(filepath)))
 
     papers = {}
     for b in biblist:

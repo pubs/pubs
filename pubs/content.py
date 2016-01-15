@@ -14,6 +14,18 @@ from .p3 import urlparse, HTTPConnection, urlopen
       be prefixed by 'byte_'
 """
 
+
+class UnableToDecodeTextFile(Exception):
+
+    _msg = "unknown encoding (maybe not a text file) for: {}"
+
+    def __init__(self, path):
+        self.path = path
+
+    def __str__(self):
+        return self._msg.format(self.path)
+
+
 # files i/o
 
 def _check_system_path_exists(path, fail=True):
@@ -56,10 +68,14 @@ def check_directory(path, fail=True):
             and _check_system_path_is(u'isdir', syspath, fail=fail))
 
 
-def read_file(filepath):
+def read_text_file(filepath):
     check_file(filepath)
-    with _open(filepath, 'r') as f:
-        content = f.read()
+    try:
+        with _open(filepath, 'r') as f:
+            content = f.read()
+    except UnicodeDecodeError:
+        raise UnableToDecodeTextFile(filepath)
+        # Should "raise from". TODO once python 2 is droped.
     return content
 
 
@@ -120,7 +136,7 @@ def get_content(path, ui=None):
     if content_type(path) == u'url':
         return _get_byte_url_content(path, ui=ui).decode(encoding='utf-8')
     else:
-        return read_file(path)
+        return read_text_file(path)
 
 
 def move_content(source, target, overwrite=False):
@@ -155,7 +171,7 @@ def editor_input(editor, initial=u'', suffix='.tmp'):
     cmd = shlex.split(editor)  # this enable editor command with option, e.g. gvim -f
     cmd.append(tfile_name)
     subprocess.call(cmd)
-    content = read_file(tfile_name)
+    content = read_text_file(tfile_name)
     os.remove(tfile_name)
     return content
 
@@ -163,7 +179,7 @@ def editor_input(editor, initial=u'', suffix='.tmp'):
 def edit_file(editor, path_to_file, temporary=True):
     if temporary:
         check_file(path_to_file, fail=True)
-        content = read_file(path_to_file)
+        content = read_text_file(path_to_file)
         content = editor_input(editor, content)
         write_file(path_to_file, content)
     else:
