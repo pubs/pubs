@@ -62,7 +62,7 @@ class PrintUI(object):
                                                         errors='replace')
         self._stderr  = codecs.getwriter(self.encoding)(_get_raw_stderr(),
                                                         errors='replace')
-        self.debug = conf.get('debug', False)
+        self.debug = conf['main'].get('debug', False)
 
     def message(self, *messages, **kwargs):
         kwargs['file'] = self._stdout

@@ -22,6 +22,9 @@ open_cmd = string(default=None)
 # "kate --block"
 edit_cmd = string(default='')
 
+# If true debug mode is on which means exceptions are not catched and
+# the full python stack is printed.
+debug = boolean(default=False)
 
 [formating]
 
