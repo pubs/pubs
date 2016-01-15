@@ -87,7 +87,7 @@ class PrintUI(object):
         if self.debug:
             raise exc
         else:
-            self.error(str(exc))
+            self.error(ustr(exc))
             self.exit()
 
 
