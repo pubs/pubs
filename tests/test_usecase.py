@@ -363,6 +363,7 @@ class TestUsecase(DataCommandTestCase):
                    '\n',
                    '',
                    'network search\n',
+                   'info: Assuming search to be a tag.\n'
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n',
                   ]
 
@@ -508,7 +509,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs tag junk'
                ]
         outs = self.execute_cmds(cmds)
-        self.assertEqual(1, len(outs[2].splitlines()))
+        self.assertEqual(2, len(outs[2].splitlines()))
 
     def test_doc_open(self):
         cmds = ['pubs init',

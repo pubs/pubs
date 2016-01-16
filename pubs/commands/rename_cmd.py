@@ -1,4 +1,5 @@
 from ..uis import get_ui
+from .. import color
 from .. import repo
 from ..utils import resolve_citekey
 
@@ -24,3 +25,6 @@ def command(conf, args):
     key = resolve_citekey(repo=rp, citekey=args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(key)
     rp.rename_paper(paper, args.new_citekey)
+    ui.message("The '{}' citekey has been renamed into '{}'".format(
+                color.dye_out(args.citekey, 'citekey'),
+                color.dye_out(args.new_citekey, 'citekey')))
