@@ -2,7 +2,7 @@ import os
 import re
 from .p3 import urlparse
 
-from .content import (check_file, check_directory, read_file, write_file,
+from .content import (check_file, check_directory, read_text_file, write_file,
                       system_path, check_content, content_type, get_content,
                       copy_content)
 
@@ -43,11 +43,11 @@ class FileBroker(object):
 
     def pull_metafile(self, citekey):
         filepath = os.path.join(self.metadir, citekey + '.yaml')
-        return read_file(filepath)
+        return read_text_file(filepath)
 
     def pull_bibfile(self, citekey):
         filepath = os.path.join(self.bibdir, citekey + '.bib')
-        return read_file(filepath)
+        return read_text_file(filepath)
 
     def push_metafile(self, citekey, metadata):
         """Put content to disk. Will gladly override anything standing in its way."""

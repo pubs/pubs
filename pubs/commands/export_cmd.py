@@ -21,21 +21,17 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
 
-    try:
-        papers = []
-        if len(args.citekeys) < 1:
-            papers = rp.all_papers()
-        else:
-            for key in resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True):
-                papers.append(rp.pull_paper(key))
+    papers = []
+    if len(args.citekeys) < 1:
+        papers = rp.all_papers()
+    else:
+        for key in resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True):
+            papers.append(rp.pull_paper(key))
 
-        bib = {}
-        for p in papers:
-            bib[p.citekey] = p.bibdata
+    bib = {}
+    for p in papers:
+        bib[p.citekey] = p.bibdata
 
-        exporter = endecoder.EnDecoder()
-        bibdata_raw = exporter.encode_bibdata(bib)
-        ui.message(bibdata_raw)
-
-    except Exception as e:
-        ui.error(e.message)
+    exporter = endecoder.EnDecoder()
+    bibdata_raw = exporter.encode_bibdata(bib)
+    ui.message(bibdata_raw)

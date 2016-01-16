@@ -21,9 +21,6 @@ def command(conf, args):
     rp = repo.Repository(conf)
 
     # TODO: here should be a test whether the new citekey is valid
-    try:
-        key = resolve_citekey(repo=rp, citekey=args.citekey, ui=ui, exit_on_fail=True)
-        paper = rp.pull_paper(key)
-        rp.rename_paper(paper, args.new_citekey)
-    except Exception as e:
-        ui.error(e.message)
+    key = resolve_citekey(repo=rp, citekey=args.citekey, ui=ui, exit_on_fail=True)
+    paper = rp.pull_paper(key)
+    rp.rename_paper(paper, args.new_citekey)

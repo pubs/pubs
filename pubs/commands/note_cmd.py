@@ -19,8 +19,5 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
-    try:
-        notepath = rp.databroker.real_notepath(citekey)
-        content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)
-    except Exception as e:
-        ui.error(e.message)
+    notepath = rp.databroker.real_notepath(citekey)
+    content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)

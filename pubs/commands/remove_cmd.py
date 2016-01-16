@@ -26,13 +26,17 @@ def command(conf, args):
             .format(', '.join([color.dye_out(c, 'citekey') for c in args.citekeys])))
         sure = ui.input_yn(question=are_you_sure, default='n')
     if force or sure:
+        failed = False  # Whether something failed
         for c in keys:
             try:
                 rp.remove_paper(c)
             except Exception as e:
                 ui.error(e.message)
+                failed = True
         ui.message('The publication(s) [{}] were removed'.format(
             ', '.join([color.dye_out(c, 'citekey') for c in keys])))
+        if failed:
+            ui.exit()  # Exit with nonzero error code
         # FIXME: print should check that removal proceeded well.
     else:
         ui.message('The publication(s) [{}] were {} removed'.format(

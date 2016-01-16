@@ -140,6 +140,10 @@ class TestInit(CommandTestCase):
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes'})
 
+    def test_init_config(self):
+        self.execute_cmds(['pubs init'])
+        self.assertTrue(self.fs['os'].path.isfile(self.default_conf_path))
+
 
 class TestAdd(DataCommandTestCase):
 
@@ -212,15 +216,13 @@ class TestAdd(DataCommandTestCase):
         with self.assertRaises(SystemExit):
             self.execute_cmds(cmds)
 
-    @unittest.expectedFailure
-    def test_leading_citekey_space(self):
-        cmds = ['pubs init',
-                'pubs add /data/leadingspace.bib',
-                'pubs rename LeadingSpace NoLeadingSpace',
-                ]
-        self.execute_cmds(cmds)
-
-
+# To be fixed
+#    def test_leading_citekey_space(self):
+#        cmds = ['pubs init',
+#                'pubs add /data/leadingspace.bib',
+#                'pubs rename LeadingSpace NoLeadingSpace',
+#                ]
+#        self.execute_cmds(cmds)
 
 
 class TestList(DataCommandTestCase):
@@ -538,7 +540,6 @@ class TestUsecase(DataCommandTestCase):
                 'pubs doc add --move data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
-        self.assertTrue(self.fs['os'].path.isfile(self.default_conf_path))
         self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
 
     def test_doc_remove(self):
