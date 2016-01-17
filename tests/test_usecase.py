@@ -4,6 +4,9 @@ from __future__ import print_function, unicode_literals
 import unittest
 import re
 import os
+import sys
+
+import six
 
 import dotdot
 import fake_env
@@ -22,6 +25,15 @@ from pubs.commands import init_cmd, import_cmd
 PRINT_OUTPUT=False
 CAPTURE_OUTPUT=True
 
+
+class FakeSystemExit(Exception):
+    """\
+    SystemExit exceptions are replaced by FakeSystemExit in the execute_cmds()
+    function, so they can be catched by ExpectedFailure tests in Python 2.x.
+
+    If a code is accepted to raise SystemExit, catch FakeSystemExit instead.
+    """
+    pass
 
 # code for fake fs
 
@@ -72,42 +84,50 @@ class CommandTestCase(unittest.TestCase):
         3. the expected output on stdout, verified with assertEqual.
         4. the expected output on stderr, verified with assertEqual.
         """
-        outs = []
-        for cmd in cmds:
-            inputs = []
-            expected_out, expected_err = None, None
-            actual_cmd = cmd
-            if not isinstance(cmd, p3.ustr):
-                actual_cmd = cmd[0]
-                if len(cmd) == 2:  # Inputs provided
-                    inputs = cmd[1]
-                if len(cmd) == 3:  # Expected output provided
-                    capture_output = True
-                    expected_out = color.undye(cmd[2])
-                if len(cmd) == 4:  # Expected error output provided
-                    expected_err = color.undye(cmd[3])
-            # Always set fake input: test should not ask unexpected user input
-            input = fake_env.FakeInput(inputs, [content, uis, p3])
-            input.as_global()
-            try:
-                if capture_output:
-                    _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
-                        actual_cmd.split())
-                    actual_out = color.undye(stdout)
-                    actual_err = color.undye(stderr)
-                    if expected_out is not None:
-                        self.assertEqual(actual_out, expected_out)
-                    if expected_err is not None:
-                        self.assertEqual(actual_err, expected_err)
-                    outs.append(color.undye(actual_out))
-                else:
-                    pubs_cmd.execute(actual_cmd.split())
-            except fake_env.FakeInput.UnexpectedInput:
-                self.fail('Unexpected input asked by command: {}.'.format(
-                    actual_cmd))
-        if PRINT_OUTPUT:
-            print(outs)
-        return outs
+        try:
+            outs = []
+            for cmd in cmds:
+                inputs = []
+                expected_out, expected_err = None, None
+                actual_cmd = cmd
+                if not isinstance(cmd, p3.ustr):
+                    actual_cmd = cmd[0]
+                    if len(cmd) == 2:  # Inputs provided
+                        inputs = cmd[1]
+                    if len(cmd) == 3:  # Expected output provided
+                        capture_output = True
+                        expected_out = color.undye(cmd[2])
+                    if len(cmd) == 4:  # Expected error output provided
+                        expected_err = color.undye(cmd[3])
+                # Always set fake input: test should not ask unexpected user input
+                input = fake_env.FakeInput(inputs, [content, uis, p3])
+                input.as_global()
+                try:
+                    if capture_output:
+                        _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
+                            actual_cmd.split())
+                        actual_out = color.undye(stdout)
+                        actual_err = color.undye(stderr)
+                        if expected_out is not None:
+                            self.assertEqual(actual_out, expected_out)
+                        if expected_err is not None:
+                            self.assertEqual(actual_err, expected_err)
+                        outs.append(color.undye(actual_out))
+                    else:
+                        pubs_cmd.execute(actual_cmd.split())
+                except fake_env.FakeInput.UnexpectedInput:
+                    self.fail('Unexpected input asked by command: {}.'.format(
+                        actual_cmd))
+            if PRINT_OUTPUT:
+                print(outs)
+            return outs
+        except SystemExit as exc:
+            exc_class, exc, tb = sys.exc_info()
+            if sys.version_info.major == 2:
+                # using six to avoid a SyntaxError in Python 3.x
+                six.reraise(FakeSystemExit, exc, tb)
+            else:
+                raise FakeSystemExit(exc).with_traceback(tb)
 
     def tearDown(self):
         fake_env.unset_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj])
@@ -189,7 +209,7 @@ class TestAdd(DataCommandTestCase):
         cmds = ['pubs init',
                 ('pubs add /bibexamples/utf8.bib', [], '', err),
                ]
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
     def test_add_doc_nocopy_does_not_copy(self):
@@ -213,16 +233,17 @@ class TestAdd(DataCommandTestCase):
                 'pubs add /data/pagerank.bib',
                 'pubs add -k Page99 /data/turing1950.bib',
                 ]
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
-# To be fixed
-#    def test_leading_citekey_space(self):
-#        cmds = ['pubs init',
-#                'pubs add /data/leadingspace.bib',
-#                'pubs rename LeadingSpace NoLeadingSpace',
-#                ]
-#        self.execute_cmds(cmds)
+
+    @unittest.expectedFailure
+    def test_leading_citekey_space(self):
+       cmds = ['pubs init',
+               'pubs add /bibexamples/leadingspace.bib',
+               'pubs rename LeadingSpace NoLeadingSpace',
+               ]
+       self.execute_cmds(cmds)
 
 
 class TestList(DataCommandTestCase):
@@ -349,7 +370,7 @@ class TestTag(DataCommandTestCase):
     def test_wrong_citekey(self):
         cmds = ['pubs tag Page999 a',
                 ]
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
 
@@ -428,7 +449,7 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(clean(correct[4]), clean(out[4]))
 
     def test_editor_abort(self):
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
                     ('pubs add', ['abc', 'n']),
                     ('pubs add', ['abc', 'y', 'abc', 'n']),
@@ -500,7 +521,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs update'
                ]
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
     def test_add_with_tag(self):
@@ -516,9 +537,9 @@ class TestUsecase(DataCommandTestCase):
                 'pubs add data/pagerank.bib',
                 'pubs doc open Page99'
                ]
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(FakeSystemExit):
             cmds[-1] == 'pubs doc open Page8'
             self.execute_cmds(cmds)
 
