@@ -52,6 +52,8 @@ def command(conf, args):
             pretty.paper_oneliner(p, citekey_only=args.citekeys)
             for p in papers))
 
+    rp.close()
+
 
 FIELD_ALIASES = {
     'a': 'author',

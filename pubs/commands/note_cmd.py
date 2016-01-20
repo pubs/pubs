@@ -21,3 +21,4 @@ def command(conf, args):
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     notepath = rp.databroker.real_notepath(citekey)
     content.edit_file(conf['main']['edit_cmd'], notepath, temporary=False)
+    rp.close()

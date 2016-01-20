@@ -43,14 +43,13 @@ class FakeIO(object):
         # https://github.com/jmcgeheeiv/pyfakefs/blob/master/pyfakefs/fake_filesystem.py#L2143
         return self.fake_open(file, mode=mode, buffering=buffering)
 
-
     BytesIO = real_io.BytesIO
     StringIO = real_io.StringIO
 
 
-def create_fake_fs(module_list):
+def create_fake_fs(module_list, nsec_stat=True):
 
-    fake_fs = fake_filesystem.FakeFilesystem()
+    fake_fs = fake_filesystem.FakeFilesystem(nsec_stat=nsec_stat)
     fake_os = fake_filesystem.FakeOsModule(fake_fs)
     fake_open = fake_filesystem.FakeFileOpen(fake_fs)
     fake_shutil = fake_filesystem_shutil.FakeShutilModule(fake_fs)

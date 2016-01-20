@@ -7,6 +7,7 @@ import os
 import sys
 
 import six
+import ddt
 
 import dotdot
 import fake_env
@@ -22,8 +23,8 @@ from pubs.commands import init_cmd, import_cmd
 
 
 # makes the tests very noisy
-PRINT_OUTPUT=False
-CAPTURE_OUTPUT=True
+PRINT_OUTPUT = False
+CAPTURE_OUTPUT = True
 
 
 class FakeSystemExit(Exception):
@@ -69,8 +70,8 @@ class CommandTestCase(unittest.TestCase):
 
     maxDiff = 1000000
 
-    def setUp(self):
-        self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update])
+    def setUp(self, nsec_stat=True):
+        self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update],             nsec_stat=nsec_stat)
         self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
         self.default_conf_path = self.fs['os'].path.expanduser('~/.pubsrc')
 
@@ -138,8 +139,8 @@ class DataCommandTestCase(CommandTestCase):
     copying fake data.
     """
 
-    def setUp(self):
-        super(DataCommandTestCase, self).setUp()
+    def setUp(self, nsec_stat=True):
+        super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
         fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
         fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
 
@@ -152,13 +153,13 @@ class TestInit(CommandTestCase):
         pubsdir = os.path.expanduser('~/pubs_test2')
         self.execute_cmds(['pubs init -p {}'.format(pubsdir)])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
-                         {'bib', 'doc', 'meta', 'notes'})
+                         {'bib', 'doc', 'meta', 'notes', '.cache'})
 
     def test_init2(self):
         pubsdir = os.path.expanduser('~/.pubs')
         self.execute_cmds(['pubs init'])
         self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
-                         {'bib', 'doc', 'meta', 'notes'})
+                         {'bib', 'doc', 'meta', 'notes', '.cache'})
 
     def test_init_config(self):
         self.execute_cmds(['pubs init'])
@@ -597,6 +598,51 @@ class TestUsecase(DataCommandTestCase):
         # check whether we actually changed the config file
         self.assertFalse(self.fs['os'].path.isfile(self.default_conf_path))
         self.assertTrue(self.fs['os'].path.isfile(alt_conf))
+
+
+
+@ddt.ddt
+class TestCache(DataCommandTestCase):
+    """\
+    Run tests on fake filesystems supporting both integers and nanosecond
+    stat times.
+    """
+
+    def setUp(self):
+        pass
+
+    @ddt.data(True, False)
+    def test_remove(self, nsec_stat):
+        DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ('pubs remove Page99', ['y']),
+                'pubs list',
+               ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(1, len(out[3].split('\n')))
+
+    @ddt.data(True, False)
+    def test_edit(self, nsec_stat):
+        DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
+
+        bib = str_fixtures.bibtex_external0
+        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line1 = re.sub('1999', '2007', line)
+
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs list',
+                ('pubs edit Page99', [bib1]),
+                'pubs list',
+               ]
+
+        out = self.execute_cmds(cmds)
+        self.assertEqual(line,  out[2])
+        self.assertEqual(line1, out[4])
+
 
 if __name__ == '__main__':
     unittest.main()

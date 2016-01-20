@@ -113,3 +113,5 @@ def command(conf, args):
 
             ui.message('\n'.join(pretty.paper_oneliner(p)
                                  for p in papers_list))
+
+        rp.close()

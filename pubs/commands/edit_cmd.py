@@ -67,3 +67,5 @@ def command(conf, args):
                 break
             # else edit again
         # Also handle malformed bibtex and metadata
+
+    rp.close()

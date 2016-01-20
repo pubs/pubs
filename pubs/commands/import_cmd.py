@@ -86,3 +86,5 @@ def command(conf, args):
             else:
                 rp.push_doc(p.citekey, docfile, copy=copy)
                 #FIXME should move the file if configured to do so.
+
+    rp.close()

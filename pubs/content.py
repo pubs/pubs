@@ -68,14 +68,20 @@ def check_directory(path, fail=True):
             and _check_system_path_is(u'isdir', syspath, fail=fail))
 
 
-def read_text_file(filepath):
-    check_file(filepath)
+def read_text_file(filepath, fail=True):
+    check_file(filepath, fail=fail)
     try:
         with _open(filepath, 'r') as f:
             content = f.read()
     except UnicodeDecodeError:
         raise UnableToDecodeTextFile(filepath)
-        # Should "raise from". TODO once python 2 is droped.
+        # Should "raise from", if Python 2 support is dropped.
+    return content
+
+def read_binary_file(filepath, fail=True):
+    check_file(filepath, fail=fail)
+    with _open(filepath, 'rb') as f:
+        content = f.read()
     return content
 
 
@@ -84,9 +90,9 @@ def remove_file(filepath):
     os.remove(filepath)
 
 
-def write_file(filepath, data):
+def write_file(filepath, data, mode='w'):
     check_directory(os.path.dirname(filepath))
-    with _open(filepath, 'w') as f:
+    with _open(filepath, mode) as f:
         f.write(data)
 
 

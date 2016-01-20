@@ -2,6 +2,7 @@ from .. import repo
 from .. import color
 from ..uis import get_ui
 from ..utils import resolve_citekey_list
+from ..p3 import ustr
 
 def parser(subparsers):
     parser = subparsers.add_parser('remove', help='removes a publication')
@@ -31,7 +32,7 @@ def command(conf, args):
             try:
                 rp.remove_paper(c)
             except Exception as e:
-                ui.error(e.message)
+                ui.error(ustr(e))
                 failed = True
         ui.message('The publication(s) [{}] were removed'.format(
             ', '.join([color.dye_out(c, 'citekey') for c in keys])))

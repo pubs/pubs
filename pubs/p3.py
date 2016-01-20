@@ -2,6 +2,7 @@ import io
 import sys
 
 if sys.version_info[0] == 2:
+    import cPickle as pickle
 
     def input():
         return raw_input().decode(sys.stdin.encoding or 'utf8', 'ignore')
@@ -48,6 +49,7 @@ else:
         stdio.seek(0)
         return stdio.read()
 
+    import pickle
 
 input = input
 

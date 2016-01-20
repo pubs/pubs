@@ -28,3 +28,5 @@ def command(conf, args):
     ui.message("The '{}' citekey has been renamed into '{}'".format(
                 color.dye_out(args.citekey, 'citekey'),
                 color.dye_out(args.new_citekey, 'citekey')))
+
+    rp.close()

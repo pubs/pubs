@@ -35,3 +35,5 @@ def command(conf, args):
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib)
     ui.message(bibdata_raw)
+
+    rp.close()

@@ -148,3 +148,5 @@ def command(conf, args):
         except OSError:
             ui.error("Command does not exist: %s." % with_command)
             ui.exit(127)
+
+    rp.close()

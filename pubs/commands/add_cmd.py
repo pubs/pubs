@@ -141,3 +141,5 @@ def command(conf, args):
                 ui.message('{} was moved to the pubs repository.'.format(docfile))
             else:
                 ui.message('{} was copied to the pubs repository.'.format(docfile))
+
+    rp.close()

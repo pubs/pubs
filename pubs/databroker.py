@@ -1,6 +1,6 @@
 from . import filebroker
 from . import endecoder
-
+from .p3 import pickle
 
 class DataBroker(object):
     """ DataBroker class
@@ -14,6 +14,20 @@ class DataBroker(object):
         self.endecoder  = endecoder.EnDecoder()
         self.docbroker  = filebroker.DocBroker(directory, scheme='docsdir', subdir='doc')
         self.notebroker = filebroker.DocBroker(directory, scheme='notesdir', subdir='notes')
+
+    # cache
+
+    def close(self):
+        pass
+
+    def pull_cache(self, name):
+        """Load cache data from distk. Exceptions are handled by the caller."""
+        data_raw = self.filebroker.pull_cachefile(name)
+        return pickle.loads(data_raw)
+
+    def push_cache(self, name, data):
+        data_raw = pickle.dumps(data)
+        self.filebroker.push_cachefile(name, data_raw)
 
     # filebroker+endecoder
 
