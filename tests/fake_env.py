@@ -9,6 +9,16 @@ import dotdot
 from pyfakefs import (fake_filesystem, fake_filesystem_shutil,
                       fake_filesystem_glob)
 
+# pyfakefs uses cStringIO under Python 2.x, which does not accept arbitrary unicode strings
+# (see https://docs.python.org/2/library/stringio.html#module-cStringIO)
+# io.StringIO does not accept `str`, so we're left with the StringIO module
+# PS: this nonsense explains why Python 3.x was created.
+try:
+    import StringIO
+    fake_filesystem.io = StringIO
+except ImportError:
+    pass
+
 from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
 from pubs import content, filebroker
 
@@ -21,89 +31,22 @@ real_glob = glob
 real_io = io
 
 
-
-# def _mod_list():
-#     ml = []
-#     import pubs
-#     for importer, modname, ispkg in pkgutil.walk_packages(
-#                                         path=pubs.__path__,
-#                                         prefix=pubs.__name__ + '.',
-#                                         onerror=lambda x: None):
-#         # HACK to not load textnote
-#         if not modname.startswith('pubs.plugs.texnote'):
-#             ml.append((modname, __import__(modname, fromlist='dummy')))
-#     return ml
-
-
 ENCODING = 'utf8'
-
-
-class UnicodeStringIOWrapper(object):
-    """This is a hack because fake_filesystem does not provide mock of io.
-    """
-
-    override = ['read', 'readline', 'readlines', 'write', 'writelines']
-
-    def __init__(self, strio):
-        self._strio = strio  # The real StringIO
-
-    def __getattr__(self, name):
-        if name in UnicodeStringIOWrapper.override:
-            return object.__getattribute__(self, name)
-        else:
-            return self._strio.__getattribute__(name)
-
-    def __iter__(self):
-        for l in self.readlines():
-            yield l
-
-    def read(self, *args):
-        return self._strio.read(*args).decode(ENCODING)
-
-    def readline(self, *args):
-        return self._strio.readline(*args).decode(ENCODING)
-
-    def readlines(self, *args):
-        return [l.decode(ENCODING) for l in self._strio.readlines(*args)]
-
-    def write(self, data):
-        self._strio.write(data.encode(ENCODING))
-
-    def writelines(self, data):
-        self._strio.write([l.encode(ENCODING) for l in data])
-
-    def __enter__(self):
-        self._strio.__enter__()
-        return self
-
-    def __exit__(self, *args):
-        return self._strio.__exit__(*args)
-
-
-def _force_binary_mode(mode):
-    if 'b' in mode:
-        return mode # python 2 fix.
-        # raise ValueError('Open should not happen in binary mode.')
-    return mode + 'b'
-
 
 class FakeIO(object):
 
     def __init__(self, fake_open):
         self.fake_open = fake_open
 
-    def open(self, *args, **kwargs):
-        # Forces binary mode for FakeFileOpen
-        args = list(args)
-        if len(args) > 1:
-            args[1] = _force_binary_mode(args[1])
-        else:
-            kwargs['mode'] = _force_binary_mode(kwargs.get('mode', 'r'))
-        fakefs_stringio = self.fake_open.Call(*args, **kwargs)
-        return UnicodeStringIOWrapper(fakefs_stringio)
+    def open(self, file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True):
+        # encoding is ignored by pyfakefs
+        # https://github.com/jmcgeheeiv/pyfakefs/blob/master/pyfakefs/fake_filesystem.py#L2143
+        return self.fake_open(file, mode=mode, buffering=buffering)
+
 
     BytesIO = real_io.BytesIO
     StringIO = real_io.StringIO
+
 
 def create_fake_fs(module_list):
 
@@ -162,8 +105,14 @@ def copy_dir(fs, real_dir, fake_dir = None):
         real_path = os.path.abspath(real_os.path.join(real_dir, filename))
         fake_path = fs['os'].path.join(fake_dir, filename)
         if real_os.path.isfile(real_path):
-            with real_open(real_path, 'rb') as f:
-                fs['fs'].CreateFile(fake_path, contents=f.read())
+            _, ext = real_os.path.splitext(filename)
+            if ext in ['.yaml', '.bib', '.txt', '.md']:
+                with real_io.open(real_path, 'r', encoding='utf-8') as f:
+                    fs['fs'].CreateFile(fake_path, contents=f.read())
+            else:
+                with real_io.open(real_path, 'rb') as f:
+                    fs['fs'].CreateFile(fake_path, contents=f.read())
+
         if real_os.path.isdir(real_path):
             fs['fs'].CreateDirectory(fake_path)
             copy_dir(fs, real_path, fake_path)
