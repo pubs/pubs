@@ -52,7 +52,7 @@ class DataCache(object):
         if self._metacache is None:
             try:
                 self._metacache = self.databroker.pull_cache('metacache')
-            except IOError:
+            except Exception as e: # take no prisonners; if something is wrong, no cache.
                 self._metacache = {}
         return self._metacache
 
@@ -61,7 +61,7 @@ class DataCache(object):
         if self._bibcache is None:
             try:
                 self._bibcache = self.databroker.pull_cache('bibcache')
-            except IOError:
+            except Exception as e:
                 self._bibcache = {}
         return self._bibcache
 
