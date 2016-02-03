@@ -11,6 +11,77 @@ class CacheEntry(object):
         self.timestamp = timestamp
 
 
+class CacheEntrySet(object):
+
+    def __init__(self, databroker, name):
+        self.databroker = databroker
+        self.name = name
+        if name == 'metacache':
+            self._pull_fun = databroker.pull_metadata
+            self._push_fun = databroker.push_metadata
+            self._mtime_fun = databroker.filebroker.mtime_metafile
+        elif name == 'bibcache':
+            self._pull_fun = databroker.pull_bibentry
+            self._push_fun = databroker.push_bibentry
+            self._mtime_fun = databroker.filebroker.mtime_bibfile
+        else:
+            raise ValueError
+        self._entries = None
+        self.modified = False
+        # does the filesystem supports subsecond stat time?
+        self.nsec_support = os.stat('.').st_mtime != int(os.stat('.').st_mtime)
+
+    @property
+    def entries(self):
+        if self._entries is None:
+            self._entries = self._try_pull_cache()
+        return self._entries
+
+    def flush(self, force=False):
+        if force or self.modified:
+            self.databroker.push_cache(self.name, self.entries)
+            self.modified = False
+
+    def pull(self, citekey):
+        if self._is_outdated(citekey):
+            # if we get here, we must update the cache.
+            t = time.time()
+            data = self._pull_fun(citekey)
+            self.entries[citekey] = CacheEntry(data, t)
+            self.modified = True
+        return self.entries[citekey].data
+
+    def push(self, citekey, data):
+        self._push_fun(citekey, data)
+        self.push_to_cache(citekey, data)
+
+    def push_to_cache(self, citekey, data):
+        """Push to cash only."""
+        mtime = self._mtime_fun(citekey)
+        self.entries[citekey] = CacheEntry(data, mtime)
+        self.modified = True
+
+    def remove_from_cache(self, citekey):
+        """Removes from cache only."""
+        if citekey in self.entries:
+            self.entries.pop(citekey)
+            self.modified = True
+
+    def _try_pull_cache(self):
+        try:
+            return self.databroker.pull_cache(self.name)
+        except Exception:  # take no prisonners; if something is wrong, no cache.
+            return {}
+
+    def _is_outdated(self, citekey):
+        if citekey in self.entries:
+            mtime = self._mtime_fun(citekey)
+            boundary = mtime if self.nsec_support else mtime + 1
+            return self.entries[citekey].timestamp < boundary
+        else:
+            return True
+
+
 class DataCache(object):
     """ DataCache class, provides a very similar interface as DataBroker
 
@@ -27,11 +98,7 @@ class DataCache(object):
         self.directory = directory
         self._databroker = None
         self._metacache = None
-        self._metacache_modified = False # if True, cache will need to be written to disk.
         self._bibcache = None
-        self._bibcache_modified = False # if True, cache will need to be written to disk.
-        # does the filesystem supports subsecond stat time?
-        self.nsec_support = os.stat('.').st_mtime != int(os.stat('.').st_mtime)
         if create:
             self._create()
 
@@ -44,98 +111,47 @@ class DataCache(object):
             self._databroker = databroker.DataBroker(self.directory, create=False)
         return self._databroker
 
-    def _create(self):
-        self._databroker = databroker.DataBroker(self.directory, create=True)
-
-    def _try_pull_cache(self, name):
-        try:
-            return self.databroker.pull_cache(name)
-        except Exception as e:  # take no prisonners; if something is wrong, no cache.
-            return {}
-
     @property
     def metacache(self):
         if self._metacache is None:
-            self._metacache = self._try_pull_cache('metacache')
+            self._metacache = CacheEntrySet(self.databroker, 'metacache')
         return self._metacache
 
     @property
     def bibcache(self):
         if self._bibcache is None:
-            self._bibcache = self._try_pull_cache('bibcache')
+            self._bibcache = CacheEntrySet(self.databroker, 'bibcache')
         return self._bibcache
+
+    def _create(self):
+        self._databroker = databroker.DataBroker(self.directory, create=True)
 
     def flush_cache(self, force=False):
         """Write cache to disk"""
-        if force or self._metacache_modified:
-            self.databroker.push_cache('metacache', self.metacache)
-            self._metacache_modified = False
-        if force or self._bibcache_modified:
-            self.databroker.push_cache('bibcache', self.bibcache)
-            self._bibcache_modified = False
-
-    def _is_uptodate(self, cached_data, file_mtime):
-        boundary = file_mtime if self.nsec_support else file_mtime + 1
-        return cached_data.timestamp <= boundary
+        self.metacache.flush(force=force)
+        self.bibcache.flush(force=force)
 
     def pull_metadata(self, citekey):
-        mtime = self.databroker.filebroker.mtime_metafile(citekey)
-        if citekey in self.metacache:
-            cached_metadata = self.metacache[citekey]
-            if self._is_uptodate(cached_metadata, mtime):
-                return cached_metadata.data
-
-        # if we get here, we must update the cache.
-        t = time.time()
-        data = self.databroker.pull_metadata(citekey)
-        self.metacache[citekey] = CacheEntry(data, t)
-        self._metacache_modified = True
-        return self.metacache[citekey].data
+        return self.metacache.pull(citekey)
 
     def pull_bibentry(self, citekey):
-        mtime = self.databroker.filebroker.mtime_bibfile(citekey)
-        if citekey in self.bibcache:
-            cached_bibdata = self.bibcache[citekey]
-            if self._is_uptodate(cached_bibdata, mtime):
-                return cached_bibdata.data
-
-        # if we get here, we must update the cache.
-        t = time.time()
-        data = self.databroker.pull_bibentry(citekey)
-        self.bibcache[citekey] = CacheEntry(data, t)
-        self._bibcache_modified = True
-        return self.bibcache[citekey].data
+        return self.bibcache.pull(citekey)
 
     def push_metadata(self, citekey, metadata):
-        self.databroker.push_metadata(citekey, metadata)
-        mtime = self.databroker.filebroker.mtime_metafile(citekey)
-        #print('push', mtime, metadata)
-        self.metacache[citekey] = CacheEntry(metadata, mtime)
-        self._metacache_modified = True
+        self.metacache.push(citekey, metadata)
 
     def push_bibentry(self, citekey, bibdata):
-        self.databroker.push_bibentry(citekey, bibdata)
-        mtime = self.databroker.filebroker.mtime_bibfile(citekey)
-        self.bibcache[citekey] = CacheEntry(bibdata, mtime)
-        self._bibcache_modified = True
+        self.bibcache.push(citekey, bibdata)
 
     def push(self, citekey, metadata, bibdata):
         self.databroker.push(citekey, metadata, bibdata)
-        mtime = self.databroker.filebroker.mtime_metafile(citekey)
-        self.metacache[citekey] = CacheEntry(metadata, mtime)
-        self._metacache_modified = True
-        mtime = self.databroker.filebroker.mtime_bibfile(citekey)
-        self.bibcache[citekey] = CacheEntry(bibdata, mtime)
-        self._bibcache_modified = True
+        self.metacache.push_to_cache(citekey, metadata)
+        self.bibcache.push_to_cache(citekey, bibdata)
 
     def remove(self, citekey):
         self.databroker.remove(citekey)
-        if citekey in self.metacache:
-            self.metacache.pop(citekey)
-            self._metacache_modified = True
-        if citekey in self.bibcache:
-            self.bibcache.pop(citekey)
-            self._bibcache_modified = True
+        self.metacache.remove_from_cache(citekey)
+        self.bibcache.remove_from_cache(citekey)
 
     def exists(self, citekey, meta_check=False):
         return self.databroker.exists(citekey, meta_check=meta_check)
