@@ -47,22 +47,22 @@ class DataCache(object):
     def _create(self):
         self._databroker = databroker.DataBroker(self.directory, create=True)
 
+    def _try_pull_cache(self, name):
+        try:
+            return self.databroker.pull_cache(name)
+        except Exception as e:  # take no prisonners; if something is wrong, no cache.
+            return {}
+
     @property
     def metacache(self):
         if self._metacache is None:
-            try:
-                self._metacache = self.databroker.pull_cache('metacache')
-            except Exception as e: # take no prisonners; if something is wrong, no cache.
-                self._metacache = {}
+            self._metacache = self._try_pull_cache('metacache')
         return self._metacache
 
     @property
     def bibcache(self):
         if self._bibcache is None:
-            try:
-                self._bibcache = self.databroker.pull_cache('bibcache')
-            except Exception as e:
-                self._bibcache = {}
+            self._bibcache = self._try_pull_cache('bibcache')
         return self._bibcache
 
     def flush_cache(self, force=False):
@@ -74,12 +74,15 @@ class DataCache(object):
             self.databroker.push_cache('bibcache', self.bibcache)
             self._bibcache_modified = False
 
+    def _is_uptodate(self, cached_data, file_mtime):
+        boundary = file_mtime if self.nsec_support else file_mtime + 1
+        return cached_data.timestamp <= boundary
+
     def pull_metadata(self, citekey):
         mtime = self.databroker.filebroker.mtime_metafile(citekey)
         if citekey in self.metacache:
             cached_metadata = self.metacache[citekey]
-            boundary = mtime if self.nsec_support else mtime + 1
-            if cached_metadata.timestamp >= boundary:
+            if self._is_uptodate(cached_metadata, mtime):
                 return cached_metadata.data
 
         # if we get here, we must update the cache.
@@ -93,8 +96,7 @@ class DataCache(object):
         mtime = self.databroker.filebroker.mtime_bibfile(citekey)
         if citekey in self.bibcache:
             cached_bibdata = self.bibcache[citekey]
-            boundary = mtime if self.nsec_support else mtime + 1
-            if cached_bibdata.timestamp >= boundary:
+            if self._is_uptodate(cached_bibdata, mtime):
                 return cached_bibdata.data
 
         # if we get here, we must update the cache.
