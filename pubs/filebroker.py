@@ -6,6 +6,8 @@ from .content import (check_file, check_directory, read_text_file, write_file,
                       system_path, check_content, content_type, get_content,
                       copy_content)
 
+from . import content
+
 
 def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
@@ -24,22 +26,49 @@ class FileBroker(object):
     """
 
     def __init__(self, directory, create=False):
-        self.directory = directory
-        self.metadir = os.path.join(self.directory, 'meta')
-        self.bibdir  = os.path.join(self.directory, 'bib')
+        self.directory = os.path.expanduser(directory)
+        self.metadir   = os.path.join(self.directory, 'meta')
+        self.bibdir    = os.path.join(self.directory, 'bib')
+        self.cachedir  = os.path.join(self.directory, '.cache')
         if create:
             self._create()
         check_directory(self.directory)
         check_directory(self.metadir)
         check_directory(self.bibdir)
+        # cache directory is created (if absent) if other directories exists.
+        if not check_directory(self.cachedir, fail=False):
+            os.mkdir(system_path(self.cachedir))
 
     def _create(self):
-        if not check_directory(self.directory, fail = False):
+        """Create meta and bib directories if absent"""
+        if not check_directory(self.directory, fail=False):
             os.mkdir(system_path(self.directory))
-        if not check_directory(self.metadir, fail = False):
+        if not check_directory(self.metadir, fail=False):
             os.mkdir(system_path(self.metadir))
-        if not check_directory(self.bibdir, fail = False):
+        if not check_directory(self.bibdir, fail=False):
             os.mkdir(system_path(self.bibdir))
+
+    def pull_cachefile(self, filename):
+        filepath = os.path.join(self.cachedir, filename)
+        return content.read_binary_file(filepath)
+
+    def push_cachefile(self, filename, data):
+        filepath = os.path.join(self.cachedir, filename)
+        write_file(filepath, data, mode='wb')
+
+    def mtime_metafile(self, citekey):
+        try:
+            filepath = os.path.join(self.metadir, citekey + '.yaml')
+            return os.path.getmtime(filepath)
+        except OSError:
+            raise IOError("'{}' not found.".format(filepath))
+
+    def mtime_bibfile(self, citekey):
+        try:
+            filepath = os.path.join(self.bibdir, citekey + '.bib')
+            return os.path.getmtime(filepath)
+        except OSError:
+            raise IOError("'{}' not found.".format(filepath))
 
     def pull_metafile(self, citekey):
         filepath = os.path.join(self.metadir, citekey + '.yaml')

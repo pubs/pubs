@@ -41,6 +41,9 @@ class Repository(object):
         self._citekeys = None
         self.databroker = DataCache(self.conf['main']['pubsdir'], create=create)
 
+    def close(self):
+        self.databroker.close()
+
     @property
     def citekeys(self):
         if self._citekeys is None:
@@ -106,7 +109,7 @@ class Repository(object):
             self.databroker.remove_note(citekey, silent=True)
         except IOError:
             pass # FIXME: if IOError is about being unable to
-                 # remove the file, we need to issue an error.I
+                 # remove the file, we need to issue an error.
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
 

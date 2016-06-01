@@ -17,8 +17,7 @@ def isbn2bibtex(isbn):
 
     url = 'http://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
     r = requests.get(url)
-    soup = BeautifulSoup(r.text)
+    soup = BeautifulSoup(r.text, "html.parser")
     citation = soup.find("textarea").text
 
     return citation
-
