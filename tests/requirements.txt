@@ -1,4 +1,4 @@
 # those are the additional packages required to run the tests
 six
--e git+http://github.com/humm/pyfakefs@feat/float_mtime#egg=pyfakefs
+-e git+http://github.com/humm/pyfakefs@two_fixes#egg=pyfakefs 
 ddt

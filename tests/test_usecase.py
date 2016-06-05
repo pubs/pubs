@@ -2,9 +2,10 @@
 from __future__ import print_function, unicode_literals
 
 import unittest
-import re
 import os
+import re
 import sys
+import shutil
 
 import six
 import ddt
@@ -65,15 +66,17 @@ class TestFakeInput(unittest.TestCase):
             color.input()
 
 
-class CommandTestCase(unittest.TestCase):
+class CommandTestCase(fake_env.TestFakeFs):
     """Abstract TestCase intializing the fake filesystem."""
 
     maxDiff = 1000000
 
     def setUp(self, nsec_stat=True):
-        self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update],             nsec_stat=nsec_stat)
-        self.default_pubs_dir = self.fs['os'].path.expanduser('~/.pubs')
-        self.default_conf_path = self.fs['os'].path.expanduser('~/.pubsrc')
+        super(CommandTestCase, self).setUp()
+        os.stat_float_times(nsec_stat)
+        # self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update], nsec_stat=nsec_stat)
+        self.default_pubs_dir = os.path.expanduser('~/.pubs')
+        self.default_conf_path = os.path.expanduser('~/.pubsrc')
 
     def execute_cmds(self, cmds, capture_output=CAPTURE_OUTPUT):
         """ Execute a list of commands, and capture their output
@@ -131,7 +134,7 @@ class CommandTestCase(unittest.TestCase):
                 raise FakeSystemExit(exc).with_traceback(tb)
 
     def tearDown(self):
-        fake_env.unset_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj])
+        pass
 
 
 class DataCommandTestCase(CommandTestCase):
@@ -152,18 +155,18 @@ class TestInit(CommandTestCase):
     def test_init(self):
         pubsdir = os.path.expanduser('~/pubs_test2')
         self.execute_cmds(['pubs init -p {}'.format(pubsdir)])
-        self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
+        self.assertEqual(set(os.listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes', '.cache'})
 
     def test_init2(self):
         pubsdir = os.path.expanduser('~/.pubs')
         self.execute_cmds(['pubs init'])
-        self.assertEqual(set(self.fs['os'].listdir(pubsdir)),
+        self.assertEqual(set(os.listdir(pubsdir)),
                          {'bib', 'doc', 'meta', 'notes', '.cache'})
 
     def test_init_config(self):
         self.execute_cmds(['pubs init'])
-        self.assertTrue(self.fs['os'].path.isfile(self.default_conf_path))
+        self.assertTrue(os.path.isfile(self.default_conf_path))
 
 
 class TestAdd(DataCommandTestCase):
@@ -173,35 +176,35 @@ class TestAdd(DataCommandTestCase):
                 'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
-        meta_dir = self.fs['os'].path.join(self.default_pubs_dir, 'meta')
-        doc_dir = self.fs['os'].path.join(self.default_pubs_dir, 'doc')
-        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'Page99.bib'})
-        self.assertEqual(set(self.fs['os'].listdir(meta_dir)), {'Page99.yaml'})
-        self.assertEqual(set(self.fs['os'].listdir(doc_dir)), {'Page99.pdf'})
+        bib_dir = os.path.join(self.default_pubs_dir, 'bib')
+        meta_dir = os.path.join(self.default_pubs_dir, 'meta')
+        doc_dir = os.path.join(self.default_pubs_dir, 'doc')
+        self.assertEqual(set(os.listdir(bib_dir)), {'Page99.bib'})
+        self.assertEqual(set(os.listdir(meta_dir)), {'Page99.yaml'})
+        self.assertEqual(set(os.listdir(doc_dir)), {'Page99.pdf'})
 
     def test_add_bibutils(self):
         cmds = ['pubs init',
                 'pubs add /bibexamples/bibutils.bib',
                 ]
         self.execute_cmds(cmds)
-        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
-        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'Page99.bib'})
+        bib_dir = os.path.join(self.default_pubs_dir, 'bib')
+        self.assertEqual(set(os.listdir(bib_dir)), {'Page99.bib'})
 
     def test_add2(self):
         cmds = ['pubs init -p /not_default',
                 'pubs add /data/pagerank.bib -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        self.assertEqual(set(self.fs['os'].listdir('/not_default/doc')), {'Page99.pdf'})
+        self.assertEqual(set(os.listdir('/not_default/doc')), {'Page99.pdf'})
 
     def test_add_citekey(self):
         cmds = ['pubs init',
                 'pubs add -k CustomCitekey /data/pagerank.bib',
                 ]
         self.execute_cmds(cmds)
-        bib_dir = self.fs['os'].path.join(self.default_pubs_dir, 'bib')
-        self.assertEqual(set(self.fs['os'].listdir(bib_dir)), {'CustomCitekey.bib'})
+        bib_dir = os.path.join(self.default_pubs_dir, 'bib')
+        self.assertEqual(set(os.listdir(bib_dir)), {'CustomCitekey.bib'})
 
     def test_add_utf8_citekey(self):
         err = ("error: Invalid `hausdorff1949grundzüge` citekey; "
@@ -218,8 +221,8 @@ class TestAdd(DataCommandTestCase):
                 'pubs add /data/pagerank.bib --link -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        self.assertEqual(self.fs['os'].listdir(
-                self.fs['os'].path.join(self.default_pubs_dir, 'doc')),
+        self.assertEqual(os.listdir(
+                os.path.join(self.default_pubs_dir, 'doc')),
             [])
 
     def test_add_move_removes_doc(self):
@@ -227,7 +230,7 @@ class TestAdd(DataCommandTestCase):
                 'pubs add /data/pagerank.bib --move -d /data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
+        self.assertFalse(os.path.exists('/data/pagerank.pdf'))
 
     def test_add_twice_fails(self):
         cmds = ['pubs init',
@@ -261,7 +264,7 @@ class TestList(DataCommandTestCase):
 
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p /testrepo'])
-        self.fs['shutil'].rmtree('testrepo')
+        shutil.rmtree('testrepo')
         testrepo = os.path.join(os.path.dirname(__file__), 'testrepo')
         fake_env.copy_dir(self.fs, testrepo, 'testrepo')
         cmds = ['pubs list',
@@ -423,8 +426,8 @@ class TestUsecase(DataCommandTestCase):
                 'pubs remove -f turing1950computing',
                ]
         self.execute_cmds(cmds)
-        docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
-        self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
+        docdir = os.path.expanduser('~/.pubs/doc/')
+        self.assertNotIn('turing-mind-1950.pdf', os.listdir(docdir))
 
     def test_tag_list(self):
         correct = ['Initializing pubs in /paper_first\n',
@@ -550,12 +553,12 @@ class TestUsecase(DataCommandTestCase):
                 'pubs doc add data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
-        self.assertTrue(self.fs['os'].path.exists(
-            self.fs['os'].path.join(self.default_pubs_dir,
+        self.assertTrue(os.path.exists(
+            os.path.join(self.default_pubs_dir,
                                     'doc',
                                     'Page99.pdf')))
         # Also test that do not remove original
-        self.assertTrue(self.fs['os'].path.exists('/data/pagerank.pdf'))
+        self.assertTrue(os.path.exists('/data/pagerank.pdf'))
 
     def test_doc_add_with_move(self):
         cmds = ['pubs init -p paper_second/',
@@ -563,7 +566,7 @@ class TestUsecase(DataCommandTestCase):
                 'pubs doc add --move data/pagerank.pdf Page99'
                ]
         self.execute_cmds(cmds)
-        self.assertFalse(self.fs['os'].path.exists('/data/pagerank.pdf'))
+        self.assertFalse(os.path.exists('/data/pagerank.pdf'))
 
     def test_doc_remove(self):
         cmds = ['pubs init',
@@ -572,8 +575,8 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs doc remove Page99', ['y']),
                ]
         self.execute_cmds(cmds)
-        docdir = self.fs['os'].path.expanduser('~/.pubs/doc/')
-        self.assertNotIn('turing-mind-1950.pdf', self.fs['os'].listdir(docdir))
+        docdir = os.path.expanduser('~/.pubs/doc/')
+        self.assertNotIn('turing-mind-1950.pdf', os.listdir(docdir))
 
     def test_doc_export(self):
         cmds = ['pubs init',
@@ -583,11 +586,11 @@ class TestUsecase(DataCommandTestCase):
                 'pubs doc export page100 /'
                 ]
         self.execute_cmds(cmds)
-        self.assertIn('page100.pdf', self.fs['os'].listdir('/'))
+        self.assertIn('page100.pdf', os.listdir('/'))
 
 
     def test_alternate_config(self):
-        alt_conf = self.fs['os'].path.expanduser('~/.alt_conf')
+        alt_conf = os.path.expanduser('~/.alt_conf')
         cmds = ['pubs -c ' + alt_conf + ' init',
                 'pubs --config ' + alt_conf + ' import data/ Page99',
                 'pubs list -c ' + alt_conf
@@ -596,8 +599,8 @@ class TestUsecase(DataCommandTestCase):
         # check if pubs works as expected
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
         # check whether we actually changed the config file
-        self.assertFalse(self.fs['os'].path.isfile(self.default_conf_path))
-        self.assertTrue(self.fs['os'].path.isfile(alt_conf))
+        self.assertFalse(os.path.isfile(self.default_conf_path))
+        self.assertTrue(os.path.isfile(alt_conf))
 
 
 

@@ -51,9 +51,9 @@ def system_path(path):
 
 def _open(path, mode):
         if mode.find('b') == -1:
-            return io.open(system_path(path), mode, encoding='utf-8')
+            return open(system_path(path), mode, encoding='utf-8')
         else:
-            return io.open(system_path(path), mode)
+            return open(system_path(path), mode)
 
 
 def check_file(path, fail=True):

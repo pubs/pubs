@@ -12,7 +12,7 @@ import str_fixtures
 from pubs import endecoder
 
 
-class TestDataBroker(unittest.TestCase):
+class TestDataBroker(fake_env.TestFakeFs):
 
     def test_databroker(self):
 
@@ -21,7 +21,7 @@ class TestDataBroker(unittest.TestCase):
         page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
 
         for db_class in [databroker.DataBroker, datacache.DataCache]:
-            self.fs = fake_env.create_fake_fs([content, filebroker, conf])
+            self.reset_fs()
 
             db = db_class('tmp', create=True)
 
@@ -39,7 +39,6 @@ class TestDataBroker(unittest.TestCase):
                 self.assertEqual(pulled[key], page99_bibentry['Page99'][key])
             self.assertEqual(db.pull_bibentry('citekey1'), page99_bibentry)
 
-            fake_env.unset_fake_fs([content, filebroker])
 
     def test_existing_data(self):
 
@@ -47,7 +46,8 @@ class TestDataBroker(unittest.TestCase):
         page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
 
         for db_class in [databroker.DataBroker, datacache.DataCache]:
-            self.fs = fake_env.create_fake_fs([content, filebroker])
+            self.reset_fs()
+
             fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'testrepo'), 'repo')
 
             db = db_class('repo', create=False)
@@ -70,8 +70,6 @@ class TestDataBroker(unittest.TestCase):
             self.assertTrue(content.check_file('repo/doc/Larry99.pdf', fail=False))
 
             db.remove_doc('docsdir://Page99.pdf')
-
-            fake_env.unset_fake_fs([content, filebroker])
 
 
 if __name__ == '__main__':

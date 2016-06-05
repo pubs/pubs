@@ -7,7 +7,7 @@ import unittest
 
 import dotdot
 from pyfakefs import (fake_filesystem, fake_filesystem_shutil,
-                      fake_filesystem_glob)
+                      fake_filesystem_glob, fake_filesystem_unittest)
 
 # pyfakefs uses cStringIO under Python 2.x, which does not accept arbitrary unicode strings
 # (see https://docs.python.org/2/library/stringio.html#module-cStringIO)
@@ -24,96 +24,41 @@ from pubs import content, filebroker
 
     # code for fake fs
 
-real_os = os
-real_open = open
+real_os     = os
+real_os_path = os.path
+real_open   = open
 real_shutil = shutil
-real_glob = glob
-real_io = io
+real_glob   = glob
+real_io     = io
 
 
-ENCODING = 'utf8'
-
-class FakeIO(object):
-
-    def __init__(self, fake_open):
-        self.fake_open = fake_open
-
-    def open(self, file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True):
-        # encoding is ignored by pyfakefs
-        # https://github.com/jmcgeheeiv/pyfakefs/blob/master/pyfakefs/fake_filesystem.py#L2143
-        return self.fake_open(file, mode=mode, buffering=buffering)
-
-    BytesIO = real_io.BytesIO
-    StringIO = real_io.StringIO
-
-
-def create_fake_fs(module_list, nsec_stat=True):
-
-    fake_fs = fake_filesystem.FakeFilesystem(nsec_stat=nsec_stat)
-    fake_os = fake_filesystem.FakeOsModule(fake_fs)
-    fake_open = fake_filesystem.FakeFileOpen(fake_fs)
-    fake_shutil = fake_filesystem_shutil.FakeShutilModule(fake_fs)
-    fake_glob = fake_filesystem_glob.FakeGlobModule(fake_fs)
-    fake_io = FakeIO(fake_open)
-
-    fake_fs.CreateDirectory(fake_os.path.expanduser('~'))
-
-    sys.modules['os']     = fake_os
-    sys.modules['shutil'] = fake_shutil
-    sys.modules['glob']   = fake_glob
-    sys.modules['io']     = fake_io
-
-    for md in module_list:
-        md.os = fake_os
-        md.shutil = fake_shutil
-        md.open = fake_open
-        md.file = None
-        md.io = fake_io
-
-    return {'fs': fake_fs,
-            'os': fake_os,
-            'open': fake_open,
-            'io': fake_io,
-            'shutil': fake_shutil,
-            'glob': fake_glob}
-
-
-def unset_fake_fs(module_list):
-    try:
-        __builtins__.open = real_open
-    except AttributeError:
-        __builtins__['open'] = real_open
-
-    sys.modules['os']     = real_os
-    sys.modules['shutil'] = real_shutil
-    sys.modules['glob']   = real_glob
-    sys.modules['io']     = real_io
-
-    for md in module_list:
-        md.os = real_os
-        md.shutil = real_shutil
-        md.open = real_open
-        md.io = real_io
-
-
-def copy_dir(fs, real_dir, fake_dir = None):
+def copy_dir(fs, real_dir, fake_dir=None):
     """Copy all the data directory into the fake fs"""
     if fake_dir is None:
         fake_dir = real_dir
+
     for filename in real_os.listdir(real_dir):
-        real_path = os.path.abspath(real_os.path.join(real_dir, filename))
-        fake_path = fs['os'].path.join(fake_dir, filename)
+        real_path = real_os.path.join(real_dir, filename)
+        fake_path = os.path.join(fake_dir, filename)
         if real_os.path.isfile(real_path):
             _, ext = real_os.path.splitext(filename)
+            #print('copied into {}'.format(os.path.abspath(fake_path)))
             if ext in ['.yaml', '.bib', '.txt', '.md']:
-                with real_io.open(real_path, 'r', encoding='utf-8') as f:
-                    fs['fs'].CreateFile(fake_path, contents=f.read())
+                with real_open(real_path, 'r', encoding='utf-8') as f:
+                    fs.CreateFile(os.path.abspath(fake_path), contents=f.read())
             else:
-                with real_io.open(real_path, 'rb') as f:
-                    fs['fs'].CreateFile(fake_path, contents=f.read())
+                with real_open(real_path, 'rb') as f:
+                    fs.CreateFile(fake_path, contents=f.read())
 
+        #print(real_os.stat)
+        import inspect
+        #print(inspect.getsource(real_os.path.isdir))
+        #print(real_os.stat('/Users/fabien/research/install/pubs/tests/'+real_path))
+        import stat
+        #print('BLA', stat.S_ISDIR(real_os.stat('/Users/fabien/research/install/pubs/tests/'+real_path).st_mode))
+        #print('/Users/fabien/research/install/pubs/tests/'+real_path, real_os_path.isdir('/Users/fabien/research/install/pubs/tests/'+real_path))
         if real_os.path.isdir(real_path):
-            fs['fs'].CreateDirectory(fake_path)
+            fs.CreateDirectory(fake_path)
             copy_dir(fs, real_path, fake_path)
 
 
@@ -179,11 +124,12 @@ class FakeInput():
             raise self.UnexpectedInput('Unexpected user input in test.')
 
 
-class TestFakeFs(unittest.TestCase):
-    """Abstract TestCase intializing the fake filesystem."""
+class TestFakeFs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
-        self.fs = create_fake_fs([content, filebroker])
+        self.setUpPyfakefs()
+        self.fs.CreateDirectory(os.path.expanduser('~'))
 
-    def tearDown(self):
-        unset_fake_fs([content, filebroker])
+    def reset_fs(self):
+        self._stubber.tearDown() # renew the filesystem
+        self.setUp()
