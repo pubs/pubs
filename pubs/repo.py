@@ -39,7 +39,8 @@ class Repository(object):
     def __init__(self, conf, create=False):
         self.conf = conf
         self._citekeys = None
-        self.databroker = DataCache(self.conf['main']['pubsdir'], create=create)
+        self.databroker = DataCache(self.conf['main']['pubsdir'],
+                                    self.conf['main']['docsdir'], create=create)
 
     def close(self):
         self.databroker.close()

@@ -94,8 +94,9 @@ class DataCache(object):
 
         For the moment, only (1) is implemented.
     """
-    def __init__(self, directory, create=False):
-        self.directory = directory
+    def __init__(self, pubsdir, docsdir, create=False):
+        self.pubsdir = pubsdir
+        self.docsdir = docsdir
         self._databroker = None
         self._metacache = None
         self._bibcache = None
@@ -108,7 +109,8 @@ class DataCache(object):
     @property
     def databroker(self):
         if self._databroker is None:
-            self._databroker = databroker.DataBroker(self.directory, create=False)
+            self._databroker = databroker.DataBroker(self.pubsdir, self.docsdir,
+                                                     create=False)
         return self._databroker
 
     @property
@@ -124,7 +126,8 @@ class DataCache(object):
         return self._bibcache
 
     def _create(self):
-        self._databroker = databroker.DataBroker(self.directory, create=True)
+        self._databroker = databroker.DataBroker(self.pubsdir, self.docsdir,
+                                                 create=True)
 
     def flush_cache(self, force=False):
         """Write cache to disk"""

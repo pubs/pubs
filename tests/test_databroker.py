@@ -23,7 +23,7 @@ class TestDataBroker(fake_env.TestFakeFs):
         for db_class in [databroker.DataBroker, datacache.DataCache]:
             self.reset_fs()
 
-            db = db_class('tmp', create=True)
+            db = db_class('tmp', 'tmp/doc', create=True)
 
             db.push_metadata('citekey1', page99_metadata)
             self.assertFalse(db.exists('citekey1', meta_check=True))
@@ -50,7 +50,7 @@ class TestDataBroker(fake_env.TestFakeFs):
 
             fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'testrepo'), 'repo')
 
-            db = db_class('repo', create=False)
+            db = db_class('repo', 'repo/doc', create=False)
 
             self.assertEqual(db.pull_bibentry('Page99'), page99_bibentry)
 

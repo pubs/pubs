@@ -9,11 +9,11 @@ class DataBroker(object):
         Requests are optimistically made, and exceptions are raised if something goes wrong.
     """
 
-    def __init__(self, directory, create=False):
-        self.filebroker = filebroker.FileBroker(directory, create=create)
+    def __init__(self, pubsdir, docsdir, create=False):
+        self.filebroker = filebroker.FileBroker(pubsdir, create=create)
         self.endecoder  = endecoder.EnDecoder()
-        self.docbroker  = filebroker.DocBroker(directory, scheme='docsdir', subdir='doc')
-        self.notebroker = filebroker.DocBroker(directory, scheme='notesdir', subdir='notes')
+        self.docbroker  = filebroker.DocBroker(docsdir, scheme='docsdir', subdir='')
+        self.notebroker = filebroker.DocBroker(pubsdir, scheme='notesdir', subdir='notes')
 
     # cache
 

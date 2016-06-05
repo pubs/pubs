@@ -150,7 +150,7 @@ class DocBroker(object):
     def __init__(self, directory, scheme='docsdir', subdir='doc'):
         self.scheme = scheme
         self.docdir = os.path.join(directory, subdir)
-        if not check_directory(self.docdir, fail = False):
+        if not check_directory(self.docdir, fail=False):
             os.mkdir(system_path(self.docdir))
 
     def in_docsdir(self, docpath):

@@ -11,12 +11,19 @@ from .spec import configspec
 
 DFT_CONFIG_PATH = os.path.expanduser('~/.pubsrc')
 
+def post_process_conf(conf):
+    """Do some post processing on the configuration"""
+    if conf['main']['docsdir'] == 'docsdir://':
+        conf['main']['docsdir'] = os.path.join(conf['main']['pubsdir'], 'doc')
+    return conf
+
 
 def load_default_conf():
     """Load the default configuration"""
     default_conf = configobj.ConfigObj(configspec=configspec)
     validator = validate.Validator()
     default_conf.validate(validator, copy=True)
+    default_conf = post_process_conf(default_conf)
     return default_conf
 
 
@@ -52,6 +59,7 @@ def load_conf(check=True, path=None):
     if check:
         check_conf(conf)
     conf.filename = path
+    conf = post_process_conf(conf)
     return conf
 
 
