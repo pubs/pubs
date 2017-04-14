@@ -3,33 +3,22 @@ import io
 import os
 import shutil
 import glob
-import unittest
 
 import dotdot
 from pyfakefs import (fake_filesystem, fake_filesystem_shutil,
                       fake_filesystem_glob, fake_filesystem_unittest)
 
-# pyfakefs uses cStringIO under Python 2.x, which does not accept arbitrary unicode strings
-# (see https://docs.python.org/2/library/stringio.html#module-cStringIO)
-# io.StringIO does not accept `str`, so we're left with the StringIO module
-# PS: this nonsense explains why Python 3.x was created.
-try:
-    import StringIO
-    fake_filesystem.io = StringIO
-except ImportError:
-    pass
-
 from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
 from pubs import content, filebroker
 
-    # code for fake fs
+# code for fake fs
 
-real_os     = os
+real_os      = os
 real_os_path = os.path
-real_open   = open
-real_shutil = shutil
-real_glob   = glob
-real_io     = io
+real_open    = open
+real_shutil  = shutil
+real_glob    = glob
+real_io      = io
 
 
 def copy_dir(fs, real_dir, fake_dir=None):
@@ -42,21 +31,13 @@ def copy_dir(fs, real_dir, fake_dir=None):
         fake_path = os.path.join(fake_dir, filename)
         if real_os.path.isfile(real_path):
             _, ext = real_os.path.splitext(filename)
-            #print('copied into {}'.format(os.path.abspath(fake_path)))
             if ext in ['.yaml', '.bib', '.txt', '.md']:
-                with real_open(real_path, 'r', encoding='utf-8') as f:
+                with real_io.open(real_path, 'r', encoding='utf-8') as f:
                     fs.CreateFile(os.path.abspath(fake_path), contents=f.read())
             else:
-                with real_open(real_path, 'rb') as f:
+                with real_io.open(real_path, 'rb') as f:
                     fs.CreateFile(fake_path, contents=f.read())
 
-        #print(real_os.stat)
-        import inspect
-        #print(inspect.getsource(real_os.path.isdir))
-        #print(real_os.stat('/Users/fabien/research/install/pubs/tests/'+real_path))
-        import stat
-        #print('BLA', stat.S_ISDIR(real_os.stat('/Users/fabien/research/install/pubs/tests/'+real_path).st_mode))
-        #print('/Users/fabien/research/install/pubs/tests/'+real_path, real_os_path.isdir('/Users/fabien/research/install/pubs/tests/'+real_path))
         if real_os.path.isdir(real_path):
             fs.CreateDirectory(fake_path)
             copy_dir(fs, real_path, fake_path)
@@ -131,5 +112,5 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
         self.fs.CreateDirectory(os.path.expanduser('~'))
 
     def reset_fs(self):
-        self._stubber.tearDown() # renew the filesystem
+        self._stubber.tearDown()  # renew the filesystem
         self.setUp()
