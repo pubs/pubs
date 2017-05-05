@@ -51,9 +51,9 @@ def system_path(path):
 
 def _open(path, mode):
     if 'b' in mode:
-        return open(system_path(path), mode, encoding='utf-8')
-    else:
         return open(system_path(path), mode)
+    else:
+        return open(system_path(path), mode, encoding='utf-8')
 
 
 def check_file(path, fail=True):
