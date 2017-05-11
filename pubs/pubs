@@ -1,19 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import sys
-
 from pubs import pubs_cmd
 
-try:
-    pubs_cmd.execute()
-except BrokenPipeError:
-    # stdout or stderr has been closed, cleaning up
-    try:
-        sys.stdout.close()
-    except IOError:
-        pass
-    try:
-        sys.stderr.close()
-    except IOError:
-        pass
+
+pubs_cmd.execute()

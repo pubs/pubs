@@ -84,4 +84,5 @@ def execute(raw_args=sys.argv):
         args.func(conf, args)
 
     except Exception as e:
-        uis.get_ui().handle_exception(e)
+        if not uis.get_ui().handle_exception(e):
+            raise

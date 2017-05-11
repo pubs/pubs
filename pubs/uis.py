@@ -84,11 +84,14 @@ class PrintUI(object):
         sys.exit(error_code)
 
     def handle_exception(self, exc):
-        if self.debug:
-            raise
-        else:
+        """Attempts to handle exception.
+
+        :returns: True if exception has been handled (currently never happens)
+        """
+        if not self.debug:
             self.error(ustr(exc))
             self.exit()
+        return False
 
 
 class InputUI(PrintUI):
