@@ -7,7 +7,7 @@ from pubs import pubs_cmd
 
 try:
     pubs_cmd.execute()
-except IOError:
+except BrokenPipeError:
     # stdout or stderr has been closed, cleaning up
     try:
         sys.stdout.close()
