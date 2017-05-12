@@ -24,16 +24,17 @@ from ..uis import get_ui
 from .. import pretty
 from .. import color
 from ..utils import resolve_citekey
-from ..completion import CiteKeyCompletion
+from ..completion import CiteKeyOrTagCompletion, TagModifierCompletion
 
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('citekeyOrTag', nargs='?', default=None,
-                        help='citekey or tag.').completer = CiteKeyCompletion(conf)
+                        help='citekey or tag.').completer = CiteKeyOrTagCompletion(conf)
     parser.add_argument('tags', nargs='?', default=None,
                         help='If the previous argument was a citekey, then '
-                             'a list of tags separated by a +.')
+                             'a list of tags separated by + and -.'
+                        ).completer = TagModifierCompletion(conf)
     # TODO find a way to display clear help for multiple command semantics,
     #      indistinguisable for argparse. (fabien, 201306)
     return parser
@@ -70,6 +71,7 @@ def _tag_groups(tags):
             assert tag[0] == '-'
             minus_tags.append(tag[1:])
     return set(plus_tags), set(minus_tags)
+
 
 def command(conf, args):
     """Add, remove and show tags"""

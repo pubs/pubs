@@ -1,4 +1,4 @@
-from . import repo
+import re
 try:
     import argcomplete
 except ModuleNotFoundError:
@@ -13,6 +13,8 @@ except ModuleNotFoundError:
             return self._fun
 
     argcomplete = FakeModule()
+
+from . import repo
 
 
 def autocomplete(parser):
@@ -36,3 +38,22 @@ class CiteKeyCompletion(BaseCompleter):
     def _complete(self, **kwargs):
         rp = repo.Repository(self.conf)
         return rp.citekeys
+
+
+class CiteKeyOrTagCompletion(BaseCompleter):
+
+    def _complete(self, **kwargs):
+        rp = repo.Repository(self.conf)
+        return rp.citekeys.union(rp.get_tags())
+
+
+class TagModifierCompletion(BaseCompleter):
+
+    regxp = r"[^:+-]*$"  # prefix of tag after last separator
+
+    def _complete(self, prefix, **kwargs):
+        tags = repo.Repository(self.conf).get_tags()
+        start, _ = re.search(self.regxp, prefix).span()
+        partial_expr = prefix[:start]
+        t_prefix = prefix[start:]
+        return [partial_expr + t for t in tags if t.startswith(t_prefix)]
