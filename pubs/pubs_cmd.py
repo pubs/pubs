@@ -7,6 +7,10 @@ from . import commands
 from . import update
 from . import plugins
 from .__init__ import __version__
+try:
+    import argcomplete
+except ModuleNotFoundError:
+    argcomplete = None
 
 
 CORE_CMDS = collections.OrderedDict([
@@ -78,6 +82,8 @@ def execute(raw_args=sys.argv):
         for p in plugins.get_plugins().values():
             p.update_parser(subparsers)
 
+        if argcomplete is not None:
+            argcomplete.autocomplete(parser)
         # Parse and run appropriate command
         args = parser.parse_args(remaining_args)
         args.prog = "pubs"  # FIXME?

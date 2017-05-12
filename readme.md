@@ -88,6 +88,13 @@ The first command defines a new subcommand: `pubs open -w evince` will be execut
 The second starts with a bang: `!`, and is treated as a shell command.
 
 
+## Autocompletion
+
+For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) python package.
+
+For bash completion, just activate it globally with the command `activate-global-python-argcomplete`, or `activate-global-python-argcomplete --user`, that will copy `python-argcomplete.sh` to `/etc/bash_completion.d/` or `~/.bash_completion.d/`. You need to make sure that the file is evaluated on bash start. For more information or other shells please report to [argcomplete's documentation](https://argcomplete.readthedocs.io).
+
+
 ## Need more help ?
 
 You can access the self-documented configuration by using `pubs conf`, and all the commands's help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
@@ -96,7 +103,7 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 ## Requirements
 
 - python >= 2.7 or >= 3.3
-
+- [argcomplete](https://argcomplete.readthedocs.io) (optional, for autocompletion)
 
 ## Authors
 
