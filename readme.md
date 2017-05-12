@@ -26,7 +26,7 @@ Alternatively Arch Linux users can also use the [pubs-git](https://aur.archlinux
 
 ## Getting started
 
-Create your library (by default, goes to '~/.pubs/').
+Create your library (by default, goes to `~/.pubs/`).
 
     pubs init
 

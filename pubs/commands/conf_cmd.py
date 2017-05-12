@@ -3,7 +3,7 @@ from .. import config
 from .. import content
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('conf',
             help='open the configuration in an editor')
     return parser

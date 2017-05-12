@@ -9,7 +9,7 @@ from .. import color
 from .. import pretty
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('bibfile', nargs='?', default=None,
                         help='bibtex file')

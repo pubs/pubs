@@ -4,15 +4,19 @@ from .. import repo
 from ..uis import get_ui
 from ..endecoder import EnDecoder
 from ..utils import resolve_citekey
+from ..completion import CiteKeyCompletion
 
 
-def parser(subparsers):
-    parser = subparsers.add_parser('edit',
-            help='open the paper bibliographic file in an editor')
-    parser.add_argument('-m', '--meta', action='store_true', default=False,
-            help='edit metadata')
-    parser.add_argument('citekey',
-            help='citekey of the paper')
+def parser(subparsers, conf):
+    parser = subparsers.add_parser(
+        'edit',
+        help='open the paper bibliographic file in an editor')
+    parser.add_argument(
+        '-m', '--meta', action='store_true', default=False,
+        help='edit metadata')
+    parser.add_argument(
+        'citekey',
+        help='citekey of the paper').completer = CiteKeyCompletion(conf)
     return parser
 
 

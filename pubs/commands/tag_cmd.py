@@ -24,12 +24,13 @@ from ..uis import get_ui
 from .. import pretty
 from .. import color
 from ..utils import resolve_citekey
+from ..completion import CiteKeyCompletion
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('tag', help="add, remove and show tags")
     parser.add_argument('citekeyOrTag', nargs='?', default=None,
-                        help='citekey or tag.')
+                        help='citekey or tag.').completer = CiteKeyCompletion(conf)
     parser.add_argument('tags', nargs='?', default=None,
                         help='If the previous argument was a citekey, then '
                              'a list of tags separated by a +.')

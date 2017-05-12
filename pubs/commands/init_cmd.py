@@ -9,7 +9,8 @@ from ..repo import Repository
 from ..content import system_path, check_directory
 from .. import config
 
-def parser(subparsers):
+
+def parser(subparsers, conf):
     parser = subparsers.add_parser('init',
                                    help="initialize the pubs directory")
     parser.add_argument('-p', '--pubsdir', default=None,

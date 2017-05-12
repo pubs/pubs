@@ -3,7 +3,8 @@ import urllib
 
 from ..uis import get_ui
 
-def parser(subparsers):
+
+def parser(subparsers, conf):
     parser = subparsers.add_parser('websearch',
                                    help="launch a search on Google Scholar")
     parser.add_argument("search_string", nargs = '*',

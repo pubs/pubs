@@ -7,10 +7,7 @@ from . import commands
 from . import update
 from . import plugins
 from .__init__ import __version__
-try:
-    import argcomplete
-except ModuleNotFoundError:
-    argcomplete = None
+from .completion import autocomplete
 
 
 CORE_CMDS = collections.OrderedDict([
@@ -77,7 +74,7 @@ def execute(raw_args=sys.argv):
 
         # Populate the parser with core commands
         for cmd_name, cmd_mod in CORE_CMDS.items():
-            cmd_parser = cmd_mod.parser(subparsers)
+            cmd_parser = cmd_mod.parser(subparsers, conf)
             cmd_parser.set_defaults(func=cmd_mod.command)
 
         # Extend with plugin commands
@@ -85,8 +82,8 @@ def execute(raw_args=sys.argv):
         for p in plugins.get_plugins().values():
             p.update_parser(subparsers)
 
-        if argcomplete is not None:
-            argcomplete.autocomplete(parser)
+        # Eventually autocomplete
+        autocomplete(parser)
         # Parse and run appropriate command
         args = parser.parse_args(remaining_args)
         args.prog = "pubs"  # FIXME?

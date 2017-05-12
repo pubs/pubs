@@ -2,13 +2,15 @@ from ..uis import get_ui
 from .. import color
 from .. import repo
 from ..utils import resolve_citekey
+from ..completion import CiteKeyCompletion
 
-def parser(subparsers):
-    parser = subparsers.add_parser('rename', help='rename the citekey of a repository')
-    parser.add_argument('citekey',
-                        help='current citekey')
-    parser.add_argument('new_citekey',
-                        help='new citekey')
+
+def parser(subparsers, conf):
+    parser = subparsers.add_parser('rename',
+                                   help='rename the citekey of a repository')
+    parser.add_argument('citekey', help='current citekey'
+                        ).completer = CiteKeyCompletion(conf)
+    parser.add_argument('new_citekey', help='new citekey')
     return parser
 
 
@@ -26,7 +28,7 @@ def command(conf, args):
     paper = rp.pull_paper(key)
     rp.rename_paper(paper, args.new_citekey)
     ui.message("The '{}' citekey has been renamed into '{}'".format(
-                color.dye_out(args.citekey, 'citekey'),
-                color.dye_out(args.new_citekey, 'citekey')))
+        color.dye_out(args.citekey, 'citekey'),
+        color.dye_out(args.new_citekey, 'citekey')))
 
     rp.close()
