@@ -53,15 +53,18 @@ def execute(raw_args=sys.argv):
             conf_path = config.get_confpath(verify=False)  # will be checked on load
 
         # Loading config
-        if len(remaining_args) > 0 and remaining_args[0] != 'init':
-            conf = config.load_conf(path=conf_path, check=False)
+        try:
+            conf = config.load_conf(path=conf_path)
             if update.update_check(conf, path=conf.filename):
                 # an update happened, reload conf.
-                conf = config.load_conf(path=conf_path, check=False)
+                conf = config.load_conf(path=conf_path)
             config.check_conf(conf)
-        else:
-            conf = config.load_default_conf()
-            conf.filename = conf_path
+        except config.ConfigurationNotFound:
+            if len(remaining_args) == 0 or remaining_args[0] == 'init':
+                conf = config.load_default_conf()
+                conf.filename = conf_path
+            else:
+                raise
 
         uis.init_ui(conf, force_colors=top_args.force_colors)
         ui = uis.get_ui()

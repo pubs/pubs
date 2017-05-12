@@ -1,7 +1,5 @@
 import os
 import platform
-import shutil
-
 
 import configobj
 import validate
@@ -10,6 +8,16 @@ from .spec import configspec
 
 
 DFT_CONFIG_PATH = os.path.expanduser('~/.pubsrc')
+
+
+class ConfigurationNotFound(IOError):
+
+    def __init__(self, path):
+        super(ConfigurationNotFound, self).__init__(
+            "No configuration found at path {}. Maybe you need to initialize "
+            "your repository with `pubs init` or specify a --config argument."
+            "".format(path))
+
 
 def post_process_conf(conf):
     """Do some post processing on the configuration"""
@@ -50,14 +58,14 @@ def check_conf(conf):
     assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
 
 
-def load_conf(check=True, path=None):
+def load_conf(path=None):
     """Load the configuration"""
     if path is None:
         path = get_confpath(verify=True)
+    if not os.path.exists(path):
+        raise ConfigurationNotFound(path)
     with open(path, 'rb') as f:
         conf = configobj.ConfigObj(f.readlines(), configspec=configspec)
-    if check:
-        check_conf(conf)
     conf.filename = path
     conf = post_process_conf(conf)
     return conf

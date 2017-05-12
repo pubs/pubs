@@ -33,7 +33,7 @@ class FakeSystemExit(Exception):
     SystemExit exceptions are replaced by FakeSystemExit in the execute_cmds()
     function, so they can be catched by ExpectedFailure tests in Python 2.x.
 
-    If a code is accepted to raise SystemExit, catch FakeSystemExit instead.
+    If a code is expected to raise SystemExit, catch FakeSystemExit instead.
     """
     pass
 
@@ -150,6 +150,13 @@ class DataCommandTestCase(CommandTestCase):
 
 
 # Actual tests
+
+class TestAlone(CommandTestCase):
+
+    def test_alone_misses_command(self):
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(['pubs'])
+
 
 class TestInit(CommandTestCase):
 
