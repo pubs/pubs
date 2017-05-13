@@ -1,7 +1,7 @@
 import re
 try:
     import argcomplete
-except ModuleNotFoundError:
+except ImportError:
 
     class FakeModule:
 
