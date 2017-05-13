@@ -6,7 +6,7 @@ except ImportError:
     class FakeModule:
 
         @staticmethod
-        def _fun(**kwargs):
+        def _fun(*args, **kwargs):
             pass
 
         def __getattr__(self, _):
