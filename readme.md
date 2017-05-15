@@ -92,12 +92,21 @@ The second starts with a bang: `!`, and is treated as a shell command.
 
 For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) python package.
 
-For bash completion, just activate it globally with the command `activate-global-python-argcomplete`, or `activate-global-python-argcomplete --user`, that will copy `python-argcomplete.sh` to `/etc/bash_completion.d/` or `~/.bash_completion.d/`. You need to make sure that the file is evaluated on bash start. For more information or other shells please report to [argcomplete's documentation](https://argcomplete.readthedocs.io).
+For *bash* completion, just activate it globally with the command `activate-global-python-argcomplete`, or `activate-global-python-argcomplete --user`, that will copy `python-argcomplete.sh` to `/etc/bash_completion.d/` or `~/.bash_completion.d/`. You need to make sure that the file is evaluated on bash start. For more information or other shells please report to [argcomplete's documentation](https://argcomplete.readthedocs.io).
+
+For *zsh* completion, the global activation is not supported but bash completion compatibility can be used for pubs. For that, add the following to your `.zshrc`:
+
+    # Enable and load bashcompinit
+    autoload -Uz compinit bashcompinit
+    compinit
+    bashcompinit
+    # Argcomplete explicit registration for pubs
+    eval "$(register-python-argcomplete pubs)"
 
 
 ## Need more help ?
 
-You can access the self-documented configuration by using `pubs conf`, and all the commands's help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
+You can access the self-documented configuration by using `pubs conf`, and all the commands' help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
 
 
 ## Requirements
