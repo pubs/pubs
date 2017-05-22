@@ -65,7 +65,7 @@ class AliasPlugin(PapersPlugin):
             for name, definition in conf['plugins']['alias'].items():
                 self.aliases.append(Alias.create_alias(name, definition))
 
-    def update_parser(self, subparsers):
+    def update_parser(self, subparsers, conf):
         """Add subcommand to the provided subparser"""
         for alias in self.aliases:
             alias_parser = alias.parser(subparsers)

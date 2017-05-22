@@ -80,7 +80,7 @@ def execute(raw_args=sys.argv):
         # Extend with plugin commands
         plugins.load_plugins(conf, ui)
         for p in plugins.get_plugins().values():
-            p.update_parser(subparsers)
+            p.update_parser(subparsers, conf)
 
         # Eventually autocomplete
         autocomplete(parser)
