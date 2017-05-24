@@ -76,9 +76,9 @@ class EnDecoder(object):
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
 
-    def encode_bibdata(self, bibdata):
+    def encode_bibdata(self, bibdata, keylist=[]):
         """Encode bibdata """
-        return '\n'.join(self._encode_bibentry(citekey, entry)
+        return '\n'.join(self._encode_bibentry(citekey, entry, keylist)
                          for citekey, entry in bibdata.items())
 
     @staticmethod
@@ -97,11 +97,11 @@ class EnDecoder(object):
             return value
 
     @staticmethod
-    def _encode_bibentry(citekey, bibentry):
+    def _encode_bibentry(citekey, bibentry, keylist):
         bibraw = '@{}{{{},\n'.format(bibentry[TYPE_KEY], citekey)
         bibentry = copy.copy(bibentry)
         for key in bibfield_order:
-            if key in bibentry:
+            if key in bibentry and (not keylist or key in keylist):
                 value = bibentry.pop(key)
                 bibraw += '    {} = {{{}}},\n'.format(
                     key, EnDecoder._encode_field(key, value))

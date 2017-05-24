@@ -28,6 +28,9 @@ edit_cmd = string(default='')
 # the full python stack is printed.
 debug = boolean(default=False)
 
+# BibTeX keys to export
+keylist = string_list(default=[])
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.

@@ -33,7 +33,7 @@ def command(conf, args):
         bib[p.citekey] = p.bibdata
 
     exporter = endecoder.EnDecoder()
-    bibdata_raw = exporter.encode_bibdata(bib)
+    bibdata_raw = exporter.encode_bibdata(bib, conf['main']['keylist'])
     ui.message(bibdata_raw)
 
     rp.close()
