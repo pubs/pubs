@@ -20,6 +20,8 @@ open_cmd = string(default=None)
 # if using a graphical editor, use the --wait or --block option, i.e.:
 # "atom --wait"
 # "kate --block"
+# If set to an empty string (default) pubs uses the value of the environment
+# variable $EDITOR.
 edit_cmd = string(default='')
 
 # If true debug mode is on which means exceptions are not catched and
