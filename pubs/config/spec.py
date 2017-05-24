@@ -11,7 +11,7 @@ docsdir = string(default="docsdir://")
 
 # Specify if a document should be copied or moved in the docdir, or only
 # linked when adding a publication.
-doc_add = option('copy', 'move', 'link', default='copy')
+doc_add = option('copy', 'move', 'link', default='link')
 
 # the command to use when opening document files
 open_cmd = string(default=None)
