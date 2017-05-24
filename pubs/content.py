@@ -1,9 +1,6 @@
 import os
 import io
-import subprocess
-import tempfile
 import shutil
-import shlex
 
 from .p3 import urlparse, HTTPConnection, urlopen
 
@@ -166,29 +163,3 @@ def copy_content(source, target, overwrite=False):
         _dump_byte_url_content(source, target)
     else:
         shutil.copy(source, target)
-
-
-def editor_input(editor, initial=u'', suffix='.tmp'):
-    """Use an editor to get input"""
-    str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-        tfile_name = temp_file.name
-        temp_file.write(str_initial)
-    cmd = shlex.split(editor)  # this enable editor command with option, e.g. gvim -f
-    cmd.append(tfile_name)
-    subprocess.call(cmd)
-    content = read_text_file(tfile_name)
-    os.remove(tfile_name)
-    return content
-
-
-def edit_file(editor, path_to_file, temporary=True):
-    if temporary:
-        check_file(path_to_file, fail=True)
-        content = read_text_file(path_to_file)
-        content = editor_input(editor, content)
-        write_file(path_to_file, content)
-    else:
-        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
-        cmd.append(path_to_file)
-        subprocess.call(cmd)

@@ -89,7 +89,7 @@ class FakeInput():
     def as_global(self):
         for md in self.module_list:
             md.input = self
-            md.editor_input = self
+            md._editor_input = self
             # if mdname.endswith('files'):
             #     md.editor_input = self
 

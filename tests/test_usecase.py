@@ -37,6 +37,7 @@ class FakeSystemExit(Exception):
     """
     pass
 
+
 # code for fake fs
 
 class TestFakeInput(unittest.TestCase):
@@ -58,10 +59,10 @@ class TestFakeInput(unittest.TestCase):
 
     def test_editor_input(self):
         other_input = fake_env.FakeInput(['yes', 'no'],
-                                         module_list=[content, color])
+                                         module_list=[uis, color])
         other_input.as_global()
-        self.assertEqual(content.editor_input(), 'yes')
-        self.assertEqual(content.editor_input(), 'no')
+        self.assertEqual(uis._editor_input(), 'yes')
+        self.assertEqual(uis._editor_input(), 'no')
         with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
             color.input()
 

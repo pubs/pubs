@@ -2,13 +2,16 @@ from __future__ import print_function
 
 import os
 import sys
+import shlex
 import locale
 import codecs
+import tempfile
+import subprocess
 
-from .content import editor_input, edit_file
 from . import color
 from . import config
 from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
+from .content import check_file, read_text_file, write_file
 
 
 # package-shared ui that can be accessed using :
@@ -36,6 +39,32 @@ def _get_local_editor():
     Use nano as a default.
     """
     return os.environ.get('EDITOR', 'nano')
+
+
+def _editor_input(editor, initial=u'', suffix='.tmp'):
+    """Use an editor to get input"""
+    str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+        tfile_name = temp_file.name
+        temp_file.write(str_initial)
+    cmd = shlex.split(editor)  # this enable editor command with option, e.g. gvim -f
+    cmd.append(tfile_name)
+    subprocess.call(cmd)
+    content = read_text_file(tfile_name)
+    os.remove(tfile_name)
+    return content
+
+
+def _edit_file(editor, path_to_file, temporary=True):
+    if temporary:
+        check_file(path_to_file, fail=True)
+        content = read_text_file(path_to_file)
+        content = _editor_input(editor, content)
+        write_file(path_to_file, content)
+    else:
+        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
+        cmd.append(path_to_file)
+        subprocess.call(cmd)
 
 
 def get_ui():
@@ -187,7 +216,7 @@ class InputUI(PrintUI):
         return [True, False][answer]
 
     def editor_input(self, initial="", suffix='.tmp'):
-        return editor_input(self.editor, initial=initial, suffix=suffix)
+        return _editor_input(self.editor, initial=initial, suffix=suffix)
 
     def edit_file(self, path, temporary):
-        edit_file(self.editor, path, temporary=temporary)
+        _edit_file(self.editor, path, temporary=temporary)
