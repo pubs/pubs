@@ -20,7 +20,7 @@ open_cmd = string(default=None)
 # if using a graphical editor, use the --wait or --block option, i.e.:
 # "atom --wait"
 # "kate --block"
-edit_cmd = string(default='')
+edit_cmd = string(default='vim')
 
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.
