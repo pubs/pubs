@@ -15,7 +15,7 @@ def command(conf, args):
 
     while True:
         # get modif from user
-        content.edit_file(conf['main']['edit_cmd'], config.get_confpath())
+        ui.edit_file(config.get_confpath())
 
         new_conf = config.load_conf(check=False)
         try:

@@ -5,7 +5,7 @@ import sys
 import locale
 import codecs
 
-from .content import editor_input
+from .content import editor_input, edit_file
 from . import color
 from . import config
 from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
@@ -188,3 +188,6 @@ class InputUI(PrintUI):
 
     def editor_input(self, initial="", suffix='.tmp'):
         return editor_input(self.editor, initial=initial, suffix=suffix)
+
+    def edit_file(self, path, temporary):
+        edit_file(self.editor, path, temporary=temporary)
