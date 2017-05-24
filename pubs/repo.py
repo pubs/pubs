@@ -21,7 +21,7 @@ class CiteKeyError(Exception):
         self.citekey = citekey
 
     def __str__(self):
-        return self.message or self.default_msg.format(self.citekey)
+        return self.message or self.default_message.format(self.citekey)
 
 
 class CiteKeyCollision(CiteKeyError):
