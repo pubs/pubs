@@ -20,6 +20,8 @@ def parser(subparsers):
             help="don't copy document files, just create a link.")
     parser.add_argument('keys', nargs='*',
             help="one or several keys to import from the file")
+    parser.add_argument('-O', '--overwrite', default=False,
+            help="Overwrite keys already in the database")
     return parser
 
 
@@ -78,7 +80,7 @@ def command(conf, args):
         if isinstance(p, Exception):
             ui.error(u'Could not load entry for citekey {}.'.format(k))
         else:
-            rp.push_paper(p)
+            rp.push_paper(p, overwrite=args.overwrite)
             ui.info(u'{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
             docfile = bibstruct.extract_docfile(p.bibdata)
             if docfile is None:
