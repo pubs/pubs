@@ -106,7 +106,7 @@ class EnDecoder(object):
                 bibraw += '    {} = {{{}}},\n'.format(
                     key, EnDecoder._encode_field(key, value))
         for key, value in bibentry.items():
-            if key != TYPE_KEY:
+            if key != TYPE_KEY and (not keylist or key in keylist):
                 bibraw += '    {} = {{{}}},\n'.format(
                     key, EnDecoder._encode_field(key, value))
         bibraw += '}\n'

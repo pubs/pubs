@@ -29,7 +29,8 @@ edit_cmd = string(default='')
 debug = boolean(default=False)
 
 # BibTeX keys to export
-keylist = string_list(default=[])
+keylist = force_list(default=list())
+
 
 [formating]
 
