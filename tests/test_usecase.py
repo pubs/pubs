@@ -151,6 +151,10 @@ class DataCommandTestCase(CommandTestCase):
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
 
+    def assertFileContentEqual(self, path, expected_content):
+        self.assertTrue(os.path.isfile(path))
+        self.assertEqual(content.get_content(path), expected_content)
+
 
 # Actual tests
 
@@ -391,6 +395,68 @@ class TestTag(DataCommandTestCase):
             self.execute_cmds(cmds)
 
 
+class TestNote(DataCommandTestCase):
+
+    def setUp(self):
+        super(TestNote, self).setUp()
+        init = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ]
+        self.execute_cmds(init)
+        self.note_dir = os.path.join(self.default_pubs_dir, 'notes')
+
+    def test_note_edit(self):
+        cmds = [('pubs note Page99', ['xxx']),
+                ]
+        self.execute_cmds(cmds)
+        self.assertFileContentEqual(os.path.join(self.note_dir, 'Page99.txt'),
+                                    'xxx')
+
+    def test_note_edit_extension(self):
+        config = conf.load_conf()
+        config['main']['note_extension'] = 'md'
+        conf.save_conf(config)
+        cmds = [('pubs note Page99', ['xxx']),
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(set(os.listdir(self.note_dir)), {'Page99.md'})
+        self.assertFileContentEqual(os.path.join(self.note_dir, 'Page99.md'),
+                                    'xxx')
+
+    def test_rename_with_note(self):
+        config = conf.load_conf()
+        conf.save_conf(config)
+        cmds = [('pubs note Page99', ['xxx']),
+                'pubs rename Page99 Page1999',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(set(os.listdir(self.note_dir)), {'Page1999.txt'})
+        self.assertFileContentEqual(os.path.join(self.note_dir, 'Page1999.txt'),
+                                    'xxx')
+
+    def test_rename_with_note_extension(self):
+        config = conf.load_conf()
+        config['main']['note_extension'] = 'md'
+        conf.save_conf(config)
+        cmds = [('pubs note Page99', ['xxx']),
+                'pubs rename Page99 Page1999',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(set(os.listdir(self.note_dir)), {'Page1999.md'})
+        self.assertFileContentEqual(os.path.join(self.note_dir, 'Page1999.md'),
+                                    'xxx')
+
+    def test_remove_with_note_extension(self):
+        config = conf.load_conf()
+        config['main']['note_extension'] = 'md'
+        conf.save_conf(config)
+        cmds = [('pubs note Page99', ['xxx']),
+                ('pubs remove Page99', ['y']),
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(os.listdir(self.note_dir), [])
+
+
 class TestUsecase(DataCommandTestCase):
 
     def test_first(self):
@@ -502,14 +568,14 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs list', [], line2),
                 ('pubs edit Page99', [bib3]),
                 ('pubs list', [], line3),
-               ]
+                ]
         self.execute_cmds(cmds)
 
     def test_export(self):
         cmds = ['pubs init',
                 ('pubs add', [str_fixtures.bibtex_external0]),
                 'pubs export Page99',
-               ]
+                ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]),
                          fixtures.page_bibentry)

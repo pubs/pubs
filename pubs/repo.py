@@ -107,7 +107,8 @@ class Repository(object):
         if remove_doc:
             self.remove_doc(citekey, detach_only=True)
         try:
-            self.databroker.remove_note(citekey, silent=True)
+            self.databroker.remove_note(citekey, self.conf['main']['note_extension'],
+                                        silent=True)
         except IOError:
             pass # FIXME: if IOError is about being unable to
                  # remove the file, we need to issue an error.
@@ -157,7 +158,8 @@ class Repository(object):
 
             # move note file if necessary
             try:
-                self.databroker.rename_note(old_citekey, new_citekey)
+                self.databroker.rename_note(old_citekey, new_citekey,
+                                            self.conf['main']['note_extension'])
             except IOError:
                 pass
 

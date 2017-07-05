@@ -68,8 +68,12 @@ class FakeInput():
         for md in self.module_list:
             md.input = self
             md._editor_input = self
+            md._edit_file = self.input_to_file
             # if mdname.endswith('files'):
             #     md.editor_input = self
+
+    def input_to_file(self, _, path_to_file, temporary=True):
+        content.write_file(path_to_file, self())
 
     def add_input(self, inp):
         self.inputs.append(inp)

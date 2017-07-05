@@ -187,11 +187,11 @@ class DataCache(object):
 
     # notesbroker
 
-    def real_notepath(self, citekey):
-        return self.databroker.real_notepath(citekey)
+    def real_notepath(self, citekey, extension):
+        return self.databroker.real_notepath(citekey, extension)
 
-    def remove_note(self, citekey, silent=True):
-        return self.databroker.remove_note(citekey, silent=True)
+    def remove_note(self, citekey, extension, silent=True):
+        return self.databroker.remove_note(citekey, extension, silent=True)
 
-    def rename_note(self, old_citekey, new_citekey):
-        return self.databroker.rename_note(old_citekey, new_citekey)
+    def rename_note(self, old_citekey, new_citekey, extension):
+        return self.databroker.rename_note(old_citekey, new_citekey, extension)
