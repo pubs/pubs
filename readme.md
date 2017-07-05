@@ -13,6 +13,17 @@ Pubs is built with the following principles in mind:
 **Notice:** pubs is still in early development; you should regularly make backups of your pubs repository.
 
 
+## Installation
+
+Until pubs is uploaded to Pypi, the standard way to install it is to clone the repository and call `setup.py`.
+
+    git clone https://github.com/pubs/pubs.git
+    cd pubs
+    sudo python setup.py install # remove sudo and add --user for local installation instead
+
+Alternatively Arch Linux users can also use the [pubs-git](https://aur.archlinux.org/packages/pubs-git/) AUR package.
+
+
 ## Getting started
 
 Create your library (by default, goes to '~/.pubs/').
