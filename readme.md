@@ -101,6 +101,6 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 ## Authors
 
 - [Fabien Benureau](http://fabien.benureau.com)
-- Olivier Mangin
+- [Olivier Mangin](http://olivier.mangin.com)
 - Jonathan Grizou
 - Arnold Sykosch
