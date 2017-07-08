@@ -11,7 +11,7 @@ import subprocess
 from . import color
 from . import config
 from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
-from .content import check_file, read_text_file, write_file
+from .content import check_file, read_text_file, write_file, system_path
 
 
 # package-shared ui that can be accessed using :
@@ -63,7 +63,7 @@ def _edit_file(editor, path_to_file, temporary=True):
         write_file(path_to_file, content)
     else:
         cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
-        cmd.append(path_to_file)
+        cmd.append(system_path(path_to_file))
         subprocess.call(cmd)
 
 
