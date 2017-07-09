@@ -105,10 +105,10 @@ class TestCacheEntrySet(unittest.TestCase):
         self.databroker_meta.filebroker.mtime = time.time() - 1.1
         value = self.metacache.pull('a')
         self.assertEqual(value, 'c')
-        self.databroker_meta.filebroker.mtime = time.time()
         self.databroker_bib.bib = 'b'
-        self.databroker_bib.filebroker.mtime = time.time() - 1.1
+        self.databroker_bib.filebroker.mtime = time.time()
         self.bibcache.push_to_cache('a', 'c')
+        self.databroker_bib.filebroker.mtime = time.time() - 1.1
         value = self.bibcache.pull('a')
         self.assertEqual(value, 'c')
 
@@ -142,3 +142,7 @@ class TestCacheEntrySet(unittest.TestCase):
         self.metacache.push_to_cache('a', 'b')
         self.databroker_meta.filebroker.mtime = time.time() - 1.1
         self.assertFalse(self.metacache._is_outdated('a'))
+
+
+if __name__ == '__main__':
+    unittest.main()

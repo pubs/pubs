@@ -16,6 +16,7 @@ class TestDataBroker(fake_env.TestFakeFs):
 
     def test_databroker(self):
 
+
         ende = endecoder.EnDecoder()
         page99_metadata = ende.decode_metadata(str_fixtures.metadata_raw0)
         page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
@@ -48,9 +49,9 @@ class TestDataBroker(fake_env.TestFakeFs):
         for db_class in [databroker.DataBroker, datacache.DataCache]:
             self.reset_fs()
 
-            fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'testrepo'), 'repo')
+            self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
-            db = db_class('repo', 'repo/doc', create=False)
+            db = db_class('testrepo', 'testrepo/doc', create=False)
 
             self.assertEqual(db.pull_bibentry('Page99'), page99_bibentry)
 
@@ -66,8 +67,8 @@ class TestDataBroker(fake_env.TestFakeFs):
                 db.pull_metadata('citekey')
 
             db.add_doc('Larry99', 'docsdir://Page99.pdf')
-            self.assertTrue(content.check_file('repo/doc/Page99.pdf', fail=False))
-            self.assertTrue(content.check_file('repo/doc/Larry99.pdf', fail=False))
+            self.assertTrue(content.check_file('testrepo/doc/Page99.pdf', fail=False))
+            self.assertTrue(content.check_file('testrepo/doc/Larry99.pdf', fail=False))
 
             db.remove_doc('docsdir://Page99.pdf')
 
