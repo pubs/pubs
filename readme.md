@@ -15,11 +15,13 @@ Pubs is built with the following principles in mind:
 
 ## Installation
 
-Until pubs is uploaded to Pypi, the standard way to install it is to clone the repository and call `setup.py`.
+Currently, the Pypi version is outdated. You can install the development version of `pubs`, which should be stable, with:
 
-    git clone https://github.com/pubs/pubs.git
-    cd pubs
-    sudo python setup.py install # remove sudo and add --user for local installation instead
+    pip install --upgrade git+https://github.com/pubs/pubs
+
+If `pubs` is already installed, you can upgrade with:
+
+    pip install --upgrade git+https://github.com/pubs/pubs
 
 Alternatively Arch Linux users can also use the [pubs-git](https://aur.archlinux.org/packages/pubs-git/) AUR package.
 
