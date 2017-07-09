@@ -11,7 +11,7 @@ from ..uis import get_ui
 from ..content import system_path, read_text_file
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('import',
             help='import paper(s) to the repository')
     parser.add_argument('bibpath',

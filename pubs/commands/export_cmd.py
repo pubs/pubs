@@ -4,12 +4,15 @@ from .. import repo
 from ..uis import get_ui
 from .. import endecoder
 from ..utils import resolve_citekey_list
+from ..completion import CiteKeyCompletion
 
-def parser(subparsers):
+
+def parser(subparsers, conf):
     parser = subparsers.add_parser('export', help='export bibliography')
     # parser.add_argument('-f', '--bib-format', default='bibtex',
     #         help='export format')
-    parser.add_argument('citekeys', nargs='*', help='one or several citekeys')
+    parser.add_argument('citekeys', nargs='*', help='one or several citekeys'
+                        ).completer = CiteKeyCompletion(conf)
     return parser
 
 

@@ -3,7 +3,7 @@ from .. import config
 from .. import content
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('conf',
             help='open the configuration in an editor')
     return parser
@@ -17,7 +17,7 @@ def command(conf, args):
         # get modif from user
         ui.edit_file(config.get_confpath())
 
-        new_conf = config.load_conf(check=False)
+        new_conf = config.load_conf()
         try:
             config.check_conf(new_conf)
             ui.message('The configuration file was updated.')

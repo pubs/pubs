@@ -1,6 +1,7 @@
 import shutil
 
 import io
+import sys
 from . import config
 from . import uis
 from . import color
@@ -32,6 +33,7 @@ def update_check(conf, path=None):
         return update(conf, code_version, repo_version, path=path)
 
     return False
+
 
 def update(conf, code_version, repo_version, path=None):
     """Runs an update if necessary, and return True in that case."""

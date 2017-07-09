@@ -14,7 +14,7 @@ class PapersPlugin(object):
 
     name = None
 
-    def get_commands(self, subparsers):
+    def get_commands(self, subparsers, conf):
         """Populates the parser with plugins specific command.
         Returns iterable of pairs (command name, command function to call).
         """

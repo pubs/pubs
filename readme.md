@@ -15,18 +15,20 @@ Pubs is built with the following principles in mind:
 
 ## Installation
 
-Until pubs is uploaded to Pypi, the standard way to install it is to clone the repository and call `setup.py`.
+Currently, the Pypi version is outdated. You can install the development version of `pubs`, which should be stable, with:
 
-    git clone https://github.com/pubs/pubs.git
-    cd pubs
-    sudo python setup.py install # remove sudo and add --user for local installation instead
+    pip install --upgrade git+https://github.com/pubs/pubs
+
+If `pubs` is already installed, you can upgrade with:
+
+    pip install --upgrade git+https://github.com/pubs/pubs
 
 Alternatively Arch Linux users can also use the [pubs-git](https://aur.archlinux.org/packages/pubs-git/) AUR package.
 
 
 ## Getting started
 
-Create your library (by default, goes to '~/.pubs/').
+Create your library (by default, goes to `~/.pubs/`).
 
     pubs init
 
@@ -88,15 +90,29 @@ The first command defines a new subcommand: `pubs open -w evince` will be execut
 The second starts with a bang: `!`, and is treated as a shell command.
 
 
+## Autocompletion
+
+For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) Python package, and Bash 4.2 or newer. For activating *bash* or *tsch* completion, consult the [argcomplete documentation](https://argcomplete.readthedocs.io/en/latest/#global-completion).
+
+For *zsh* completion, the global activation is not supported but bash completion compatibility can be used for pubs. For that, add the following to your `.zshrc`:
+
+    # Enable and load bashcompinit
+    autoload -Uz compinit bashcompinit
+    compinit
+    bashcompinit
+    # Argcomplete explicit registration for pubs
+    eval "$(register-python-argcomplete pubs)"
+
+
 ## Need more help ?
 
-You can access the self-documented configuration by using `pubs conf`, and all the commands's help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
+You can access the self-documented configuration by using `pubs conf`, and all the commands' help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
 
 
 ## Requirements
 
 - python >= 2.7 or >= 3.3
-
+- [argcomplete](https://argcomplete.readthedocs.io) (optional, for autocompletion)
 
 ## Authors
 

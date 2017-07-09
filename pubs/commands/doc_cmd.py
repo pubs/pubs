@@ -6,6 +6,8 @@ from .. import color
 from ..uis import get_ui
 from .. import content
 from ..utils import resolve_citekey, resolve_citekey_list
+from ..completion import CiteKeyCompletion
+
 
 # doc --+- add $file $key [[-L|--link] | [-M|--move]] [-f|--force]
 #       +- remove $key [$key [...]] [-f|--force]
@@ -13,35 +15,46 @@ from ..utils import resolve_citekey, resolve_citekey_list
 #       +- open $key [-w|--with $cmd]
 # supplements attach, open
 
-def parser(subparsers):
-    doc_parser = subparsers.add_parser('doc', help='manage the document relating to a publication')
-    doc_subparsers = doc_parser.add_subparsers(title='document actions', help='actions to interact with the documents',
-                                               dest='action')
+def parser(subparsers, conf):
+    doc_parser = subparsers.add_parser(
+        'doc',
+        help='manage the document relating to a publication')
+    doc_subparsers = doc_parser.add_subparsers(
+        title='document actions', dest='action',
+        help='actions to interact with the documents')
     doc_subparsers.required = True
 
     add_parser = doc_subparsers.add_parser('add', help='add a document to a publication')
     add_parser.add_argument('-f', '--force', action='store_true', dest='force', default=False,
-                           help='force overwriting an already assigned document')
+                            help='force overwriting an already assigned document')
     add_parser.add_argument('document', nargs=1, help='document file to assign')
-    add_parser.add_argument('citekey', nargs=1, help='citekey of the publication')
+    add_parser.add_argument('citekey', nargs=1, help='citekey of the publication'
+                            ).completer = CiteKeyCompletion(conf)
     add_exclusives = add_parser.add_mutually_exclusive_group()
-    add_exclusives.add_argument('-L', '--link', action='store_false', dest='link', default=False,
-                           help='do not copy document files, just create a link')
-    add_exclusives.add_argument('-M', '--move', action='store_true', dest='move', default=False,
-                           help='move document instead of of copying (ignored if --link)')
+    add_exclusives.add_argument(
+        '-L', '--link', action='store_false', dest='link', default=False,
+        help='do not copy document files, just create a link')
+    add_exclusives.add_argument(
+        '-M', '--move', action='store_true', dest='move', default=False,
+        help='move document instead of of copying (ignored if --link)')
 
     remove_parser = doc_subparsers.add_parser('remove', help='remove assigned documents from publications')
-    remove_parser.add_argument('citekeys', nargs='+', help='citekeys of the publications')
-    remove_parser.add_argument('-f', '--force', action='store_true', dest='force', default=False,
-                              help='force removing assigned documents')
+    remove_parser.add_argument('citekeys', nargs='+', help='citekeys of the publications'
+                               ).completer = CiteKeyCompletion(conf)
+    remove_parser.add_argument('-f', '--force', action='store_true', dest='force',
+                               default=False,
+                               help='force removing assigned documents')
 
     # favor key+ path  over:  key
     export_parser = doc_subparsers.add_parser('export', help='export assigned documents to given path')
-    export_parser.add_argument('citekeys', nargs='+', help='citekeys of the documents to export')
+    export_parser.add_argument('citekeys', nargs='+',
+                               help='citekeys of the documents to export'
+                               ).completer = CiteKeyCompletion(conf)
     export_parser.add_argument('path', nargs=1, help='directory to export the files to')
 
     open_parser = doc_subparsers.add_parser('open', help='open an assigned document')
-    open_parser.add_argument('citekey', nargs=1, help='citekey of the document to open')
+    open_parser.add_argument('citekey', nargs=1, help='citekey of the document to open'
+                             ).completer = CiteKeyCompletion(conf)
     open_parser.add_argument('-w', '--with', dest='cmd', help='command to open the file with')
 
     return doc_parser

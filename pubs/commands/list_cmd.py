@@ -10,7 +10,7 @@ class InvalidQuery(ValueError):
     pass
 
 
-def parser(subparsers):
+def parser(subparsers, conf):
     parser = subparsers.add_parser('list', help="list papers")
     parser.add_argument('-k', '--citekeys-only', action='store_true',
             default=False, dest='citekeys',
