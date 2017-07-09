@@ -92,9 +92,7 @@ The second starts with a bang: `!`, and is treated as a shell command.
 
 ## Autocompletion
 
-For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) python package.
-
-For *bash* completion, just activate it globally with the command `activate-global-python-argcomplete`, or `activate-global-python-argcomplete --user`, that will copy `python-argcomplete.sh` to `/etc/bash_completion.d/` or `~/.bash_completion.d/`. You need to make sure that the file is evaluated on bash start. For more information or other shells please report to [argcomplete's documentation](https://argcomplete.readthedocs.io).
+For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) Python package, and Bash 4.2 or newer. For activating *bash* or *tsch* completion, consult the [argcomplete documentation](https://argcomplete.readthedocs.io/en/latest/#global-completion).
 
 For *zsh* completion, the global activation is not supported but bash completion compatibility can be used for pubs. For that, add the following to your `.zshrc`:
 
