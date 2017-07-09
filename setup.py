@@ -19,7 +19,8 @@ setup(
                             'pubs.plugs', 'pubs.plugs.alias'],
     scripts      = ['pubs/pubs'],
 
-    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests', 'configobj',
+    install_requires = ['pyyaml', 'bibtexparser', 'python-dateutil', 'requests',
+                        'configobj', 'argcomplete',
                         'beautifulsoup4'], # to be made optional?
     tests_require = ['pyfakefs>=2.7'],
 
