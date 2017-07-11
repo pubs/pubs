@@ -70,9 +70,14 @@ def read_text_file(filepath, fail=True):
     try:
         with _open(filepath, 'r') as f:
             content = f.read()
+            try:  # Python 2
+                content = content.decode('utf-8')
+            except AttributeError:  # Python 3
+                pass
     except UnicodeDecodeError:
         raise UnableToDecodeTextFile(filepath)
         # Should "raise from", if Python 2 support is dropped.
+
     return content
 
 def read_binary_file(filepath, fail=True):
