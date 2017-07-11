@@ -124,7 +124,7 @@ class CommandTestCase(fake_env.TestFakeFs):
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
             if PRINT_OUTPUT:
-               print(outs)
+                print(outs)
             return outs
         except SystemExit as exc:
             exc_class, exc, tb = sys.exc_info()

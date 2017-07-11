@@ -1,6 +1,5 @@
 import sys
 import os
-import io
 import shutil
 
 from .p3 import urlparse, HTTPConnection, urlopen
