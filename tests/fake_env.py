@@ -8,9 +8,6 @@ import dotdot
 
 from pyfakefs import fake_filesystem, fake_filesystem_unittest
 
-# from pyfakefs import (fake_filesystem, fake_filesystem_shutil,
-#                       fake_filesystem_glob, fake_filesystem_unittest)
-
 from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
 from pubs import content, filebroker
 
