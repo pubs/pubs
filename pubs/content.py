@@ -1,3 +1,4 @@
+import sys
 import os
 import io
 import shutil
@@ -47,11 +48,10 @@ def system_path(path):
 
 
 def _open(path, mode):
-    if 'b' in mode:
+    if 'b' in mode or sys.version_info < (3,):
         return open(system_path(path), mode)
     else:
         return open(system_path(path), mode, encoding='utf-8')
-
 
 def check_file(path, fail=True):
     syspath = system_path(path)
