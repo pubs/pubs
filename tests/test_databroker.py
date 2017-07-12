@@ -40,7 +40,6 @@ class TestDataBroker(fake_env.TestFakeFs):
                 self.assertEqual(pulled[key], page99_bibentry['Page99'][key])
             self.assertEqual(db.pull_bibentry('citekey1'), page99_bibentry)
 
-
     def test_existing_data(self):
 
         ende = endecoder.EnDecoder()

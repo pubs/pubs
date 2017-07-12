@@ -24,6 +24,9 @@ open_cmd = string(default=None)
 # variable $EDITOR.
 edit_cmd = string(default='')
 
+# Which default extension to use when creating a note file.
+note_extension = string(default='txt')
+
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.
 debug = boolean(default=False)

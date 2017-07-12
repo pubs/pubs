@@ -2,6 +2,7 @@ from . import filebroker
 from . import endecoder
 from .p3 import pickle
 
+
 class DataBroker(object):
     """ DataBroker class
 
@@ -96,14 +97,16 @@ class DataBroker(object):
 
     # notesbroker
 
-    def real_notepath(self, citekey):
-        notepath = 'notesdir://{}.txt'.format(citekey)
-        return self.notebroker.real_docpath(notepath)
+    def _notepath(self, citekey, extension):
+        return 'notesdir://{}.{}'.format(citekey, extension)
 
-    def remove_note(self, citekey, silent=True):
-        notepath = 'notesdir://{}.txt'.format(citekey)
-        return self.notebroker.remove_doc(notepath, silent=silent)
+    def real_notepath(self, citekey, extension):
+        return self.notebroker.real_docpath(self._notepath(citekey, extension))
 
-    def rename_note(self, old_citekey, new_citekey):
-        notepath = 'notesdir://{}.txt'.format(old_citekey)
-        return self.notebroker.rename_doc(notepath, new_citekey)
+    def remove_note(self, citekey, extension, silent=True):
+        return self.notebroker.remove_doc(self._notepath(citekey, extension),
+                                          silent=silent)
+
+    def rename_note(self, old_citekey, new_citekey, extension):
+        return self.notebroker.rename_doc(
+            self._notepath(old_citekey, extension), new_citekey)
