@@ -1,5 +1,5 @@
+import sys
 import os
-import io
 import shutil
 
 from .p3 import urlparse, HTTPConnection, urlopen
@@ -47,11 +47,10 @@ def system_path(path):
 
 
 def _open(path, mode):
-    if 'b' in mode:
+    if 'b' in mode or sys.version_info < (3,):
         return open(system_path(path), mode)
     else:
         return open(system_path(path), mode, encoding='utf-8')
-
 
 def check_file(path, fail=True):
     syspath = system_path(path)
@@ -70,9 +69,14 @@ def read_text_file(filepath, fail=True):
     try:
         with _open(filepath, 'r') as f:
             content = f.read()
+            try:  # Python 2
+                content = content.decode('utf-8')
+            except AttributeError:  # Python 3
+                pass
     except UnicodeDecodeError:
         raise UnableToDecodeTextFile(filepath)
         # Should "raise from", if Python 2 support is dropped.
+
     return content
 
 def read_binary_file(filepath, fail=True):

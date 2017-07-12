@@ -26,7 +26,7 @@ class TestFileBroker(fake_env.TestFakeFs):
 
     def test_existing_data(self):
 
-        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'testrepo'), 'testrepo')
+        self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
         fb = filebroker.FileBroker('testrepo', create = True)
 
         bib_content = content.read_text_file('testrepo/bib/Page99.bib')
@@ -84,7 +84,7 @@ class TestDocBroker(fake_env.TestFakeFs):
 
     def test_doccopy(self):
 
-        fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
+        self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
 
         fb = filebroker.FileBroker('testrepo', create = True)
         docb = filebroker.DocBroker('testrepo')

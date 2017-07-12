@@ -5,8 +5,8 @@ import shutil
 import glob
 
 import dotdot
-from pyfakefs import (fake_filesystem, fake_filesystem_shutil,
-                      fake_filesystem_glob, fake_filesystem_unittest)
+
+from pyfakefs import fake_filesystem, fake_filesystem_unittest
 
 from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
 from pubs import content, filebroker
@@ -19,28 +19,6 @@ real_open    = open
 real_shutil  = shutil
 real_glob    = glob
 real_io      = io
-
-
-def copy_dir(fs, real_dir, fake_dir=None):
-    """Copy all the data directory into the fake fs"""
-    if fake_dir is None:
-        fake_dir = real_dir
-
-    for filename in real_os.listdir(real_dir):
-        real_path = real_os.path.join(real_dir, filename)
-        fake_path = os.path.join(fake_dir, filename)
-        if real_os.path.isfile(real_path):
-            _, ext = real_os.path.splitext(filename)
-            if ext in ['.yaml', '.bib', '.txt', '.md']:
-                with real_io.open(real_path, 'r', encoding='utf-8') as f:
-                    fs.CreateFile(os.path.abspath(fake_path), contents=f.read())
-            else:
-                with real_io.open(real_path, 'rb') as f:
-                    fs.CreateFile(fake_path, contents=f.read())
-
-        if real_os.path.isdir(real_path):
-            fs.CreateDirectory(fake_path)
-            copy_dir(fs, real_path, fake_path)
 
 
 # redirecting output
@@ -108,8 +86,11 @@ class FakeInput():
 class TestFakeFs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
+        self.rootpath = os.path.dirname(__file__)
         self.setUpPyfakefs()
-        self.fs.CreateDirectory(os.path.expanduser('~'))
+        self.fs.CreateDirectory(self.rootpath)
+        os.chdir(self.rootpath)
+
 
     def reset_fs(self):
         self._stubber.tearDown()  # renew the filesystem

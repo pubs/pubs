@@ -14,6 +14,7 @@ from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
 from .content import check_file, read_text_file, write_file, system_path
 
 
+DEBUG = False
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
@@ -117,7 +118,7 @@ class PrintUI(object):
 
         :returns: True if exception has been handled (currently never happens)
         """
-        if not self.debug:
+        if (not DEBUG) and (not self.debug):
             self.error(ustr(exc))
             self.exit()
         return False
