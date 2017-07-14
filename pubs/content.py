@@ -94,7 +94,16 @@ def remove_file(filepath):
 
 
 def write_file(filepath, data, mode='w'):
+    """Write data to file.
+
+    Data should be unicode except when binary mode is selected,
+    in which case data is expected to be binary.
+    """
     check_directory(os.path.dirname(filepath))
+    if 'b' not in mode and sys.version_info < (3,):
+        # _open returns in binary mode for python2
+        # Data must be encoded
+        data = data.encode('utf-8')
     with _open(filepath, mode) as f:
         f.write(data)
 
