@@ -3,8 +3,7 @@ import re
 from .p3 import urlparse
 
 from .content import (check_file, check_directory, read_text_file, write_file,
-                      system_path, check_content, content_type, get_content,
-                      copy_content)
+                      system_path, check_content, copy_content)
 
 from . import content
 
