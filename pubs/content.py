@@ -52,16 +52,17 @@ def _open(path, mode):
     else:
         return open(system_path(path), mode, encoding='utf-8')
 
+
 def check_file(path, fail=True):
     syspath = system_path(path)
-    return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is(u'isfile', syspath, fail=fail))
+    return (_check_system_path_exists(syspath, fail=fail) and
+            _check_system_path_is(u'isfile', syspath, fail=fail))
 
 
 def check_directory(path, fail=True):
     syspath = system_path(path)
-    return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is(u'isdir', syspath, fail=fail))
+    return (_check_system_path_exists(syspath, fail=fail) and
+            _check_system_path_is(u'isdir', syspath, fail=fail))
 
 
 def read_text_file(filepath, fail=True):
@@ -78,6 +79,7 @@ def read_text_file(filepath, fail=True):
         # Should "raise from", if Python 2 support is dropped.
 
     return content
+
 
 def read_binary_file(filepath, fail=True):
     check_file(filepath, fail=fail)
