@@ -1,6 +1,6 @@
 import webbrowser
-import urllib
 
+from .. import p3
 from ..uis import get_ui
 
 
@@ -18,5 +18,5 @@ def command(conf, args):
     search_string = args.search_string
 
     url = ("https://scholar.google.fr/scholar?q=%s&lr="
-           % (urllib.quote_plus(' '.join(search_string))))
+           % (p3.quote_plus(' '.join(search_string))))
     webbrowser.open(url)

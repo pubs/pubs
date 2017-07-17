@@ -17,6 +17,7 @@ if sys.version_info[0] == 2:
     ustr = unicode
     uchr = unichr
     from urlparse import urlparse
+    from urllib  import quote_plus
     from urllib2 import urlopen
     from httplib import HTTPConnection
     file = None
@@ -30,7 +31,7 @@ if sys.version_info[0] == 2:
 else:
     ustr = str
     uchr = chr
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, quote_plus
     from urllib.request import urlopen
     from http.client import HTTPConnection
 
