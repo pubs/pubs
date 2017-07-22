@@ -3,17 +3,20 @@ import re
 from .p3 import urlparse
 
 from .content import (check_file, check_directory, read_text_file, write_file,
-                      system_path, check_content, content_type, get_content,
-                      copy_content)
+                      system_path, check_content, copy_content)
 
 from . import content
+
+
+META_EXT = '.yaml'
+BIB_EXT  = '.bib'
 
 
 def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
         Otherwise return None
     """
-    pattern ='.*\{}$'.format(ext)
+    pattern = '.*\{}$'.format(ext)
     if re.match(pattern, filename) is not None:
         return filename[:-len(ext)]
 
@@ -48,6 +51,12 @@ class FileBroker(object):
         if not check_directory(self.bibdir, fail=False):
             os.mkdir(system_path(self.bibdir))
 
+    def bib_path(self, citekey):
+        return os.path.join(self.bibdir, citekey + BIB_EXT)
+
+    def meta_path(self, citekey):
+        return os.path.join(self.metadir, citekey + META_EXT)
+
     def pull_cachefile(self, filename):
         filepath = os.path.join(self.cachedir, filename)
         return content.read_binary_file(filepath)
@@ -58,35 +67,31 @@ class FileBroker(object):
 
     def mtime_metafile(self, citekey):
         try:
-            filepath = os.path.join(self.metadir, citekey + '.yaml')
+            filepath = self.meta_path(citekey)
             return os.path.getmtime(filepath)
         except OSError:
             raise IOError("'{}' not found.".format(filepath))
 
     def mtime_bibfile(self, citekey):
         try:
-            filepath = os.path.join(self.bibdir, citekey + '.bib')
+            filepath = self.bib_path(citekey)
             return os.path.getmtime(filepath)
         except OSError:
             raise IOError("'{}' not found.".format(filepath))
 
     def pull_metafile(self, citekey):
-        filepath = os.path.join(self.metadir, citekey + '.yaml')
-        return read_text_file(filepath)
+        return read_text_file(self.meta_path(citekey))
 
     def pull_bibfile(self, citekey):
-        filepath = os.path.join(self.bibdir, citekey + '.bib')
-        return read_text_file(filepath)
+        return read_text_file(self.bib_path(citekey))
 
     def push_metafile(self, citekey, metadata):
         """Put content to disk. Will gladly override anything standing in its way."""
-        filepath = os.path.join(self.metadir, citekey + '.yaml')
-        write_file(filepath, metadata)
+        write_file(self.meta_path(citekey), metadata)
 
     def push_bibfile(self, citekey, bibdata):
         """Put content to disk. Will gladly override anything standing in its way."""
-        filepath = os.path.join(self.bibdir, citekey + '.bib')
-        write_file(filepath, bibdata)
+        write_file(self.bib_path(citekey), bibdata)
 
     def push(self, citekey, metadata, bibdata):
         """Put content to disk. Will gladly override anything standing in its way."""
@@ -94,10 +99,10 @@ class FileBroker(object):
         self.push_bibfile(citekey, bibdata)
 
     def remove(self, citekey):
-        metafilepath = os.path.join(self.metadir, citekey + '.yaml')
+        metafilepath = self.meta_path(citekey)
         if check_file(metafilepath):
             os.remove(system_path(metafilepath))
-        bibfilepath = os.path.join(self.bibdir, citekey + '.bib')
+        bibfilepath = self.bib_path(citekey)
         if check_file(bibfilepath):
             os.remove(system_path(bibfilepath))
 
@@ -106,16 +111,16 @@ class FileBroker(object):
 
             :param meta_check:  if True, will return if both the bibtex and the meta file exists.
         """
-        does_exists = check_file(os.path.join(self.bibdir, citekey + '.bib'), fail=False)
+        does_exists = check_file(self.bib_path(citekey), fail=False)
         if meta_check:
-            meta_exists = check_file(os.path.join(self.metadir, citekey + '.yaml'), fail=False)
+            meta_exists = check_file(self.meta_path(citekey), fail=False)
             does_exists = does_exists and meta_exists
         return does_exists
 
     def listing(self, filestats=True):
         metafiles = []
         for filename in os.listdir(system_path(self.metadir)):
-            citekey = filter_filename(filename, '.yaml')
+            citekey = filter_filename(filename, META_EXT)
             if citekey is not None:
                 if filestats:
                     stats = os.stat(system_path(os.path.join(self.metadir, filename)))
@@ -125,7 +130,7 @@ class FileBroker(object):
 
         bibfiles = []
         for filename in os.listdir(system_path(self.bibdir)):
-            citekey = filter_filename(filename, '.bib')
+            citekey = filter_filename(filename, BIB_EXT)
             if citekey is not None:
                 if filestats:
                     stats = os.stat(system_path(os.path.join(self.bibdir, filename)))

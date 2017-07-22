@@ -39,6 +39,7 @@ else:
     # for test_usecase.
     def _get_raw_stdout():
         return sys.stdout.buffer
+
     def _get_raw_stderr():
         return sys.stderr.buffer
 

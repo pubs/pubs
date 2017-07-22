@@ -52,16 +52,17 @@ def _open(path, mode):
     else:
         return open(system_path(path), mode, encoding='utf-8')
 
+
 def check_file(path, fail=True):
     syspath = system_path(path)
-    return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is(u'isfile', syspath, fail=fail))
+    return (_check_system_path_exists(syspath, fail=fail) and
+            _check_system_path_is(u'isfile', syspath, fail=fail))
 
 
 def check_directory(path, fail=True):
     syspath = system_path(path)
-    return (_check_system_path_exists(syspath, fail=fail)
-            and _check_system_path_is(u'isdir', syspath, fail=fail))
+    return (_check_system_path_exists(syspath, fail=fail) and
+            _check_system_path_is(u'isdir', syspath, fail=fail))
 
 
 def read_text_file(filepath, fail=True):
@@ -79,6 +80,7 @@ def read_text_file(filepath, fail=True):
 
     return content
 
+
 def read_binary_file(filepath, fail=True):
     check_file(filepath, fail=fail)
     with _open(filepath, 'rb') as f:
@@ -92,7 +94,16 @@ def remove_file(filepath):
 
 
 def write_file(filepath, data, mode='w'):
+    """Write data to file.
+
+    Data should be unicode except when binary mode is selected,
+    in which case data is expected to be binary.
+    """
     check_directory(os.path.dirname(filepath))
+    if 'b' not in mode and sys.version_info < (3,):
+        # _open returns in binary mode for python2
+        # Data must be encoded
+        data = data.encode('utf-8')
     with _open(filepath, mode) as f:
         f.write(data)
 

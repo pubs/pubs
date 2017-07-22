@@ -110,8 +110,9 @@ class Repository(object):
             self.databroker.remove_note(citekey, self.conf['main']['note_extension'],
                                         silent=True)
         except IOError:
-            pass # FIXME: if IOError is about being unable to
-                 # remove the file, we need to issue an error.
+            # FIXME: if IOError is about being unable to
+            # remove the file, we need to issue an error.
+            pass
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
 
@@ -126,16 +127,18 @@ class Repository(object):
                 p.docpath = None
                 self.push_paper(p, overwrite=True, event=False)
         except IOError:
-            pass # FIXME: if IOError is about being unable to
-                 # remove the file, we need to issue an error.I
+            # FIXME: if IOError is about being unable to
+            # remove the file, we need to issue an error.I
+            pass
 
     def pull_docpath(self, citekey):
         try:
             p = self.pull_paper(citekey)
             return self.databroker.real_docpath(p.docpath)
         except IOError:
-            pass # FIXME: if IOError is about being unable to
-                 # remove the file, we need to issue an error.I
+            # FIXME: if IOError is about being unable to
+            # remove the file, we need to issue an error.I
+            pass
 
     def rename_paper(self, paper, new_citekey=None, old_citekey=None):
         if old_citekey is None:
