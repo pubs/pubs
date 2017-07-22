@@ -57,3 +57,68 @@ turing_meta = """\
 tags: [AI, computer]
 added: '2013-11-14 13:14:20'
 """
+
+
+sample_conf = """
+[main]
+
+# Where the pubs repository files (bibtex, metadata, notes) are located
+pubsdir = /Users/fabien/research/renc/.pubs
+
+# Where the documents files are located (default: $(pubsdir)/doc/)
+docsdir = /Users/fabien/Dropbox/research/pubsdoc
+
+# Specify if a document should be copied or moved in the docdir, or only
+# linked when adding a publication.
+doc_add = move
+
+# the command to use when opening document files
+open_cmd = open
+
+# which editor to use when editing bibtex files.
+# if using a graphical editor, use the --wait or --block option, i.e.:
+# "atom --wait"
+# "kate --block"
+edit_cmd = "vim"
+
+# If true debug mode is on which means exceptions are not catched and
+# the full python stack is printed.
+debug = False
+
+[formating]
+
+# Enable bold formatting, if the terminal supports it.
+bold = False
+
+# Enable italics, if the terminal supports it.
+italics = False
+
+# Enable colors, if the terminal supports it.
+color = False
+
+
+[theme]
+
+# Here you can define the color theme used by pubs, if enabled in the
+# 'formating' section. Predefined theme are available at:
+# https://github.com/pubs/pubs/blob/master/extra/themes.md
+
+
+[plugins]
+# Comma-separated list of the plugins to load.
+# The only current available plugin is alias.
+active = alias,
+
+[[alias]]
+# new subcommands can be defined, e.g.:
+# print = open --with lp
+# evince = open --with evince
+open = doc open
+
+# shell commands can also be defined, by prefixing them with a bang `!`, e.g:
+# count = !pubs list -k | wc -l
+
+[internal]
+# The version of this configuration file. Do not edit.
+version = 0.6.0
+"""
