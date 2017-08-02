@@ -536,7 +536,8 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs conf', [str_fixtures.sample_conf]),
                ]
         self.execute_cmds(cmds)
-
+        self.assertFileContentEqual(os.path.expanduser('~/.pubsrc'),
+                                    str_fixtures.sample_conf)
 
     def test_editor_abort(self):
         with self.assertRaises(FakeSystemExit):
