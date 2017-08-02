@@ -41,17 +41,6 @@ class TestFileBroker(fake_env.TestFakeFs):
             filebroker.FileBroker('testrepo', create = False)
 
         fb = filebroker.FileBroker('testrepo', create = True)
-        with self.assertRaises(IOError):
-            fb.pull_bibfile('Page99')
-        with self.assertRaises(IOError):
-            fb.pull_metafile('Page99')
-
-    def test_errors(self):
-
-        with self.assertRaises(IOError):
-            filebroker.FileBroker('testrepo', create = False)
-
-        fb = filebroker.FileBroker('testrepo', create = True)
 
         self.assertFalse(fb.exists('Page99'))
         with self.assertRaises(IOError):

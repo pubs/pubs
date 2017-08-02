@@ -531,6 +531,14 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(clean(correct[2]), clean(out[2]))
         self.assertEqual(clean(correct[4]), clean(out[4]))
 
+    def test_conf(self):
+        cmds = ['pubs init',
+                ('pubs conf', [str_fixtures.sample_conf]),
+               ]
+        self.execute_cmds(cmds)
+        self.assertFileContentEqual(os.path.expanduser('~/.pubsrc'),
+                                    str_fixtures.sample_conf)
+
     def test_editor_abort(self):
         with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
