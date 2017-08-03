@@ -15,15 +15,23 @@ Pubs is built with the following principles in mind:
 
 ## Installation
 
-Currently, the Pypi version is outdated. You can install the development version of `pubs`, which should be stable, with:
+You can install the latest stable version of `pubs` through Pypi, with:
+
+    pip install pubs
+
+Alternatively, you can:
+
+  - install the latest development version with pip:
 
     pip install --upgrade git+https://github.com/pubs/pubs
 
-If `pubs` is already installed, you can upgrade with:
+  - clone the repository and install it manually:
 
-    pip install --upgrade git+https://github.com/pubs/pubs
+    git clone https://github.com/pubs/pubs
+    cd pubs
+    python setup.py install [--user]
 
-Alternatively Arch Linux users can also use the [pubs-git](https://aur.archlinux.org/packages/pubs-git/) AUR package.
+Arch Linux users can also use the [pubs-git](https://aur.archlinux.org/packages/pubs-git/) AUR package.
 
 
 ## Getting started
@@ -51,19 +59,13 @@ or an ISBN (dashes are ignored):
 
 ## References always up-to-date
 
-If you use latex, you can automatize references, by creating a bash script with:
-
-    #!/bin/bash
-    pubs export > references.bib
-    latex manuscript.tex
-    bibtex manuscript
-    latex manuscript.tex
+If you use latex, you can automatize references, by running `pubs export > references.bib` each time you update your library, which also fits well as a `makefile` rule.
 
 This ensures that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
 
     pubs add -D 10.1007/s00422-012-0514-6
-
-and then add `\cite{Loeb_2012}` in your manuscript. After running the bash script, the citation will correctly appear in your compiled pdf.
+ 
+and then add `\cite{Loeb_2012}` in your manuscript. After exporting the bibliography, the citation will correctly appear in your compiled pdf.
 
 
 ## Document management
@@ -75,19 +77,20 @@ You can attach a document to a reference:
 And open your documents automatically from the command line:
 
     pubs doc open Loeb_2012
+    pubs doc open --with lp Loeb_2012  # Opens the document with `lp` to actually print it.
 
 
 ## Customization
 
 Pubs is designed to interact well with your command line tool chain.
-You can add custom commands to pubs by defining aliases in your config file (make sure that the alias plugin is activated in your configuration by using `pubs conf`).
+You can add custom commands to pubs by defining aliases in your configuration file (make sure that the alias plugin is activated in your configuration by using `pubs conf`).
 
     [[alias]]
     evince = open --with evince
-    count = !pubs list -k | wc -l
+    count = !pubs list -k "$@" | wc -l
 
-The first command defines a new subcommand: `pubs open -w evince` will be executed when `pubs evince` is typed.
-The second starts with a bang: `!`, and is treated as a shell command.
+The first command defines a new subcommand: `pubs open --with evince` will be executed when `pubs evince` is typed.
+The second starts with a bang: `!`, and is treated as a shell command. If other arguments are provided they are passed to the shell command as in a script. In the example above the `count` alias can take arguments that are be passed to the `pubs list -k` command, hence enabling filters like `pubs count year:2012`.
 
 
 ## Autocompletion
@@ -112,6 +115,8 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 ## Requirements
 
 - python >= 2.7 or >= 3.3
+- [bibtexparser](https://github.com/sciunto-org/python-bibtexparser)
+- [beautifulsoup4](https://www.crummy.com/software/BeautifulSoup)
 - [argcomplete](https://argcomplete.readthedocs.io) (optional, for autocompletion)
 
 ## Authors
