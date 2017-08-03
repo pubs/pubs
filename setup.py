@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '0.6.0'
+VERSION = '0.7.0'
 
 setup(
     name         = 'pubs',
