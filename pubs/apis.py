@@ -17,7 +17,7 @@ def doi2bibtex(doi):
 
 
 def isbn2bibtex(isbn):
-    """Return a bibtex string of metadata from a DOI"""
+    """Return a bibtex string of metadata from an ISBN"""
 
     url = 'http://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
     r = requests.get(url)
