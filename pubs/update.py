@@ -81,9 +81,11 @@ def update(conf, code_version, repo_version, path=None):
                 except KeyError:
                     pass
         # we don't update plugins
+        default_conf['plugins']['active'] = conf['plugins']['active']
         for section_name, section in conf['plugins'].items():
-            default_conf[section_name]['plugins'][section_name] = section
-
+            if section_name != 'active':
+                default_conf['plugins'][section_name] = section
+        default_conf['internal']['version'] = '.'.join(code_version)
 
         # comparing potential changes
         with open(path, 'r') as f:
