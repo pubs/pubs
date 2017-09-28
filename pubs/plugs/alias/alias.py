@@ -1,6 +1,7 @@
 import subprocess
 import shlex
 
+from ...p3 import shell_quote
 from ...plugins import PapersPlugin
 from ...pubs_cmd import execute
 
@@ -50,9 +51,10 @@ class ShellAlias(Alias):
         as shell arguments.
         """
         subprocess.call(
-                'papers_alias_fun () {{\n{}\n}}\npapers_alias_fun {}'.format(
-                    self.definition, ' '.join(args.arguments)),
-                shell=True)
+            'pubs_alias_fun () {{\n{}\n}}\npubs_alias_fun {}'.format(
+                self.definition,
+                ' '.join([shell_quote(a) for a in args.arguments])
+            ), shell=True)
 
 
 class AliasPlugin(PapersPlugin):
