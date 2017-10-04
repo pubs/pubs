@@ -28,8 +28,6 @@ if sys.version_info[0] == 2:
         ustdio.seek(0)
         return ustdio.read()
 
-    from pipes import quote as shell_quote
-
 else:
     ustr = str
     uchr = chr
@@ -54,7 +52,6 @@ else:
         return stdio.read()
 
     import pickle
-    from pipes import quote as shell_quote
 
 input = input
 

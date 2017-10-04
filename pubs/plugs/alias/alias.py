@@ -1,7 +1,7 @@
-import subprocess
 import shlex
+import subprocess
+from pipes import quote as shell_quote
 
-from ...p3 import shell_quote
 from ...plugins import PapersPlugin
 from ...pubs_cmd import execute
 
