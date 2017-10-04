@@ -1,3 +1,4 @@
+import shlex
 import unittest
 
 import dotdot
@@ -8,10 +9,10 @@ from pubs.plugs.alias.alias import (Alias, AliasPlugin, CommandAlias,
                                     ShellAlias)
 
 
-def to_args(arg_str):
+def to_args(arg_strings):
     o = lambda: None  # Dirty hack
     o.prog = 'pubs'
-    o.arguments = arg_str.split(' ')
+    o.arguments = arg_strings
     return o
 
 
@@ -37,7 +38,7 @@ class AliasTestCase(unittest.TestCase):
 
     def testAlias(self):
         alias = Alias.create_alias('print', 'open -w lpppp')
-        alias.command(None, to_args('CiteKey'))
+        alias.command(None, to_args(['CiteKey']))
         self.assertIsNone(self.subprocess.called)
         self.assertEqual(self.cmd_execute.executed,
                          ['pubs', 'open', '-w', 'lpppp', 'CiteKey'])
@@ -46,9 +47,19 @@ class AliasTestCase(unittest.TestCase):
         """This actually just test that subprocess.call is called.
         """
         alias = Alias.create_alias('count', '!pubs list -k | wc -l')
-        alias.command(None, to_args(''))
+        alias.command(None, to_args([]))
         self.assertIsNone(self.cmd_execute.executed)
         self.assertIsNotNone(self.subprocess.called)
+
+    def testShellAliasEscapes(self):
+        alias = Alias.create_alias('count', '!echo "$@"')
+        args = ['a b c', "d,e f\""]
+        alias.command(None, to_args(args))
+        self.assertIsNone(self.cmd_execute.executed)
+        self.assertIsNotNone(self.subprocess.called)
+        self.assertEqual(
+            shlex.split(self.subprocess.called.splitlines()[-1])[1:],
+            args)
 
 
 class AliasPluginTestCase(unittest.TestCase):
