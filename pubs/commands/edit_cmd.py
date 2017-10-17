@@ -51,6 +51,7 @@ def command(conf, args):
             if meta:
                 new_paper = Paper(paper.citekey, paper.bibdata,
                                   metadata=content)
+                rp.push_paper(new_paper, overwrite=True, event=False)
             else:
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)
@@ -62,7 +63,7 @@ def command(conf, args):
             choice = options[ui.input_choice(
                 options, ['o', 'e', 'a'],
                 question='A paper already exists with this citekey.'
-                )]
+            )]
 
             if choice == 'abort':
                 break

@@ -579,6 +579,20 @@ class TestUsecase(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
 
+    def test_edit_meta(self):
+        meta = str_fixtures.turing_meta
+
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line1 = re.sub('\n', '| AI,computer\n', line)
+
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ('pubs list', [], line),
+                ('pubs edit -m Page99', [meta]),
+                ('pubs list', [], line1),
+                ]
+        self.execute_cmds(cmds)
+
     def test_export(self):
         cmds = ['pubs init',
                 ('pubs add', [str_fixtures.bibtex_external0]),
