@@ -9,6 +9,7 @@ import shutil
 
 import six
 import ddt
+from pyfakefs.fake_filesystem import FakeFileOpen
 
 import dotdot
 import fake_env
@@ -156,6 +157,34 @@ class DataCommandTestCase(CommandTestCase):
         self.assertEqual(content.get_content(path), expected_content)
 
 
+class URLContentTestCase(DataCommandTestCase):
+    """Mocks access to online files by using files in data directory.
+    """
+
+    def setUp(self):
+        super(URLContentTestCase, self).setUp()
+        self._original_get_byte_url_content = content._get_byte_url_content
+        self._original_url_exist = content.url_exists
+        content._get_byte_url_content = self.url_to_byte_content
+        content.url_exists = self.url_exists
+
+    def _url_to_path(self, url):
+        return p3.urlparse(url).path
+
+    def url_exists(self, url):
+        return self.fs.Exists(self._url_to_path(url))
+
+    def url_to_byte_content(self, url, ui=None):
+        path = self._url_to_path(url)
+        with FakeFileOpen(self.fs)('data' + path, 'rb') as f:
+            return f.read()
+
+    def tearDown(self):
+        super(URLContentTestCase, self).tearDown()
+        content._get_byte_url_content = self._original_get_byte_url_content
+        content.url_exists = self._original_url_exist
+
+
 # Actual tests
 
 class TestAlone(CommandTestCase):
@@ -184,7 +213,7 @@ class TestInit(CommandTestCase):
         self.assertTrue(os.path.isfile(self.default_conf_path))
 
 
-class TestAdd(DataCommandTestCase):
+class TestAdd(URLContentTestCase):
 
     def test_add(self):
         cmds = ['pubs init',
@@ -206,7 +235,7 @@ class TestAdd(DataCommandTestCase):
         bib_dir = os.path.join(self.default_pubs_dir, 'bib')
         self.assertEqual(set(os.listdir(bib_dir)), {'Page99.bib'})
 
-    def test_add2(self):
+    def test_add_other_repository_path(self):
         cmds = ['pubs init -p /not_default',
                 'pubs add data/pagerank.bib -d data/pagerank.pdf',
                 ]
@@ -255,14 +284,26 @@ class TestAdd(DataCommandTestCase):
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
+    def test_add_urls(self):
+        cmds = ['pubs init',
+                'pubs add http://host.xxx/pagerank.bib '
+                '-d http://host.xxx/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        bib_dir = os.path.join(self.default_pubs_dir, 'bib')
+        self.assertEqual(set(os.listdir(bib_dir)), {'Page99.bib'})
+        meta_dir = os.path.join(self.default_pubs_dir, 'meta')
+        self.assertEqual(set(os.listdir(meta_dir)), {'Page99.yaml'})
+        doc_dir = os.path.join(self.default_pubs_dir, 'doc')
+        self.assertEqual(set(os.listdir(doc_dir)), {'Page99.pdf'})
 
     @unittest.expectedFailure
     def test_leading_citekey_space(self):
-       cmds = ['pubs init',
-               'pubs add bibexamples/leadingspace.bib',
-               'pubs rename LeadingSpace NoLeadingSpace',
-               ]
-       self.execute_cmds(cmds)
+        cmds = ['pubs init',
+                'pubs add bibexamples/leadingspace.bib',
+                'pubs rename LeadingSpace NoLeadingSpace',
+                ]
+        self.execute_cmds(cmds)
 
 
 class TestList(DataCommandTestCase):

@@ -168,13 +168,15 @@ def move_content(source, target, overwrite=False):
 
 
 def copy_content(source, target, overwrite=False):
-    source = system_path(source)
+    source_is_url = content_type(source) == u'url'
+    if not source_is_url:
+        source = system_path(source)
     target = system_path(target)
     if source == target:
         return
     if not overwrite and os.path.exists(target):
         raise IOError(u'{} file exists.'.format(target))
-    if content_type(source) == u'url':
+    if source_is_url:
         _dump_byte_url_content(source, target)
     else:
         shutil.copy(source, target)
