@@ -21,6 +21,7 @@ class ConfigurationNotFound(IOError):
 
 def post_process_conf(conf):
     """Do some post processing on the configuration"""
+    check_conf(conf)
     if conf['main']['docsdir'] == 'docsdir://':
         conf['main']['docsdir'] = os.path.join(conf['main']['pubsdir'], 'doc')
     return conf
@@ -29,8 +30,6 @@ def post_process_conf(conf):
 def load_default_conf():
     """Load the default configuration"""
     default_conf = configobj.ConfigObj(configspec=configspec)
-    validator = validate.Validator()
-    default_conf.validate(validator, copy=True)
     default_conf = post_process_conf(default_conf)
     return default_conf
 
@@ -54,8 +53,8 @@ def get_confpath(verify=True):
 def check_conf(conf):
     """Type check a configuration"""
     validator = validate.Validator()
-    results   = conf.validate(validator, copy=True)
-    assert results == True, '{}'.format(results) # TODO: precise error dialog when parsing error
+    results = conf.validate(validator, copy=True)
+    assert (results is True), '{}'.format(results)  # TODO: precise error dialog when parsing error
 
 
 def load_conf(path=None):
@@ -64,8 +63,7 @@ def load_conf(path=None):
         path = get_confpath(verify=True)
     if not os.path.exists(path):
         raise ConfigurationNotFound(path)
-    with open(path, 'rb') as f:
-        conf = configobj.ConfigObj(f.readlines(), configspec=configspec)
+    conf = configobj.ConfigObj(path, configspec=configspec)
     conf.filename = path
     conf = post_process_conf(conf)
     return conf
