@@ -95,7 +95,6 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
         self.fs.CreateDirectory(self.rootpath)
         os.chdir(self.rootpath)
 
-
     def reset_fs(self):
         self._stubber.tearDown()  # renew the filesystem
         self.setUp()
