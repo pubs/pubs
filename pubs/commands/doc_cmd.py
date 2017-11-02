@@ -59,11 +59,11 @@ def parser(subparsers, conf):
 
     return doc_parser
 
+
 def command(conf, args):
 
     ui = get_ui()
     rp = repo.Repository(conf)
-
 
     # print(args)
     # ui.exit()
@@ -73,8 +73,10 @@ def command(conf, args):
         paper = rp.pull_paper(citekey)
 
         if paper.docpath is not None and not args.force:
-            msg = ("The publication {} has already the document {} assigned." + os.linesep +
-               "Overwrite? ").format(color.dye_out(paper.citekey, 'citekey'), color.dye_out(paper.docpath, 'filepath'))
+            msg = ("The publication {} has already the document {} assigned.{newline}Overwrite? "
+                   ).format(color.dye_out(paper.citekey, 'citekey'),
+                            color.dye_out(paper.docpath, 'filepath'),
+                            newline=os.linesep)
             if not ui.input_yn(question=msg, default='n'):
                 ui.exit(0)
             else:
@@ -144,13 +146,13 @@ def command(conf, args):
 
         if paper.docpath is None:
             ui.error('No document associated with the entry {}.'.format(
-                      color.dye_err(citekey, 'citekey')))
+                color.dye_err(citekey, 'citekey')))
             ui.exit()
 
         if with_command is None:
             with_command = conf['main']['open_cmd']
-        if with_command is None: # default in conf have not been changed
-            pass # TODO platform specific
+        if with_command is None:  # default in conf have not been changed
+            pass  # TODO platform specific
 
         try:
             docpath = content.system_path(rp.databroker.real_docpath(paper.docpath))
