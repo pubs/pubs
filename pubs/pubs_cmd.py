@@ -55,7 +55,6 @@ def execute(raw_args=sys.argv):
             if update.update_check(conf, path=conf.filename):
                 # an update happened, reload conf.
                 conf = config.load_conf(path=conf_path)
-            config.check_conf(conf)
         except config.ConfigurationNotFound:
             if len(remaining_args) == 0 or remaining_args[0] == 'init':
                 conf = config.load_default_conf()
