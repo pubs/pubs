@@ -187,13 +187,6 @@ class URLContentTestCase(DataCommandTestCase):
 
 # Actual tests
 
-class TestAlone(CommandTestCase):
-
-    def test_alone_misses_command(self):
-        with self.assertRaises(FakeSystemExit):
-            self.execute_cmds(['pubs'])
-
-
 class TestInit(CommandTestCase):
 
     def test_init(self):

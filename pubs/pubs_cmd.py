@@ -69,7 +69,7 @@ def execute(raw_args=sys.argv):
                                          prog="pubs", add_help=True)
         parser.add_argument('--version', action='version', version=__version__)
         subparsers = parser.add_subparsers(title="valid commands", dest="command")
-        subparsers.required = True
+        #subparsers.required = True
 
         # Populate the parser with core commands
         for cmd_name, cmd_mod in CORE_CMDS.items():
@@ -85,8 +85,11 @@ def execute(raw_args=sys.argv):
         autocomplete(parser)
         # Parse and run appropriate command
         args = parser.parse_args(remaining_args)
-        args.prog = "pubs"  # FIXME?
-        args.func(conf, args)
+        if not args.command:
+            parser.print_help()
+        else:
+            args.prog = "pubs"  # FIXME?
+            args.func(conf, args)
 
     except Exception as e:
         if not uis.get_ui().handle_exception(e):
