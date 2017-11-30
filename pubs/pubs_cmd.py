@@ -83,13 +83,17 @@ def execute(raw_args=sys.argv):
 
         # Eventually autocomplete
         autocomplete(parser)
+
         # Parse and run appropriate command
+        # if no command, print help and exit peacefully (as '--help' does)
         args = parser.parse_args(remaining_args)
+
         if not args.command:
             parser.print_help()
-        else:
-            args.prog = "pubs"  # FIXME?
-            args.func(conf, args)
+            sys.exit(0)
+
+        args.prog = "pubs"  # FIXME?
+        args.func(conf, args)
 
     except Exception as e:
         if not uis.get_ui().handle_exception(e):

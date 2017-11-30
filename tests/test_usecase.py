@@ -29,7 +29,7 @@ PRINT_OUTPUT   = False
 CAPTURE_OUTPUT = True
 
 
-class FakeSystemExit(Exception):
+class FakeSystemExit(SystemExit):
     """\
     SystemExit exceptions are replaced by FakeSystemExit in the execute_cmds()
     function, so they can be catched by ExpectedFailure tests in Python 2.x.
@@ -131,9 +131,9 @@ class CommandTestCase(fake_env.TestFakeFs):
             exc_class, exc, tb = sys.exc_info()
             if sys.version_info.major == 2:
                 # using six to avoid a SyntaxError in Python 3.x
-                six.reraise(FakeSystemExit, exc, tb)
+                six.reraise(FakeSystemExit, *exc.args, exc_traceback=tb)
             else:
-                raise FakeSystemExit(exc).with_traceback(tb)
+                raise FakeSystemExit(*exc.args).with_traceback(tb)
 
     def tearDown(self):
         pass
@@ -186,6 +186,26 @@ class URLContentTestCase(DataCommandTestCase):
 
 
 # Actual tests
+
+class TestAlone(CommandTestCase):
+
+    def test_alone_prints_help(self):
+        # capturing the output of `pubs --help` is difficult because argparse
+        # raises as SystemExit(0) after calling `print_help`, and this gets
+        # caught so no output is captured.  so comparing outputs of `pubs` and
+        # `pubs --help` isn't too easy unless substantially reorganization of
+        # the parser and testing context is made.  instead, the exit codes of
+        # the two usecases are compared.
+        self.execute_cmds(['pubs init'])
+
+        with self.assertRaises(FakeSystemExit) as cm1:
+            self.execute_cmds(['pubs'])
+
+        with self.assertRaises(FakeSystemExit) as cm2:
+            self.execute_cmds(['pubs --help'])
+
+        self.assertEqual(cm1.exception.code, cm2.exception.code, 0)
+
 
 class TestInit(CommandTestCase):
 
