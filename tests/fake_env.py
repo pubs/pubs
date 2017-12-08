@@ -90,7 +90,7 @@ class FakeInput():
 class TestFakeFs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
-        self.rootpath = os.path.dirname(__file__)
+        self.rootpath = os.path.abspath(os.path.dirname(__file__))
         self.setUpPyfakefs()
         self.fs.CreateDirectory(self.rootpath)
         os.chdir(self.rootpath)
