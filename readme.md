@@ -125,3 +125,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Olivier Mangin](http://olivier.mangin.com)
 - Jonathan Grizou
 - Arnold Sykosch
+- [Bill Flynn](https://github.com/wflynny)
