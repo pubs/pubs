@@ -123,6 +123,11 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 
 - [Fabien Benureau](http://fabien.benureau.com)
 - [Olivier Mangin](http://olivier.mangin.com)
-- Jonathan Grizou
-- Arnold Sykosch
+
+### Contributors
+
+- [Jonathan Grizou](https://github.com/jgrizou)
+- [Arnold Sykosch](https://github.com/73)
+- [Tyler Earnest](https://github.com/tmearnest)
+- [Dennis Wilson](https://github.com/d9w)
 - [Bill Flynn](https://github.com/wflynny)
