@@ -20,7 +20,7 @@ def parser(subparsers, conf):
             help="don't copy document files, just create a link.")
     parser.add_argument('keys', nargs='*',
             help="one or several keys to import from the file")
-    parser.add_argument('-O', '--overwrite', default=False,
+    parser.add_argument('-O', '--overwrite', action='store_true', default=False,
             help="Overwrite keys already in the database")
     return parser
 
