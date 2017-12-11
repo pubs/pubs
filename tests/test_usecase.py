@@ -687,6 +687,26 @@ class TestUsecase(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
+    def test_import_does_not_overwrite(self):
+        cmds = ['pubs init',
+                'pubs import data/ Page99',
+                'pubs import data/',
+                'pubs list'
+               ]
+
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
+    def test_import_overwrites(self):
+        cmds = ['pubs init',
+                'pubs import data/ Page99',
+                'pubs import --overwrite data/ Page99',
+                'pubs list'
+               ]
+
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
     def test_update(self):
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
