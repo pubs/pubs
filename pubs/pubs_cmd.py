@@ -69,7 +69,6 @@ def execute(raw_args=sys.argv):
                                          prog="pubs", add_help=True)
         parser.add_argument('--version', action='version', version=__version__)
         subparsers = parser.add_subparsers(title="valid commands", dest="command")
-        subparsers.required = True
 
         # Populate the parser with core commands
         for cmd_name, cmd_mod in CORE_CMDS.items():
@@ -83,8 +82,15 @@ def execute(raw_args=sys.argv):
 
         # Eventually autocomplete
         autocomplete(parser)
+
         # Parse and run appropriate command
-        args = parser.parse_args(remaining_args)
+        # if no command, print help and exit peacefully (as '--help' does)
+        args = parser.parse_args(remaining_args) 
+        if not args.command:
+            ui.error("Too few arguments!\n")
+            parser.print_help(file=sys.stderr)
+            sys.exit(2)
+
         args.prog = "pubs"  # FIXME?
         args.func(conf, args)
 

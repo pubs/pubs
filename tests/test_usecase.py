@@ -35,8 +35,15 @@ class FakeSystemExit(Exception):
     function, so they can be catched by ExpectedFailure tests in Python 2.x.
 
     If a code is expected to raise SystemExit, catch FakeSystemExit instead.
+
+    Added explicit __init__ so SystemExit.code functionality could be emulated.
+    Taking form from https://stackoverflow.com/a/26938914/1634191
     """
-    pass
+    def __init__(self, message, code=None, *args):
+        self.message = message
+        self.code = code
+
+        super(FakeSystemExit, self).__init__(message, *args)
 
 
 # code for fake fs
@@ -131,9 +138,9 @@ class CommandTestCase(fake_env.TestFakeFs):
             exc_class, exc, tb = sys.exc_info()
             if sys.version_info.major == 2:
                 # using six to avoid a SyntaxError in Python 3.x
-                six.reraise(FakeSystemExit, exc, tb)
+                six.reraise(FakeSystemExit, FakeSystemExit(*exc.args), tb)
             else:
-                raise FakeSystemExit(exc).with_traceback(tb)
+                raise FakeSystemExit(*exc.args).with_traceback(tb)
 
     def tearDown(self):
         pass
@@ -190,8 +197,27 @@ class URLContentTestCase(DataCommandTestCase):
 class TestAlone(CommandTestCase):
 
     def test_alone_misses_command(self):
-        with self.assertRaises(FakeSystemExit):
+        with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
+            self.assertEqual(cm.exception.code, 2)
+
+
+    @unittest.skipIf(sys.version_info.major == 2, "not supported for Python2")
+    def test_alone_prints_help(self):
+        # capturing the output of `pubs --help` is difficult because argparse
+        # raises as SystemExit(0) after calling `print_help`, and this gets
+        # caught so no output is captured.  so comparing outputs of `pubs` and
+        # `pubs --help` isn't too easy unless substantially reorganization of
+        # the parser and testing context is made.  instead, the exit codes of
+        # the two usecases are compared.
+
+        with self.assertRaises(FakeSystemExit) as cm1:
+            self.execute_cmds(['pubs'])
+
+        with self.assertRaises(FakeSystemExit) as cm2:
+            self.execute_cmds(['pubs', '--help'])
+
+        self.assertEqual(cm1.exception.code, cm2.exception.code, 2)
 
 
 class TestInit(CommandTestCase):
