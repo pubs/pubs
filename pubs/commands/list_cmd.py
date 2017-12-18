@@ -163,6 +163,8 @@ def _query_block_to_filter(query_block, case_sensitive=None):
         return TagFilter(value, case_sensitive=case_sensitive)
     elif field == 'author':
         return AuthorFilter(value, case_sensitive=case_sensitive)
+    elif field == 'year':
+        return YearFilter(value)
     else:
         return FieldFilter(field, value, case_sensitive=case_sensitive)
 

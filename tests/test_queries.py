@@ -108,6 +108,7 @@ class TestFilterPaper(unittest.TestCase):
 
     def test_fields(self):
         self.assertTrue(get_paper_filter(['year:2013'])(doe_paper))
+        self.assertTrue(get_paper_filter(['year:2010-'])(doe_paper))
         self.assertFalse(get_paper_filter(['year:2014'])(doe_paper))
         self.assertTrue(get_paper_filter(['author:doe'])(doe_paper))
         self.assertTrue(get_paper_filter(['author:Doe'])(doe_paper))
@@ -120,7 +121,8 @@ class TestFilterPaper(unittest.TestCase):
 
     def test_multiple(self):
         self.assertTrue(get_paper_filter(['author:doe', 'year:2013'])(doe_paper))
-        self.assertFalse(get_paper_filter(['author:doe', 'year:2014'])(doe_paper))
+        self.assertTrue(get_paper_filter(['author:doe', 'year:2010-2014'])(doe_paper))
+        self.assertFalse(get_paper_filter(['author:doe', 'year:2014-'])(doe_paper))
         self.assertFalse(get_paper_filter(['author:doee', 'year:2014'])(doe_paper))
 
 
