@@ -27,7 +27,7 @@ def parser(subparsers, conf):
                         help='list only pubs without attached documents.')
     parser.add_argument('query', nargs='*',
                         help='Paper query ("author:Einstein", "title:learning",'
-                             '"year:2000", "year:2000-2010, or "tags:math")')
+                             '"year:2000", "year:2000-2010", or "tags:math")')
     return parser
 
 
