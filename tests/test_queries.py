@@ -1,10 +1,10 @@
 import unittest
 
 import dotdot
-from pubs.commands.list_cmd import (_check_author_match,
-                                    _check_field_match,
-                                    _check_query_block,
-                                    filter_paper,
+from pubs.commands.list_cmd import (AuthorFilter,
+                                    FieldFilter,
+                                    _query_block_to_filter,
+                                    get_paper_filter,
                                     InvalidQuery)
 
 from pubs.paper import Paper
@@ -16,28 +16,30 @@ page_paper   = Paper.from_bibentry(fixtures.page_bibentry)
 turing_paper = Paper.from_bibentry(fixtures.turing_bibentry,
                                    metadata=fixtures.turing_metadata)
 
+
 class TestAuthorFilter(unittest.TestCase):
 
     def test_fails_if_no_author(self):
         no_doe = doe_paper.deepcopy()
         no_doe.bibentry['author'] = []
-        self.assertTrue(not _check_author_match(no_doe, 'whatever'))
+        self.assertTrue(not AuthorFilter('whatever')(no_doe))
 
     def test_match_case(self):
-        self.assertTrue(_check_author_match(doe_paper, 'doe'))
-        self.assertTrue(_check_author_match(doe_paper, 'doe',
-                                            case_sensitive=False))
+        self.assertTrue(AuthorFilter('doe')(doe_paper))
+        self.assertTrue(AuthorFilter('doe', case_sensitive=False)(doe_paper))
+        self.assertTrue(AuthorFilter('Doe')(doe_paper))
 
     def test_do_not_match_case(self):
-        self.assertFalse(_check_author_match(doe_paper, 'dOe'))
-        self.assertFalse(_check_author_match(doe_paper, 'doe',
-                                             case_sensitive=True))
+        self.assertFalse(AuthorFilter('dOe')(doe_paper))
+        self.assertFalse(AuthorFilter('dOe', case_sensitive=True)(doe_paper))
+        self.assertFalse(AuthorFilter('doe', case_sensitive=True)(doe_paper))
+        self.assertTrue(AuthorFilter('dOe', case_sensitive=False)(doe_paper))
 
     def test_match_not_first_author(self):
-        self.assertTrue(_check_author_match(page_paper, 'motwani'))
+        self.assertTrue(AuthorFilter('motwani')(page_paper))
 
     def test_do_not_match_first_name(self):
-        self.assertTrue(not _check_author_match(page_paper, 'larry'))
+        self.assertTrue(not AuthorFilter('larry')(page_paper))
 
 
 class TestCheckTag(unittest.TestCase):
@@ -47,55 +49,52 @@ class TestCheckTag(unittest.TestCase):
 class TestCheckField(unittest.TestCase):
 
     def test_match_case(self):
-        self.assertTrue(_check_field_match(doe_paper, 'title', 'nice'))
-        self.assertTrue(_check_field_match(doe_paper, 'title', 'nice',
-                                           case_sensitive=False))
-        self.assertTrue(_check_field_match(doe_paper, 'year', '2013'))
+        self.assertTrue(FieldFilter('title', 'nice')(doe_paper))
+        self.assertTrue(
+            FieldFilter('title', 'nice', case_sensitive=False)(doe_paper))
+        self.assertTrue(FieldFilter('year', '2013')(doe_paper))
 
     def test_do_not_match_case(self):
-        self.assertTrue(_check_field_match(doe_paper, 'title',
-                                            'Title', case_sensitive=True))
-        self.assertFalse(_check_field_match(doe_paper, 'title', 'nice',
-                                             case_sensitive=True))
+        self.assertTrue(
+            FieldFilter('title', 'Title', case_sensitive=True)(doe_paper))
+        self.assertFalse(
+            FieldFilter('title', 'nice', case_sensitive=True)(doe_paper))
 
 
 class TestCheckQueryBlock(unittest.TestCase):
 
     def test_raise_invalid_if_no_value(self):
         with self.assertRaises(InvalidQuery):
-            _check_query_block(doe_paper, 'title')
+            _query_block_to_filter('title')
 
     def test_raise_invalid_if_too_much(self):
         with self.assertRaises(InvalidQuery):
-            _check_query_block(doe_paper, 'whatever:value:too_much')
+            _query_block_to_filter('whatever:value:too_much')
 
 
 class TestFilterPaper(unittest.TestCase):
 
     def test_case(self):
-        self.assertTrue (filter_paper(doe_paper, ['title:nice']))
-        self.assertTrue (filter_paper(doe_paper, ['title:Nice']))
-        self.assertFalse(filter_paper(doe_paper, ['title:nIce']))
+        self.assertTrue(get_paper_filter(['title:nice'])(doe_paper))
+        self.assertTrue(get_paper_filter(['title:Nice'])(doe_paper))
+        self.assertFalse(get_paper_filter(['title:nIce'])(doe_paper))
 
     def test_fields(self):
-        self.assertTrue (filter_paper(doe_paper, ['year:2013']))
-        self.assertFalse(filter_paper(doe_paper, ['year:2014']))
-        self.assertTrue (filter_paper(doe_paper, ['author:doe']))
-        self.assertTrue (filter_paper(doe_paper, ['author:Doe']))
+        self.assertTrue(get_paper_filter(['year:2013'])(doe_paper))
+        self.assertFalse(get_paper_filter(['year:2014'])(doe_paper))
+        self.assertTrue(get_paper_filter(['author:doe'])(doe_paper))
+        self.assertTrue(get_paper_filter(['author:Doe'])(doe_paper))
 
     def test_tags(self):
-        self.assertTrue (filter_paper(turing_paper, ['tag:computer']))
-        self.assertFalse(filter_paper(turing_paper, ['tag:Ai']))
-        self.assertTrue (filter_paper(turing_paper, ['tag:AI']))
-        self.assertTrue (filter_paper(turing_paper, ['tag:ai']))
+        self.assertTrue(get_paper_filter(['tag:computer'])(turing_paper))
+        self.assertFalse(get_paper_filter(['tag:Ai'])(turing_paper))
+        self.assertTrue(get_paper_filter(['tag:AI'])(turing_paper))
+        self.assertTrue(get_paper_filter(['tag:ai'])(turing_paper))
 
     def test_multiple(self):
-        self.assertTrue (filter_paper(doe_paper,
-                                     ['author:doe', 'year:2013']))
-        self.assertFalse(filter_paper(doe_paper,
-                                      ['author:doe', 'year:2014']))
-        self.assertFalse(filter_paper(doe_paper,
-                                      ['author:doee', 'year:2014']))
+        self.assertTrue(get_paper_filter(['author:doe', 'year:2013'])(doe_paper))
+        self.assertFalse(get_paper_filter(['author:doe', 'year:2014'])(doe_paper))
+        self.assertFalse(get_paper_filter(['author:doee', 'year:2014'])(doe_paper))
 
 
 if __name__ == '__main__':
