@@ -27,7 +27,7 @@ def parser(subparsers, conf):
                         help='list only pubs without attached documents.')
     parser.add_argument('query', nargs='*',
                         help='Paper query ("author:Einstein", "title:learning",'
-                             '"year:2000" or "tags:math")')
+                             '"year:2000", "year:2000-2010, or "tags:math")')
     return parser
 
 
@@ -106,6 +106,44 @@ class TagFilter(QueryFilter):
 
     def __call__(self, paper):
         return any([self.query in self._lower(t) for t in paper.tags])
+
+
+class YearFilter(QueryFilter):
+    """Note: a query like `year:` or `year:-` would match any paper
+       whose year field is set and can be converted to an int.
+    """
+
+    def __init__(self, query, case_sensitive=None):
+        split = query.split('-')
+        self.start = self._str_to_year(split[0])
+        if len(split) == 1:
+            self.end = self.start
+        elif len(split) == 2:
+            self.end = self._str_to_year(split[1])
+        if (len(split) > 2 or (
+                self.start is not None and
+                self.end is not None and
+                self.start > self.end)):
+            raise ValueError('Invalid year range "{}"'.format(query))
+
+    def __call__(self, paper):
+        """Only checks within last names."""
+        if 'year' not in paper.bibdata:
+            return False
+        else:
+            try:
+                year = int(paper.bibdata['year'])
+                return ((self.start is None or year >= self.start) and
+                        (self.end is None or year <= self.end))
+            except ValueError:
+                return False
+
+    @staticmethod
+    def _str_to_year(s):
+        try:
+            return int(s) if s else None
+        except ValueError:
+            raise ValueError('Invalid year "{}"'.format(s))
 
 
 def _get_field_value(query_block):

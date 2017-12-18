@@ -3,6 +3,7 @@ import unittest
 import dotdot
 from pubs.commands.list_cmd import (AuthorFilter,
                                     FieldFilter,
+                                    YearFilter,
                                     _query_block_to_filter,
                                     get_paper_filter,
                                     InvalidQuery)
@@ -44,6 +45,32 @@ class TestAuthorFilter(unittest.TestCase):
 
 class TestCheckTag(unittest.TestCase):
     pass
+
+
+class TestCheckYear(unittest.TestCase):
+
+    def test_single_year(self):
+        self.assertTrue(YearFilter('2013')(doe_paper))
+        self.assertFalse(YearFilter('2014')(doe_paper))
+
+    def test_before_year(self):
+        self.assertTrue(YearFilter('-2013')(doe_paper))
+        self.assertTrue(YearFilter('-2014')(doe_paper))
+        self.assertFalse(YearFilter('-2012')(doe_paper))
+
+    def test_after_year(self):
+        self.assertTrue(YearFilter('2013-')(doe_paper))
+        self.assertTrue(YearFilter('2012-')(doe_paper))
+        self.assertFalse(YearFilter('2014-')(doe_paper))
+
+    def test_year_range(self):
+        self.assertTrue(YearFilter('')(doe_paper))
+        self.assertTrue(YearFilter('-')(doe_paper))
+        self.assertTrue(YearFilter('2013-2013')(doe_paper))
+        self.assertTrue(YearFilter('2012-2014')(doe_paper))
+        self.assertFalse(YearFilter('2014-2015')(doe_paper))
+        with self.assertRaises(ValueError):
+            YearFilter('2015-2014')(doe_paper)
 
 
 class TestCheckField(unittest.TestCase):
