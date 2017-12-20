@@ -88,6 +88,13 @@ active = force_list(default=list('alias'))
 # shell commands can also be defined, by prefixing them with a bang `!`, e.g:
 # count = !pubs list -k | wc -l
 
+# aliases can also be defined with descriptions using the following configobj
+# subsectioning.  NOTE: any aliases defined this way should come after all other
+# aliases, otherwise simple aliases will be ignored.
+# [[[count]]]
+# command = !pubs list -k | wc -l
+# description = lists number of pubs in repo
+
 [internal]
 # The version of this configuration file. Do not edit.
 version = string(min=5, default='{}')

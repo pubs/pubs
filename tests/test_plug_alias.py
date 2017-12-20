@@ -93,3 +93,47 @@ class AliasPluginTestCase(unittest.TestCase):
                                          'count': '!pubs list -k | wc -l'}
         self.plugin = AliasPlugin(self.conf)
         self.assertEqual(len(self.plugin.aliases), 2)
+
+    def testAliasPluginNestedDefinitionType(self):
+        self.conf['plugins']['alias'] = {'print': {'description': 'print this',
+                                                   'command': 'open -w lpppp'}}
+        self.plugin = AliasPlugin(self.conf)
+        self.assertEqual(len(self.plugin.aliases), 1)
+        self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
+        self.assertEqual(self.plugin.aliases[0].name, 'print')
+        self.assertEqual(self.plugin.aliases[0].description, 'print this')
+        self.assertEqual(self.plugin.aliases[0].definition, 'open -w lpppp')
+
+    def testAliasPluginMixedDefinitionTypes(self):
+        self.conf['plugins']['alias'] = {'print': {'description': 'print this',
+                                                   'command': 'open -w lpppp'},
+                                         'count': '!pubs list -k | wc -l'}
+        self.plugin = AliasPlugin(self.conf)
+        self.plugin.aliases = sorted(self.plugin.aliases, key=lambda a: a.name)
+
+        self.assertEqual(len(self.plugin.aliases), 2)
+        self.assertEqual(type(self.plugin.aliases[1]), CommandAlias)
+        self.assertEqual(type(self.plugin.aliases[0]), ShellAlias)
+
+        self.assertEqual(self.plugin.aliases[0].name, 'count')
+        self.assertEqual(self.plugin.aliases[0].description,
+                         'user alias for `pubs list -k | wc -l`')
+        self.assertEqual(self.plugin.aliases[0].definition,
+                         'pubs list -k | wc -l')
+
+        self.assertEqual(self.plugin.aliases[1].name, 'print')
+        self.assertEqual(self.plugin.aliases[1].description, 'print this')
+        self.assertEqual(self.plugin.aliases[1].definition, 'open -w lpppp')
+
+    def testAliasPluginWrongDefinitionOrder(self):
+        self.conf['plugins']['alias'] = {'print': {'description': 'print this',
+                                                   'command': 'open -w lpppp',
+                                         'count': '!pubs list -k | wc -l'}}
+        self.plugin = AliasPlugin(self.conf)
+
+        self.assertEqual(len(self.plugin.aliases), 1)
+        self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
+
+        self.assertEqual(self.plugin.aliases[0].name, 'print')
+        self.assertEqual(self.plugin.aliases[0].description, 'print this')
+        self.assertEqual(self.plugin.aliases[0].definition, 'open -w lpppp')

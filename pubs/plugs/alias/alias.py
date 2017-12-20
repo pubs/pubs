@@ -8,26 +8,30 @@ from ...pubs_cmd import execute
 
 class Alias(object):
 
-    def __init__(self, name, definition):
+    def __init__(self, name, definition, description=None):
         self.name = name
         self.definition = definition
+        if not description:
+            self.description = "user alias for `%s`"%definition
+        else:
+            self.description = description
 
     def parser(self, parser):
         self.parser = parser
-        p = parser.add_parser(self.name, help='user defined command')
+        p = parser.add_parser(self.name, help=self.description)
         p.add_argument('arguments', nargs='*',
-            help="arguments to be passed to the user defined command")
+            help="arguments to be passed to %s"%self.name)
         return p
 
     def command(self, conf, args):
         raise NotImplementedError
 
     @classmethod
-    def create_alias(cls, name, definition):
+    def create_alias(cls, name, definition, description=None):
         if len(definition) > 0 and definition[0] == '!':
-            return ShellAlias(name, definition[1:])
+            return ShellAlias(name, definition[1:], description)
         else:
-            return CommandAlias(name, definition)
+            return CommandAlias(name, definition, description)
 
 
 class CommandAlias(Alias):
@@ -64,8 +68,16 @@ class AliasPlugin(PapersPlugin):
     def __init__(self, conf):
         self.aliases = []
         if 'alias' in conf['plugins']:
-            for name, definition in conf['plugins']['alias'].items():
-                self.aliases.append(Alias.create_alias(name, definition))
+            for name, entry in conf['plugins']['alias'].items():
+                if isinstance(entry, dict):
+                    definition = entry.get('command')
+                    description = entry.get('description', None)
+                else:
+                    definition = entry
+                    description = None
+
+                alias = Alias.create_alias(name, definition, description)
+                self.aliases.append(alias)
 
     def update_parser(self, subparsers, conf):
         """Add subcommand to the provided subparser"""
