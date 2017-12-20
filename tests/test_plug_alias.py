@@ -104,6 +104,16 @@ class AliasPluginTestCase(unittest.TestCase):
         self.assertEqual(self.plugin.aliases[0].description, 'print this')
         self.assertEqual(self.plugin.aliases[0].definition, 'open -w lpppp')
 
+    def testAliasPluginNestedDefinitionNoDescription(self):
+        self.conf['plugins']['alias'] = {'print': {'command': 'open -w lpppp'}}
+        self.plugin = AliasPlugin(self.conf)
+        self.assertEqual(len(self.plugin.aliases), 1)
+        self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
+        self.assertEqual(self.plugin.aliases[0].name, 'print')
+        self.assertEqual(self.plugin.aliases[0].description,
+                         'user alias for `open -w lpppp`')
+        self.assertEqual(self.plugin.aliases[0].definition, 'open -w lpppp')
+
     def testAliasPluginMixedDefinitionTypes(self):
         self.conf['plugins']['alias'] = {'print': {'description': 'print this',
                                                    'command': 'open -w lpppp'},
