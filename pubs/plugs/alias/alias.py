@@ -12,7 +12,7 @@ class Alias(object):
         self.name = name
         self.definition = definition
         if not description:
-            self.description = "user alias for `%s`"%definition
+            self.description = "user alias for `%s`" % definition
         else:
             self.description = description
 
@@ -20,7 +20,7 @@ class Alias(object):
         self.parser = parser
         p = parser.add_parser(self.name, help=self.description)
         p.add_argument('arguments', nargs='*',
-            help="arguments to be passed to %s"%self.name)
+                       help="arguments to be passed to %s" % self.name)
         return p
 
     def command(self, conf, args):
