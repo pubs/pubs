@@ -1,12 +1,9 @@
 import unittest
 
 import dotdot
-from pubs.commands.list_cmd import (AuthorFilter,
-                                    FieldFilter,
-                                    YearFilter,
-                                    _query_block_to_filter,
-                                    get_paper_filter,
-                                    InvalidQuery)
+from pubs.query import (AuthorFilter, FieldFilter, YearFilter,
+                        _query_block_to_filter, get_paper_filter,
+                        InvalidQuery)
 
 from pubs.paper import Paper
 
