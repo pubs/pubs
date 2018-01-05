@@ -20,7 +20,7 @@ class TestAuthorFilter(unittest.TestCase):
     def test_fails_if_no_author(self):
         no_doe = doe_paper.deepcopy()
         no_doe.bibentry['author'] = []
-        self.assertTrue(not AuthorFilter('whatever')(no_doe))
+        self.assertFalse(AuthorFilter('whatever')(no_doe))
 
     def test_match_case(self):
         self.assertTrue(AuthorFilter('doe')(doe_paper))
@@ -37,7 +37,7 @@ class TestAuthorFilter(unittest.TestCase):
         self.assertTrue(AuthorFilter('motwani')(page_paper))
 
     def test_do_not_match_first_name(self):
-        self.assertTrue(not AuthorFilter('larry')(page_paper))
+        self.assertFalse(AuthorFilter('lawrence')(page_paper))
 
 
 class TestCheckTag(unittest.TestCase):
