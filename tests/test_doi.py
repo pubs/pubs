@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 import unittest
 
-from pubs.p3 import ustr
 from pubs.utils import standardize_doi
+
 
 class TestDOIStandardization(unittest.TestCase):
 
@@ -59,7 +59,7 @@ class TestDOIStandardization(unittest.TestCase):
         sdoi = standardize_doi(doi)
         self.assertEqual(sdoi, '10.1109/5.771073')
 
-    def test_doi_colon_org(self):
+    def test_doi_colon(self):
         doi = 'doi:10.1109/5.771073'
         sdoi = standardize_doi(doi)
         self.assertEqual(sdoi, '10.1109/5.771073')
@@ -76,5 +76,5 @@ class TestDOIStandardization(unittest.TestCase):
 
     def test_currently_not_supported(self):
         for doi in self.currently_not_supported:
-            sdoi = standardize_doi(doi)
-            self.assertIs(sdoi, None)
+            with self.assertRaises(ValueError):
+                standardize_doi(doi)
