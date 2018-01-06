@@ -1,3 +1,4 @@
+import argparse
 from ..uis import get_ui
 from .. import bibstruct
 from .. import content
@@ -7,13 +8,21 @@ from .. import templates
 from .. import apis
 from .. import color
 from .. import pretty
+from .. import utils
 
+class ValidateDOI(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        doi = values
+        new_doi = utils.standardize_doi(doi)
+        if not new_doi:
+            raise ValueError("Not a valid doi: %s", doi)
+        setattr(namespace, self.dest, new_doi)
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('bibfile', nargs='?', default=None,
                         help='bibtex file')
-    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None)
+    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None, action=ValidateDOI)
     parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',

@@ -1,5 +1,7 @@
 # Function here may belong somewhere else. In the mean time...
 
+import re
+
 from . import color
 from . import pretty
 
@@ -44,3 +46,36 @@ def resolve_citekey_list(repo, citekeys, ui=None, exit_on_fail=True):
         ui.exit()
     else:
         return keys
+
+def standardize_doi(doi):
+    """
+    Given a putative doi, attempts to always return it in the form of
+    10.XXXX/...  Specifically designed to handle these cases:
+    -   https://doi.org/<doi>
+    -   http://doi.org/<doi>
+    -   https://dx.doi.org/<doi>
+    -   http://dx.doi.org/<doi>
+    -   dx.doi.org/<doi>
+    -   doi.org/<doi>
+    and attempts to verify doi adherence to DOI handbook standards and
+    crossref.org advice:
+    https://www.doi.org/doi_handbook/2_Numbering.html
+    https://www.crossref.org/blog/dois-and-matching-regular-expressions/"""
+    """ :returns standardized doi """
+    doi_regexes = (
+        re.compile(r'(10\.\d{4,9}/[-._;()/:A-z0-9\>\<]+)'),
+        re.compile(r'(10.1002/[^\s]+)'),
+        re.compile(r'(10\.\d{4}/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d)'),
+        re.compile(r'(10\.1021/\w\w\d+\+)'),
+        re.compile(r'(10\.1207/[\w\d]+\&\d+_\d+)')
+        )
+
+    for doi_regex in doi_regexes:
+        match = doi_regex.search(doi)
+        if match:
+            new_doi = match.group(0)
+            break
+    else:
+        new_doi = None
+
+    return new_doi
