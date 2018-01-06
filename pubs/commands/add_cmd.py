@@ -10,13 +10,13 @@ from .. import color
 from .. import pretty
 from .. import utils
 
+
 class ValidateDOI(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         doi = values
         new_doi = utils.standardize_doi(doi)
-        if not new_doi:
-            raise ValueError("Not a valid doi: %s", doi)
         setattr(namespace, self.dest, new_doi)
+
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
@@ -30,9 +30,9 @@ def parser(subparsers, conf):
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
-            help="don't copy document files, just create a link.")
+                        help="don't copy document files, just create a link.")
     parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
-            help="move document instead of of copying (ignored if --link).")
+                        help="move document instead of of copying (ignored if --link).")
     return parser
 
 
