@@ -53,9 +53,10 @@ def customizations(record):
 
     return record
 
+
 bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher',
-                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi', 'note',
-                  'abstract']
+                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi',
+                  'note', 'abstract']
 
 
 class EnDecoder(object):
@@ -69,6 +70,9 @@ class EnDecoder(object):
         * encode_bibdata will try to recognize exceptions
     """
 
+    bwriter = bp.bwriter.BibTexWriter()
+    bwriter.display_order = bibfield_order
+
     def encode_metadata(self, metadata):
         return yaml.safe_dump(metadata, allow_unicode=True,
                               encoding=None, indent=4)
@@ -76,41 +80,35 @@ class EnDecoder(object):
     def decode_metadata(self, metadata_raw):
         return yaml.safe_load(metadata_raw)
 
-    def encode_bibdata(self, bibdata):
+    def encode_bibdata(self, bibdata, ignore_fields=[]):
         """Encode bibdata """
-        return '\n'.join(self._encode_bibentry(citekey, entry)
-                         for citekey, entry in bibdata.items())
+        bpdata = bp.bibdatabase.BibDatabase()
+        bpdata.entries = [self._entry_to_bp_entry(k, copy.copy(bibdata[k]),
+                                                  ignore_fields=ignore_fields)
+                          for k in bibdata]
+        return self.bwriter.write(bpdata)
 
-    @staticmethod
-    def _encode_field(key, value):
-        if key == 'link':
-            return ', '.join(link['url'] for link in value)
-        elif key == 'author':
-            return ' and '.join(author for author in value)
-        elif key == 'editor':
-            return ' and '.join(editor['name'] for editor in value)
-        elif key == 'journal':
-            return value['name']
-        elif key == 'keyword':
-            return ', '.join(keyword for keyword in value)
-        else:
-            return value
-
-    @staticmethod
-    def _encode_bibentry(citekey, bibentry):
-        bibraw = '@{}{{{},\n'.format(bibentry[TYPE_KEY], citekey)
-        bibentry = copy.copy(bibentry)
-        for key in bibfield_order:
-            if key in bibentry:
-                value = bibentry.pop(key)
-                bibraw += '    {} = {{{}}},\n'.format(
-                    key, EnDecoder._encode_field(key, value))
-        for key, value in bibentry.items():
-            if key != TYPE_KEY:
-                bibraw += '    {} = {{{}}},\n'.format(
-                    key, EnDecoder._encode_field(key, value))
-        bibraw += '}\n'
-        return bibraw
+    def _entry_to_bp_entry(self, key, entry, ignore_fields=[]):
+        """Convert back entries to the format expected by bibtexparser."""
+        entry[BP_ID_KEY] = key
+        # Convert internal 'type' to bibtexparser entrytype key
+        entry[BP_ENTRYTYPE_KEY] = entry.pop(TYPE_KEY)
+        for f in ignore_fields:
+            entry.pop(f, None)
+        if 'link' in entry:
+            entry['link'] = ', '.join(link['url'] for link in entry['link'])
+        if 'author' in entry:
+            entry['author'] = ' and '.join(
+                author for author in entry['author'])
+        if 'editor' in entry:
+            entry['editor'] = ' and '.join(
+                editor['name'] for editor in entry['editor'])
+        if 'journal' in entry:
+            entry['journal'] = entry['journal']['name']
+        if 'keyword' in entry:
+            entry['keyword'] = ', '.join(
+                keyword for keyword in entry['keyword'])
+        return entry
 
     def decode_bibdata(self, bibdata):
         """"""

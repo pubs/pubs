@@ -91,12 +91,40 @@ class TestEnDecode(unittest.TestCase):
         self.assertIn(u'keyword', entry)
         self.assertEqual(set(keywords), set(entry[u'keyword']))
 
-
     def test_endecode_metadata(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_metadata(metadata_raw0)
         metadata_output0 = decoder.encode_metadata(entry)
         self.assertEqual(set(metadata_raw0.split('\n')), set(metadata_output0.split('\n')))
+
+    def test_endecode_bibtex_field_order(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+        lines = decoder.encode_bibdata(entry).splitlines()
+        self.assertEqual(lines[1].split('=')[0].strip(), u'author')
+        self.assertEqual(lines[2].split('=')[0].strip(), u'title')
+        self.assertEqual(lines[3].split('=')[0].strip(), u'institution')
+        self.assertEqual(lines[4].split('=')[0].strip(), u'publisher')
+        self.assertEqual(lines[5].split('=')[0].strip(), u'year')
+        self.assertEqual(lines[6].split('=')[0].strip(), u'month')
+        self.assertEqual(lines[7].split('=')[0].strip(), u'number')
+        self.assertEqual(lines[8].split('=')[0].strip(), u'link')
+        self.assertEqual(lines[9].split('=')[0].strip(), u'note')
+        self.assertEqual(lines[10].split('=')[0].strip(), u'abstract')
+
+    def test_endecode_bibtex_ignores_fields(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+
+        bibraw1 = decoder.encode_bibdata(
+            entry, ignore_fields=['title', 'note', 'abstract', 'journal'])
+        entry1 = list(decoder.decode_bibdata(bibraw1).values())[0]
+
+        self.assertNotIn('title', entry1)
+        self.assertNotIn('note', entry1)
+        self.assertNotIn('abtract', entry1)
+        self.assertIn('author', entry1)
+        self.assertIn('institution', entry1)
 
 
 if __name__ == '__main__':
