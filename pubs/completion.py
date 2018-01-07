@@ -57,3 +57,15 @@ class TagModifierCompletion(BaseCompleter):
         partial_expr = prefix[:start]
         t_prefix = prefix[start:]
         return [partial_expr + t for t in tags if t.startswith(t_prefix)]
+
+
+class CommaSeparatedListCompletion(BaseCompleter):
+
+    values = []
+
+    def _complete(self, prefix, **kwargs):
+        split = prefix.split(',')
+        item_prefix = split[-1]
+        partial = split[:-1]
+        return [','.join(partial + [x]) for x in self.values
+                if x.startswith(item_prefix)]

@@ -27,6 +27,11 @@ else:
     BP_ENTRYTYPE_KEY = 'type'
 
 
+BIBFIELD_ORDER = ['author', 'title', 'journal', 'institution', 'publisher',
+                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi',
+                  'note', 'abstract']
+
+
 def sanitize_citekey(record):
     record[BP_ID_KEY] = record[BP_ID_KEY].strip('\n')
     return record
@@ -54,11 +59,6 @@ def customizations(record):
     return record
 
 
-bibfield_order = ['author', 'title', 'journal', 'institution', 'publisher',
-                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi',
-                  'note', 'abstract']
-
-
 class EnDecoder(object):
     """ Encode and decode content.
 
@@ -71,7 +71,7 @@ class EnDecoder(object):
     """
 
     bwriter = bp.bwriter.BibTexWriter()
-    bwriter.display_order = bibfield_order
+    bwriter.display_order = BIBFIELD_ORDER
 
     def encode_metadata(self, metadata):
         return yaml.safe_dump(metadata, allow_unicode=True,

@@ -6,7 +6,8 @@ from .. import repo
 from ..uis import get_ui
 from .. import endecoder
 from ..utils import resolve_citekey_list
-from ..completion import CiteKeyCompletion
+from ..endecoder import BIBFIELD_ORDER
+from ..completion import CiteKeyCompletion, CommaSeparatedListCompletion
 
 
 class CommaSeparatedList(argparse.Action):
@@ -15,11 +16,17 @@ class CommaSeparatedList(argparse.Action):
         setattr(namespace, self.dest, [s for s in values.split(',') if s])
 
 
+class FieldCommaSeparatedListCompletion(CommaSeparatedListCompletion):
+
+    values = BIBFIELD_ORDER
+
+
 def parser(subparsers, conf):
     parser = subparsers.add_parser('export', help='export bibliography')
     parser.add_argument(
         '--ignore-fields', default=[], action=CommaSeparatedList,
-        help='exclude field(s) from output (comma separated if multiple)')
+        help='exclude field(s) from output (comma separated if multiple)'
+    ).completer = FieldCommaSeparatedListCompletion(conf)
     # parser.add_argument('-f', '--bib-format', default='bibtex',
     #         help='export format')
     parser.add_argument('citekeys', nargs='*', help='one or several citekeys'
