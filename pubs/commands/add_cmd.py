@@ -1,3 +1,4 @@
+import argparse
 from ..uis import get_ui
 from .. import bibstruct
 from .. import content
@@ -7,13 +8,21 @@ from .. import templates
 from .. import apis
 from .. import color
 from .. import pretty
+from .. import utils
+
+
+class ValidateDOI(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        doi = values
+        new_doi = utils.standardize_doi(doi)
+        setattr(namespace, self.dest, new_doi)
 
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('bibfile', nargs='?', default=None,
                         help='bibtex file')
-    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None)
+    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None, action=ValidateDOI)
     parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
@@ -21,9 +30,9 @@ def parser(subparsers, conf):
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
-            help="don't copy document files, just create a link.")
+                        help="don't copy document files, just create a link.")
     parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
-            help="move document instead of of copying (ignored if --link).")
+                        help="move document instead of of copying (ignored if --link).")
     return parser
 
 
