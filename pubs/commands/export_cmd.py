@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import argparse
+
 from .. import repo
 from ..uis import get_ui
 from .. import endecoder
@@ -7,8 +9,17 @@ from ..utils import resolve_citekey_list
 from ..completion import CiteKeyCompletion
 
 
+class CommaSeparatedList(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [s for s in values.split(',') if s])
+
+
 def parser(subparsers, conf):
     parser = subparsers.add_parser('export', help='export bibliography')
+    parser.add_argument(
+        '--ignore-fields', default=[], action=CommaSeparatedList,
+        help='exclude field(s) from output (comma separated if multiple)')
     # parser.add_argument('-f', '--bib-format', default='bibtex',
     #         help='export format')
     parser.add_argument('citekeys', nargs='*', help='one or several citekeys'
@@ -36,7 +47,7 @@ def command(conf, args):
         bib[p.citekey] = p.bibdata
 
     exporter = endecoder.EnDecoder()
-    bibdata_raw = exporter.encode_bibdata(bib)
+    bibdata_raw = exporter.encode_bibdata(bib, args.ignore_fields)
     ui.message(bibdata_raw)
 
     rp.close()

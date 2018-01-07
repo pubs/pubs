@@ -669,6 +669,16 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(endecoder.EnDecoder().decode_bibdata(outs[2]),
                          fixtures.page_bibentry)
 
+    def test_export_ignore_field(self):
+        cmds = ['pubs init',
+                ('pubs add', [str_fixtures.bibtex_external0]),
+                'pubs export --ignore-fields author,title Page99',
+                ]
+        outs = self.execute_cmds(cmds)
+        expected = endecoder.EnDecoder().encode_bibdata(
+            fixtures.page_bibentry, ignore_fields=['author', 'title'])
+        self.assertEqual(outs[2], expected + os.linesep)
+
     def test_import(self):
         cmds = ['pubs init',
                 'pubs import data/',
