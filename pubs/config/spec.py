@@ -31,6 +31,10 @@ note_extension = string(default='txt')
 # the full python stack is printed.
 debug = boolean(default=False)
 
+# BibTeX keys to export
+keylist = force_list(default=list())
+
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.
