@@ -1,3 +1,5 @@
+# PYTHON_ARGCOMPLETE_OK
+
 import sys
 import argparse
 import collections

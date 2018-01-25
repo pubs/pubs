@@ -19,7 +19,11 @@ setup(
               'pubs.templates',
               'pubs.plugs',
               'pubs.plugs.alias'],
-    scripts=['pubs/pubs'],
+    entry_points={
+        'console_scripts': [
+            'pubs=pubs.pubs_cmd:execute',
+            ],
+        },
 
     install_requires=['pyyaml', 'bibtexparser', 'python-dateutil', 'requests',
                       'configobj',
