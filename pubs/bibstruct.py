@@ -12,8 +12,9 @@ TYPE_KEY = 'type'
 CONTROL_CHARS = ''.join(map(uchr, list(range(0, 32)) + list(range(127, 160))))
 CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/ '  # '/' is OK for bibtex but forbidden
 # here since we transform citekeys into filenames
-CITEKEY_EXCLUDE_RE = re.compile('[%s]'
-        % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
+CITEKEY_EXCLUDE_RE = re.compile(
+    '[%s]' % re.escape(CONTROL_CHARS + CITEKEY_FORBIDDEN_CHARS))
+
 
 def str2citekey(s):
     key = unicodedata.normalize('NFKD', ustr(s)).encode('ascii', 'ignore').decode()
@@ -21,12 +22,16 @@ def str2citekey(s):
     # Normalize chars and remove non-ascii
     return key
 
+
 def check_citekey(citekey):
+    if citekey is None or not citekey.strip():
+        raise ValueError(u"Empty citekeys are not valid")
     # TODO This is not the right way to test that (17/12/2012)
     if ustr(citekey) != str2citekey(citekey):
         raise ValueError(u"Invalid `{}` citekey; ".format(citekey) +
                          u"utf-8 citekeys are not supported yet.\n"
                          u"See https://github.com/pubs/pubs/issues/28 for details.")
+
 
 def verify_bibdata(bibdata):
     if bibdata is None or len(bibdata) == 0:
@@ -34,18 +39,22 @@ def verify_bibdata(bibdata):
     if len(bibdata) > 1:
         raise ValueError(u"ambiguous: multiple entries in the bibdata.")
 
+
 def get_entry(bibdata):
     verify_bibdata(bibdata)
     for e in bibdata.items():
         return e
 
+
 def extract_citekey(bibdata):
     citekey, entry = get_entry(bibdata)
     return citekey
 
+
 def author_last(author_str):
     """ Return the last name of the author """
     return author_str.split(',')[0]
+
 
 def generate_citekey(bibdata):
     """ Generate a citekey from bib_data.
@@ -60,7 +69,7 @@ def generate_citekey(bibdata):
         first_author = entry[author_key][0]
     except KeyError:
         raise ValueError(
-                u"No author or editor defined: cannot generate a citekey.")
+            u"No author or editor defined: cannot generate a citekey.")
     try:
         year = entry['year']
     except KeyError:
@@ -68,6 +77,7 @@ def generate_citekey(bibdata):
     citekey = u'{}{}'.format(u''.join(author_last(first_author)), year)
 
     return str2citekey(citekey)
+
 
 def extract_docfile(bibdata, remove=False):
     """ Try extracting document file from bib data.
