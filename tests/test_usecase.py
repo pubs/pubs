@@ -331,6 +331,14 @@ class TestAdd(URLContentTestCase):
                 ]
         self.execute_cmds(cmds)
 
+    def test_add_no_citekey_fails(self):
+        # See #113
+        cmds = ['pubs init',
+                ('pubs add', [str_fixtures.bibtex_no_citekey]),
+                ]
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
 
 class TestList(DataCommandTestCase):
 

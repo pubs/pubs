@@ -42,6 +42,10 @@ class TestAttributes(unittest.TestCase):
         self.assertEqual(self.p.tags, set())
         self.p.remove_tag('ranking')
 
+    def test_fails_with_empty_citekey(self):
+        with self.assertRaises(ValueError):
+            Paper(" ", fixtures.doe_bibdata)
+
 
 if __name__ == '__main__':
     unittest.main()

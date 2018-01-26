@@ -58,6 +58,17 @@ tags: [AI, computer]
 added: '2013-11-14 13:14:20'
 """
 
+# Should not parse (see #113)
+bibtex_no_citekey = """@Manual{,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2017},
+    url = {https://www.R-project.org/},
+}
+"""
+
 
 sample_conf = """
 [main]
