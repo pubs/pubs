@@ -19,7 +19,7 @@ class TestAuthorFilter(unittest.TestCase):
 
     def test_fails_if_no_author(self):
         no_doe = doe_paper.deepcopy()
-        no_doe.bibentry['author'] = []
+        no_doe.bibentry['Doe2013']['author'] = []
         self.assertFalse(AuthorFilter('whatever')(no_doe))
 
     def test_match_case(self):
