@@ -84,6 +84,14 @@ class TestCheckField(unittest.TestCase):
         self.assertFalse(
             FieldFilter('title', 'nice', case_sensitive=True)(doe_paper))
 
+    def test_latex_enc(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "{G}r{\\\"u}n"
+        self.assertTrue(
+            FieldFilter('title', 'Grün')(latexenc_paper))
+        self.assertTrue(
+            FieldFilter('title', 'Gr{\\\"u}n')(latexenc_paper))
+
 
 class TestCheckQueryBlock(unittest.TestCase):
 
@@ -121,6 +129,14 @@ class TestFilterPaper(unittest.TestCase):
         self.assertTrue(get_paper_filter(['author:doe', 'year:2010-2014'])(doe_paper))
         self.assertFalse(get_paper_filter(['author:doe', 'year:2014-'])(doe_paper))
         self.assertFalse(get_paper_filter(['author:doee', 'year:2014'])(doe_paper))
+
+    def test_latex_enc(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "{E}l Ni{\~n}o"
+        latexenc_paper.bibentry['Doe2013']['author'][0] = "Erd\H{o}s, Paul"
+        self.assertTrue(get_paper_filter(['title:El'])(latexenc_paper))
+        self.assertTrue(get_paper_filter(['title:Niño'])(latexenc_paper))
+        self.assertTrue(get_paper_filter(['author:erdős'])(latexenc_paper))
 
 
 if __name__ == '__main__':

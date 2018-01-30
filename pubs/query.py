@@ -1,3 +1,4 @@
+from bibtexparser.latexenc import latex_to_unicode
 from . import bibstruct
 
 
@@ -24,15 +25,16 @@ class QueryFilter(object):
         if case_sensitive is None:
             case_sensitive = not query.islower()
         self.case = case_sensitive
-        self.query = self._lower(query)
+        self.query = self._normalize(query)
 
     def __call__(self, paper):
         raise NotImplementedError
 
     def _is_query_in(self, field_value):
-        return self.query in self._lower(field_value)
+        return self.query in self._normalize(field_value)
 
-    def _lower(self, s):
+    def _normalize(self, s):
+        s = latex_to_unicode(s)
         return s if self.case else s.lower()
 
 
