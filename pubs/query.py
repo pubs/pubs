@@ -29,6 +29,9 @@ class QueryFilter(object):
     def __call__(self, paper):
         raise NotImplementedError
 
+    def _is_query_in(self, field_value):
+        return self.query in self._lower(field_value)
+
     def _lower(self, s):
         return s if self.case else s.lower()
 
@@ -42,7 +45,7 @@ class FieldFilter(QueryFilter):
 
     def __call__(self, paper):
         return (self.field in paper.bibdata and
-                self.query in self._lower(paper.bibdata[self.field]))
+                self._is_query_in(paper.bibdata[self.field]))
 
 
 class AuthorFilter(QueryFilter):
@@ -52,14 +55,14 @@ class AuthorFilter(QueryFilter):
         if 'author' not in paper.bibdata:
             return False
         else:
-            return any([self.query in self._lower(bibstruct.author_last(author))
+            return any([self._is_query_in(bibstruct.author_last(author))
                         for author in paper.bibdata['author']])
 
 
 class TagFilter(QueryFilter):
 
     def __call__(self, paper):
-        return any([self.query in self._lower(t) for t in paper.tags])
+        return any([self._is_query_in(t) for t in paper.tags])
 
 
 class YearFilter(QueryFilter):
