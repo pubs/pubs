@@ -92,6 +92,12 @@ class TestCheckField(unittest.TestCase):
         self.assertTrue(
             FieldFilter('title', 'Gr{\\\"u}n')(latexenc_paper))
 
+    def test_normalize_unicode(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "Jalape\u00f1o"
+        self.assertTrue(
+            FieldFilter('title', "Jalapen\u0303o")(latexenc_paper))
+
 
 class TestCheckQueryBlock(unittest.TestCase):
 
@@ -137,6 +143,11 @@ class TestFilterPaper(unittest.TestCase):
         self.assertTrue(get_paper_filter(['title:El'])(latexenc_paper))
         self.assertTrue(get_paper_filter(['title:Niño'])(latexenc_paper))
         self.assertTrue(get_paper_filter(['author:erdős'])(latexenc_paper))
+
+    def test_normalize_unicode(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "{E}l Ni{\~n}o"
+        self.assertTrue(get_paper_filter(['title:Nin\u0303o'])(latexenc_paper))
 
 
 if __name__ == '__main__':

@@ -1,4 +1,7 @@
+import unicodedata
+
 from bibtexparser.latexenc import latex_to_unicode
+
 from . import bibstruct
 
 
@@ -34,7 +37,8 @@ class QueryFilter(object):
         return self.query in self._normalize(field_value)
 
     def _normalize(self, s):
-        s = latex_to_unicode(s)
+        s = unicodedata.normalize('NFC', latex_to_unicode(s))
+        # Note: in theory latex_to_unicode also normalizes
         return s if self.case else s.lower()
 
 
