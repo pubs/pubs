@@ -23,11 +23,20 @@ class InvalidQuery(ValueError):
 
 
 class QueryFilter(object):
+    """Filter function for papers built from a given query.
 
-    def __init__(self, query, case_sensitive=None):
+    :param case_sensitive: forces case (in)sensitivity; default is to
+        only be sensitive if query contains uppercase
+    :param strict: if set to True, compares the raw unicode without
+        interpreting latex commands, normalizing unicode, or ignoring case.
+        (Overrides the case_sensitive parameter.)
+    """
+
+    def __init__(self, query, case_sensitive=None, strict=False):
         if case_sensitive is None:
             case_sensitive = not query.islower()
         self.case = case_sensitive
+        self.strict = strict
         self.query = self._normalize(query)
 
     def __call__(self, paper):
@@ -37,16 +46,20 @@ class QueryFilter(object):
         return self.query in self._normalize(field_value)
 
     def _normalize(self, s):
-        s = unicodedata.normalize('NFC', latex_to_unicode(s))
-        # Note: in theory latex_to_unicode also normalizes
-        return s if self.case else s.lower()
+        if self.strict:
+            return s
+        else:
+            s = unicodedata.normalize('NFC', latex_to_unicode(s))
+            # Note: in theory latex_to_unicode also normalizes
+            return s if self.case else s.lower()
 
 
 class FieldFilter(QueryFilter):
     """Generic filter of form `query in paper['field']`"""
 
-    def __init__(self, field, query, case_sensitive=None):
-        super(FieldFilter, self).__init__(query, case_sensitive=case_sensitive)
+    def __init__(self, field, query, case_sensitive=None, strict=False):
+        super(FieldFilter, self).__init__(query, case_sensitive=case_sensitive,
+                                          strict=strict)
         self.field = field
 
     def __call__(self, paper):
@@ -76,7 +89,7 @@ class YearFilter(QueryFilter):
        whose year field is set and can be converted to an int.
     """
 
-    def __init__(self, query, case_sensitive=None):
+    def __init__(self, query):
         split = query.split('-')
         self.start = self._str_to_year(split[0])
         if len(split) == 1:
@@ -120,25 +133,29 @@ def _get_field_value(query_block):
     return (field, value)
 
 
-def _query_block_to_filter(query_block, case_sensitive=None):
+def _query_block_to_filter(query_block, case_sensitive=None, strict=False):
     field, value = _get_field_value(query_block)
     if field == 'tag':
-        return TagFilter(value, case_sensitive=case_sensitive)
+        return TagFilter(value, case_sensitive=case_sensitive, strict=strict)
     elif field == 'author':
-        return AuthorFilter(value, case_sensitive=case_sensitive)
+        return AuthorFilter(value, case_sensitive=case_sensitive,
+                            strict=strict)
     elif field == 'year':
         return YearFilter(value)
     else:
-        return FieldFilter(field, value, case_sensitive=case_sensitive)
+        return FieldFilter(field, value, case_sensitive=case_sensitive,
+                           strict=strict)
 
 
 # TODO implement search by type of document
-def get_paper_filter(query, case_sensitive=None):
+def get_paper_filter(query, case_sensitive=None, strict=False):
     """If case_sensitive is not given, only check case if query
     is not lowercase.
 
     :args query: list of query blocks (strings)
     """
-    filters = [_query_block_to_filter(query_block, case_sensitive=case_sensitive)
+    filters = [_query_block_to_filter(query_block,
+                                      case_sensitive=case_sensitive,
+                                      strict=strict)
                for query_block in query]
     return lambda paper: all([f(paper) for f in filters])

@@ -101,6 +101,22 @@ class TestCheckField(unittest.TestCase):
         self.assertTrue(
             FieldFilter('title', "Jalapen\u0303o")(latexenc_paper))
 
+    def test_strict(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "Jalape\u00f1o"
+        self.assertFalse(FieldFilter('title', "Jalapen\u0303o",
+                                     strict=True)(latexenc_paper))
+        latexenc_paper.bibentry['Doe2013']['title'] = "{G}ros"
+        self.assertFalse(
+            FieldFilter('title', "Gros", strict=True)(latexenc_paper))
+
+    def test_strict_implies_case(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "Gros"
+        self.assertFalse(
+            FieldFilter('title', "gros", case_sensitive=False,
+                        strict=True)(latexenc_paper))
+
 
 class TestCheckQueryBlock(unittest.TestCase):
 
@@ -146,11 +162,18 @@ class TestFilterPaper(unittest.TestCase):
         self.assertTrue(get_paper_filter(['title:El'])(latexenc_paper))
         self.assertTrue(get_paper_filter(['title:Niño'])(latexenc_paper))
         self.assertTrue(get_paper_filter(['author:erdős'])(latexenc_paper))
+        self.assertTrue(get_paper_filter(['title:{E}l'])(latexenc_paper))
 
     def test_normalize_unicode(self):
         latexenc_paper = doe_paper.deepcopy()
         latexenc_paper.bibentry['Doe2013']['title'] = "{E}l Ni{\~n}o"
         self.assertTrue(get_paper_filter(['title:Nin\u0303o'])(latexenc_paper))
+
+    def test_strict(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.bibentry['Doe2013']['title'] = "El Ni{\~n}o"
+        self.assertFalse(get_paper_filter(
+            ['title:Nin\u0303o'], strict=True)(latexenc_paper))
 
 
 if __name__ == '__main__':

@@ -15,6 +15,8 @@ def parser(subparsers, conf):
                         default=None, dest='case_sensitive')
     parser.add_argument('-I', '--force-case', action='store_true',
                         dest='case_sensitive')
+    parser.add_argument('--strict', action='store_true', default=False,
+                        help='force strict unicode comparison of query')
     parser.add_argument('-a', '--alphabetical', action='store_true',
                         dest='alphabetical', default=False,
                         help='lexicographic order on the citekeys.')
@@ -34,7 +36,8 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
     papers = filter(get_paper_filter(args.query,
-                                     case_sensitive=args.case_sensitive),
+                                     case_sensitive=args.case_sensitive,
+                                     strict=args.strict),
                     rp.all_papers())
     if args.nodocs:
         papers = [p for p in papers if p.docpath is None]
