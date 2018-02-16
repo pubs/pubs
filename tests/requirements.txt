@@ -1,4 +1,4 @@
 # those are the additional packages required to run the tests
 six
-git+http://github.com/jmcgeheeiv/pyfakefs#egg=pyfakefs
+pyfakefs
 ddt

@@ -323,12 +323,11 @@ class TestAdd(URLContentTestCase):
         doc_dir = os.path.join(self.default_pubs_dir, 'doc')
         self.assertEqual(set(os.listdir(doc_dir)), {'Page99.pdf'})
 
-    @unittest.expectedFailure
     def test_leading_citekey_space(self):
         cmds = ['pubs init',
                 'pubs add bibexamples/leadingspace.bib',
                 'pubs rename LeadingSpace NoLeadingSpace',
-                ]
+               ]
         self.execute_cmds(cmds)
 
     def test_add_no_citekey_fails(self):
