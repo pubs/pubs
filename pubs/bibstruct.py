@@ -26,11 +26,6 @@ def str2citekey(s):
 def check_citekey(citekey):
     if citekey is None or not citekey.strip():
         raise ValueError(u"Empty citekeys are not valid")
-    # TODO This is not the right way to test that (17/12/2012)
-    if ustr(citekey) != str2citekey(citekey):
-        raise ValueError(u"Invalid `{}` citekey; ".format(citekey) +
-                         u"utf-8 citekeys are not supported yet.\n"
-                         u"See https://github.com/pubs/pubs/issues/28 for details.")
 
 
 def verify_bibdata(bibdata):
