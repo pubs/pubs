@@ -398,6 +398,33 @@ class TestList(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(0 + 1, len(outs[-1].split('\n')))
 
+    def test_list_strict_forces_case(self):
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import data/',
+                'pubs list --ignore-case --strict title:lAnguage',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(0 + 1, len(outs[-1].split('\n')))
+
+    def test_list_strict(self):
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import data/',
+                'pubs list --strict title:{L}anguage',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(0 + 1, len(outs[-1].split('\n')))
+
+    def test_list_latex_protection(self):
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import data/',
+                'pubs list title:{L}anguage',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
 
 class TestTag(DataCommandTestCase):
 
