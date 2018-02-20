@@ -28,8 +28,8 @@ else:
 
 
 BIBFIELD_ORDER = ['author', 'title', 'journal', 'institution', 'publisher',
-                  'year', 'month', 'number', 'volume', 'pages', 'link', 'doi',
-                  'note', 'abstract']
+                  'year', 'month', 'number', 'volume', 'pages', 'url', 'link',
+                  'doi', 'note', 'abstract']
 
 
 def sanitize_citekey(record):

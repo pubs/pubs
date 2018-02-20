@@ -108,7 +108,7 @@ class TestEnDecode(unittest.TestCase):
         self.assertEqual(lines[5].split('=')[0].strip(), u'year')
         self.assertEqual(lines[6].split('=')[0].strip(), u'month')
         self.assertEqual(lines[7].split('=')[0].strip(), u'number')
-        self.assertEqual(lines[8].split('=')[0].strip(), u'link')
+        self.assertEqual(lines[8].split('=')[0].strip(), u'url')
         self.assertEqual(lines[9].split('=')[0].strip(), u'note')
         self.assertEqual(lines[10].split('=')[0].strip(), u'abstract')
 
