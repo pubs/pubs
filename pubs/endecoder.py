@@ -50,9 +50,7 @@ def customizations(record):
     record = bp.customization.editor(record)
     record = bp.customization.journal(record)
     record = bp.customization.keyword(record)
-    record = bp.customization.link(record)
     record = bp.customization.page_double_hyphen(record)
-    record = bp.customization.doi(record)
 
     record = sanitize_citekey(record)
 
@@ -95,8 +93,6 @@ class EnDecoder(object):
         entry[BP_ENTRYTYPE_KEY] = entry.pop(TYPE_KEY)
         for f in ignore_fields:
             entry.pop(f, None)
-        if 'link' in entry:
-            entry['link'] = ', '.join(link['url'] for link in entry['link'])
         if 'author' in entry:
             entry['author'] = ' and '.join(
                 author for author in entry['author'])
