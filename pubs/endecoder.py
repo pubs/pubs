@@ -115,11 +115,12 @@ class EnDecoder(object):
         try:
             try:
                 entries = bp.bparser.BibTexParser(
-                    bibdata, homogenize_fields=True,
-                    customization=customizations).get_entry_dict()
+                    bibdata, common_strings=True,
+                    customization=customizations,
+                    homogenize_fields=True).get_entry_dict()
             except TypeError:
                 entries = bp.bparser.BibTexParser(
-                    bibdata,
+                    bibdata, common_strings=True,
                     customization=customizations).get_entry_dict()
 
             # Remove id from bibtexparser attribute which is stored as citekey
