@@ -9,7 +9,7 @@ from pubs import endecoder
 from pubs.p3 import ustr
 
 from fixtures import dummy_metadata
-from str_fixtures import bibtex_raw0, metadata_raw0, turing_bib
+from str_fixtures import bibtex_raw0, metadata_raw0, turing_bib, bibtex_month
 
 
 def compare_yaml_str(s1, s2):
@@ -35,6 +35,7 @@ class TestEnDecode(unittest.TestCase):
         self.assertIsInstance(data, ustr)
 
     def test_endecode_bibtex(self):
+        """Test that multiple encode/decode step preserve data"""
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
 
@@ -50,6 +51,14 @@ class TestEnDecode(unittest.TestCase):
                 self.assertEqual(bibentry1[key], bibentry2[key])
 
         self.assertEqual(bibraw1, bibraw2)
+
+    def test_endecode_bibtex(self):
+        """Test if `month=dec` is correctly recognized and transformed into
+        `month={December}`"""
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_month)['Goyal2017']
+
+        self.assertEqual(entry['month'], 'December')
 
     def test_endecode_bibtex_editor(self):
         decoder = endecoder.EnDecoder()
