@@ -113,15 +113,10 @@ class EnDecoder(object):
     def decode_bibdata(self, bibdata):
         """"""
         try:
-            try:
-                entries = bp.bparser.BibTexParser(
-                    bibdata, common_strings=True,
-                    customization=customizations,
-                    homogenize_fields=True).get_entry_dict()
-            except TypeError:
-                entries = bp.bparser.BibTexParser(
-                    bibdata, common_strings=True,
-                    customization=customizations).get_entry_dict()
+            entries = bp.bparser.BibTexParser(
+                bibdata, common_strings=True,
+                customization=customizations,
+                homogenize_fields=True).get_entry_dict()
 
             # Remove id from bibtexparser attribute which is stored as citekey
             for e in entries:
