@@ -25,7 +25,7 @@ setup(
             ],
         },
 
-    install_requires=['pyyaml', 'bibtexparser>=1.0.1', 'python-dateutil', 'requests',
+    install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil', 'requests',
                       'configobj',
                       'beautifulsoup4'],  # to be made optional?
     tests_require=['pyfakefs>=2.7'],
