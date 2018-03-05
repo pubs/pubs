@@ -121,6 +121,18 @@ class TestEnDecode(unittest.TestCase):
         self.assertEqual(lines[9].split('=')[0].strip(), u'note')
         self.assertEqual(lines[10].split('=')[0].strip(), u'abstract')
 
+    def test_endecode_link_as_url(self):
+        decoder = endecoder.EnDecoder()
+        if 'url = ' not in bibtex_raw0:
+            raise NotImplementedError(
+                'The fixture bibraw0 has been changed; test needs an update.')
+        raw_with_link = bibtex_raw0.replace('url = ', 'link = ')
+        entry = decoder.decode_bibdata(raw_with_link)
+        lines = decoder.encode_bibdata(entry).splitlines()
+        self.assertEqual(lines[8].split('=')[0].strip(), u'url')
+        self.assertEqual(lines[8].split('=')[1].strip(),
+                         u'{http://ilpubs.stanford.edu:8090/422/},')
+
     def test_endecode_bibtex_ignores_fields(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
