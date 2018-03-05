@@ -8,8 +8,10 @@ from .bibstruct import TYPE_KEY
 
 CHARS = re.compile('[{}\n\t\r]')
 
+
 def sanitize(s):
     return CHARS.sub('', s)
+
 
 # should be adaptated to bibtexparser dicts
 def person_repr(p):
@@ -35,7 +37,7 @@ def bib_oneliner(bibdata):
     authors = short_authors(bibdata)
     journal = ''
     if 'journal' in bibdata:
-        journal = ' ' + bibdata['journal']['name']
+        journal = ' ' + bibdata['journal']
     elif bibdata[TYPE_KEY] == 'inproceedings':
         journal = ' ' + bibdata.get('booktitle', '')
 
@@ -44,14 +46,14 @@ def bib_oneliner(bibdata):
         title=color.dye_out(bibdata.get('title', ''), 'title'),
         journal=color.dye_out(journal, 'publisher'),
         year=' ({})'.format(color.dye_out(bibdata['year'], 'year'))
-            if 'year' in bibdata else ''
-        ))
+             if 'year' in bibdata else ''
+    ))
 
 
 def bib_desc(bib_data):
     article = bib_data[list(bib_data.keys())[0]]
     s = '\n'.join('author: {}'.format(p)
-            for p in article['author'])
+                  for p in article['author'])
     s += '\n'
     s += '\n'.join('{}: {}'.format(k, v) for k, v in article.items())
     return s

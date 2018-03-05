@@ -48,7 +48,6 @@ def customizations(record):
     record = bp.customization.type(record)
     record = bp.customization.author(record)
     record = bp.customization.editor(record)
-    record = bp.customization.journal(record)
     record = bp.customization.keyword(record)
     record = bp.customization.page_double_hyphen(record)
 
@@ -99,8 +98,6 @@ class EnDecoder(object):
         if 'editor' in entry:
             entry['editor'] = ' and '.join(
                 editor['name'] for editor in entry['editor'])
-        if 'journal' in entry:
-            entry['journal'] = entry['journal']['name']
         if 'keyword' in entry:
             entry['keyword'] = ', '.join(
                 keyword for keyword in entry['keyword'])
