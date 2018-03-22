@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import os
 import unittest
 import copy
@@ -18,7 +20,7 @@ class TestGenerateCitekey(unittest.TestCase):
     def test_escapes_chars(self):
         doe_bibentry = copy.deepcopy(fixtures.doe_bibentry)
         citekey, bibdata = bibstruct.get_entry(doe_bibentry)
-        bibdata['author'] = [u'Zôu\\@/ , John']
+        bibdata['author'] = ['Zôu\\@/ , John']
         key = bibstruct.generate_citekey(doe_bibentry)
         self.assertEqual(key, 'Zou2013')
 

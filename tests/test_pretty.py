@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import unittest
 import os
 
@@ -19,14 +20,14 @@ class TestPretty(unittest.TestCase):
     def test_oneliner(self):
         decoder = endecoder.EnDecoder()
         bibdata = decoder.decode_bibdata(bibtex_raw0)
-        line = u'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)'
+        line = 'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)'
         self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'])), line)
 
     def test_oneliner_no_year(self):
         decoder = endecoder.EnDecoder()
         bibdata = decoder.decode_bibdata(bibtex_raw0)
         bibdata['Page99'].pop('year')
-        line = u'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."'
+        line = 'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."'
         self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'])), line)
 
 if __name__ == '__main__':

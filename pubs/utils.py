@@ -1,4 +1,6 @@
-# Function here may belong somewhere else. In the mean time...
+# Functions here may belong somewhere else. In the mean time...
+from __future__ import unicode_literals
+
 import re
 
 from . import color
@@ -31,7 +33,7 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
                      "citekeys:".format(citekey))
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message(u'    {}'.format(pretty.paper_oneliner(p)))
+                ui.message('    {}'.format(pretty.paper_oneliner(p)))
             if exit_on_fail:
                 ui.exit()
     return citekey

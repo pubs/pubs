@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 import datetime
 
@@ -78,10 +80,10 @@ def command(conf, args):
     for k in keys:
         p = papers[k]
         if isinstance(p, Exception):
-            ui.error(u'Could not load entry for citekey {}.'.format(k))
+            ui.error('Could not load entry for citekey {}.'.format(k))
         else:
             rp.push_paper(p, overwrite=args.overwrite)
-            ui.info(u'{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
+            ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
             docfile = bibstruct.extract_docfile(p.bibdata)
             if docfile is None:
                 ui.warning("No file for {}.".format(p.citekey))

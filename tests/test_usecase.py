@@ -116,22 +116,24 @@ class CommandTestCase(fake_env.TestFakeFs):
                 input.as_global()
                 try:
                     if capture_output:
-                        _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
+                        actual_cmd.split()
+                        _, stdout, stderr = fake_env.capture(pubs_cmd.execute,
+                                                             verbose=PRINT_OUTPUT)(
                             actual_cmd.split())
                         actual_out = color.undye(stdout)
                         actual_err = color.undye(stderr)
                         if expected_out is not None:
-                            self.assertEqual(actual_out, expected_out)
+                            self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
+                            #self.assertEqual(actual_out, expected_out)
                         if expected_err is not None:
                             self.assertEqual(actual_err, expected_err)
+                            self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
-                except fake_env.FakeInput.UnexpectedInput:
+                except fake_env.FakeInput.UnexpectedInput as e:
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
-            if PRINT_OUTPUT:
-                print(outs)
             return outs
         except SystemExit as exc:
             exc_class, exc, tb = sys.exc_info()
@@ -199,7 +201,6 @@ class TestAlone(CommandTestCase):
         with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
             self.assertEqual(cm.exception.code, 2)
-
 
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse

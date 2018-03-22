@@ -1,9 +1,9 @@
 # PYTHON_ARGCOMPLETE_OK
 
 import sys
-import argparse
 import collections
 from . import uis
+from . import p3
 from . import config
 from . import commands
 from . import update
@@ -36,7 +36,7 @@ CORE_CMDS = collections.OrderedDict([
 def execute(raw_args=sys.argv):
 
     try:
-        conf_parser = argparse.ArgumentParser(prog="pubs", add_help=False)
+        conf_parser = p3.ArgumentParser(prog="pubs", add_help=False)
         conf_parser.add_argument("-c", "--config", help="path to config file",
                                  type=str, metavar="FILE")
         conf_parser.add_argument('--force-colors', dest='force_colors',
@@ -67,8 +67,8 @@ def execute(raw_args=sys.argv):
         uis.init_ui(conf, force_colors=top_args.force_colors)
         ui = uis.get_ui()
 
-        parser = argparse.ArgumentParser(description="research papers repository",
-                                         prog="pubs", add_help=True)
+        parser = p3.ArgumentParser(description="research papers repository",
+                                   prog="pubs", add_help=True)
         parser.add_argument('--version', action='version', version=__version__)
         subparsers = parser.add_subparsers(title="valid commands", dest="command")
 

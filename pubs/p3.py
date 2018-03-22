@@ -1,5 +1,10 @@
 import io
 import sys
+import argparse
+
+from six import b, u
+
+
 
 if sys.version_info[0] == 2:
     import cPickle as pickle
@@ -21,12 +26,46 @@ if sys.version_info[0] == 2:
     from urllib2 import urlopen
     from httplib import HTTPConnection
     file = None
-    _fake_stdio = io.BytesIO  # Only for tests to capture std{out,err}
+
+    def u_maybe(s):
+        """Convert to unicode, but only if necessary"""
+        if isinstance(s, str):
+            s = s.decode('utf-8')
+        return s
+
+    class StdIO(io.BytesIO):
+        """Enable printing the streams received by a BytesIO instance"""
+        def __init__(self, *args, **kwargs):
+            self.additional_out = kwargs.pop('additional_out')
+            super(StdIO, self).__init__(*args, **kwargs)
+
+        def write(self, s):
+            if self.additional_out is not None:
+                self.additional_out.write(s)
+
+            super(StdIO, self).write(b(s))
+
+    _fake_stdio = StdIO  # Only for tests to capture std{out,err}
 
     def _get_fake_stdio_ucontent(stdio):
-        ustdio = io.TextIOWrapper(stdio)
-        ustdio.seek(0)
-        return ustdio.read()
+
+        # ustdio = io.TextIOWrapper(stdio)
+        stdio.seek(0)
+        return stdio.read()
+
+    def to_utf8(s):
+        return b(s)
+
+    # for details, seehttp://bugs.python.org/issue9779
+    class ArgumentParser(argparse.ArgumentParser):
+        def _print_message(self, message, file=None):
+            """Fixes the lack of a buffer interface in unicode object """
+            if message:
+                if file is None:
+                    file = _sys.stderr
+                file.write(message.encode('utf-8'))
+
+
 
 else:
     ustr = str
@@ -43,15 +82,36 @@ else:
     def _get_raw_stderr():
         return sys.stderr.buffer
 
-    def _fake_stdio():
-        return io.TextIOWrapper(io.BytesIO())  # Only for tests to capture std{out,err}
+    def u_maybe(s):
+        return s
+
+    class StdIO(io.BytesIO):
+        """Enable printing the streams received by a BytesIO instance"""
+        def __init__(self, *args, **kwargs):
+            self.additional_out = kwargs.pop('additional_out')
+            super(StdIO, self).__init__(*args, **kwargs)
+
+        def write(self, s):
+            if self.additional_out is not None:
+                self.additional_out.write(s)
+
+            super(StdIO, self).write(s)
+
+    # Only for tests to capture std{out,err}
+    def _fake_stdio(additional_out=False):
+        return io.TextIOWrapper(StdIO(additional_out=additional_out))
 
     def _get_fake_stdio_ucontent(stdio):
         stdio.flush()
         stdio.seek(0)
         return stdio.read()
 
+    def to_utf8(s):
+        return s
+
     import pickle
+
+    ArgumentParser = argparse.ArgumentParser
 
 input = input
 

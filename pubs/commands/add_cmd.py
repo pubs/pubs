@@ -1,5 +1,8 @@
+from __future__ import unicode_literals
+
 import argparse
 from ..uis import get_ui
+from .. import p3
 from .. import bibstruct
 from .. import content
 from .. import repo
@@ -29,7 +32,7 @@ def parser(subparsers, conf):
                         default=None
                         ).completer = CommaSeparatedTagsCompletion(conf)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
-                        default=None)
+                        default=None, type=p3.to_utf8)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
                         help="don't copy document files, just create a link.")
     parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,

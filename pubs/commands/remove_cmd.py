@@ -1,8 +1,10 @@
+from __future__ import unicode_literals
+
 from .. import repo
 from .. import color
 from ..uis import get_ui
 from ..utils import resolve_citekey_list
-from ..p3 import ustr
+from ..p3 import ustr, to_utf8
 from ..completion import CiteKeyCompletion
 
 
@@ -10,8 +12,8 @@ def parser(subparsers, conf):
     parser = subparsers.add_parser('remove', help='removes a publication')
     parser.add_argument('-f', '--force', action='store_true', default=None,
                         help="does not prompt for confirmation.")
-    parser.add_argument('citekeys', nargs='+',
-                        help="one or several citekeys"
+    parser.add_argument('citekeys', nargs='+', type=to_utf8,
+                        help="one or several citekeys",
                         ).completer = CiteKeyCompletion(conf)
     return parser
 
@@ -21,6 +23,7 @@ def command(conf, args):
     ui = get_ui()
     force = args.force
     rp = repo.Repository(conf)
+    print(type(args.citekeys[0]), args.citekeys[0])
 
     keys = resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True)
 
@@ -37,10 +40,12 @@ def command(conf, args):
             except Exception as e:
                 ui.error(ustr(e))
                 failed = True
-        ui.message('The publication(s) [{}] were removed'.format(
-            ', '.join([color.dye_out(c, 'citekey') for c in keys])))
         if failed:
             ui.exit()  # Exit with nonzero error code
+        else:
+            ui.message('The publication(s) [{}] were removed'.format(
+                ', '.join([color.dye_out(c, 'citekey') for c in keys])))
+
         # FIXME: print should check that removal proceeded well.
     else:
         ui.message('The publication(s) [{}] were {} removed'.format(

@@ -25,14 +25,14 @@ def str2citekey(s):
 
 def check_citekey(citekey):
     if citekey is None or not citekey.strip():
-        raise ValueError(u"Empty citekeys are not valid")
+        raise ValueError("Empty citekeys are not valid")
 
 
 def verify_bibdata(bibdata):
     if bibdata is None or len(bibdata) == 0:
-        raise ValueError(u"no valid bibdata")
+        raise ValueError("no valid bibdata")
     if len(bibdata) > 1:
-        raise ValueError(u"ambiguous: multiple entries in the bibdata.")
+        raise ValueError("ambiguous: multiple entries in the bibdata.")
 
 
 def get_entry(bibdata):
@@ -64,12 +64,12 @@ def generate_citekey(bibdata):
         first_author = entry[author_key][0]
     except KeyError:
         raise ValueError(
-            u"No author or editor defined: cannot generate a citekey.")
+            "No author or editor defined: cannot generate a citekey.")
     try:
         year = entry['year']
     except KeyError:
         year = ''
-    citekey = u'{}{}'.format(u''.join(author_last(first_author)), year)
+    citekey = '{}{}'.format(''.join(author_last(first_author)), year)
 
     return str2citekey(citekey)
 
