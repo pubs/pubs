@@ -276,14 +276,18 @@ class TestAdd(URLContentTestCase):
         self.assertEqual(set(os.listdir(bib_dir)), {'CustomCitekey.bib'})
 
     def test_add_utf8_citekey(self):
-        err = ("error: Invalid `hausdorff1949grundzüge` citekey; "
-               "utf-8 citekeys are not supported yet.\n"
-               "See https://github.com/pubs/pubs/issues/28 for details.") # actually not checked
+        correct = ["",
+                   ("added to pubs:\n"
+                    "[hausdorff1949grundzüge] Hausdorff, Felix \"Grundzüge der Mengenlehre\" (1949) \n"),
+                   "The 'hausdorff1949grundzüge' citekey has been renamed into 'アスキー'\n",
+                   "The 'アスキー' citekey has been renamed into 'Ḽơᶉëᶆ_ȋṕšᶙṁ'\n"
+                  ]
         cmds = ['pubs init',
-                ('pubs add bibexamples/utf8.bib', [], '', err),
+                ('pubs add bibexamples/utf8.bib', [], correct[1]),
+                ('pubs rename hausdorff1949grundzüge アスキー', [], correct[2]),
+                ('pubs rename アスキー Ḽơᶉëᶆ_ȋṕšᶙṁ', [], correct[3]),
                ]
-        with self.assertRaises(FakeSystemExit):
-            self.execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_add_doc_nocopy_does_not_copy(self):
         cmds = ['pubs init',
@@ -350,10 +354,11 @@ class TestList(DataCommandTestCase):
         self.assertEqual(0, len(outs[1].splitlines()))
         self.assertEqual(1, len(outs[3].splitlines()))
 
-    @unittest.expectedFailure #FIXME pyfakefs's shutil.rmtree seems to have problems: submit an issue.
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p testrepo'])
-        shutil.rmtree('testrepo')
+        os.chdir('/') # weird fix for shutil.rmtree invocation.
+        shutil.rmtree(self.rootpath + '/testrepo')
+        os.chdir(self.rootpath)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
         #fake_env.copy_dir(self.fs, testrepo, 'testrepo')

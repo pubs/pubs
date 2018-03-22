@@ -39,7 +39,6 @@ def redirect(f):
 # Test helpers
 
 # automating input
-
 real_input = input
 
 
