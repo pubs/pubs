@@ -6,9 +6,9 @@ from .. import repo
 from .. import paper
 from .. import templates
 from .. import apis
-from .. import color
 from .. import pretty
 from .. import utils
+from ..completion import CommaSeparatedTagsCompletion
 
 
 class ValidateDOI(argparse.Action):
@@ -26,7 +26,8 @@ def parser(subparsers, conf):
     parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
-                        default=None)
+                        default=None
+                        ).completer = CommaSeparatedTagsCompletion(conf)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None)
     parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,

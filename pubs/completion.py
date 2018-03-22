@@ -59,6 +59,11 @@ class TagModifierCompletion(BaseCompleter):
         return [partial_expr + t for t in tags if t.startswith(t_prefix)]
 
 
+class CommaSeparatedTagsCompletion(TagModifierCompletion):
+
+    regxp = r"[^,]*$"
+
+
 class CommaSeparatedListCompletion(BaseCompleter):
 
     values = []
