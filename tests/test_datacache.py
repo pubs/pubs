@@ -126,7 +126,6 @@ class TestCacheEntrySet(unittest.TestCase):
         value = self.bibcache.pull('a')
         self.assertEqual(value, 'b')
 
-
     def test_is_outdated_when_unknown_citekey(self):
         self.assertTrue(self.metacache._is_outdated('a'))
 

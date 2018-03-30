@@ -16,7 +16,6 @@ class TestDataBroker(fake_env.TestFakeFs):
 
     def test_databroker(self):
 
-
         ende = endecoder.EnDecoder()
         page99_metadata = ende.decode_metadata(str_fixtures.metadata_raw0)
         page99_bibentry = ende.decode_bibdata(str_fixtures.bibtex_raw0)
@@ -70,6 +69,25 @@ class TestDataBroker(fake_env.TestFakeFs):
             self.assertTrue(content.check_file('testrepo/doc/Larry99.pdf', fail=False))
 
             db.remove_doc('docsdir://Page99.pdf')
+
+    def test_push_pull_cache(self):
+        db = databroker.DataBroker('tmp', 'tmp/doc', create=True)
+        data_in = {'a': 1}
+        db.push_cache('meta', data_in)
+        data_out = db.pull_cache('meta')
+        self.assertEqual(data_in, data_out)
+
+    def test_pull_cache_fails_on_version_mismatch(self):
+        db = databroker.DataBroker('tmp', 'tmp/doc', create=True)
+        data_in = {'a': 1}
+        db.push_cache('meta', data_in)
+        ver = databroker.__version__
+        databroker.__version__ = '0.0.0'
+        try:
+            with self.assertRaises(ValueError):
+                db.pull_cache('meta')
+        finally:
+            databroker.__version__ = ver
 
 
 if __name__ == '__main__':

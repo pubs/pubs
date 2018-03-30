@@ -1,6 +1,7 @@
 from . import filebroker
 from . import endecoder
 from .p3 import pickle
+from . import __version__
 
 
 class DataBroker(object):
@@ -22,12 +23,16 @@ class DataBroker(object):
         pass
 
     def pull_cache(self, name):
-        """Load cache data from distk. Exceptions are handled by the caller."""
+        """Load cache data from disk. Exceptions are handled by the caller."""
         data_raw = self.filebroker.pull_cachefile(name)
-        return pickle.loads(data_raw)
+        cache = pickle.loads(data_raw)
+        if cache['version'] != __version__:
+            raise ValueError('Cache not matching code version.')
+        return cache['data']
 
     def push_cache(self, name, data):
-        data_raw = pickle.dumps(data)
+        cache_content = {'version': __version__, 'data': data}
+        data_raw = pickle.dumps(cache_content)
         self.filebroker.push_cachefile(name, data_raw)
 
     # filebroker+endecoder

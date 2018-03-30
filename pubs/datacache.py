@@ -91,8 +91,6 @@ class DataCache(object):
         2. Keeps an up-to-date, pickled version of the repository, to speed up things
            when they are a lot of files. Update are also done only when required.
            Changes are detected using data modification timestamps.
-
-        For the moment, only (1) is implemented.
     """
     def __init__(self, pubsdir, docsdir, create=False):
         self.pubsdir = pubsdir
