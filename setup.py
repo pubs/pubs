@@ -2,11 +2,12 @@
 
 from setuptools import setup
 
-VERSION = '0.7.0'
+with open('pubs/version.py') as f:
+    exec(f.read())  # defines __version__
 
 setup(
     name='pubs',
-    version=VERSION,
+    version=__version__,
     author='Fabien Benureau, Olivier Mangin, Jonathan Grizou',
     author_email='fabien.benureau@gmail.com',
     maintainer='Olivier Mangin',
