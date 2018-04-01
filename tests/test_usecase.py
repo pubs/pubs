@@ -116,10 +116,9 @@ class CommandTestCase(fake_env.TestFakeFs):
                 input.as_global()
                 try:
                     if capture_output:
-                        actual_cmd.split()
-                        _, stdout, stderr = fake_env.capture(pubs_cmd.execute,
-                                                             verbose=PRINT_OUTPUT)(
-                            actual_cmd.split())
+                        capture_wrap = fake_env.capture(pubs_cmd.execute,
+                                                        verbose=PRINT_OUTPUT)
+                        _, stdout, stderr = capture_wrap(actual_cmd.split())
                         actual_out = color.undye(stdout)
                         actual_err = color.undye(stderr)
                         if expected_out is not None:
@@ -202,6 +201,11 @@ class TestAlone(CommandTestCase):
             self.execute_cmds(['pubs'])
             self.assertEqual(cm.exception.code, 2)
 
+<<<<<<< HEAD
+=======
+
+    @unittest.skipIf(sys.version_info.major == 2, "not supported for Python2")
+>>>>>>> implement requested changes for #133
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
         # raises as SystemExit(0) after calling `print_help`, and this gets

@@ -14,7 +14,8 @@ from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
 from .content import check_file, read_text_file, write_file, system_path
 
 
-DEBUG = False
+DEBUG = False  # unhandled exceptions traces are printed
+DEBUG_ALL_TRACES = False # handled exceptions traces are printed
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
@@ -109,10 +110,10 @@ class PrintUI(object):
     def error(self, message, **kwargs):
         kwargs['file'] = self._stderr
         print('{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
-        # if an exception has been raised and debug is on, raise it.
-        if DEBUG or self.debug:
+
+        if DEBUG_ALL_TRACES: # if an exception has been raised, print the trace.
             if sys.exc_info()[0] is not None:
-                raise
+                traceback.print_exception(*sys.exc_info)
 
     def exit(self, error_code=1):
         sys.exit(error_code)
@@ -122,12 +123,12 @@ class PrintUI(object):
 
         :returns: True if exception has been handled (currently never happens)
         """
-        if (not DEBUG) and (not self.debug):
-            self.error(ustr(exc))
-            self.exit()
         self.error(ustr(exc))
-        return False
-
+        if DEBUG or self.debug:
+            raise
+        else:
+            self.exit()
+        return True # never happens
 
 class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.

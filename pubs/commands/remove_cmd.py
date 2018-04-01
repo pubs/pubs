@@ -23,7 +23,6 @@ def command(conf, args):
     ui = get_ui()
     force = args.force
     rp = repo.Repository(conf)
-    print(type(args.citekeys[0]), args.citekeys[0])
 
     keys = resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True)
 

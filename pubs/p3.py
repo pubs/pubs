@@ -2,8 +2,7 @@ import io
 import sys
 import argparse
 
-from six import b, u
-
+from six import b
 
 
 if sys.version_info[0] == 2:
@@ -56,7 +55,7 @@ if sys.version_info[0] == 2:
     def to_utf8(s):
         return b(s)
 
-    # for details, seehttp://bugs.python.org/issue9779
+    # for details, see http://bugs.python.org/issue9779
     class ArgumentParser(argparse.ArgumentParser):
         def _print_message(self, message, file=None):
             """Fixes the lack of a buffer interface in unicode object """
@@ -64,7 +63,6 @@ if sys.version_info[0] == 2:
                 if file is None:
                     file = _sys.stderr
                 file.write(message.encode('utf-8'))
-
 
 
 else:
