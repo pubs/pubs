@@ -87,7 +87,7 @@ def execute(raw_args=sys.argv):
 
         # Parse and run appropriate command
         # if no command, print help and exit peacefully (as '--help' does)
-        args = parser.parse_args(remaining_args) 
+        args = parser.parse_args(remaining_args)
         if not args.command:
             ui.error("Too few arguments!\n")
             parser.print_help(file=sys.stderr)
