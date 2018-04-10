@@ -52,9 +52,6 @@ if sys.version_info[0] == 2:
         stdio.seek(0)
         return stdio.read()
 
-    def to_utf8(s):
-        return b(s)
-
     # for details, see http://bugs.python.org/issue9779
     class ArgumentParser(argparse.ArgumentParser):
         def _print_message(self, message, file=None):
@@ -103,9 +100,6 @@ else:
         stdio.flush()
         stdio.seek(0)
         return stdio.read()
-
-    def to_utf8(s):
-        return s
 
     import pickle
 

@@ -123,9 +123,7 @@ class CommandTestCase(fake_env.TestFakeFs):
                         actual_err = color.undye(stderr)
                         if expected_out is not None:
                             self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
-                            #self.assertEqual(actual_out, expected_out)
                         if expected_err is not None:
-                            self.assertEqual(actual_err, expected_err)
                             self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
                         outs.append(color.undye(actual_out))
                     else:
@@ -201,11 +199,6 @@ class TestAlone(CommandTestCase):
             self.execute_cmds(['pubs'])
             self.assertEqual(cm.exception.code, 2)
 
-<<<<<<< HEAD
-=======
-
-    @unittest.skipIf(sys.version_info.major == 2, "not supported for Python2")
->>>>>>> implement requested changes for #133
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
         # raises as SystemExit(0) after calling `print_help`, and this gets
