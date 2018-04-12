@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from ..uis import get_ui
 from .. import color
 from .. import repo

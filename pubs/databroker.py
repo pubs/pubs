@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from . import filebroker
 from . import endecoder
 from .p3 import pickle
@@ -76,7 +78,7 @@ class DataBroker(object):
     def verify(self, bibdata_raw):
         """Will return None if bibdata_raw can't be decoded"""
         try:
-            if bibdata_raw.startswith(u'\ufeff'):
+            if bibdata_raw.startswith('\ufeff'):
                 # remove BOM, because bibtexparser does not support it.
                 bibdata_raw = bibdata_raw[1:]
             return self.endecoder.decode_bibdata(bibdata_raw)

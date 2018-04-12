@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import unicode_literals
+
 import unittest
 
 import yaml
@@ -89,16 +89,16 @@ class TestEnDecode(unittest.TestCase):
 
     def test_endecode_keyword_as_keywords(self):
         decoder = endecoder.EnDecoder()
-        keywords = [u'artificial intelligence', u'Turing test']
+        keywords = ['artificial intelligence', 'Turing test']
         # Add keywords to bibraw
         keyword_str = 'keywords = {artificial intelligence, Turing test},\n'
         biblines = turing_bib.splitlines()
         biblines.insert(-3, keyword_str)
         bibsrc = '\n'.join(biblines)
         entry = decoder.decode_bibdata(bibsrc)['turing1950computing']
-        self.assertNotIn(u'keywords', entry)
-        self.assertIn(u'keyword', entry)
-        self.assertEqual(set(keywords), set(entry[u'keyword']))
+        self.assertNotIn('keywords', entry)
+        self.assertIn('keyword', entry)
+        self.assertEqual(set(keywords), set(entry['keyword']))
 
     def test_endecode_metadata(self):
         decoder = endecoder.EnDecoder()
@@ -110,16 +110,16 @@ class TestEnDecode(unittest.TestCase):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
         lines = decoder.encode_bibdata(entry).splitlines()
-        self.assertEqual(lines[1].split('=')[0].strip(), u'author')
-        self.assertEqual(lines[2].split('=')[0].strip(), u'title')
-        self.assertEqual(lines[3].split('=')[0].strip(), u'institution')
-        self.assertEqual(lines[4].split('=')[0].strip(), u'publisher')
-        self.assertEqual(lines[5].split('=')[0].strip(), u'year')
-        self.assertEqual(lines[6].split('=')[0].strip(), u'month')
-        self.assertEqual(lines[7].split('=')[0].strip(), u'number')
-        self.assertEqual(lines[8].split('=')[0].strip(), u'url')
-        self.assertEqual(lines[9].split('=')[0].strip(), u'note')
-        self.assertEqual(lines[10].split('=')[0].strip(), u'abstract')
+        self.assertEqual(lines[1].split('=')[0].strip(), 'author')
+        self.assertEqual(lines[2].split('=')[0].strip(), 'title')
+        self.assertEqual(lines[3].split('=')[0].strip(), 'institution')
+        self.assertEqual(lines[4].split('=')[0].strip(), 'publisher')
+        self.assertEqual(lines[5].split('=')[0].strip(), 'year')
+        self.assertEqual(lines[6].split('=')[0].strip(), 'month')
+        self.assertEqual(lines[7].split('=')[0].strip(), 'number')
+        self.assertEqual(lines[8].split('=')[0].strip(), 'url')
+        self.assertEqual(lines[9].split('=')[0].strip(), 'note')
+        self.assertEqual(lines[10].split('=')[0].strip(), 'abstract')
 
     def test_endecode_link_as_url(self):
         decoder = endecoder.EnDecoder()
@@ -129,9 +129,9 @@ class TestEnDecode(unittest.TestCase):
         raw_with_link = bibtex_raw0.replace('url = ', 'link = ')
         entry = decoder.decode_bibdata(raw_with_link)
         lines = decoder.encode_bibdata(entry).splitlines()
-        self.assertEqual(lines[8].split('=')[0].strip(), u'url')
+        self.assertEqual(lines[8].split('=')[0].strip(), 'url')
         self.assertEqual(lines[8].split('=')[1].strip(),
-                         u'{http://ilpubs.stanford.edu:8090/422/},')
+                         '{http://ilpubs.stanford.edu:8090/422/},')
 
     def test_endecode_bibtex_ignores_fields(self):
         decoder = endecoder.EnDecoder()

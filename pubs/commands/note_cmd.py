@@ -7,7 +7,7 @@ from ..completion import CiteKeyCompletion
 def parser(subparsers, conf):
     parser = subparsers.add_parser('note',
                                    help='edit the note attached to a paper')
-    parser.add_argument('citekey', help='citekey of the paper'
+    parser.add_argument('citekey', help='citekey of the paper',
                         ).completer = CiteKeyCompletion(conf)
     return parser
 

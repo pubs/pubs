@@ -16,6 +16,7 @@ The different use cases are :
 7. > pubs tag -war+math+romance
     display all papers with the tag 'math', 'romance' but not 'war'
 """
+from __future__ import unicode_literals
 
 import re
 

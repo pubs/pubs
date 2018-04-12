@@ -1,4 +1,4 @@
-# display formatting
+from __future__ import unicode_literals
 
 import re
 
@@ -41,7 +41,7 @@ def bib_oneliner(bibdata):
     elif bibdata[TYPE_KEY] == 'inproceedings':
         journal = ' ' + bibdata.get('booktitle', '')
 
-    return sanitize(u'{authors} \"{title}\"{journal}{year}'.format(
+    return sanitize('{authors} \"{title}\"{journal}{year}'.format(
         authors=color.dye_out(authors, 'author'),
         title=color.dye_out(bibdata.get('title', ''), 'title'),
         journal=color.dye_out(journal, 'publisher'),
@@ -66,6 +66,6 @@ def paper_oneliner(p, citekey_only=False):
         bibdesc = bib_oneliner(p.bibdata)
         tags = '' if len(p.tags) == 0 else '| {}'.format(
             ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
-        return u'[{citekey}] {descr} {tags}'.format(
+        return '[{citekey}] {descr} {tags}'.format(
             citekey=color.dye_out(p.citekey, 'citekey'),
             descr=bibdesc, tags=tags)

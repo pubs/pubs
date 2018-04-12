@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from .. import uis
 from .. import config
 from .. import content

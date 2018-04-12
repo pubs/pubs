@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import sys
@@ -14,7 +14,8 @@ from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
 from .content import check_file, read_text_file, write_file, system_path
 
 
-DEBUG = False
+DEBUG = False  # unhandled exceptions traces are printed
+DEBUG_ALL_TRACES = False # handled exceptions traces are printed
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
@@ -42,7 +43,7 @@ def _get_local_editor():
     return os.environ.get('EDITOR', 'nano')
 
 
-def _editor_input(editor, initial=u'', suffix='.tmp'):
+def _editor_input(editor, initial='', suffix='.tmp'):
     """Use an editor to get input"""
     str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
@@ -100,15 +101,19 @@ class PrintUI(object):
 
     def info(self, message, **kwargs):
         kwargs['file'] = self._stdout
-        print(u'{}: {}'.format(color.dye_out('info', 'ok'), message), **kwargs)
+        print('{}: {}'.format(color.dye_out('info', 'ok'), message), **kwargs)
 
     def warning(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print(u'{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
+        print('{}: {}'.format(color.dye_err('warning', 'warning'), message), **kwargs)
 
     def error(self, message, **kwargs):
         kwargs['file'] = self._stderr
-        print(u'{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
+        print('{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
+
+        if DEBUG_ALL_TRACES: # if an exception has been raised, print the trace.
+            if sys.exc_info()[0] is not None:
+                traceback.print_exception(*sys.exc_info)
 
     def exit(self, error_code=1):
         sys.exit(error_code)
@@ -118,11 +123,12 @@ class PrintUI(object):
 
         :returns: True if exception has been handled (currently never happens)
         """
-        if (not DEBUG) and (not self.debug):
-            self.error(ustr(exc))
+        self.error(ustr(exc))
+        if DEBUG or self.debug:
+            raise
+        else:
             self.exit()
-        return False
-
+        return True # never happens
 
 class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.
@@ -136,7 +142,7 @@ class InputUI(PrintUI):
         try:
             data = input()
         except EOFError:
-            self.error(u'Standard input ended while waiting for answer.')
+            self.error('Standard input ended while waiting for answer.')
             self.exit(1)
         return ustr(data) #.decode('utf-8')
 
@@ -159,10 +165,10 @@ class InputUI(PrintUI):
         if len(set(option_chars)) != len(option_chars): # duplicate chars, char choices are deactivated. #FIXME: should only deactivate ambiguous chars
             option_chars = []
 
-        option_str = u'/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
+        option_str = '/'.join(["{}{}".format(color.dye_out(c, 'bold'), s[1:])
                                for c, s in zip(displayed_chars, options)])
 
-        self.message(u'{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
+        self.message('{}: {} {}: '.format(color.dye_err('prompt', 'warning'), question, option_str), end='')
         while True:
             answer = self.input()
             if answer is None or answer == '':
@@ -176,7 +182,7 @@ class InputUI(PrintUI):
                         return option_chars.index(answer.lower())
                     except ValueError:
                         pass
-            self.message(u'Incorrect option.', option_str)
+            self.message('Incorrect option.', option_str)
 
 
     def input_choice(self, options, option_chars, default=None, question=''):
@@ -209,7 +215,7 @@ class InputUI(PrintUI):
                     return option_chars.index(answer.lower())
                 except ValueError:
                     pass
-            self.message(u'Incorrect option.', option_str)
+            self.message('Incorrect option.', option_str)
 
     def input_yn(self, question='', default='y'):
         d = 0 if default in (True, 'y', 'yes') else 1

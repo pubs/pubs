@@ -116,22 +116,21 @@ class CommandTestCase(fake_env.TestFakeFs):
                 input.as_global()
                 try:
                     if capture_output:
-                        _, stdout, stderr = fake_env.redirect(pubs_cmd.execute)(
-                            actual_cmd.split())
+                        capture_wrap = fake_env.capture(pubs_cmd.execute,
+                                                        verbose=PRINT_OUTPUT)
+                        _, stdout, stderr = capture_wrap(actual_cmd.split())
                         actual_out = color.undye(stdout)
                         actual_err = color.undye(stderr)
                         if expected_out is not None:
-                            self.assertEqual(actual_out, expected_out)
+                            self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
                         if expected_err is not None:
-                            self.assertEqual(actual_err, expected_err)
+                            self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
-                except fake_env.FakeInput.UnexpectedInput:
+                except fake_env.FakeInput.UnexpectedInput as e:
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
-            if PRINT_OUTPUT:
-                print(outs)
             return outs
         except SystemExit as exc:
             exc_class, exc, tb = sys.exc_info()
@@ -199,7 +198,6 @@ class TestAlone(CommandTestCase):
         with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
             self.assertEqual(cm.exception.code, 2)
-
 
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
@@ -276,14 +274,18 @@ class TestAdd(URLContentTestCase):
         self.assertEqual(set(os.listdir(bib_dir)), {'CustomCitekey.bib'})
 
     def test_add_utf8_citekey(self):
-        err = ("error: Invalid `hausdorff1949grundzüge` citekey; "
-               "utf-8 citekeys are not supported yet.\n"
-               "See https://github.com/pubs/pubs/issues/28 for details.") # actually not checked
+        correct = ["",
+                   ("added to pubs:\n"
+                    "[hausdorff1949grundzüge] Hausdorff, Felix \"Grundzüge der Mengenlehre\" (1949) \n"),
+                   "The 'hausdorff1949grundzüge' citekey has been renamed into 'アスキー'\n",
+                   "The 'アスキー' citekey has been renamed into 'Ḽơᶉëᶆ_ȋṕšᶙṁ'\n"
+                  ]
         cmds = ['pubs init',
-                ('pubs add bibexamples/utf8.bib', [], '', err),
+                ('pubs add bibexamples/utf8.bib', [], correct[1]),
+                ('pubs rename hausdorff1949grundzüge アスキー', [], correct[2]),
+                ('pubs rename アスキー Ḽơᶉëᶆ_ȋṕšᶙṁ', [], correct[3]),
                ]
-        with self.assertRaises(FakeSystemExit):
-            self.execute_cmds(cmds)
+        self.execute_cmds(cmds)
 
     def test_add_doc_nocopy_does_not_copy(self):
         cmds = ['pubs init',
@@ -350,10 +352,11 @@ class TestList(DataCommandTestCase):
         self.assertEqual(0, len(outs[1].splitlines()))
         self.assertEqual(1, len(outs[3].splitlines()))
 
-    @unittest.expectedFailure #FIXME pyfakefs's shutil.rmtree seems to have problems: submit an issue.
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p testrepo'])
-        shutil.rmtree('testrepo')
+        os.chdir('/') # weird fix for shutil.rmtree invocation.
+        shutil.rmtree(self.rootpath + '/testrepo')
+        os.chdir(self.rootpath)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
         #fake_env.copy_dir(self.fs, testrepo, 'testrepo')

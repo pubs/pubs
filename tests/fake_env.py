@@ -21,16 +21,24 @@ real_glob    = glob
 real_io      = io
 
 
-# redirecting output
+# capture output
 
-def redirect(f):
+def capture(f, verbose=False):
+    """Capture the stdout and stderr output.
+
+    Useful for comparing the output with the expected one during tests.
+
+    :param f:        The function to capture output from.
+    :param verbose:  If True, print call will still display their outputs.
+                     If False, they will be silenced.
+
+    """
     def newf(*args, **kwargs):
         old_stderr, old_stdout = sys.stderr, sys.stdout
-        stdout = _fake_stdio()
-        stderr = _fake_stdio()
-        sys.stdout, sys.stderr = stdout, stderr
+        sys.stdout = _fake_stdio(additional_out=old_stderr if verbose else None)
+        sys.stderr = _fake_stdio(additional_out=old_stderr if False else None)
         try:
-            return f(*args, **kwargs), _get_fake_stdio_ucontent(stdout), _get_fake_stdio_ucontent(stderr)
+            return f(*args, **kwargs), _get_fake_stdio_ucontent(sys.stdout), _get_fake_stdio_ucontent(sys.stderr)
         finally:
             sys.stderr, sys.stdout = old_stderr, old_stdout
     return newf
@@ -39,7 +47,6 @@ def redirect(f):
 # Test helpers
 
 # automating input
-
 real_input = input
 
 
@@ -92,6 +99,7 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
     def setUp(self):
         self.rootpath = os.path.abspath(os.path.dirname(__file__))
         self.setUpPyfakefs()
+        self.fs.CreateDirectory(os.path.expanduser('~'))
         self.fs.CreateDirectory(self.rootpath)
         os.chdir(self.rootpath)
 

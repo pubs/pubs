@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import sys
 import os
 import shutil
@@ -28,7 +30,7 @@ class UnableToDecodeTextFile(Exception):
 def _check_system_path_exists(path, fail=True):
     answer = os.path.exists(path)
     if not answer and fail:
-        raise IOError(u'File does not exist: {}'.format(path))
+        raise IOError('File does not exist: {}'.format(path))
     else:
         return answer
 
@@ -37,7 +39,7 @@ def _check_system_path_is(nature, path, fail=True):
     check_fun = getattr(os.path, nature)
     answer = check_fun(path)
     if not answer and fail:
-        raise IOError(u'{} is not a {}.'.format(path, nature))
+        raise IOError('{} is not a {}.'.format(path, nature))
     else:
         return answer
 
@@ -56,13 +58,13 @@ def _open(path, mode):
 def check_file(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail) and
-            _check_system_path_is(u'isfile', syspath, fail=fail))
+            _check_system_path_is('isfile', syspath, fail=fail))
 
 
 def check_directory(path, fail=True):
     syspath = system_path(path)
     return (_check_system_path_exists(syspath, fail=fail) and
-            _check_system_path_is(u'isdir', syspath, fail=fail))
+            _check_system_path_is('isdir', syspath, fail=fail))
 
 
 def read_text_file(filepath, fail=True):
@@ -112,23 +114,23 @@ def write_file(filepath, data, mode='w'):
 
 def content_type(path):
     parsed = urlparse(path)
-    if parsed.scheme == u'http':
-        return u'url'
+    if parsed.scheme == 'http':
+        return 'url'
     else:
-        return u'file'
+        return 'file'
 
 
 def url_exists(url):
     parsed = urlparse(url)
     conn = HTTPConnection(parsed.netloc)
-    conn.request(u'HEAD', parsed.path)
+    conn.request('HEAD', parsed.path)
     response = conn.getresponse()
     conn.close()
     return response.status == 200
 
 
 def check_content(path):
-    if content_type(path) == u'url':
+    if content_type(path) == 'url':
         return url_exists(path)
     else:
         return check_file(path)
@@ -136,7 +138,7 @@ def check_content(path):
 
 def _get_byte_url_content(path, ui=None):
     if ui is not None:
-        ui.message(u'dowloading {}'.format(path))
+        ui.message('dowloading {}'.format(path))
     response = urlopen(path)
     return response.read()
 
@@ -151,7 +153,7 @@ def _dump_byte_url_content(source, target):
 
 def get_content(path, ui=None):
     """Will be useful when we need to get content from url"""
-    if content_type(path) == u'url':
+    if content_type(path) == 'url':
         return _get_byte_url_content(path, ui=ui).decode(encoding='utf-8')
     else:
         return read_text_file(path)
@@ -163,19 +165,19 @@ def move_content(source, target, overwrite=False):
     if source == target:
         return
     if not overwrite and os.path.exists(target):
-        raise IOError(u'target file exists')
+        raise IOError('target file exists')
     shutil.move(source, target)
 
 
 def copy_content(source, target, overwrite=False):
-    source_is_url = content_type(source) == u'url'
+    source_is_url = content_type(source) == 'url'
     if not source_is_url:
         source = system_path(source)
     target = system_path(target)
     if source == target:
         return
     if not overwrite and os.path.exists(target):
-        raise IOError(u'{} file exists.'.format(target))
+        raise IOError('{} file exists.'.format(target))
     if source_is_url:
         _dump_byte_url_content(source, target)
     else:

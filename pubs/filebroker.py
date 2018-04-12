@@ -1,6 +1,6 @@
 import os
 import re
-from .p3 import urlparse
+from .p3 import urlparse, u_maybe
 
 from .content import (check_file, check_directory, read_text_file, write_file,
                       system_path, check_content, copy_content)
@@ -18,7 +18,7 @@ def filter_filename(filename, ext):
     """
     pattern = '.*\{}$'.format(ext)
     if re.match(pattern, filename) is not None:
-        return filename[:-len(ext)]
+        return u_maybe(filename[:-len(ext)])
 
 
 class FileBroker(object):
