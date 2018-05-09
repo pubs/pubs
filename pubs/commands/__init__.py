@@ -15,5 +15,6 @@ from . import export_cmd
 from . import import_cmd
 # bonus
 from . import websearch_cmd
+from . import url_cmd
 
 from . import edit_cmd
