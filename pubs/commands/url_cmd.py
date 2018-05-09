@@ -30,6 +30,7 @@ def command(conf, args):
             webbrowser.open(url)
 
         except KeyError as e:
-            ui.error(key, 'has no url')
+            ui.error('{} has no url'.format(key))
+            print(key)
 
     rp.close()
