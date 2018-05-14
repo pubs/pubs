@@ -31,6 +31,5 @@ def command(conf, args):
 
         except KeyError as e:
             ui.error('{} has no url'.format(key))
-            print(key)
 
     rp.close()
