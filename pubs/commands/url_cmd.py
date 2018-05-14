@@ -23,13 +23,13 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
 
-    for key in resolve_citekey_list(rp, args.citekey, ui=ui, exit_on_fail=True):
+    for key in resolve_citekey_list(rp, args.citekey, ui=ui, exit_on_fail=False):
         try:
             paper = rp.pull_paper(key)
             url = paper.bibdata['url']
             webbrowser.open(url)
 
         except KeyError as e:
-            ui.error('{} has no url'.format(key))
+            ui.warning('{} has no url'.format(key))
 
     rp.close()
