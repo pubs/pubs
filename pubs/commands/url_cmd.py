@@ -2,23 +2,22 @@ from __future__ import unicode_literals
 
 import webbrowser
 
-from .. import p3
 from .. import repo
 from ..uis import get_ui
-from ..utils import resolve_citekey, resolve_citekey_list
+from ..utils import resolve_citekey_list
 
 
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser('url',
-                                   help="open the url in the browser")
+                                   help="open a paper's url in the default web browser")
     parser.add_argument("citekey", nargs = '*',
                         help="one or more citeKeys to open")
     return parser
 
 
 def command(conf, args):
-    """Open the url for a publication."""
+    """Open the url of one or several papers in a web browser."""
 
     ui = get_ui()
     rp = repo.Repository(conf)
@@ -27,6 +26,7 @@ def command(conf, args):
         try:
             paper = rp.pull_paper(key)
             url = paper.bibdata['url']
+            ui.info('opening url {}'.format(url))
             webbrowser.open(url)
 
         except KeyError as e:
