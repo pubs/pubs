@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import shutil
+import mock
 
 import six
 import ddt
@@ -22,7 +23,6 @@ import str_fixtures
 import fixtures
 
 from pubs.commands import init_cmd, import_cmd
-
 
 # makes the tests very noisy
 PRINT_OUTPUT   = False
@@ -104,13 +104,14 @@ class CommandTestCase(fake_env.TestFakeFs):
                 actual_cmd = cmd
                 if not isinstance(cmd, p3.ustr):
                     actual_cmd = cmd[0]
-                    if len(cmd) == 2:  # Inputs provided
+                    if len(cmd) >= 2 and cmd[1] is not None:  # Inputs provided
                         inputs = cmd[1]
-                    if len(cmd) == 3:  # Expected output provided
+                    if len(cmd) >= 3:  # Expected output provided
                         capture_output = True
-                        expected_out = color.undye(cmd[2])
-                    if len(cmd) == 4:  # Expected error output provided
-                        expected_err = color.undye(cmd[3])
+                        if cmd[2] is not None:
+                            expected_out = color.undye(cmd[2])
+                    if len(cmd) >= 4 and cmd[3] is not None:  # Expected error output provided
+                            expected_err = color.undye(cmd[3])
                 # Always set fake input: test should not ask unexpected user input
                 input = fake_env.FakeInput(inputs, [content, uis, p3])
                 input.as_global()
@@ -153,6 +154,7 @@ class DataCommandTestCase(CommandTestCase):
         super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'bibexamples'), read_only=False)
+        self.fs.CreateFile('/dev/null')
 
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
@@ -496,6 +498,45 @@ class TestTag(DataCommandTestCase):
                 ]
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
+
+class TestURL(DataCommandTestCase):
+
+    def setUp(self):
+        super(TestURL, self).setUp()
+        init = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs add data/turing1950.bib',
+                'pubs add data/martius.bib',
+                ]
+        #self.fs.add_real_file('/dev/null')
+        #webbrowser.register('true', None, webbrowser.GenericBrowser('/usr/bin/true'), -1)
+        self.execute_cmds(init)
+
+    @mock.patch('webbrowser.open')
+    def test_url_open_one(self, wb_open):
+        cmds = [('pubs url Page99', 'qy'),
+                ]
+        correct = ['info: opening url http://ilpubs.stanford.edu:8090/422/\n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
+    @mock.patch('webbrowser.open')
+    def test_url_open_missing(self, wb_open):
+        cmds = [('pubs url turing1950computing', None, None, 'warning: turing1950computing has no url\n'),
+                ]
+        self.execute_cmds(cmds)
+
+    @mock.patch('webbrowser.open')
+    def test_url_open_multiple(self, wb_open):
+        cmds = [('pubs url Page99 10.1371_journal.pone.0063400', 'qyqy'),
+                ]
+        correct = ['info: opening url http://ilpubs.stanford.edu:8090/422/\n' +
+                   'info: opening url http://dx.doi.org/10.1371%2Fjournal.pone.0063400\n',
+                   ]
+        out = self.execute_cmds(cmds)
+        self.assertEqual(out, correct)
+
 
 
 class TestNote(DataCommandTestCase):
