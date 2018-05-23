@@ -508,13 +508,11 @@ class TestURL(DataCommandTestCase):
                 'pubs add data/turing1950.bib',
                 'pubs add data/martius.bib',
                 ]
-        #self.fs.add_real_file('/dev/null')
-        #webbrowser.register('true', None, webbrowser.GenericBrowser('/usr/bin/true'), -1)
         self.execute_cmds(init)
 
     @mock.patch('webbrowser.open')
     def test_url_open_one(self, wb_open):
-        cmds = [('pubs url Page99', 'qy'),
+        cmds = ['pubs url Page99',
                 ]
         correct = ['info: opening url http://ilpubs.stanford.edu:8090/422/\n',
                    ]
@@ -529,7 +527,7 @@ class TestURL(DataCommandTestCase):
 
     @mock.patch('webbrowser.open')
     def test_url_open_multiple(self, wb_open):
-        cmds = [('pubs url Page99 10.1371_journal.pone.0063400', 'qyqy'),
+        cmds = ['pubs url Page99 10.1371_journal.pone.0063400',
                 ]
         correct = ['info: opening url http://ilpubs.stanford.edu:8090/422/\n' +
                    'info: opening url http://dx.doi.org/10.1371%2Fjournal.pone.0063400\n',
