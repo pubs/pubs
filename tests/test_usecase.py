@@ -154,7 +154,6 @@ class DataCommandTestCase(CommandTestCase):
         super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'bibexamples'), read_only=False)
-        self.fs.CreateFile('/dev/null')
 
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
         # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
