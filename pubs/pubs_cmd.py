@@ -29,6 +29,7 @@ CORE_CMDS = collections.OrderedDict([
     ('import', commands.import_cmd),
 
     ('websearch', commands.websearch_cmd),
+    ('url', commands.url_cmd),
     ('edit', commands.edit_cmd),
 ])
 
