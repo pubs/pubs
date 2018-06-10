@@ -141,6 +141,13 @@ class Repository(object):
             pass
 
     def rename_paper(self, paper, new_citekey=None, old_citekey=None):
+        """Move a paper from a citekey to another one.
+
+        Even if the new and old citekey are the same, the paper instance is
+        pushed to disk.
+
+        :return:  True if a rename happened, False if not.
+        """
         if old_citekey is None:
             old_citekey = paper.citekey
         if new_citekey is None:
@@ -149,6 +156,7 @@ class Repository(object):
         # check if new_citekey is not the same as paper.citekey
         if old_citekey == new_citekey:
             self.push_paper(paper, overwrite=True, event=False)
+            return False
         else:
             # check if new_citekey does not exists
             if new_citekey in self:
@@ -171,6 +179,7 @@ class Repository(object):
             self.remove_paper(old_citekey, event=False)
             # send event
             events.RenameEvent(paper, old_citekey).send()
+            return True
 
     def push_doc(self, citekey, docfile, copy=None):
         p = self.pull_paper(citekey)
