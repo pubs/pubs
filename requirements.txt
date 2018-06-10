@@ -1,0 +1,6 @@
+pyyaml
+bibtexparser>=1.0
+python-dateutil
+requests
+configobj
+beautifulsoup4
