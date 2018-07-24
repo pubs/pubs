@@ -38,9 +38,9 @@ def _get_encoding(conf):
 def _get_local_editor():
     """Get the editor from environment variables.
 
-    Use nano as a default.
+    Use vi as a default.
     """
-    return os.environ.get('EDITOR', 'nano')
+    return os.environ.get('EDITOR', 'vi')
 
 
 def get_ui():
