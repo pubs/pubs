@@ -40,19 +40,20 @@ def arxiv2bibtex(arxiv_id):
     if 'title' not in entry:
         ui = get_ui()
         ui.error('malformed arXiv ID: {}'.format(arxiv_id))
-    if 'arxiv_doi' in entry:
-        return doi2bibtex(entry['arxiv_doi'])
+        bibtex = None
+    elif 'arxiv_doi' in entry:
+        bibtex = doi2bibtex(entry['arxiv_doi'])
     else:
         # Create a bibentry from the metadata.
-        bibtext = '@misc{{{},\n'.format(arxiv_id)
-        bibtext += 'Author = {'
+        bibtex = '@misc{{{},\n'.format(arxiv_id)
+        bibtex += 'Author = {'
         for i, author in enumerate(entry['authors']):
-            bibtext += author['name']
+            bibtex += author['name']
             if i < len(entry['authors']) - 1:
-                bibtext += ' and '
-        bibtext += '},\n'
-        bibtext += 'Title = {{{}}},\n'.format(entry['title'].strip('\n'))
-        bibtext += 'Year = {{{}}},\n'.format(entry['published_parsed'].tm_year)
-        bibtext += 'Eprint = {{arXiv:{}}},\n'.format(arxiv_id)
-        bibtext += '}'
-        return bibtext
+                bibtex += ' and '
+        bibtex += '},\n'
+        bibtex += 'Title = {{{}}},\n'.format(entry['title'].strip('\n'))
+        bibtex += 'Year = {{{}}},\n'.format(entry['published_parsed'].tm_year)
+        bibtex += 'Eprint = {{arXiv:{}}},\n'.format(arxiv_id)
+        bibtex += '}'
+    return bibtex
