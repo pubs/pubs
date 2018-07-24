@@ -68,19 +68,6 @@ def bibentry_from_editor(conf, ui, rp):
     return bibentry
 
 
-def api_call(fn, arg):
-    """Calls the appropriate API command.
-
-    :param fn: The API function to call.
-    :param arg: The argument to give the API call.
-    """
-    bibentry_raw = fn(arg)
-    bibentry = rp.databroker.verify(bibentry_raw)
-    return bibentry
-    if bibentry is None:
-        ui.error('invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
-
-
 def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
