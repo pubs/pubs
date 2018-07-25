@@ -355,8 +355,8 @@ class TestList(DataCommandTestCase):
 
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p testrepo'])
-        os.chdir('/') # weird fix for shutil.rmtree invocation.
-        shutil.rmtree(self.rootpath + '/testrepo')
+        os.chdir('/')  # weird fix for shutil.rmtree invocation.
+        shutil.rmtree(os.path.join(self.rootpath, 'testrepo'))
         os.chdir(self.rootpath)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
