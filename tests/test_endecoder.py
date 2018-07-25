@@ -52,7 +52,7 @@ class TestEnDecode(unittest.TestCase):
 
         self.assertEqual(bibraw1, bibraw2)
 
-    def test_endecode_bibtex(self):
+    def test_endecode_bibtex_converts_month_string(self):
         """Test if `month=dec` is correctly recognized and transformed into
         `month={December}`"""
         decoder = endecoder.EnDecoder()
