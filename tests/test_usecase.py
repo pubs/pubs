@@ -131,7 +131,7 @@ class CommandTestCase(fake_env.TestFakeFs):
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
-                except fake_env.FakeInput.UnexpectedInput as e:
+                except fake_env.FakeInput.UnexpectedInput:
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
             return outs
@@ -200,7 +200,7 @@ class TestAlone(CommandTestCase):
     def test_alone_misses_command(self):
         with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
-            self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 2)
 
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
@@ -682,13 +682,11 @@ class TestUsecase(DataCommandTestCase):
         self.assertFileContentEqual(os.path.expanduser('~/.pubsrc'),
                                     str_fixtures.sample_conf)
 
-    def test_editor_abort(self):
+    def test_editor_aborts(self):
         with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
-                    ('pubs add', ['abc', 'n']),
-                    ('pubs add', ['abc', 'y', 'abc', 'n']),
                     'pubs add data/pagerank.bib',
-                    ('pubs edit Page99', ['', 'a']),
+                    ('pubs edit Page99', ['', 'n']),
                    ]
             self.execute_cmds(cmds)
 

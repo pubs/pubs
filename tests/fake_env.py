@@ -77,6 +77,16 @@ class FakeInput():
             if md.__name__ == 'pubs.uis':
                 md.InputUI.editor_input = self
                 md.InputUI.edit_file = self.input_to_file
+                # Do not catch UnexpectedInput
+                original_handler = md.InputUI.handle_exception
+
+                def handler(ui, exc):
+                    if isinstance(exc, self.UnexpectedInput):
+                        raise
+                    else:
+                        original_handler(ui, exc)
+
+                md.InputUI.handle_exception = handler
 
     def input_to_file(self, path_to_file, temporary=True):
         content.write_file(path_to_file, self())
