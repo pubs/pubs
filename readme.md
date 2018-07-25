@@ -64,7 +64,7 @@ If you use latex, you can automatize references, by running `pubs export > refer
 This ensures that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
 
     pubs add -D 10.1007/s00422-012-0514-6
- 
+
 and then add `\cite{Loeb_2012}` in your manuscript. After exporting the bibliography, the citation will correctly appear in your compiled pdf.
 
 
@@ -112,17 +112,11 @@ For *zsh* completion, the global activation is not supported but bash completion
 You can access the self-documented configuration by using `pubs conf`, and all the commands' help is available with the `--help` option. Did not find an answer to your question? Drop us an issue. We may not answer right away (science comes first!) but we'll eventually look into it.
 
 
-## Requirements
-
-- python >= 2.7 or >= 3.3
-- [bibtexparser](https://github.com/sciunto-org/python-bibtexparser)
-- [beautifulsoup4](https://www.crummy.com/software/BeautifulSoup)
-- [argcomplete](https://argcomplete.readthedocs.io) (optional, for autocompletion)
-
 ## Authors
 
 - [Fabien Benureau](http://fabien.benureau.com)
 - [Olivier Mangin](http://olivier.mangin.com)
+
 
 ### Contributors
 

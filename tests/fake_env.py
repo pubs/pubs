@@ -74,12 +74,11 @@ class FakeInput():
     def as_global(self):
         for md in self.module_list:
             md.input = self
-            md._editor_input = self
-            md._edit_file = self.input_to_file
-            # if mdname.endswith('files'):
-            #     md.editor_input = self
+            if md.__name__ == 'pubs.uis':
+                md.InputUI.editor_input = self
+                md.InputUI.edit_file = self.input_to_file
 
-    def input_to_file(self, _, path_to_file, temporary=True):
+    def input_to_file(self, path_to_file, temporary=True):
         content.write_file(path_to_file, self())
 
     def add_input(self, inp):

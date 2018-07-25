@@ -38,35 +38,9 @@ def _get_encoding(conf):
 def _get_local_editor():
     """Get the editor from environment variables.
 
-    Use nano as a default.
+    Use vi as a default.
     """
-    return os.environ.get('EDITOR', 'nano')
-
-
-def _editor_input(editor, initial='', suffix='.tmp'):
-    """Use an editor to get input"""
-    str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-        tfile_name = temp_file.name
-        temp_file.write(str_initial)
-    cmd = shlex.split(editor)  # this enable editor command with option, e.g. gvim -f
-    cmd.append(tfile_name)
-    subprocess.call(cmd)
-    content = read_text_file(tfile_name)
-    os.remove(tfile_name)
-    return content
-
-
-def _edit_file(editor, path_to_file, temporary=True):
-    if temporary:
-        check_file(path_to_file, fail=True)
-        content = read_text_file(path_to_file)
-        content = _editor_input(editor, content)
-        write_file(path_to_file, content)
-    else:
-        cmd = editor.split()  # this enable editor command with option, e.g. gvim -f
-        cmd.append(system_path(path_to_file))
-        subprocess.call(cmd)
+    return os.environ.get('EDITOR', 'vi')
 
 
 def get_ui():
@@ -223,7 +197,41 @@ class InputUI(PrintUI):
         return [True, False][answer]
 
     def editor_input(self, initial="", suffix='.tmp'):
-        return _editor_input(self.editor, initial=initial, suffix=suffix)
+        """Use an editor to get input"""
+        str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+            tfile_name = temp_file.name
+            temp_file.write(str_initial)
+        self._call_editor(tfile_name)
+        content = read_text_file(tfile_name)
+        os.remove(tfile_name)
+        return content
 
     def edit_file(self, path, temporary):
-        _edit_file(self.editor, path, temporary=temporary)
+        if temporary:
+            check_file(path, fail=True)
+            content = read_text_file(path)
+            content = self.editor_input(content)
+            write_file(path, content)
+        else:
+            self._call_editor(path)
+
+    def _call_editor(self, path):
+        """Call the editor, and checks that no error were raised by the OS"""
+        cmd = shlex.split(self.editor)  # this enable editor command with option, e.g. gvim -f
+        cmd.append(path)
+        try:
+            subprocess.call(cmd)
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                self.error(("Error while calling editor '{}'. The editor may "
+                            "not be present. You can change the text editor "
+                            "that pubs uses by setting the $EDITOR environment "
+                            "variable, or by running `pubs conf` and setting "
+                            "the `edit_cmd` field."
+                            ).format(self.editor))
+                # handle file not found error.
+                self.exit()
+            else:
+                # Something else went wrong while trying to run `wget`
+                self.handle_exception(e)
