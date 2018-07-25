@@ -147,6 +147,11 @@ class TestEnDecode(unittest.TestCase):
         self.assertIn('author', entry1)
         self.assertIn('institution', entry1)
 
+    def test_endecodes_raises_exception(self):
+        decoder = endecoder.EnDecoder()
+        with self.assertRaises(decoder.BibDecodingError):
+            decoder.decode_bibdata("@misc{I am not a correct bibtex{{}")
+
 
 if __name__ == '__main__':
     unittest.main()

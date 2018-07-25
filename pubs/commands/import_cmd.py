@@ -27,7 +27,7 @@ def parser(subparsers, conf):
     return parser
 
 
-def many_from_path(bibpath):
+def many_from_path(ui, bibpath):
     """Extract list of papers found in bibliographic files in path.
 
     The behavior is to:
@@ -49,11 +49,17 @@ def many_from_path(bibpath):
 
     biblist = []
     for filepath in all_files:
-        biblist.append(coder.decode_bibdata(read_text_file(filepath)))
+        try:
+            biblist.append(coder.decode_bibdata(read_text_file(filepath)))
+        except coder.BibDecodingError:
+            ui.error("Could not parse bibtex at {}. Aborting import.".format(filepath))
+            ui.exit()
 
     papers = {}
     for b in biblist:
         for k, b in b.items():
+            if k in papers:
+                ui.warning('Duplicated citekey {}. Keeping last.'.format(k))
             try:
                 papers[k] = Paper(k, b)
                 papers[k].added = datetime.datetime.now()
@@ -75,7 +81,7 @@ def command(conf, args):
 
     rp = repo.Repository(conf)
     # Extract papers from bib
-    papers = many_from_path(bibpath)
+    papers = many_from_path(ui, bibpath)
     keys = args.keys or papers.keys()
     for k in keys:
         p = papers[k]

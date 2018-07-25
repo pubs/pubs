@@ -337,10 +337,19 @@ class TestAdd(URLContentTestCase):
     def test_add_no_citekey_fails(self):
         # See #113
         cmds = ['pubs init',
-                ('pubs add', [str_fixtures.bibtex_no_citekey]),
+                ('pubs add', [str_fixtures.bibtex_no_citekey, 'n']),
                 ]
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
+
+    def test_add_edit_fails(self):
+        cmds = ['pubs init',
+                ('pubs add',
+                    ['@misc{I am not a correct bibtex{{}', 'n']),
+                ]
+        with self.assertRaises(FakeSystemExit) as cm:
+            self.execute_cmds(cmds)
+        self.assertEqual(cm.exception.code, 1)
 
 
 class TestList(DataCommandTestCase):
@@ -689,6 +698,32 @@ class TestUsecase(DataCommandTestCase):
                     ('pubs edit Page99', ['', 'n']),
                    ]
             self.execute_cmds(cmds)
+
+    def test_editor_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ('pubs edit Page99', [
+                    '', 'y',
+                    '@misc{Page99, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[Page99] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
+
+    def test_add_aborts(self):
+        with self.assertRaises(FakeSystemExit):
+            cmds = ['pubs init',
+                    ('pubs add New', ['']),
+                   ]
+            self.execute_cmds(cmds)
+
+    def test_add_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                ('pubs add', [
+                    '', 'y',
+                    '@misc{New, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[New] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
 
     def test_editor_success(self):
         cmds = ['pubs init',
