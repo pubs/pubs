@@ -84,28 +84,33 @@ def command(conf, args):
 
     # get bibtex entry
     if bibfile is None:
-        if args.doi is None and args.isbn is None:
+        if args.doi is None and args.isbn is None and args.arxiv is None:
             bibentry = bibentry_from_editor(conf, ui, rp)
         else:
             bibentry = None
-            if args.doi is not None:
-                bibentry_raw = apis.doi2bibtex(args.doi)
-                bibentry = rp.databroker.verify(bibentry_raw)
-                if bibentry is None:
-                    ui.error('invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
-            if args.isbn is not None:
-                bibentry_raw = apis.isbn2bibtex(args.isbn)
-                bibentry = rp.databroker.verify(bibentry_raw)
-                if bibentry is None:
-                    ui.error('invalid isbn {} or unable to retrieve bibfile from it.'.format(args.isbn))
-                # TODO distinguish between cases, offer to open the error page in a webbrowser.
-                # TODO offer to confirm/change citekey
-            if args.arxiv is not None:
-                bibentry_raw = apis.arxiv2bibtex(args.arxiv)
-                bibentry = rp.databroker.verify(bibentry_raw)
-                if bibentry is None:
-                    ui.error('invalid arxiv id {} or unable to retrieve bibfile from it.'.format(args.arxiv_id))
-            if bibentry is None:
+            try:
+                if args.doi is not None:
+                    bibentry_raw = apis.doi2bibtex(args.doi)
+                    bibentry = rp.databroker.verify(bibentry_raw)
+                    if bibentry is None:
+                        raise apis.ReferenceNotFoundException(
+                            'invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
+                elif args.isbn is not None:
+                    bibentry_raw = apis.isbn2bibtex(args.isbn)
+                    bibentry = rp.databroker.verify(bibentry_raw)
+                    if bibentry is None:
+                        raise apis.ReferenceNotFoundException(
+                            'invalid isbn {} or unable to retrieve bibfile from it.'.format(args.isbn))
+                    # TODO distinguish between cases, offer to open the error page in a webbrowser.
+                    # TODO offer to confirm/change citekey
+                elif args.arxiv is not None:
+                    bibentry_raw = apis.arxiv2bibtex(args.arxiv)
+                    bibentry = rp.databroker.verify(bibentry_raw)
+                    if bibentry is None:
+                        raise apis.ReferenceNotFoundException(
+                            'invalid arxiv id {} or unable to retrieve bibfile from it.'.format(args.arxiv_id))
+            except apis.ReferenceNotFoundException as e:
+                ui.error(e.message)
                 ui.exit(1)
     else:
         bibentry_raw = content.get_content(bibfile, ui=ui)

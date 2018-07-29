@@ -1,9 +1,14 @@
 """Interface for Remote Bibliographic APIs"""
 
 import requests
+import bibtexparser
+from bibtexparser.bibdatabase import BibDatabase
 import feedparser
 from bs4 import BeautifulSoup
-from uis import get_ui
+
+
+class ReferenceNotFoundException(Exception):
+    pass
 
 
 def doi2bibtex(doi):
@@ -38,22 +43,21 @@ def arxiv2bibtex(arxiv_id):
     entry = feed.entries[0]
 
     if 'title' not in entry:
-        ui = get_ui()
-        ui.error('malformed arXiv ID: {}'.format(arxiv_id))
-        bibtex = None
+        raise ReferenceNotFoundException('arXiv ID not found.')
     elif 'arxiv_doi' in entry:
         bibtex = doi2bibtex(entry['arxiv_doi'])
     else:
         # Create a bibentry from the metadata.
-        bibtex = '@misc{{{},\n'.format(arxiv_id)
-        bibtex += 'Author = {'
-        for i, author in enumerate(entry['authors']):
-            bibtex += author['name']
-            if i < len(entry['authors']) - 1:
-                bibtex += ' and '
-        bibtex += '},\n'
-        bibtex += 'Title = {{{}}},\n'.format(entry['title'].strip('\n'))
-        bibtex += 'Year = {{{}}},\n'.format(entry['published_parsed'].tm_year)
-        bibtex += 'Eprint = {{arXiv:{}}},\n'.format(arxiv_id)
-        bibtex += '}'
+        db = BibDatabase()
+        author_str = ' and '.join(
+            [author['name'] for author in entry['authors']])
+        db.entries = [{
+            'ENTRYTYPE': 'misc',
+            'ID': arxiv_id,
+            'author': author_str,
+            'title': entry['title'],
+            'year': str(entry['published_parsed'].tm_year),
+            'Eprint': arxiv_id,
+        }]
+        bibtex = bibtexparser.dumps(db)
     return bibtex
