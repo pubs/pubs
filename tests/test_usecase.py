@@ -826,6 +826,25 @@ class TestUsecase(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
+    def test_import_fails_without_ignore(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import data/ Page99',
+                ]
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
+    def test_import_ignores(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import --ignore-malformed data/ Page99',
+                'pubs list'
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
     def test_update(self):
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
