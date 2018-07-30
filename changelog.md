@@ -10,7 +10,7 @@
 
 - Better dialog after editing paper [(#142)](https://github.com/pubs/pubs/issues/142)
 
-- Add a command to open urls [(#139)](https://github.com/pubs/pubs/issues/139)
+- Add a command to open urls ([#139](https://github.com/pubs/pubs/issues/139) *by [ksunden](https://github.com/ksunden)*)
 
 - More robust cache on version change [(#138)](https://github.com/pubs/pubs/issues/138)
 
@@ -22,7 +22,7 @@
 
 - Uses bibtexparser bwriter instead of internal encoder and adds `--ignore-fields` option to export. [(#106)](https://github.com/pubs/pubs/issues/106)
 
-- Configurable alias descriptions [(#104)](https://github.com/pubs/pubs/issues/104)
+- Configurable alias descriptions ([#104](https://github.com/pubs/pubs/issues/104) by [wflynny](https://github.com/wflynny))
 
 - Support year ranges in query [(#102)](https://github.com/pubs/pubs/issues/102)
 
@@ -49,9 +49,9 @@
 
 - [[#103]](https://github.com/pubs/pubs/issues/103) Fixes unicode comparison [(#116)](https://github.com/pubs/pubs/issues/116)
 
-- [[#95]](https://github.com/pubs/pubs/issues/95) robust handling of DOIs [(#105)](https://github.com/pubs/pubs/issues/105)
+- [[#95]](https://github.com/pubs/pubs/issues/95) robust handling of DOIs ([#105](https://github.com/pubs/pubs/issues/105) by [wflynny](https://github.com/wflynny))
 
-- [[#99]](https://github.com/pubs/pubs/issues/99) Print help when no subcommand is provided [(#100)](https://github.com/pubs/pubs/issues/100)
+- [[#99]](https://github.com/pubs/pubs/issues/99) Print help when no subcommand is provided ([#100](https://github.com/pubs/pubs/issues/100) by [wflynny](https://github.com/wflynny))
 
 - Fix defaults not used in config. [(#97)](https://github.com/pubs/pubs/issues/97)
 
