@@ -59,7 +59,7 @@ def many_from_path(ui, bibpath):
     for b in biblist:
         for k, b in b.items():
             if k in papers:
-                ui.warning('Duplicated citekey {}. Keeping last.'.format(k))
+                ui.warning('Duplicated citekey {}. Keeping the last one.'.format(k))
             try:
                 papers[k] = Paper(k, b)
                 papers[k].added = datetime.datetime.now()

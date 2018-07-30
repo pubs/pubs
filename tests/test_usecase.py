@@ -703,7 +703,7 @@ class TestUsecase(DataCommandTestCase):
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
                 ('pubs edit Page99', [
-                    '', 'y',
+                    '@misc{Page99, title="TTT" author="X. YY"}', 'y',
                     '@misc{Page99, title="TTT", author="X. YY"}', '']),
                 ('pubs list', [], '[Page99] YY, X. "TTT" \n')
                 ]
