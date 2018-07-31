@@ -125,3 +125,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Tyler Earnest](https://github.com/tmearnest)
 - [Dennis Wilson](https://github.com/d9w)
 - [Bill Flynn](https://github.com/wflynny)
+- [ksunden](https://github.com/ksunden)
