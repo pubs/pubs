@@ -10,7 +10,7 @@
 
 - Better dialog after editing paper [(#142)](https://github.com/pubs/pubs/issues/142)
 
-- Add a command to open urls ([#139](https://github.com/pubs/pubs/issues/139) *by [ksunden](https://github.com/ksunden)*)
+- Add a command to open urls ([#139](https://github.com/pubs/pubs/issues/139) by [ksunden](https://github.com/ksunden))
 
 - More robust cache on version change [(#138)](https://github.com/pubs/pubs/issues/138)
 
