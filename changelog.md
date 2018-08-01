@@ -29,6 +29,8 @@
 
 ### Fixed bugs
 
+- [[#148]](https://github.com/pubs/pubs/issues/148) Fix compatibility with Pyfakefs 3.7 [(#151)](https://github.com/pubs/pubs/pull/151)
+
 - [[#95]](https://github.com/pubs/pubs/issues/95) Error message when editor is missing [(#141)](https://github.com/pubs/pubs/issues/141)
 
 - Fixes tests for printing help on `--help` and without argument. [(#137)](https://github.com/pubs/pubs/issues/137)

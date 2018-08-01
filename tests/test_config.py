@@ -2,7 +2,7 @@
 import unittest
 
 import dotdot
-from pubs.config import conf
+# from pubs.config import conf
 
 # class TestConfig(unittest.TestCase):
 #

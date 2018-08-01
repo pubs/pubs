@@ -11,11 +11,11 @@ import subprocess
 from . import color
 from . import config
 from .p3 import _get_raw_stdout, _get_raw_stderr, input, ustr
-from .content import check_file, read_text_file, write_file, system_path
+from .content import check_file, read_text_file, write_file
 
 
 DEBUG = False  # unhandled exceptions traces are printed
-DEBUG_ALL_TRACES = False # handled exceptions traces are printed
+DEBUG_ALL_TRACES = False  # handled exceptions traces are printed
 # package-shared ui that can be accessed using :
 # from uis import get_ui
 # ui = get_ui()
@@ -45,7 +45,7 @@ def _get_local_editor():
 
 def get_ui():
     if _ui is None:
-        return PrintUI(config.load_default_conf()) # no editor support. (#FIXME?)
+        return PrintUI(config.load_default_conf())  # no editor support. (#FIXME?)
     return _ui
 
 
@@ -85,7 +85,7 @@ class PrintUI(object):
         kwargs['file'] = self._stderr
         print('{}: {}'.format(color.dye_err('error', 'error'), message), **kwargs)
 
-        if DEBUG_ALL_TRACES: # if an exception has been raised, print the trace.
+        if DEBUG_ALL_TRACES:  # if an exception has been raised, print the trace.
             if sys.exc_info()[0] is not None:
                 traceback.print_exception(*sys.exc_info)
 
@@ -103,6 +103,7 @@ class PrintUI(object):
         else:
             self.exit()
         return True # never happens
+
 
 class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.
@@ -157,7 +158,6 @@ class InputUI(PrintUI):
                     except ValueError:
                         pass
             self.message('Incorrect option.', option_str)
-
 
     def input_choice(self, options, option_chars, default=None, question=''):
         """Ask the user to chose between a set of options. The user is asked
