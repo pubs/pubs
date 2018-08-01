@@ -43,9 +43,8 @@ class FakeSystemExit(Exception):
             "Exited with code: {}.".format(self.code), *args)
 
 
-# code for fake fs
-
-class TestFakeInput(unittest.TestCase):
+class TestInput(unittest.TestCase):
+    """Test that the fake input mechanisms work correctly in the tests"""
 
     def test_input(self):
         input = fake_env.FakeInput(['yes', 'no'])
@@ -63,13 +62,16 @@ class TestFakeInput(unittest.TestCase):
             color.input()
 
     def test_editor_input(self):
+        sample_conf = conf.load_default_conf()
+        ui = uis.InputUI(sample_conf)
+
         other_input = fake_env.FakeInput(['yes', 'no'],
                                          module_list=[uis])
         other_input.as_global()
-        self.assertEqual(uis._editor_input('fake_editor'), 'yes')
-        self.assertEqual(uis._editor_input('fake_editor'), 'no')
+        self.assertEqual(ui.editor_input('fake_editor'), 'yes')
+        self.assertEqual(ui.editor_input('fake_editor'), 'no')
         with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
-            uis._editor_input()
+            ui.editor_input()
 
 
 class CommandTestCase(fake_env.TestFakeFs):
@@ -352,8 +354,8 @@ class TestList(DataCommandTestCase):
 
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p testrepo'])
-        os.chdir('/') # weird fix for shutil.rmtree invocation.
-        shutil.rmtree(self.rootpath + '/testrepo')
+        os.chdir('/')  # weird fix for shutil.rmtree invocation.
+        shutil.rmtree(os.path.join(self.rootpath, 'testrepo'))
         os.chdir(self.rootpath)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
