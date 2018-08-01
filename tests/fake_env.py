@@ -98,11 +98,20 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
         self.rootpath = os.path.abspath(os.path.dirname(__file__))
+        self.homepath = os.path.expanduser('~')
         self.setUpPyfakefs()
-        self.fs.CreateDirectory(os.path.expanduser('~'))
-        self.fs.CreateDirectory(self.rootpath)
-        os.chdir(self.rootpath)
+        self.reset_fs()
+        # self.fs.create_dir(os.path.expanduser('~'))
+        # self.fs.create_dir(self.rootpath)
+        # os.chdir(self.rootpath)
+
 
     def reset_fs(self):
-        self._stubber.tearDown()  # renew the filesystem
-        self.setUp()
+        if self.fs.isdir(self.homepath):
+            self.fs.remove_object(self.homepath)
+        if self.fs.isdir(self.rootpath):
+            self.fs.remove_object(self.rootpath)
+
+        self.fs.create_dir(os.path.expanduser('~'))
+        self.fs.create_dir(self.rootpath)
+        os.chdir(self.rootpath)

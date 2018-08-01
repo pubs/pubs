@@ -3,7 +3,6 @@ import unittest
 import time
 
 import dotdot
-import fake_env
 
 from pubs.datacache import CacheEntrySet
 

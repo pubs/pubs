@@ -15,14 +15,12 @@ from pyfakefs.fake_filesystem import FakeFileOpen
 import dotdot
 import fake_env
 
-from pubs import pubs_cmd, update, color, content, filebroker, uis, p3, endecoder
+from pubs import pubs_cmd, color, content, uis, p3, endecoder
 from pubs.config import conf
-import configobj
 
 import str_fixtures
 import fixtures
 
-from pubs.commands import init_cmd, import_cmd
 
 # makes the tests very noisy
 PRINT_OUTPUT   = False
@@ -66,12 +64,12 @@ class TestFakeInput(unittest.TestCase):
 
     def test_editor_input(self):
         other_input = fake_env.FakeInput(['yes', 'no'],
-                                         module_list=[uis, color])
+                                         module_list=[uis])
         other_input.as_global()
-        self.assertEqual(uis._editor_input(), 'yes')
-        self.assertEqual(uis._editor_input(), 'no')
+        self.assertEqual(uis._editor_input('fake_editor'), 'yes')
+        self.assertEqual(uis._editor_input('fake_editor'), 'no')
         with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
-            color.input()
+            uis._editor_input()
 
 
 class CommandTestCase(fake_env.TestFakeFs):
@@ -82,7 +80,6 @@ class CommandTestCase(fake_env.TestFakeFs):
     def setUp(self, nsec_stat=True):
         super(CommandTestCase, self).setUp()
         os.stat_float_times(nsec_stat)
-        # self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update], nsec_stat=nsec_stat)
         self.default_pubs_dir = os.path.expanduser('~/.pubs')
         self.default_conf_path = os.path.expanduser('~/.pubsrc')
 
@@ -178,7 +175,7 @@ class URLContentTestCase(DataCommandTestCase):
         return p3.urlparse(url).path
 
     def url_exists(self, url):
-        return self.fs.Exists(self._url_to_path(url))
+        return self.fs.exists(self._url_to_path(url))
 
     def url_to_byte_content(self, url, ui=None):
         path = self._url_to_path(url)
@@ -920,4 +917,4 @@ class TestCache(DataCommandTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
