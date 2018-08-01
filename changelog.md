@@ -3,7 +3,18 @@
 
 ## Current master
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.7.0...master)
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.0...master)
+
+### Implemented enhancements
+
+
+### Fixed bugs
+
+
+
+## [v0.8.0](https://github.com/pubs/pubs/compare/v0.7.0...v0.8.0) (2018-08-01)
+
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.7.0...v0.8.0)
 
 
 ### Implemented enhancements
