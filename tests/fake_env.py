@@ -101,16 +101,12 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
         self.homepath = os.path.expanduser('~')
         self.setUpPyfakefs()
         self.reset_fs()
-        # self.fs.create_dir(os.path.expanduser('~'))
-        # self.fs.create_dir(self.rootpath)
-        # os.chdir(self.rootpath)
-
 
     def reset_fs(self):
-        if self.fs.isdir(self.homepath):
-            self.fs.remove_object(self.homepath)
-        if self.fs.isdir(self.rootpath):
-            self.fs.remove_object(self.rootpath)
+        """Reset the fake filesystem"""
+        for dir_name in self.fs.listdir('/'):
+            if dir_name not in ['var', 'tmp']:
+                self.fs.remove_object(os.path.join('/', dir_name))
 
         self.fs.create_dir(os.path.expanduser('~'))
         self.fs.create_dir(self.rootpath)

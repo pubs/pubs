@@ -46,9 +46,6 @@ def _get_local_editor():
 def _editor_input(editor, initial='', suffix='.tmp'):
     """Use an editor to get input"""
     str_initial = initial.encode('utf-8')  # TODO: make it a configuration item
-    # tfile_name = '/tmp/pubs.tmp'
-    # with open(tfile_name, 'w') as temp_file:
-    #     temp_file.write(str_initial)
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         tfile_name = temp_file.name
         temp_file.write(str_initial)
