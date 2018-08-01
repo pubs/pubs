@@ -14,7 +14,7 @@ from ..content import system_path, read_text_file
 
 
 _ABORT_USE_IGNORE_MSG = "Aborting import. Use --ignore-malformed to ignore."
-_IGNORING_MSG = " Ignoring."
+_IGNORING_MSG = " Ignoring it."
 
 
 def parser(subparsers, conf):
