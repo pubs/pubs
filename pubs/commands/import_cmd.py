@@ -13,6 +13,10 @@ from ..uis import get_ui
 from ..content import system_path, read_text_file
 
 
+_ABORT_USE_IGNORE_MSG = "Aborting import. Use --ignore-malformed to ignore."
+_IGNORING_MSG = " Ignoring it."
+
+
 def parser(subparsers, conf):
     parser = subparsers.add_parser('import',
             help='import paper(s) to the repository')
@@ -24,10 +28,12 @@ def parser(subparsers, conf):
             help="one or several keys to import from the file")
     parser.add_argument('-O', '--overwrite', action='store_true', default=False,
             help="Overwrite keys already in the database")
+    parser.add_argument('-i', '--ignore-malformed', action='store_true', default=False,
+            help="Ignore malformed and unreadable files and entries")
     return parser
 
 
-def many_from_path(bibpath):
+def many_from_path(ui, bibpath, ignore=False):
     """Extract list of papers found in bibliographic files in path.
 
     The behavior is to:
@@ -49,16 +55,31 @@ def many_from_path(bibpath):
 
     biblist = []
     for filepath in all_files:
-        biblist.append(coder.decode_bibdata(read_text_file(filepath)))
+        try:
+            biblist.append(coder.decode_bibdata(read_text_file(filepath)))
+        except coder.BibDecodingError:
+            error = "Could not parse bibtex at {}.".format(filepath)
+            if ignore:
+                ui.warning(error + _IGNORING_MSG)
+            else:
+                ui.error(error + _ABORT_USE_IGNORE_MSG)
+                ui.exit()
 
     papers = {}
     for b in biblist:
         for k, b in b.items():
+            if k in papers:
+                ui.warning('Duplicated citekey {}. Keeping the last one.'.format(k))
             try:
                 papers[k] = Paper(k, b)
                 papers[k].added = datetime.datetime.now()
             except ValueError as e:
-                papers[k] = e
+                error = 'Could not load entry for citekey {} ({}).'.format(k, e)
+                if ignore:
+                    ui.warning(error + _IGNORING_MSG)
+                else:
+                    ui.error(error + _ABORT_USE_IGNORE_MSG)
+                    ui.exit()
     return papers
 
 
@@ -75,20 +96,17 @@ def command(conf, args):
 
     rp = repo.Repository(conf)
     # Extract papers from bib
-    papers = many_from_path(bibpath)
+    papers = many_from_path(ui, bibpath, ignore=args.ignore_malformed)
     keys = args.keys or papers.keys()
     for k in keys:
         p = papers[k]
-        if isinstance(p, Exception):
-            ui.error('Could not load entry for citekey {}.'.format(k))
+        rp.push_paper(p, overwrite=args.overwrite)
+        ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
+        docfile = bibstruct.extract_docfile(p.bibdata)
+        if docfile is None:
+            ui.warning("No file for {}.".format(p.citekey))
         else:
-            rp.push_paper(p, overwrite=args.overwrite)
-            ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
-            docfile = bibstruct.extract_docfile(p.bibdata)
-            if docfile is None:
-                ui.warning("No file for {}.".format(p.citekey))
-            else:
-                rp.push_doc(p.citekey, docfile, copy=copy)
-                #FIXME should move the file if configured to do so.
+            rp.push_doc(p.citekey, docfile, copy=copy)
+            # FIXME should move the file if configured to do so.
 
     rp.close()

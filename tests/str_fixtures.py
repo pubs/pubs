@@ -69,13 +69,19 @@ bibtex_no_citekey = """@Manual{,
 }
 """
 
-bibtex_month= """@inproceedings{Goyal2017,
+bibtex_month = """@inproceedings{Goyal2017,
  author = {Goyal, Anirudh and Sordoni, Alessandro and C{\^{o}}t{\'{e}}, Marc-Alexandre and Ke, Nan Rosemary and Bengio, Yoshua},
  title = {Z-Forcing: Training Stochastic Recurrent Networks},
  year = {2017},
  month = dec,
  pages = {6716--6726},
 }
+"""
+
+not_bibtex = """@misc{this looks,
+  like = a = bibtex file but
+    , is not a real one!
+
 """
 
 sample_conf = """

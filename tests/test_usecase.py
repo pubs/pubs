@@ -128,7 +128,7 @@ class CommandTestCase(fake_env.TestFakeFs):
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
-                except fake_env.FakeInput.UnexpectedInput as e:
+                except fake_env.FakeInput.UnexpectedInput:
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
             return outs
@@ -197,7 +197,7 @@ class TestAlone(CommandTestCase):
     def test_alone_misses_command(self):
         with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
-            self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 2)
 
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
@@ -334,10 +334,19 @@ class TestAdd(URLContentTestCase):
     def test_add_no_citekey_fails(self):
         # See #113
         cmds = ['pubs init',
-                ('pubs add', [str_fixtures.bibtex_no_citekey]),
+                ('pubs add', [str_fixtures.bibtex_no_citekey, 'n']),
                 ]
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
+
+    def test_add_edit_fails(self):
+        cmds = ['pubs init',
+                ('pubs add',
+                    ['@misc{I am not a correct bibtex{{}', 'n']),
+                ]
+        with self.assertRaises(FakeSystemExit) as cm:
+            self.execute_cmds(cmds)
+        self.assertEqual(cm.exception.code, 1)
 
 
 class TestList(DataCommandTestCase):
@@ -679,15 +688,39 @@ class TestUsecase(DataCommandTestCase):
         self.assertFileContentEqual(os.path.expanduser('~/.pubsrc'),
                                     str_fixtures.sample_conf)
 
-    def test_editor_abort(self):
+    def test_editor_aborts(self):
         with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
-                    ('pubs add', ['abc', 'n']),
-                    ('pubs add', ['abc', 'y', 'abc', 'n']),
                     'pubs add data/pagerank.bib',
-                    ('pubs edit Page99', ['', 'a']),
+                    ('pubs edit Page99', ['', 'n']),
                    ]
             self.execute_cmds(cmds)
+
+    def test_editor_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ('pubs edit Page99', [
+                    '@misc{Page99, title="TTT" author="X. YY"}', 'y',
+                    '@misc{Page99, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[Page99] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
+
+    def test_add_aborts(self):
+        with self.assertRaises(FakeSystemExit):
+            cmds = ['pubs init',
+                    ('pubs add New', ['']),
+                   ]
+            self.execute_cmds(cmds)
+
+    def test_add_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                ('pubs add', [
+                    '', 'y',
+                    '@misc{New, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[New] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
 
     def test_editor_success(self):
         cmds = ['pubs init',
@@ -787,6 +820,25 @@ class TestUsecase(DataCommandTestCase):
                 'pubs list'
                ]
 
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
+    def test_import_fails_without_ignore(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import data/ Page99',
+                ]
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
+    def test_import_ignores(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import --ignore-malformed data/ Page99',
+                'pubs list'
+                ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 

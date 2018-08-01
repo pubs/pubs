@@ -64,8 +64,13 @@ def command(conf, args):
                              'as `{}`.'.format(citekey, new_paper.citekey)))
                 else:
                     ui.info(('Paper `{}` was successfully edited.'.format(
-                                                                      citekey)))
+                        citekey)))
             break
+
+        except coder.BibDecodingError:
+            if not ui.input_yn(question="Error parsing bibdata. Edit again?"):
+                ui.error("Aborting, paper not updated.")
+                ui.exit()
 
         except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']

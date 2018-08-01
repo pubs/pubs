@@ -119,7 +119,7 @@ class InputUI(PrintUI):
         except EOFError:
             self.error('Standard input ended while waiting for answer.')
             self.exit(1)
-        return ustr(data) #.decode('utf-8')
+        return ustr(data)  #.decode('utf-8')
 
     def input_choice_ng(self, options, option_chars=None, default=None, question=''):
         """Ask the user to chose between a set of options. The user is asked

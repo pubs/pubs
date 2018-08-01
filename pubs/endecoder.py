@@ -66,6 +66,16 @@ class EnDecoder(object):
         * encode_bibdata will try to recognize exceptions
     """
 
+    class BibDecodingError(Exception):
+
+        message = "Could not parse provided bibdata:\n---\n{}\n---"
+
+        def __init__(self, bibdata):
+            self.data = bibdata
+
+        def __str__(self):
+            return self.message.format(self.data)
+
     bwriter = bp.bwriter.BibTexWriter()
     bwriter.display_order = BIBFIELD_ORDER
 
@@ -103,7 +113,10 @@ class EnDecoder(object):
         return entry
 
     def decode_bibdata(self, bibdata):
-        """"""
+        """Decodes bibdata from string.
+
+        If the decoding fails, returns a BibParseError.
+        """
         try:
             entries = bp.bparser.BibTexParser(
                 bibdata, common_strings=True,
@@ -121,4 +134,5 @@ class EnDecoder(object):
         except Exception:
             import traceback
             traceback.print_exc()
-        raise ValueError('could not parse provided bibdata:\n{}'.format(bibdata))
+        raise self.BibDecodingError(bibdata)
+        # TODO: filter exceptions from pyparsing and pass reason upstream
