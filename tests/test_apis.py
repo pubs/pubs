@@ -32,7 +32,7 @@ class TestDOI2Bibtex(unittest.TestCase):
 
     def test_parse_fails_on_incorrect_DOI(self):
         bib = doi2bibtex('999999')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(EnDecoder.BibDecodingError):
             self.endecoder.decode_bibdata(bib)
 
 
@@ -56,7 +56,7 @@ class TestISBN2Bibtex(unittest.TestCase):
 
     def test_parse_fails_on_incorrect_ISBN(self):
         bib = doi2bibtex('9' * 13)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(EnDecoder.BibDecodingError):
             self.endecoder.decode_bibdata(bib)
 
 

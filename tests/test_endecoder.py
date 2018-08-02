@@ -52,7 +52,7 @@ class TestEnDecode(unittest.TestCase):
 
         self.assertEqual(bibraw1, bibraw2)
 
-    def test_endecode_bibtex(self):
+    def test_endecode_bibtex_converts_month_string(self):
         """Test if `month=dec` is correctly recognized and transformed into
         `month={December}`"""
         decoder = endecoder.EnDecoder()
@@ -146,6 +146,11 @@ class TestEnDecode(unittest.TestCase):
         self.assertNotIn('abtract', entry1)
         self.assertIn('author', entry1)
         self.assertIn('institution', entry1)
+
+    def test_endecodes_raises_exception(self):
+        decoder = endecoder.EnDecoder()
+        with self.assertRaises(decoder.BibDecodingError):
+            decoder.decode_bibdata("@misc{I am not a correct bibtex{{}")
 
 
 if __name__ == '__main__':

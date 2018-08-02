@@ -15,14 +15,12 @@ from pyfakefs.fake_filesystem import FakeFileOpen
 import dotdot
 import fake_env
 
-from pubs import pubs_cmd, update, color, content, filebroker, uis, p3, endecoder
+from pubs import pubs_cmd, color, content, uis, p3, endecoder
 from pubs.config import conf
-import configobj
 
 import str_fixtures
 import fixtures
 
-from pubs.commands import init_cmd, import_cmd
 
 # makes the tests very noisy
 PRINT_OUTPUT   = False
@@ -45,9 +43,8 @@ class FakeSystemExit(Exception):
             "Exited with code: {}.".format(self.code), *args)
 
 
-# code for fake fs
-
-class TestFakeInput(unittest.TestCase):
+class TestInput(unittest.TestCase):
+    """Test that the fake input mechanisms work correctly in the tests"""
 
     def test_input(self):
         input = fake_env.FakeInput(['yes', 'no'])
@@ -65,13 +62,16 @@ class TestFakeInput(unittest.TestCase):
             color.input()
 
     def test_editor_input(self):
+        sample_conf = conf.load_default_conf()
+        ui = uis.InputUI(sample_conf)
+
         other_input = fake_env.FakeInput(['yes', 'no'],
-                                         module_list=[uis, color])
+                                         module_list=[uis])
         other_input.as_global()
-        self.assertEqual(uis._editor_input(), 'yes')
-        self.assertEqual(uis._editor_input(), 'no')
+        self.assertEqual(ui.editor_input('fake_editor'), 'yes')
+        self.assertEqual(ui.editor_input('fake_editor'), 'no')
         with self.assertRaises(fake_env.FakeInput.UnexpectedInput):
-            color.input()
+            ui.editor_input()
 
 
 class CommandTestCase(fake_env.TestFakeFs):
@@ -82,7 +82,6 @@ class CommandTestCase(fake_env.TestFakeFs):
     def setUp(self, nsec_stat=True):
         super(CommandTestCase, self).setUp()
         os.stat_float_times(nsec_stat)
-        # self.fs = fake_env.create_fake_fs([content, filebroker, conf, init_cmd, import_cmd, configobj, update], nsec_stat=nsec_stat)
         self.default_pubs_dir = os.path.expanduser('~/.pubs')
         self.default_conf_path = os.path.expanduser('~/.pubsrc')
 
@@ -129,7 +128,7 @@ class CommandTestCase(fake_env.TestFakeFs):
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
-                except fake_env.FakeInput.UnexpectedInput as e:
+                except fake_env.FakeInput.UnexpectedInput:
                     self.fail('Unexpected input asked by command: {}.'.format(
                         actual_cmd))
             return outs
@@ -178,7 +177,7 @@ class URLContentTestCase(DataCommandTestCase):
         return p3.urlparse(url).path
 
     def url_exists(self, url):
-        return self.fs.Exists(self._url_to_path(url))
+        return self.fs.exists(self._url_to_path(url))
 
     def url_to_byte_content(self, url, ui=None):
         path = self._url_to_path(url)
@@ -198,7 +197,7 @@ class TestAlone(CommandTestCase):
     def test_alone_misses_command(self):
         with self.assertRaises(FakeSystemExit) as cm:
             self.execute_cmds(['pubs'])
-            self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(cm.exception.code, 2)
 
     def test_alone_prints_help(self):
         # capturing the output of `pubs --help` is difficult because argparse
@@ -335,10 +334,19 @@ class TestAdd(URLContentTestCase):
     def test_add_no_citekey_fails(self):
         # See #113
         cmds = ['pubs init',
-                ('pubs add', [str_fixtures.bibtex_no_citekey]),
+                ('pubs add', [str_fixtures.bibtex_no_citekey, 'n']),
                 ]
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
+
+    def test_add_edit_fails(self):
+        cmds = ['pubs init',
+                ('pubs add',
+                    ['@misc{I am not a correct bibtex{{}', 'n']),
+                ]
+        with self.assertRaises(FakeSystemExit) as cm:
+            self.execute_cmds(cmds)
+        self.assertEqual(cm.exception.code, 1)
 
 
 class TestList(DataCommandTestCase):
@@ -355,8 +363,8 @@ class TestList(DataCommandTestCase):
 
     def test_list_several_no_date(self):
         self.execute_cmds(['pubs init -p testrepo'])
-        os.chdir('/') # weird fix for shutil.rmtree invocation.
-        shutil.rmtree(self.rootpath + '/testrepo')
+        os.chdir('/')  # weird fix for shutil.rmtree invocation.
+        shutil.rmtree(os.path.join(self.rootpath, 'testrepo'))
         os.chdir(self.rootpath)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'testrepo'), read_only=False)
 
@@ -680,15 +688,39 @@ class TestUsecase(DataCommandTestCase):
         self.assertFileContentEqual(os.path.expanduser('~/.pubsrc'),
                                     str_fixtures.sample_conf)
 
-    def test_editor_abort(self):
+    def test_editor_aborts(self):
         with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
-                    ('pubs add', ['abc', 'n']),
-                    ('pubs add', ['abc', 'y', 'abc', 'n']),
                     'pubs add data/pagerank.bib',
-                    ('pubs edit Page99', ['', 'a']),
+                    ('pubs edit Page99', ['', 'n']),
                    ]
             self.execute_cmds(cmds)
+
+    def test_editor_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ('pubs edit Page99', [
+                    '@misc{Page99, title="TTT" author="X. YY"}', 'y',
+                    '@misc{Page99, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[Page99] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
+
+    def test_add_aborts(self):
+        with self.assertRaises(FakeSystemExit):
+            cmds = ['pubs init',
+                    ('pubs add New', ['']),
+                   ]
+            self.execute_cmds(cmds)
+
+    def test_add_succeeds_on_second_edit(self):
+        cmds = ['pubs init',
+                ('pubs add', [
+                    '', 'y',
+                    '@misc{New, title="TTT", author="X. YY"}', '']),
+                ('pubs list', [], '[New] YY, X. "TTT" \n')
+                ]
+        self.execute_cmds(cmds)
 
     def test_editor_success(self):
         cmds = ['pubs init',
@@ -788,6 +820,25 @@ class TestUsecase(DataCommandTestCase):
                 'pubs list'
                ]
 
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
+    def test_import_fails_without_ignore(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import data/ Page99',
+                ]
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
+    def test_import_ignores(self):
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.not_bibtex)
+        cmds = ['pubs init',
+                'pubs import --ignore-malformed data/ Page99',
+                'pubs list'
+                ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
@@ -920,4 +971,4 @@ class TestCache(DataCommandTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

@@ -11,6 +11,7 @@ from .. import templates
 from .. import apis
 from .. import pretty
 from .. import utils
+from .. import endecoder
 from ..completion import CommaSeparatedTagsCompletion
 
 
@@ -58,12 +59,13 @@ def bibentry_from_editor(conf, ui, rp):
                 bibstruct.verify_bibdata(bibentry)
                 # REFACTOR Generate citykey
                 again = False
-        except ValueError:
+
+        except endecoder.EnDecoder.BibDecodingError:
             again = ui.input_yn(
-                question='Invalid bibfile. Edit again ?',
+                question='Invalid bibfile. Edit again?',
                 default='y')
             if not again:
-                ui.exit(0)
+                ui.exit()
 
     return bibentry
 

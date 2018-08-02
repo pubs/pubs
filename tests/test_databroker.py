@@ -5,8 +5,7 @@ import os
 import dotdot
 import fake_env
 
-from pubs import content, filebroker, databroker, datacache
-from pubs.config import conf
+from pubs import content, databroker, datacache
 
 import str_fixtures
 from pubs import endecoder
@@ -35,7 +34,7 @@ class TestDataBroker(fake_env.TestFakeFs):
 
             self.assertEqual(db.pull_metadata('citekey1'), page99_metadata)
             pulled = db.pull_bibentry('citekey1')['Page99']
-            for key, value in pulled.items():
+            for key in pulled.keys():
                 self.assertEqual(pulled[key], page99_bibentry['Page99'][key])
             self.assertEqual(db.pull_bibentry('citekey1'), page99_bibentry)
 
@@ -91,4 +90,4 @@ class TestDataBroker(fake_env.TestFakeFs):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

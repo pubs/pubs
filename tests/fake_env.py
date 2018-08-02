@@ -74,12 +74,21 @@ class FakeInput():
     def as_global(self):
         for md in self.module_list:
             md.input = self
-            md._editor_input = self
-            md._edit_file = self.input_to_file
-            # if mdname.endswith('files'):
-            #     md.editor_input = self
+            if md.__name__ == 'pubs.uis':
+                md.InputUI.editor_input = self
+                md.InputUI.edit_file = self.input_to_file
+                # Do not catch UnexpectedInput
+                original_handler = md.InputUI.handle_exception
 
-    def input_to_file(self, _, path_to_file, temporary=True):
+                def handler(ui, exc):
+                    if isinstance(exc, self.UnexpectedInput):
+                        raise
+                    else:
+                        original_handler(ui, exc)
+
+                md.InputUI.handle_exception = handler
+
+    def input_to_file(self, path_to_file, temporary=True):
         content.write_file(path_to_file, self())
 
     def add_input(self, inp):
@@ -98,11 +107,16 @@ class TestFakeFs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
         self.rootpath = os.path.abspath(os.path.dirname(__file__))
+        self.homepath = os.path.expanduser('~')
         self.setUpPyfakefs()
-        self.fs.CreateDirectory(os.path.expanduser('~'))
-        self.fs.CreateDirectory(self.rootpath)
-        os.chdir(self.rootpath)
+        self.reset_fs()
 
     def reset_fs(self):
-        self._stubber.tearDown()  # renew the filesystem
-        self.setUp()
+        """Reset the fake filesystem"""
+        for dir_name in self.fs.listdir('/'):
+            if dir_name not in ['var', 'tmp']:
+                self.fs.remove_object(os.path.join('/', dir_name))
+
+        self.fs.create_dir(os.path.expanduser('~'))
+        self.fs.create_dir(self.rootpath)
+        os.chdir(self.rootpath)

@@ -54,11 +54,23 @@ def command(conf, args):
                 new_paper = Paper(paper.citekey, paper.bibdata,
                                   metadata=content)
                 rp.push_paper(new_paper, overwrite=True, event=False)
+                ui.info(('The metadata of paper `{}`  was successfully '
+                         'edited.'.format(citekey)))
             else:
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)
-                rp.rename_paper(new_paper, old_citekey=paper.citekey)
+                if rp.rename_paper(new_paper, old_citekey=paper.citekey):
+                    ui.info(('Paper `{}` was successfully edited and renamed '
+                             'as `{}`.'.format(citekey, new_paper.citekey)))
+                else:
+                    ui.info(('Paper `{}` was successfully edited.'.format(
+                        citekey)))
             break
+
+        except coder.BibDecodingError:
+            if not ui.input_yn(question="Error parsing bibdata. Edit again?"):
+                ui.error("Aborting, paper not updated.")
+                ui.exit()
 
         except repo.CiteKeyCollision:
             options = ['overwrite', 'edit again', 'abort']
@@ -71,6 +83,7 @@ def command(conf, args):
                 break
             elif choice == 'overwrite':
                 paper = rp.push_paper(paper, overwrite=True)
+                ui.info(('Paper `{}` was overwritten.'.format(citekey)))
                 break
             # else edit again
         # Also handle malformed bibtex and metadata

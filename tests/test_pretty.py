@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
 import unittest
-import os
 
 import dotdot
-import fake_env
 
 from pubs import endecoder, pretty, color, config
 
