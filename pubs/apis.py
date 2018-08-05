@@ -190,7 +190,7 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
         'date': entry['published'], # not really standard, but a resolution more
                                     # granular than months is increasinlgy relevant.
         'url': entry['link'],
-        'urldate': datetime.datetime.utcnow().isoformat(timespec='seconds') + 'Z' # can't hurt.
+        'urldate': datetime.datetime.utcnow().isoformat() + 'Z' # can't hurt.
     }]
     # we don't add eprintclass for old-style ids, as it is in the id already.
     if not _is_arxiv_oldstyle(entry_id):
