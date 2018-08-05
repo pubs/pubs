@@ -7,7 +7,7 @@ import dotdot
 
 from pubs.p3 import ustr
 from pubs.endecoder import EnDecoder
-from pubs.apis import doi2bibtex, isbn2bibtex
+from pubs.apis import arxiv2bibtex, doi2bibtex, isbn2bibtex
 
 
 class TestDOI2Bibtex(unittest.TestCase):
@@ -58,6 +58,31 @@ class TestISBN2Bibtex(unittest.TestCase):
         bib = doi2bibtex('9' * 13)
         with self.assertRaises(EnDecoder.BibDecodingError):
             self.endecoder.decode_bibdata(bib)
+
+
+class TestArxiv2Bibtex(unittest.TestCase):
+
+    def setUp(self):
+        self.endecoder = EnDecoder()
+
+    def test_parses_to_bibtex_with_doi(self):
+        bib = arxiv2bibtex('astro-ph/9812133')
+        b = self.endecoder.decode_bibdata(bib)
+        self.assertEqual(len(b), 1)
+        entry = b[list(b)[0]]
+        self.assertEqual(entry['author'][0], 'Perlmutter, S.')
+        self.assertEqual(entry['year'], '1999')
+
+    def test_parses_to_bibtex_without_doi(self):
+        bib = arxiv2bibtex('math/0211159')
+        b = self.endecoder.decode_bibdata(bib)
+        self.assertEqual(len(b), 1)
+        entry = b[list(b)[0]]
+        self.assertEqual(entry['author'][0], 'Perelman, Grisha')
+        self.assertEqual(entry['year'], '2002')
+        self.assertEqual(
+                entry['title'],
+                'The entropy formula for the Ricci flow and its geometric applications')
 
 
 # Note: apparently ottobib.com uses caracter modifiers for accents instead

@@ -1,7 +1,53 @@
 """Interface for Remote Bibliographic APIs"""
 
 import requests
+import bibtexparser
+from bibtexparser.bibdatabase import BibDatabase
+import feedparser
 from bs4 import BeautifulSoup
+
+
+class ReferenceNotFoundException(Exception):
+    pass
+
+
+def get_bibentry_from_api(id_str, id_type, rp):
+    """Return a bibtex string from various ID methods.
+
+    This is a wrapper around functions that will return a bibtex string given
+    one of:
+
+    * DOI
+    * IBSN
+    * arXiv ID
+
+    Args:
+        id_str: A string with the ID.
+        id_type: Name of the ID type.  Must be one of `doi`, `isbn`, or `arxiv`.
+        rp: A `Repository` object.
+
+    Returns:
+        A bibtex string.
+
+    Raises:
+        ValueError: if `id_type` is not one of `doi`, `isbn`, or `arxiv`.
+    """
+
+    id_fns = {
+        'doi': doi2bibtex,
+        'isbn': isbn2bibtex,
+        'arxiv': arxiv2bibtex,
+    }
+
+    if id_type not in id_fns.keys():
+        raise ValueError('id_type must be one of `doi`, `isbn`, or `arxiv`.')
+
+    bibentry_raw = id_fns[id_type](id_str)
+    bibentry = rp.databroker.verify(bibentry_raw)
+    if bibentry is None:
+        raise ReferenceNotFoundException(
+            'invalid {} {} or unable to retrieve bibfile from it.'.format(id_type, id_str))
+    return bibentry
 
 
 def doi2bibtex(doi):
@@ -25,3 +71,32 @@ def isbn2bibtex(isbn):
     citation = soup.find("textarea").text
 
     return citation
+
+
+def arxiv2bibtex(arxiv_id):
+    """Return a bibtex string of metadata from an arXiv ID"""
+
+    url = 'https://export.arxiv.org/api/query?id_list=' + arxiv_id
+    r = requests.get(url)
+    feed = feedparser.parse(r.text)
+    entry = feed.entries[0]
+
+    if 'title' not in entry:
+        raise ReferenceNotFoundException('arXiv ID not found.')
+    elif 'arxiv_doi' in entry:
+        bibtex = doi2bibtex(entry['arxiv_doi'])
+    else:
+        # Create a bibentry from the metadata.
+        db = BibDatabase()
+        author_str = ' and '.join(
+            [author['name'] for author in entry['authors']])
+        db.entries = [{
+            'ENTRYTYPE': 'article',
+            'ID': arxiv_id,
+            'author': author_str,
+            'title': entry['title'],
+            'year': str(entry['published_parsed'].tm_year),
+            'Eprint': arxiv_id,
+        }]
+        bibtex = bibtexparser.dumps(db)
+    return bibtex
