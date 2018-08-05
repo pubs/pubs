@@ -7,8 +7,9 @@ import dotdot
 
 from pubs.p3 import ustr
 from pubs.endecoder import EnDecoder
-from pubs.apis import arxiv2bibtex, doi2bibtex, isbn2bibtex, _is_arxiv_oldstyle, _extract_arxiv_id
+from pubs.apis import ReferenceNotFoundError, arxiv2bibtex, doi2bibtex, isbn2bibtex, _is_arxiv_oldstyle, _extract_arxiv_id
 
+from pubs import apis
 
 
 class TestDOI2Bibtex(unittest.TestCase):
@@ -31,10 +32,9 @@ class TestDOI2Bibtex(unittest.TestCase):
                          'Über formal unentscheidbare Sätze der Principia '
                          'Mathematica und verwandter Systeme I')
 
-    def test_parse_fails_on_incorrect_DOI(self):
-        bib = doi2bibtex('999999')
-        with self.assertRaises(EnDecoder.BibDecodingError):
-            self.endecoder.decode_bibdata(bib)
+    def test_retrieve_fails_on_incorrect_DOI(self):
+        with self.assertRaises(apis.ReferenceNotFoundError):
+            doi2bibtex('999999')
 
 
 class TestISBN2Bibtex(unittest.TestCase):
@@ -55,8 +55,8 @@ class TestISBN2Bibtex(unittest.TestCase):
         self.assertEqual(entry['author'][0], 'Poincaré, Henri')
         self.assertEqual(entry['title'], 'La science et l\'hypothèse')
 
-    def test_parse_fails_on_incorrect_ISBN(self):
-        bib = doi2bibtex('9' * 13)
+    def test_retrieve_fails_on_incorrect_ISBN(self):
+        bib = isbn2bibtex('9' * 13)
         with self.assertRaises(EnDecoder.BibDecodingError):
             self.endecoder.decode_bibdata(bib)
 
