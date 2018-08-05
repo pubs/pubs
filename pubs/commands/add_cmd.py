@@ -26,9 +26,10 @@ def parser(subparsers, conf):
     parser = subparsers.add_parser('add', help='add a paper to the repository')
     parser.add_argument('bibfile', nargs='?', default=None,
                         help='bibtex file')
-    parser.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None, action=ValidateDOI)
-    parser.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
-    parser.add_argument('-X', '--arxiv', help='arXiv ID to retrieve the bibtex entry, if it is not provided', default=None)
+    id_arg = parser.add_mutually_exclusive_group()
+    id_arg.add_argument('-D', '--doi', help='doi number to retrieve the bibtex entry, if it is not provided', default=None, action=ValidateDOI)
+    id_arg.add_argument('-I', '--isbn', help='isbn number to retrieve the bibtex entry, if it is not provided', default=None)
+    id_arg.add_argument('-X', '--arxiv', help='arXiv ID to retrieve the bibtex entry, if it is not provided', default=None)
     parser.add_argument('-d', '--docfile', help='pdf or ps file', default=None)
     parser.add_argument('-t', '--tags', help='tags associated to the paper, separated by commas',
                         default=None
@@ -92,25 +93,13 @@ def command(conf, args):
             bibentry = None
             try:
                 if args.doi is not None:
-                    bibentry_raw = apis.doi2bibtex(args.doi)
-                    bibentry = rp.databroker.verify(bibentry_raw)
-                    if bibentry is None:
-                        raise apis.ReferenceNotFoundException(
-                            'invalid doi {} or unable to retrieve bibfile from it.'.format(args.doi))
+                    bibentry = apis.get_bibentry_from_api(args.doi, 'doi', rp)
                 elif args.isbn is not None:
-                    bibentry_raw = apis.isbn2bibtex(args.isbn)
-                    bibentry = rp.databroker.verify(bibentry_raw)
-                    if bibentry is None:
-                        raise apis.ReferenceNotFoundException(
-                            'invalid isbn {} or unable to retrieve bibfile from it.'.format(args.isbn))
+                    bibentry = apis.get_bibentry_from_api(args.isbn, 'isbn', rp)
                     # TODO distinguish between cases, offer to open the error page in a webbrowser.
                     # TODO offer to confirm/change citekey
                 elif args.arxiv is not None:
-                    bibentry_raw = apis.arxiv2bibtex(args.arxiv)
-                    bibentry = rp.databroker.verify(bibentry_raw)
-                    if bibentry is None:
-                        raise apis.ReferenceNotFoundException(
-                            'invalid arxiv id {} or unable to retrieve bibfile from it.'.format(args.arxiv_id))
+                    bibentry = apis.get_bibentry_from_api(args.arxiv, 'arxiv', rp)
             except apis.ReferenceNotFoundException as e:
                 ui.error(e.message)
                 ui.exit(1)

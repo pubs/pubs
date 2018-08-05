@@ -11,6 +11,45 @@ class ReferenceNotFoundException(Exception):
     pass
 
 
+def get_bibentry_from_api(id_str, id_type, rp):
+    """Return a bibtex string from various ID methods.
+
+    This is a wrapper around functions that will return a bibtex string given
+    one of:
+
+    * DOI
+    * IBSN
+    * arXiv ID
+
+    Args:
+        id_str: A string with the ID.
+        id_type: Name of the ID type.  Must be one of `doi`, `isbn`, or `arxiv`.
+        rp: A `Repository` object.
+
+    Returns:
+        A bibtex string.
+
+    Raises:
+        ValueError: if `id_type` is not one of `doi`, `isbn`, or `arxiv`.
+    """
+
+    id_fns = {
+        'doi': doi2bibtex,
+        'isbn': isbn2bibtex,
+        'arxiv': arxiv2bibtex,
+    }
+
+    if id_type not in id_fns.keys():
+        raise ValueError('id_type must be one of `doi`, `isbn`, or `arxiv`.')
+
+    bibentry_raw = id_fns[id_type](id_str)
+    bibentry = rp.databroker.verify(bibentry_raw)
+    if bibentry is None:
+        raise ReferenceNotFoundException(
+            'invalid {} {} or unable to retrieve bibfile from it.'.format(id_type, id_str))
+    return bibentry
+
+
 def doi2bibtex(doi):
     """Return a bibtex string of metadata from a DOI"""
 
@@ -52,7 +91,7 @@ def arxiv2bibtex(arxiv_id):
         author_str = ' and '.join(
             [author['name'] for author in entry['authors']])
         db.entries = [{
-            'ENTRYTYPE': 'misc',
+            'ENTRYTYPE': 'article',
             'ID': arxiv_id,
             'author': author_str,
             'title': entry['title'],
