@@ -7,7 +7,8 @@ import dotdot
 
 from pubs.p3 import ustr
 from pubs.endecoder import EnDecoder
-from pubs.apis import arxiv2bibtex, doi2bibtex, isbn2bibtex
+from pubs.apis import arxiv2bibtex, doi2bibtex, isbn2bibtex, _is_arxiv_oldstyle, _extract_arxiv_id
+
 
 
 class TestDOI2Bibtex(unittest.TestCase):
@@ -84,6 +85,23 @@ class TestArxiv2Bibtex(unittest.TestCase):
                 entry['title'],
                 'The entropy formula for the Ricci flow and its geometric applications')
 
+    def test_oldstyle_pattern(self):
+        """Test that we can accurately differentiate between old and new style arXiv ids."""
+        # old-style arXiv ids
+        for arxiv_id in ['cs/9301113', 'math/9201277v3', 'astro-ph/9812133',
+                         'cond-mat/0604612', 'hep-ph/0702007v10', 'arXiv:physics/9403001'
+                        ]:
+            self.assertTrue(_is_arxiv_oldstyle(arxiv_id))
+        # new-style arXiv ids
+        for arxiv_id in ['1808.00954', 'arXiv:1808.00953', '1808.0953',
+                         '1808.00954v1', 'arXiv:1808.00953v2', '1808.0953v42']:
+            self.assertFalse(_is_arxiv_oldstyle(arxiv_id))
 
-# Note: apparently ottobib.com uses caracter modifiers for accents instead
-# of the correct unicode characters. TODO: Should we convert them?
+    def test_extract_id(self):
+        """Test that ids are correctly extracted"""
+        self.assertEqual(_extract_arxiv_id({'id': "http://arxiv.org/abs/0704.0010v1"}), "0704.0010v1")
+        self.assertEqual(_extract_arxiv_id({'id': "https://arxiv.org/abs/0704.0010v1"}), "0704.0010v1")
+        self.assertEqual(_extract_arxiv_id({'id': "https://arxiv.org/abs/astro-ph/9812133v2"}), "astro-ph/9812133v2")
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

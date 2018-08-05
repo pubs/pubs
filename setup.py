@@ -27,7 +27,7 @@ setup(
         },
 
     install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil',
-                      'requests', 'configobj', 'beautifulsoup4'],
+                      'requests', 'configobj', 'beautifulsoup4', 'feedparser'],
     tests_require=['pyfakefs>=2.7', 'mock'],
     extras_require={'autocompletion': ['argcomplete'],
                     },
