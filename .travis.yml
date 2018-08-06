@@ -36,8 +36,6 @@ matrix:
 # command to install dependencies
 install:
     - python --version
-    - pip install -r tests/requirements.txt
-    - python setup.py install
 
 # command to run tests
-script: python -m unittest discover
+script: python setup.py test

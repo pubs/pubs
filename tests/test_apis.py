@@ -12,10 +12,28 @@ from pubs.apis import ReferenceNotFoundError, arxiv2bibtex, doi2bibtex, isbn2bib
 from pubs import apis
 
 
-class TestDOI2Bibtex(unittest.TestCase):
+def _is_connected():
+    """Return False if no internet connection is detected.
+
+    May not work if the local network redirects the connection.
+    """
+    try:
+        host = socket.gethostbyname('www.google.com')
+        s = socket.create_connection((host, 80), 2)
+        return True
+    except:
+        return False
+
+class APITests(unittest.TestCase):
 
     def setUp(self):
+        if not _is_connected():
+            self.skipTest('no connection detected, skiping test')
         self.endecoder = EnDecoder()
+
+
+
+class TestDOI2Bibtex(APITests):
 
     def test_unicode(self):
         bib = doi2bibtex('10.1007/BF01700692')
@@ -37,10 +55,7 @@ class TestDOI2Bibtex(unittest.TestCase):
             doi2bibtex('999999')
 
 
-class TestISBN2Bibtex(unittest.TestCase):
-
-    def setUp(self):
-        self.endecoder = EnDecoder()
+class TestISBN2Bibtex(APITests):
 
     def test_unicode(self):
         bib = isbn2bibtex('9782081336742')
@@ -61,10 +76,7 @@ class TestISBN2Bibtex(unittest.TestCase):
             self.endecoder.decode_bibdata(bib)
 
 
-class TestArxiv2Bibtex(unittest.TestCase):
-
-    def setUp(self):
-        self.endecoder = EnDecoder()
+class TestArxiv2Bibtex(APITests):
 
     def test_parses_to_bibtex_with_doi(self):
         bib = arxiv2bibtex('astro-ph/9812133')
@@ -84,6 +96,9 @@ class TestArxiv2Bibtex(unittest.TestCase):
         self.assertEqual(
                 entry['title'],
                 'The entropy formula for the Ricci flow and its geometric applications')
+
+class TestArxiv2BibtexLocal(unittest.TestCase):
+    """Test arXiv 2 Bibtex connection; those tests don't require a connection"""
 
     def test_oldstyle_pattern(self):
         """Test that we can accurately differentiate between old and new style arXiv ids."""

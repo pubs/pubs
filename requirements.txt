@@ -1,3 +1,4 @@
+-e .
 pyyaml
 bibtexparser>=1.0
 python-dateutil
@@ -5,3 +6,10 @@ requests
 configobj
 beautifulsoup4
 feedparser
+six
+
+# those are the additional packages required to run the tests
+pyfakefs
+ddt
+mock
+pytest # optional (python setup.py test works without it), but possible nonetheless

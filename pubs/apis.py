@@ -13,7 +13,7 @@ class ReferenceNotFoundError(Exception):
     pass
 
 
-def get_bibentry_from_api(id_str, id_type, rp):
+def get_bibentry_from_api(id_str, id_type, rp, ui=None):
     """Return a bibtex string from various ID methods.
 
     This is a wrapper around functions that will return a bibtex string given
@@ -27,12 +27,14 @@ def get_bibentry_from_api(id_str, id_type, rp):
         id_str: A string with the ID.
         id_type: Name of the ID type.  Must be one of `doi`, `isbn`, or `arxiv`.
         rp: A `Repository` object.
+        ui: A UI object.
 
     Returns:
         A bibtex string.
 
     Raises:
         ValueError: if `id_type` is not one of `doi`, `isbn`, or `arxiv`.
+        apis.ReferenceNotFoundException: if no valid reference could be found.
     """
 
     id_fns = {
@@ -69,7 +71,7 @@ def _get_request(url, headers=None):
 
     ## DOI support
 
-def doi2bibtex(doi):
+def doi2bibtex(doi, **kwargs):
     """Return a bibtex string of metadata from a DOI"""
 
     url = 'http://dx.doi.org/{}'.format(doi)
@@ -83,7 +85,8 @@ def doi2bibtex(doi):
 
     ## ISBN support
 
-def isbn2bibtex(isbn):
+
+def isbn2bibtex(isbn, **kwargs):
     """Return a bibtex string of metadata from an ISBN"""
 
     url = 'http://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
