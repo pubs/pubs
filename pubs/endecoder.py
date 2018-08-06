@@ -1,9 +1,16 @@
 from __future__ import absolute_import, unicode_literals
 
 import copy
+import logging
+
+# both needed to intercept exceptions.
+import pyparsing
+import bibtexparser
 
 try:
     import bibtexparser as bp
+    # don't let bibtexparser display stuff
+#    bp.bparser.logger.setLevel(level=logging.CRITICAL)
 except ImportError:
     print("error: you need to install bibterxparser; try running 'pip install "
           "bibtexparser'.")
@@ -68,13 +75,15 @@ class EnDecoder(object):
 
     class BibDecodingError(Exception):
 
-        message = "Could not parse provided bibdata:\n---\n{}\n---"
+#        message = "Could not parse provided bibdata:\n---\n{}\n---"
 
-        def __init__(self, bibdata):
+        def __init__(self, error_msg, bibdata):
+            """
+            :param error_msg: specific message about what went wrong
+            :param bibdata:   the data that was unsuccessfully decoded.
+            """
+            super(Exception, self).__init__(error_msg) # make `str(self)` work.
             self.data = bibdata
-
-        def __str__(self):
-            return self.message.format(self.data)
 
     bwriter = bp.bwriter.BibTexWriter()
     bwriter.display_order = BIBFIELD_ORDER
@@ -117,10 +126,12 @@ class EnDecoder(object):
 
         If the decoding fails, returns a BibParseError.
         """
+        if len(bibdata) == 0:
+            error_msg = 'parsing error: the provided string has length zero.'
+            raise self.BibDecodingError(error_msg, bibdata)
         try:
             entries = bp.bparser.BibTexParser(
-                bibdata, common_strings=True,
-                customization=customizations,
+                bibdata, common_strings=True, customization=customizations,
                 homogenize_fields=True).get_entry_dict()
 
             # Remove id from bibtexparser attribute which is stored as citekey
@@ -131,8 +142,18 @@ class EnDecoder(object):
                 entries[e][TYPE_KEY] = t
             if len(entries) > 0:
                 return entries
-        except Exception:
-            import traceback
-            traceback.print_exc()
-        raise self.BibDecodingError(bibdata)
-        # TODO: filter exceptions from pyparsing and pass reason upstream
+        except (pyparsing.ParseException, pyparsing.ParseSyntaxException) as e:
+            error_msg = self._format_parsing_error(e)
+            raise self.BibDecodingError(error_msg, bibdata)
+        except bibtexparser.bibdatabase.UndefinedString as e:
+            error_msg = 'parsing error: undefined string in provided data: {}'.format(e)
+            raise self.BibDecodingError(error_msg, bibdata)
+
+
+    @classmethod
+    def _format_parsing_error(cls, e):
+        """Transform a pyparsing exception into an error message
+
+        Does a best effort to be useful, but might need to be improved.
+        """
+        return '{}\n{}^\n{}'.format(e.line, (e.column - 1) * ' ', e)

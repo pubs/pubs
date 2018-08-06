@@ -23,6 +23,11 @@ def compare_yaml_str(s1, s2):
 
 class TestEnDecode(unittest.TestCase):
 
+    def test_decode_emptystring(self):
+        decoder = endecoder.EnDecoder()
+        with self.assertRaises(decoder.BibDecodingError):
+            entry = decoder.decode_bibdata('')
+
     def test_encode_bibtex_is_unicode(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_bibdata(bibtex_raw0)
@@ -51,6 +56,18 @@ class TestEnDecode(unittest.TestCase):
                 self.assertEqual(bibentry1[key], bibentry2[key])
 
         self.assertEqual(bibraw1, bibraw2)
+
+    def test_endecode_bibtex_BOM(self):
+        """Test that bibtexparser if fine with BOM-prefixed data"""
+        decoder = endecoder.EnDecoder()
+        bom_str = '\ufeff'
+
+        entry_1  = decoder.decode_bibdata(bibtex_raw0)
+        bibraw_1 = decoder.encode_bibdata(entry_1)
+        entry_2  = decoder.decode_bibdata(bom_str + bibraw_1)
+        bibraw_2 = decoder.encode_bibdata(entry_2)
+
+        self.assertEqual(bibraw_1, bibraw_2)
 
     def test_endecode_bibtex_converts_month_string(self):
         """Test if `month=dec` is correctly recognized and transformed into

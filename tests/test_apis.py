@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 import unittest
+import socket
 
 import dotdot
 
@@ -20,9 +21,11 @@ def _is_connected():
     try:
         host = socket.gethostbyname('www.google.com')
         s = socket.create_connection((host, 80), 2)
+        s.close()
         return True
-    except:
-        return False
+    except socket.error:
+        pass
+    return False
 
 class APITests(unittest.TestCase):
 
@@ -77,6 +80,14 @@ class TestISBN2Bibtex(APITests):
 
 
 class TestArxiv2Bibtex(APITests):
+
+    def test_new_style(self):
+        bib = arxiv2bibtex('astro-ph/9812133')
+        b = self.endecoder.decode_bibdata(bib)
+        self.assertEqual(len(b), 1)
+        entry = b[list(b)[0]]
+        self.assertEqual(entry['author'][0], 'Perlmutter, S.')
+        self.assertEqual(entry['year'], '1999')
 
     def test_parses_to_bibtex_with_doi(self):
         bib = arxiv2bibtex('astro-ph/9812133')

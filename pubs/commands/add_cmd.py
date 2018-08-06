@@ -43,22 +43,25 @@ def parser(subparsers, conf):
     return parser
 
 
-def bibentry_from_editor(conf, ui, rp):
+def bibentry_from_editor(conf, ui):
+
     again = True
-    bibstr = templates.add_bib
+    bibentry_raw = templates.add_bib
+    decoder = endecoder.EnDecoder()
+
     while again:
         try:
-            bibstr = ui.editor_input(initial=bibstr, suffix='.bib')
-            if bibstr == templates.add_bib:
+            bibentry_raw = ui.editor_input(initial=bibentry_raw, suffix='.bib')
+            if bibentry_raw == templates.add_bib:
                 again = ui.input_yn(
                     question='Bibfile not edited. Edit again ?',
                     default='y')
                 if not again:
                     ui.exit(0)
             else:
-                bibentry = rp.databroker.verify(bibstr)
+                bibentry = decoder.decode_bibdata(bibentry_raw)
                 bibstruct.verify_bibdata(bibentry)
-                # REFACTOR Generate citykey
+                # REFACTOR Generate citekey
                 again = False
 
         except endecoder.EnDecoder.BibDecodingError:
@@ -84,28 +87,29 @@ def command(conf, args):
     citekey = args.citekey
 
     rp = repo.Repository(conf)
+    decoder = endecoder.EnDecoder()
 
     # get bibtex entry
     if bibfile is None:
         if args.doi is None and args.isbn is None and args.arxiv is None:
-            bibentry = bibentry_from_editor(conf, ui, rp)
+            bibentry = bibentry_from_editor(conf, ui)
         else:
             bibentry = None
             try:
                 if args.doi is not None:
-                    bibentry = apis.get_bibentry_from_api(args.doi, 'doi', rp)
+                    bibentry = apis.get_bibentry_from_api(args.doi, 'doi', ui=ui)
                 elif args.isbn is not None:
-                    bibentry = apis.get_bibentry_from_api(args.isbn, 'isbn', rp)
+                    bibentry = apis.get_bibentry_from_api(args.isbn, 'isbn', ui=ui)
                     # TODO distinguish between cases, offer to open the error page in a webbrowser.
                     # TODO offer to confirm/change citekey
                 elif args.arxiv is not None:
-                    bibentry = apis.get_bibentry_from_api(args.arxiv, 'arxiv', rp)
+                    bibentry = apis.get_bibentry_from_api(args.arxiv, 'arxiv', ui=ui)
             except apis.ReferenceNotFoundException as e:
                 ui.error(e.message)
                 ui.exit(1)
     else:
         bibentry_raw = content.get_content(bibfile, ui=ui)
-        bibentry = rp.databroker.verify(bibentry_raw)
+        bibentry = decoder.decode_bibdata(bibentry_raw)
         if bibentry is None:
             ui.error('invalid bibfile {}.'.format(bibfile))
 
