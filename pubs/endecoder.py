@@ -10,7 +10,7 @@ import bibtexparser
 try:
     import bibtexparser as bp
     # don't let bibtexparser display stuff
-#    bp.bparser.logger.setLevel(level=logging.CRITICAL)
+    bp.bparser.logger.setLevel(level=logging.CRITICAL)
 except ImportError:
     print("error: you need to install bibterxparser; try running 'pip install "
           "bibtexparser'.")
@@ -74,8 +74,6 @@ class EnDecoder(object):
     """
 
     class BibDecodingError(Exception):
-
-#        message = "Could not parse provided bibdata:\n---\n{}\n---"
 
         def __init__(self, error_msg, bibdata):
             """

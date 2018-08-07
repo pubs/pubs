@@ -1,7 +1,8 @@
 # if you want to setup your environment for development of the pytest code,
 # doing `pip install -r dev_requirements.txt` is the single thing you have to do.
 # Alternatively, and perhaps more conveniently, running `python setup.py test`
-# will do the same *and* run the tests.
+# will do the same *and* run the tests, but without installing the packages on
+# the system.
 # Note that if you introduce a new dependency, you need to add it here and, more
 # importantly, to the setup.py script so that it is taken into account when
 # installing from PyPi.

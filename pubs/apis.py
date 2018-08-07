@@ -146,7 +146,6 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
                "'{}': {}".format(arxiv_id, e))
         raise ReferenceNotFoundError(msg)
 
-    # print("TEXT = '{}'".format(r.text))
     feed = feedparser.parse(r.text)
     if len(feed.entries) == 0:  # no results.
         msg = "no results for arXiv id {}".format(arxiv_id)
@@ -161,12 +160,6 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
         raise ReferenceNotFoundError(msg)
 
     entry = feed.entries[0]
-    if 'arxiv.org/api/errors' in entry['id']:  # server is returning an error message.
-        msg = 'the arXiv server returned an error message: {}'.format(entry['summary'])
-        raise ReferenceNotFoundError(msg)
-    # import pprint
-    # pprint.pprint(entry)
-
 
     ## try to return a doi instead of the arXiv reference
     if try_doi and 'arxiv_doi' in entry:
@@ -203,8 +196,3 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
 
     bibtex = bibtexparser.dumps(db)
     return bibtex
-
-if __name__ == '__main__':
-    print(arxiv2bibtex("0704.0010"))
-    print(arxiv2bibtex("0704.010*"))
-#    print(arxiv2bibtex("quant-ph/0703266"))

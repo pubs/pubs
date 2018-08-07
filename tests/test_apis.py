@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 import unittest
 import socket
 
+import mock
+
+
 import dotdot
 
 from pubs.p3 import ustr
@@ -11,6 +14,8 @@ from pubs.endecoder import EnDecoder
 from pubs.apis import ReferenceNotFoundError, arxiv2bibtex, doi2bibtex, isbn2bibtex, _is_arxiv_oldstyle, _extract_arxiv_id
 
 from pubs import apis
+
+import mock_requests
 
 
 def _is_connected():
@@ -27,23 +32,25 @@ def _is_connected():
         pass
     return False
 
+
 class APITests(unittest.TestCase):
 
     def setUp(self):
-        if not _is_connected():
-            self.skipTest('no connection detected, skiping test')
+        # if not _is_connected():
+        #     self.skipTest('no connection detected, skiping test')
         self.endecoder = EnDecoder()
-
 
 
 class TestDOI2Bibtex(APITests):
 
-    def test_unicode(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_unicode(self, reqget):
         bib = doi2bibtex('10.1007/BF01700692')
         self.assertIsInstance(bib, ustr)
         self.assertIn('Kurt Gödel', bib)
 
-    def test_parses_to_bibtex(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_parses_to_bibtex(self, reqget):
         bib = doi2bibtex('10.1007/BF01700692')
         b = self.endecoder.decode_bibdata(bib)
         self.assertEqual(len(b), 1)
@@ -53,19 +60,22 @@ class TestDOI2Bibtex(APITests):
                          'Über formal unentscheidbare Sätze der Principia '
                          'Mathematica und verwandter Systeme I')
 
-    def test_retrieve_fails_on_incorrect_DOI(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_retrieve_fails_on_incorrect_DOI(self, reqget):
         with self.assertRaises(apis.ReferenceNotFoundError):
             doi2bibtex('999999')
 
 
 class TestISBN2Bibtex(APITests):
 
-    def test_unicode(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_unicode(self, reqget):
         bib = isbn2bibtex('9782081336742')
         self.assertIsInstance(bib, ustr)
         self.assertIn('Poincaré, Henri', bib)
 
-    def test_parses_to_bibtex(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_parses_to_bibtex(self, reqget):
         bib = isbn2bibtex('9782081336742')
         b = self.endecoder.decode_bibdata(bib)
         self.assertEqual(len(b), 1)
@@ -73,7 +83,8 @@ class TestISBN2Bibtex(APITests):
         self.assertEqual(entry['author'][0], 'Poincaré, Henri')
         self.assertEqual(entry['title'], 'La science et l\'hypothèse')
 
-    def test_retrieve_fails_on_incorrect_ISBN(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_retrieve_fails_on_incorrect_ISBN(self, reqget):
         bib = isbn2bibtex('9' * 13)
         with self.assertRaises(EnDecoder.BibDecodingError):
             self.endecoder.decode_bibdata(bib)
@@ -81,7 +92,8 @@ class TestISBN2Bibtex(APITests):
 
 class TestArxiv2Bibtex(APITests):
 
-    def test_new_style(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_new_style(self, reqget):
         bib = arxiv2bibtex('astro-ph/9812133')
         b = self.endecoder.decode_bibdata(bib)
         self.assertEqual(len(b), 1)
@@ -89,7 +101,8 @@ class TestArxiv2Bibtex(APITests):
         self.assertEqual(entry['author'][0], 'Perlmutter, S.')
         self.assertEqual(entry['year'], '1999')
 
-    def test_parses_to_bibtex_with_doi(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_parses_to_bibtex_with_doi(self, reqget):
         bib = arxiv2bibtex('astro-ph/9812133')
         b = self.endecoder.decode_bibdata(bib)
         self.assertEqual(len(b), 1)
@@ -97,7 +110,8 @@ class TestArxiv2Bibtex(APITests):
         self.assertEqual(entry['author'][0], 'Perlmutter, S.')
         self.assertEqual(entry['year'], '1999')
 
-    def test_parses_to_bibtex_without_doi(self):
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_parses_to_bibtex_without_doi(self, reqget):
         bib = arxiv2bibtex('math/0211159')
         b = self.endecoder.decode_bibdata(bib)
         self.assertEqual(len(b), 1)
@@ -107,6 +121,7 @@ class TestArxiv2Bibtex(APITests):
         self.assertEqual(
                 entry['title'],
                 'The entropy formula for the Ricci flow and its geometric applications')
+
 
 class TestArxiv2BibtexLocal(unittest.TestCase):
     """Test arXiv 2 Bibtex connection; those tests don't require a connection"""
@@ -128,6 +143,7 @@ class TestArxiv2BibtexLocal(unittest.TestCase):
         self.assertEqual(_extract_arxiv_id({'id': "http://arxiv.org/abs/0704.0010v1"}), "0704.0010v1")
         self.assertEqual(_extract_arxiv_id({'id': "https://arxiv.org/abs/0704.0010v1"}), "0704.0010v1")
         self.assertEqual(_extract_arxiv_id({'id': "https://arxiv.org/abs/astro-ph/9812133v2"}), "astro-ph/9812133v2")
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
