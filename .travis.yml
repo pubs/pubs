@@ -36,6 +36,7 @@ matrix:
 # command to install dependencies
 install:
     - python --version
+    - export PUBS_TESTS_MODE=ONLINE
 
 # command to run tests
 script: python setup.py test
