@@ -29,6 +29,8 @@
 
 ### Fixed bugs
 
+- [[#144]](https://github.com/pubs/pubs/issues/144) More robust handling of the `doc_add` options [(#159)](https://github.com/pubs/pubs/pull/159)
+
 - [[#149]](https://github.com/pubs/pubs/issues/149) More robust handling of parsing and citekey errors [(#87)](https://github.com/pubs/pubs/pull/87)
 
 - [[#148]](https://github.com/pubs/pubs/issues/148) Fix compatibility with Pyfakefs 3.7 [(#151)](https://github.com/pubs/pubs/pull/151)
