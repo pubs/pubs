@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 import unittest
-import socket
 
 import mock
 
@@ -18,26 +17,9 @@ from pubs import apis
 import mock_requests
 
 
-def _is_connected():
-    """Return False if no internet connection is detected.
-
-    May not work if the local network redirects the connection.
-    """
-    try:
-        host = socket.gethostbyname('www.google.com')
-        s = socket.create_connection((host, 80), 2)
-        s.close()
-        return True
-    except socket.error:
-        pass
-    return False
-
-
 class APITests(unittest.TestCase):
 
     def setUp(self):
-        # if not _is_connected():
-        #     self.skipTest('no connection detected, skiping test')
         self.endecoder = EnDecoder()
 
 

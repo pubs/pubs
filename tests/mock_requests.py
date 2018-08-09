@@ -8,11 +8,11 @@ $ export PUBS_TESTS_MODE=COLLECT
 $ export PUBS_TESTS_MODE=ONLINE
 
 The MOCK mode is the default one, active even if PUBS_TESTS_MODE has not been
-set. It use prefetched data to run pubs units tests relying on the `requests.get`
+set. It uses saved data to run pubs units tests relying on the `requests.get`
 function without the need of an internet connection (it is also much faster).
 The prefected data is save in the `test_apis_data.pickle` file.
 
-The COLLECT mode does real GET requests, and update the `test_apis_data.pickle`
+The COLLECT mode does real GET requests, and updates the `test_apis_data.pickle`
 file. It is needed if you add or modify the test relying on `requests.get`.
 
 The ONLINE mode bypasses all this and use the original `requests.get` without
@@ -22,17 +22,14 @@ running tests on Travis for instance.
 
 
 import os
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import json
 
 import requests
 
 
 _orgininal_requests_get = requests.get
 _collected_responses = []
-_data_filepath = os.path.join(os.path.dirname(__file__), 'test_apis_data.pickle')
+_data_filepath = os.path.join(os.path.dirname(__file__), 'test_apis_data.json')
 
 class MockingResponse:
     def __init__(self, text, status_code=200, error_msg=None):
@@ -50,12 +47,12 @@ mode = os.environ.get('PUBS_TESTS_MODE', 'MOCK')
 
 if mode == 'MOCK':
 
-    with open(os.path.join(_data_filepath), 'rb') as fd:
-        _collected_responses.extend(pickle.load(fd))
+    with open(os.path.join(_data_filepath), 'r') as fd:
+        _collected_responses = json.load(fd)
 
     def mock_requests_get(*args, **kwargs):
         for args2, kwargs2, text, status_code, error_msg in _collected_responses:
-            if args == args2 and kwargs == kwargs2:
+            if list(args) == list(args2) and kwargs == kwargs2:
                 return MockingResponse(text, status_code, error_msg)
         raise KeyError(('No stub data found for requests.get({}, {}).\n You may'
                         ' need to update the mock data. Look at the '
@@ -71,7 +68,6 @@ elif mode == 'COLLECT':
             r.raise_for_status()
         except requests.exceptions.RequestException as e:
             error_msg = str(e)
-        key = (sorted(args), sorted((k, v) for k, v in kwargs.items()))
 
         _collected_responses.append((args, kwargs, text, status_code, error_msg))
         _save_collected_responses() # yes, we save everytime, because it's not
@@ -81,8 +77,8 @@ elif mode == 'COLLECT':
         return MockingResponse(text, status_code, error_msg)
 
     def _save_collected_responses():
-        with open(os.path.join(_data_filepath), 'wb') as fd:
-            pickle.dump(_collected_responses, fd, protocol=2)
+        with open(os.path.join(_data_filepath), 'w') as fd:
+            json.dump(_collected_responses, fd)
 
 elif mode == 'ONLINE':
     def mock_requests_get(*args, **kwargs):
