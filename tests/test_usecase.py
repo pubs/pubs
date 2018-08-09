@@ -292,9 +292,66 @@ class TestAdd(URLContentTestCase):
                 'pubs add data/pagerank.bib --link -d data/pagerank.pdf',
                 ]
         self.execute_cmds(cmds)
-        self.assertEqual(os.listdir(
-                os.path.join(self.default_pubs_dir, 'doc')),
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
             [])
+        self.assertTrue(os.path.exists('data/pagerank.pdf'))
+
+    def test_add_doc_nocopy_from_config_does_not_copy(self):
+        self.execute_cmds(['pubs init'])
+        config = conf.load_conf()
+        config['main']['doc_add'] = 'link'
+        conf.save_conf(config)
+        cmds = ['pubs add data/pagerank.bib -d data/pagerank.pdf']
+        self.execute_cmds(cmds)
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
+            [])
+        self.assertTrue(os.path.exists('data/pagerank.pdf'))
+
+    def test_add_doc_copy(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib --copy -d data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
+            ['Page99.pdf'])
+        self.assertTrue(os.path.exists('data/pagerank.pdf'))
+
+    def test_add_doc_copy_from_config(self):
+        self.execute_cmds(['pubs init'])
+        config = conf.load_conf()
+        config['main']['doc_add'] = 'copy'
+        conf.save_conf(config)
+        cmds = ['pubs add data/pagerank.bib -d data/pagerank.pdf']
+        self.execute_cmds(cmds)
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
+            ['Page99.pdf'])
+        self.assertTrue(os.path.exists('data/pagerank.pdf'))
+
+    def test_add_doc_move(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib --move -d data/pagerank.pdf',
+                ]
+        self.execute_cmds(cmds)
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
+            ['Page99.pdf'])
+        self.assertFalse(os.path.exists('data/pagerank.pdf'))
+
+    def test_add_doc_move_from_config(self):
+        self.execute_cmds(['pubs init'])
+        config = conf.load_conf()
+        config['main']['doc_add'] = 'move'
+        conf.save_conf(config)
+        cmds = ['pubs add data/pagerank.bib -d data/pagerank.pdf']
+        self.execute_cmds(cmds)
+        self.assertEqual(
+            os.listdir(os.path.join(self.default_pubs_dir, 'doc')),
+            ['Page99.pdf'])
+        self.assertFalse(os.path.exists('data/pagerank.pdf'))
 
     def test_add_move_removes_doc(self):
         cmds = ['pubs init',
@@ -611,7 +668,7 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-                   'data/pagerank.pdf was copied to the pubs repository.\n',
+                   'data/pagerank.pdf was moved to the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
                    '\n',
                    '',
