@@ -12,6 +12,7 @@ from .. import apis
 from .. import pretty
 from .. import utils
 from .. import endecoder
+from ..command_utils import add_doc_add_arguments
 from ..completion import CommaSeparatedTagsCompletion
 
 
@@ -34,19 +35,7 @@ def parser(subparsers, conf):
                         ).completer = CommaSeparatedTagsCompletion(conf)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None, type=p3.u_maybe)
-    doc_add_group = parser.add_mutually_exclusive_group()
-    doc_add_group.add_argument(
-        '-L', '--link', action='store_const', dest='doc_add', const='link',
-        default=None,
-        help="don't copy document files, just create a link.")
-    doc_add_group.add_argument(
-        '-M', '--move', action='store_const', dest='doc_add', const='move',
-        default=None,
-        help="move document instead of of copying.")
-    doc_add_group.add_argument(
-        '-C', '--copy', action='store_const', dest='doc_add', const='copy',
-        default=None,
-        help="copy document instead of of move.")
+    add_doc_add_arguments(parser)
     return parser
 
 
