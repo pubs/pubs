@@ -94,7 +94,7 @@ elif mode == 'COLLECT':
 
     def _save_collected_responses():
         with open(os.path.join(_data_filepath), 'w') as fd:
-            json.dump(_collected_responses, fd, indent=2)
+            json.dump(sorted(_collected_responses), fd, indent=2)
 
 elif mode == 'ONLINE':
     def mock_requests_get(*args, **kwargs):
