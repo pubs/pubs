@@ -925,6 +925,21 @@ class TestUsecase(DataCommandTestCase):
         self.assertFalse(os.path.isfile(self.default_conf_path))
         self.assertTrue(os.path.isfile(alt_conf))
 
+    def test_statistics(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs add -d data/turing-mind-1950.pdf data/turing1950.bib',
+                'pubs add data/martius.bib',
+                'pubs add data/10.1371%2Fjournal.pone.0038236.bib',
+                'pubs tag Page99 A+B',
+                'pubs tag turing1950computing C',
+                'pubs statistics',
+                ]
+        out = self.execute_cmds(cmds)
+        lines = out[-1].splitlines()
+        self.assertEqual(lines[0], 'Repository statistics:')
+        self.assertEqual(lines[1], 'Total papers: 4, 1 (25%) have a document attached')
+        self.assertEqual(lines[2], 'Total tags: 3, 2 (50%) of papers have at least one tag')
 
 
 @ddt.ddt
