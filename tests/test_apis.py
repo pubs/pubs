@@ -104,6 +104,36 @@ class TestArxiv2Bibtex(APITests):
                 entry['title'],
                 'The entropy formula for the Ricci flow and its geometric applications')
 
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_arxiv_wrong_id(self, reqget):
+        with self.assertRaises(ReferenceNotFoundError):
+            bib = arxiv2bibtex('INVALIDID')
+
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_arxiv_wrong_doi(self, reqget):
+        bib = arxiv2bibtex('1312.2021')
+        b = self.endecoder.decode_bibdata(bib)
+        entry = b[list(b)[0]]
+        self.assertEqual(entry['arxiv_doi'], '10.1103/INVALIDDOI.89.084044')
+
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_arxiv_good_doi(self, reqget):
+        """Get the DOI bibtex instead of the arXiv one if possible"""
+        bib = arxiv2bibtex('1710.08557')
+        b = self.endecoder.decode_bibdata(bib)
+        entry = b[list(b)[0]]
+        self.assertTrue(not 'arxiv_doi' in entry)
+        self.assertEqual(entry['doi'], '10.1186/s12984-017-0305-3')
+        self.assertEqual(entry['title'].lower(), 'on neuromechanical approaches for the study of biological and robotic grasp and manipulation')
+
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_arxiv_good_doi_force_arxiv(self, reqget):
+        bib = arxiv2bibtex('1710.08557', try_doi=False)
+        b = self.endecoder.decode_bibdata(bib)
+        entry = b[list(b)[0]]
+        self.assertEqual(entry['arxiv_doi'], '10.1186/s12984-017-0305-3')
+        self.assertEqual(entry['title'].lower(), 'on neuromechanical approaches for the study of biological grasp and\nmanipulation')
+
 
 class TestArxiv2BibtexLocal(unittest.TestCase):
     """Test arXiv 2 Bibtex connection; those tests don't require a connection"""

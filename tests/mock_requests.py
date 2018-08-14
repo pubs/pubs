@@ -23,6 +23,7 @@ running tests on Travis for instance.
 
 import os
 import json
+import mock
 
 import requests
 
@@ -30,6 +31,7 @@ import requests
 _orgininal_requests_get = requests.get
 _collected_responses = []
 _data_filepath = os.path.join(os.path.dirname(__file__), 'test_apis_data.json')
+
 
 class MockingResponse:
     def __init__(self, text, status_code=200, error_msg=None):
@@ -41,6 +43,19 @@ class MockingResponse:
     def raise_for_status(self):
         if self.status_code != 200:
             raise requests.exceptions.RequestException(self.error_msg)
+
+
+def intercept_text(text):
+    try:
+        if '10.1103/PhysRevD.89.084044' in text:
+            # replace with wrong DOI
+            text = text.replace('PhysRevD', 'INVALIDDOI')
+    except TypeError:
+        if b'10.1103/PhysRevD.89.084044' in text:
+            # replace with wrong DOI
+            text = text.replace(b'PhysRevD', b'INVALIDDOI')
+
+    return text
 
 
 mode = os.environ.get('PUBS_TESTS_MODE', 'MOCK')
@@ -56,7 +71,7 @@ if mode == 'MOCK':
                 return MockingResponse(text, status_code, error_msg)
         raise KeyError(('No stub data found for requests.get({}, {}).\n You may'
                         ' need to update the mock data. Look at the '
-                        'tests/mock_requests.py file for explanation').format(args, kwargs))
+                        'tests/mock_requests.py file for an explanation').format(args, kwargs))
 
 elif mode == 'COLLECT':
 
@@ -74,12 +89,18 @@ elif mode == 'COLLECT':
                                     # clear how to run once after all the tests
                                     # have run. If you figure it out...
 
+        text = intercept_text(text)
         return MockingResponse(text, status_code, error_msg)
 
     def _save_collected_responses():
         with open(os.path.join(_data_filepath), 'w') as fd:
-            json.dump(_collected_responses, fd)
+            json.dump(_collected_responses, fd, indent=2)
 
 elif mode == 'ONLINE':
     def mock_requests_get(*args, **kwargs):
-        return _orgininal_requests_get(*args, **kwargs)
+        # with mock.patch('requests.Response.text', new_callable=mock.PropertyMock) as mock_text:
+        r = _orgininal_requests_get(*args, **kwargs)
+        r._content = intercept_text(r.content)
+            # print(r.content.__class__)
+            # mock_text.return_value = intercept_text(r.text)
+        return r

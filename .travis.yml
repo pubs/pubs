@@ -40,7 +40,5 @@ install:
 
 # command to run tests
 script:
-  - export PUBS_TESTS_MODE=ONLINE
-  - python setup.py test
-  - export PUBS_TESTS_MODE=MOCK
-  - python setup.py test
+  - PUBS_TESTS_MODE=MOCK python setup.py test
+  - PUBS_TESTS_MODE=COLLECT python setup.py test

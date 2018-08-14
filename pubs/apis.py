@@ -192,7 +192,7 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
     if not _is_arxiv_oldstyle(entry_id):
         db.entries[0]['eprintclass'] = entry['arxiv_primary_category']['term']
     if 'arxiv_doi' in entry:
-        db.entries[0]['arxiv_doi'] = arxiv_doi
+        db.entries[0]['arxiv_doi'] = entry['arxiv_doi']
 
     bibtex = bibtexparser.dumps(db)
     return bibtex
