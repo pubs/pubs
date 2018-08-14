@@ -74,7 +74,7 @@ def _get_request(url, headers=None):
 def doi2bibtex(doi, **kwargs):
     """Return a bibtex string of metadata from a DOI"""
 
-    url = 'http://dx.doi.org/{}'.format(doi)
+    url = 'https://dx.doi.org/{}'.format(doi)
     headers = {'accept': 'application/x-bibtex'}
     r = _get_request(url, headers=headers)
     if r.encoding is None:
@@ -89,7 +89,7 @@ def doi2bibtex(doi, **kwargs):
 def isbn2bibtex(isbn, **kwargs):
     """Return a bibtex string of metadata from an ISBN"""
 
-    url = 'http://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
+    url = 'https://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
     r = _get_request(url)
     soup = BeautifulSoup(r.text, "html.parser")
     citation = soup.find("textarea").text

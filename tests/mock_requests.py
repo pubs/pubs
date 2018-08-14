@@ -84,12 +84,12 @@ elif mode == 'COLLECT':
         except requests.exceptions.RequestException as e:
             error_msg = str(e)
 
+        text = intercept_text(text)
         _collected_responses.append((args, kwargs, text, status_code, error_msg))
         _save_collected_responses() # yes, we save everytime, because it's not
                                     # clear how to run once after all the tests
                                     # have run. If you figure it out...
 
-        text = intercept_text(text)
         return MockingResponse(text, status_code, error_msg)
 
     def _save_collected_responses():
