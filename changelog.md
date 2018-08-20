@@ -8,6 +8,8 @@
 
 ### Implemented enhancements
 
+- Adds `move`, and `link` options for handling of documents during `import` (copy being the default). Makes `copy` the default for document handling during `add`. [(#159)](https://github.com/pubs/pubs/pull/159)
+
 - Support for downloading arXiv reference from their ID ([#146](https://github.com/pubs/pubs/issues/146) by [joe-antognini](https://github.com/joe-antognini))
 
 - Better feedback when an error is encountered while adding a reference from a DOI, ISBN or arXiv ID [#155](https://github.com/pubs/pubs/issues/155)
@@ -33,6 +35,8 @@
 - Tests can now be run with `python setup.py test` [#155](https://github.com/pubs/pubs/issues/155)
 
 ### Fixed bugs
+
+- [[#144]](https://github.com/pubs/pubs/issues/144) More robust handling of the `doc_add` options [(#159)](https://github.com/pubs/pubs/pull/159)
 
 - [[#149]](https://github.com/pubs/pubs/issues/149) More robust handling of parsing and citekey errors [(#87)](https://github.com/pubs/pubs/pull/87)
 

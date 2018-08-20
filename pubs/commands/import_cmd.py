@@ -7,10 +7,11 @@ from .. import repo
 from .. import endecoder
 from .. import bibstruct
 from .. import color
+from .. import content
 from ..paper import Paper
-
 from ..uis import get_ui
 from ..content import system_path, read_text_file
+from ..command_utils import add_doc_copy_arguments
 
 
 _ABORT_USE_IGNORE_MSG = "Aborting import. Use --ignore-malformed to ignore."
@@ -18,18 +19,22 @@ _IGNORING_MSG = " Ignoring it."
 
 
 def parser(subparsers, conf):
-    parser = subparsers.add_parser('import',
-            help='import paper(s) to the repository')
-    parser.add_argument('bibpath',
-            help='path to bibtex, bibtexml or bibyaml file (or directory)')
-    parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
-            help="don't copy document files, just create a link.")
-    parser.add_argument('keys', nargs='*',
-            help="one or several keys to import from the file")
-    parser.add_argument('-O', '--overwrite', action='store_true', default=False,
-            help="Overwrite keys already in the database")
-    parser.add_argument('-i', '--ignore-malformed', action='store_true', default=False,
-            help="Ignore malformed and unreadable files and entries")
+    parser = subparsers.add_parser(
+        'import',
+        help='import paper(s) to the repository')
+    parser.add_argument(
+        'bibpath',
+        help='path to bibtex, bibtexml or bibyaml file (or directory)')
+    parser.add_argument(
+        'keys', nargs='*',
+        help="one or several keys to import from the file")
+    parser.add_argument(
+        '-O', '--overwrite', action='store_true', default=False,
+        help="Overwrite keys already in the database")
+    parser.add_argument(
+        '-i', '--ignore-malformed', action='store_true', default=False,
+        help="Ignore malformed and unreadable files and entries")
+    add_doc_copy_arguments(parser, copy=False)
     return parser
 
 
@@ -90,9 +95,7 @@ def command(conf, args):
 
     ui = get_ui()
     bibpath = args.bibpath
-    copy = args.copy
-    if copy is None:
-        copy = conf['main']['doc_add'] in ('copy', 'move')
+    doc_import = args.doc_copy or 'copy'
 
     rp = repo.Repository(conf)
     # Extract papers from bib
@@ -106,7 +109,9 @@ def command(conf, args):
         if docfile is None:
             ui.warning("No file for {}.".format(p.citekey))
         else:
-            rp.push_doc(p.citekey, docfile, copy=copy)
-            # FIXME should move the file if configured to do so.
+            rp.push_doc(p.citekey, docfile,
+                        copy=(doc_import in ('copy', 'move')))
+            if doc_import == 'move' and content.content_type(docfile) != 'url':
+                content.remove_file(docfile)
 
     rp.close()

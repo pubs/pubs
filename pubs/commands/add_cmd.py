@@ -12,6 +12,7 @@ from .. import apis
 from .. import pretty
 from .. import utils
 from .. import endecoder
+from ..command_utils import add_doc_copy_arguments
 from ..completion import CommaSeparatedTagsCompletion
 
 
@@ -36,10 +37,7 @@ def parser(subparsers, conf):
                         ).completer = CommaSeparatedTagsCompletion(conf)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None, type=p3.u_maybe)
-    parser.add_argument('-L', '--link', action='store_false', dest='copy', default=True,
-                        help="don't copy document files, just create a link.")
-    parser.add_argument('-M', '--move', action='store_true', dest='move', default=False,
-                        help="move document instead of of copying (ignored if --link).")
+    add_doc_copy_arguments(parser)
     return parser
 
 
@@ -140,25 +138,20 @@ def command(conf, args):
                     '{}, using {} instead.').format(bib_docfile, docfile))
 
     # create the paper
-    copy = args.copy
-    if copy is None:
-        copy = conf['main']['doc_add'] in ('copy', 'move')
-    move = args.move
-    if move is None:
-        move = conf['main']['doc_add'] == 'move'
+    doc_add = args.doc_copy
+    if doc_add is None:
+        doc_add = conf['main']['doc_add']
 
     rp.push_paper(p)
     ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
     if docfile is not None:
-        rp.push_doc(p.citekey, docfile, copy=copy or args.move)
-        if copy:
-            if move:
-                content.remove_file(docfile)
+        rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
+        if doc_add == 'move' and content.content_type(docfile) != 'url':
+            content.remove_file(docfile)
 
-        if copy:
-            if move:
-                ui.message('{} was moved to the pubs repository.'.format(docfile))
-            else:
+        if doc_add == 'move':
+            ui.message('{} was moved to the pubs repository.'.format(docfile))
+        elif doc_add == 'copy':
                 ui.message('{} was copied to the pubs repository.'.format(docfile))
 
     rp.close()
