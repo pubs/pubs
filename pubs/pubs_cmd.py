@@ -20,9 +20,11 @@ CORE_CMDS = collections.OrderedDict([
     ('rename', commands.rename_cmd),
     ('remove', commands.remove_cmd),
     ('list', commands.list_cmd),
+    ('edit', commands.edit_cmd),
+    ('tag', commands.tag_cmd),
+    ('statistics', commands.statistics_cmd),
 
     ('doc', commands.doc_cmd),
-    ('tag', commands.tag_cmd),
     ('note', commands.note_cmd),
 
     ('export', commands.export_cmd),
@@ -30,7 +32,6 @@ CORE_CMDS = collections.OrderedDict([
 
     ('websearch', commands.websearch_cmd),
     ('url', commands.url_cmd),
-    ('edit', commands.edit_cmd),
 ])
 
 

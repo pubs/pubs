@@ -1,5 +1,0 @@
-# those are the additional packages required to run the tests
-six
-pyfakefs
-ddt
-mock

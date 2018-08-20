@@ -7,7 +7,7 @@ from pubs.events import Event
 _output = None
 
 
-class TestEvent(Event):
+class StringEvent(Event):
     def __init__(self, string):
         self.string = string
 
@@ -34,20 +34,20 @@ class SpecificInfo(Info):
         self.specific = specific
 
 
-@TestEvent.listen(12, 15)
-def display(TestEventInstance, nb1, nb2):
+@StringEvent.listen(12, 15)
+def display(StringEventInstance, nb1, nb2):
     _output.append("%s %s %s"
-                    % (TestEventInstance.string, nb1, nb2))
+                    % (StringEventInstance.string, nb1, nb2))
 
 
-@TestEvent.listen()
-def hello_word(TestEventInstance):
+@StringEvent.listen()
+def hello_word(StringEventInstance):
     _output.append('Helloword')
 
 
-@TestEvent.listen()
-def print_it(TestEventInstance):
-    TestEventInstance.print_one()
+@StringEvent.listen()
+def print_it(StringEventInstance):
+    StringEventInstance.print_one()
 
 
 @AddEvent.listen()
@@ -56,7 +56,7 @@ def do_it(AddEventInstance):
 
 
 @Info.listen()
-def test_info_instance(infoevent):
+def collect_info_instance(infoevent):
     _output.append(infoevent.info)
     if isinstance(infoevent, SpecificInfo):
         _output.append(infoevent.specific)
@@ -68,9 +68,9 @@ class TestEvents(unittest.TestCase):
         global _output
         _output = []
 
-    def test_listen_TestEvent(self):
+    def test_listen_StringEvent(self):
         # using the callback system
-        myevent = TestEvent('abcdefghijklmnopqrstuvwxyz')
+        myevent = StringEvent('abcdefghijklmnopqrstuvwxyz')
         myevent.send()  # this one call three function
         correct = ['abcdefghijklmnopqrstuvwxyz 12 15',
                    'Helloword',
