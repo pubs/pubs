@@ -56,6 +56,10 @@ or an ISBN (dashes are ignored):
 
     pubs add -I 978-0822324669 -d article.pdf
 
+or an arXiv id (automatically downloading arXiv article is in the works):
+
+    pubs add -X math/9501234 -d article.pdf
+
 
 ## References always up-to-date
 

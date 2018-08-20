@@ -79,16 +79,6 @@ class DataBroker(object):
     def listing(self, filestats=True):
         return self.filebroker.listing(filestats=filestats)
 
-    def verify(self, bibdata_raw):
-        """Will return None if bibdata_raw can't be decoded"""
-        try:
-            if bibdata_raw.startswith('\ufeff'):
-                # remove BOM, because bibtexparser does not support it.
-                bibdata_raw = bibdata_raw[1:]
-            return self.endecoder.decode_bibdata(bibdata_raw)
-        except ValueError as e:
-            return None
-
     # docbroker
 
     def in_docsdir(self, docpath):

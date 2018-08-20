@@ -1,9 +1,15 @@
 #!/usr/bin/env python
+import unittest
 
 from setuptools import setup
 
 with open('pubs/version.py') as f:
     exec(f.read())  # defines __version__
+
+def pubs_test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('tests', pattern='test_*.py')
+    return test_suite
 
 setup(
     name='pubs',
@@ -26,9 +32,8 @@ setup(
             ],
         },
 
-    install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil',
-                      'requests', 'configobj', 'beautifulsoup4'],
-    tests_require=['pyfakefs>=2.7', 'mock'],
+    install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil', 'six',
+                      'requests', 'configobj', 'beautifulsoup4', 'feedparser'],
     extras_require={'autocompletion': ['argcomplete'],
                     },
 
@@ -40,6 +45,9 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
     ],
+
+    test_suite= 'tests',
+    tests_require=['pyfakefs>=3.4', 'mock', 'ddt'],
 
     # in order to avoid 'zipimport.ZipImportError: bad local file header'
     zip_safe=False,
