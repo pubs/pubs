@@ -163,9 +163,6 @@ class DataCache(object):
     def listing(self, filestats=True):
         return self.databroker.listing(filestats=filestats)
 
-    def verify(self, bibdata_raw):
-        return self.databroker.verify(bibdata_raw)
-
     # docbroker
 
     def in_docsdir(self, docpath):
