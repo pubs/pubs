@@ -7,10 +7,11 @@ from .. import repo
 from .. import endecoder
 from .. import bibstruct
 from .. import color
+from .. import content
 from ..paper import Paper
 from ..uis import get_ui
 from ..content import system_path, read_text_file
-from ..command_utils import add_doc_add_arguments
+from ..command_utils import add_doc_copy_arguments
 
 
 _ABORT_USE_IGNORE_MSG = "Aborting import. Use --ignore-malformed to ignore."
@@ -33,7 +34,7 @@ def parser(subparsers, conf):
     parser.add_argument(
         '-i', '--ignore-malformed', action='store_true', default=False,
         help="Ignore malformed and unreadable files and entries")
-    add_doc_add_arguments(parser, move=False)
+    add_doc_copy_arguments(parser, copy=False)
     return parser
 
 
@@ -94,10 +95,7 @@ def command(conf, args):
 
     ui = get_ui()
     bibpath = args.bibpath
-    doc_add = args.doc_add
-    if doc_add is None:
-        doc_add = conf['main']['doc_add']
-    copy = doc_add in ('copy', 'move')
+    doc_import = args.doc_copy or 'copy'
 
     rp = repo.Repository(conf)
     # Extract papers from bib
@@ -111,7 +109,9 @@ def command(conf, args):
         if docfile is None:
             ui.warning("No file for {}.".format(p.citekey))
         else:
-            rp.push_doc(p.citekey, docfile, copy=copy)
-            # FIXME should move the file if configured to do so.
+            rp.push_doc(p.citekey, docfile,
+                        copy=(doc_import in ('copy', 'move')))
+            if doc_import == 'move' and content.content_type(docfile) != 'url':
+                content.remove_file(docfile)
 
     rp.close()

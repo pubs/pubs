@@ -3,18 +3,16 @@ or help messages.
 """
 
 
-def add_doc_add_arguments(parser, move=True):
+def add_doc_copy_arguments(parser, copy=True):
     doc_add_group = parser.add_mutually_exclusive_group()
     doc_add_group.add_argument(
-        '-L', '--link', action='store_const', dest='doc_add', const='link',
+        '-L', '--link', action='store_const', dest='doc_copy', const='link',
         default=None,
         help="don't copy document files, just create a link.")
-    doc_add_group.add_argument(
-        '-C', '--copy', action='store_const', dest='doc_add', const='copy',
-        default=None,
-        help="copy document (keep source).")
-    if move:
+    if copy:
         doc_add_group.add_argument(
-            '-M', '--move', action='store_const', dest='doc_add', const='move',
-            default=None,
-            help="move document (copy and remove source).")
+            '-C', '--copy', action='store_const', dest='doc_copy', const='copy',
+            help="copy document (keep source).")
+    doc_add_group.add_argument(
+        '-M', '--move', action='store_const', dest='doc_copy', const='move',
+        help="move document (copy and remove source).")

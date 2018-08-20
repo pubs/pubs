@@ -8,6 +8,8 @@
 
 ### Implemented enhancements
 
+- Adds `move`, and `link` options for handling of documents during import (copy being the default). [(#159)](https://github.com/pubs/pubs/pull/159)
+
 - Better dialog after editing paper [(#142)](https://github.com/pubs/pubs/issues/142)
 
 - Add a command to open urls ([#139](https://github.com/pubs/pubs/issues/139) by [ksunden](https://github.com/ksunden))

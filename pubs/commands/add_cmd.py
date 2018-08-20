@@ -12,7 +12,7 @@ from .. import apis
 from .. import pretty
 from .. import utils
 from .. import endecoder
-from ..command_utils import add_doc_add_arguments
+from ..command_utils import add_doc_copy_arguments
 from ..completion import CommaSeparatedTagsCompletion
 
 
@@ -35,7 +35,7 @@ def parser(subparsers, conf):
                         ).completer = CommaSeparatedTagsCompletion(conf)
     parser.add_argument('-k', '--citekey', help='citekey associated with the paper;\nif not provided, one will be generated automatically.',
                         default=None, type=p3.u_maybe)
-    add_doc_add_arguments(parser)
+    add_doc_copy_arguments(parser)
     return parser
 
 
@@ -134,7 +134,7 @@ def command(conf, args):
                     '{}, using {} instead.').format(bib_docfile, docfile))
 
     # create the paper
-    doc_add = args.doc_add
+    doc_add = args.doc_copy
     if doc_add is None:
         doc_add = conf['main']['doc_add']
 
