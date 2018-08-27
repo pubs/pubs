@@ -9,34 +9,29 @@ import mock
 import dotdot
 
 from pubs.p3 import ustr
-from pubs.endecoder import EnDecoder
-from pubs.apis import ReferenceNotFoundError, arxiv2bibtex, doi2bibtex, isbn2bibtex, _is_arxiv_oldstyle, _extract_arxiv_id
-
 from pubs import apis
+from pubs.apis import _is_arxiv_oldstyle, _extract_arxiv_id
 
 import mock_requests
 
 
 class APITests(unittest.TestCase):
-
-    def setUp(self):
-        self.endecoder = EnDecoder()
+    pass
 
 
 class TestDOI2Bibtex(APITests):
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_unicode(self, reqget):
-        bib = doi2bibtex('10.1007/BF01700692')
+        bib = apis.doi2bibtex('10.1007/BF01700692')
         self.assertIsInstance(bib, ustr)
         self.assertIn('Kurt Gödel', bib)
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex(self, reqget):
-        bib = doi2bibtex('10.1007/BF01700692')
-        b = self.endecoder.decode_bibdata(bib)
-        self.assertEqual(len(b), 1)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('10.1007/BF01700692', 'DOI')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['author'][0], 'Gödel, Kurt')
         self.assertEqual(entry['title'],
                          'Über formal unentscheidbare Sätze der Principia '
@@ -45,59 +40,54 @@ class TestDOI2Bibtex(APITests):
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_retrieve_fails_on_incorrect_DOI(self, reqget):
         with self.assertRaises(apis.ReferenceNotFoundError):
-            doi2bibtex('999999')
+            apis.get_bibentry_from_api('999999', 'doi')
 
 
 class TestISBN2Bibtex(APITests):
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_unicode(self, reqget):
-        bib = isbn2bibtex('9782081336742')
+        bib = apis.isbn2bibtex('9782081336742')
         self.assertIsInstance(bib, ustr)
         self.assertIn('Poincaré, Henri', bib)
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex(self, reqget):
-        bib = isbn2bibtex('9782081336742')
-        b = self.endecoder.decode_bibdata(bib)
-        self.assertEqual(len(b), 1)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('9782081336742', 'ISBN')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['author'][0], 'Poincaré, Henri')
         self.assertEqual(entry['title'], 'La science et l\'hypothèse')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_retrieve_fails_on_incorrect_ISBN(self, reqget):
-        bib = isbn2bibtex('9' * 13)
-        with self.assertRaises(EnDecoder.BibDecodingError):
-            self.endecoder.decode_bibdata(bib)
+        with self.assertRaises(apis.ReferenceNotFoundError):
+            apis.get_bibentry_from_api('9' * 13, 'isbn')
 
 
 class TestArxiv2Bibtex(APITests):
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_new_style(self, reqget):
-        bib = arxiv2bibtex('astro-ph/9812133')
-        b = self.endecoder.decode_bibdata(bib)
-        self.assertEqual(len(b), 1)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('astro-ph/9812133', 'arXiv')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['author'][0], 'Perlmutter, S.')
         self.assertEqual(entry['year'], '1999')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex_with_doi(self, reqget):
-        bib = arxiv2bibtex('astro-ph/9812133')
-        b = self.endecoder.decode_bibdata(bib)
-        self.assertEqual(len(b), 1)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('astro-ph/9812133', 'arxiv')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['author'][0], 'Perlmutter, S.')
         self.assertEqual(entry['year'], '1999')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex_without_doi(self, reqget):
-        bib = arxiv2bibtex('math/0211159')
-        b = self.endecoder.decode_bibdata(bib)
-        self.assertEqual(len(b), 1)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('math/0211159', 'ARXIV')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['author'][0], 'Perelman, Grisha')
         self.assertEqual(entry['year'], '2002')
         self.assertEqual(
@@ -106,31 +96,28 @@ class TestArxiv2Bibtex(APITests):
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_arxiv_wrong_id(self, reqget):
-        with self.assertRaises(ReferenceNotFoundError):
-            bib = arxiv2bibtex('INVALIDID')
+        with self.assertRaises(apis.ReferenceNotFoundError):
+            bib = apis.get_bibentry_from_api('INVALIDID', 'arxiv')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_arxiv_wrong_doi(self, reqget):
-        bib = arxiv2bibtex('1312.2021')
-        b = self.endecoder.decode_bibdata(bib)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('1312.2021', 'arXiv')
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['arxiv_doi'], '10.1103/INVALIDDOI.89.084044')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_arxiv_good_doi(self, reqget):
         """Get the DOI bibtex instead of the arXiv one if possible"""
-        bib = arxiv2bibtex('1710.08557')
-        b = self.endecoder.decode_bibdata(bib)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('1710.08557', 'arXiv')
+        entry = bib[list(bib)[0]]
         self.assertTrue(not 'arxiv_doi' in entry)
         self.assertEqual(entry['doi'], '10.1186/s12984-017-0305-3')
         self.assertEqual(entry['title'].lower(), 'on neuromechanical approaches for the study of biological and robotic grasp and manipulation')
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_arxiv_good_doi_force_arxiv(self, reqget):
-        bib = arxiv2bibtex('1710.08557', try_doi=False)
-        b = self.endecoder.decode_bibdata(bib)
-        entry = b[list(b)[0]]
+        bib = apis.get_bibentry_from_api('1710.08557', 'arXiv', try_doi=False)
+        entry = bib[list(bib)[0]]
         self.assertEqual(entry['arxiv_doi'], '10.1186/s12984-017-0305-3')
         self.assertEqual(entry['title'].lower(), 'on neuromechanical approaches for the study of biological grasp and\nmanipulation')
 

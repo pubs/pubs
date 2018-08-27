@@ -102,8 +102,8 @@ def command(conf, args):
                     # TODO offer to confirm/change citekey
                 elif args.arxiv is not None:
                     bibentry = apis.get_bibentry_from_api(args.arxiv, 'arxiv', ui=ui)
-            except apis.ReferenceNotFoundException as e:
-                ui.error(e.message)
+            except apis.ReferenceNotFoundError as e:
+                ui.error(str(e))
                 ui.exit(1)
     else:
         bibentry_raw = content.get_content(bibfile, ui=ui)

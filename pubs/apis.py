@@ -8,6 +8,8 @@ from bibtexparser.bibdatabase import BibDatabase
 import feedparser
 from bs4 import BeautifulSoup
 
+from . import endecoder
+
 
 class ReferenceNotFoundError(Exception):
     pass
@@ -34,7 +36,7 @@ def get_bibentry_from_api(id_str, id_type, try_doi=True, ui=None):
 
     Raises:
         ValueError: if `id_type` is not one of `doi`, `isbn`, or `arxiv`.
-        apis.ReferenceNotFoundException: if no valid reference could be found.
+        apis.ReferenceNotFoundError: if no valid reference could be found.
     """
 
     id_fns = {
@@ -43,13 +45,14 @@ def get_bibentry_from_api(id_str, id_type, try_doi=True, ui=None):
         'arxiv': arxiv2bibtex,
     }
 
+    id_type = id_type.lower()
     if id_type not in id_fns.keys():
         raise ValueError('id_type must be one of `doi`, `isbn`, or `arxiv`.')
 
     bibentry_raw = id_fns[id_type](id_str, try_doi=try_doi, ui=ui)
-    endecoder.EnDecoder().decode_bibdata(bibentry_raw)
+    bibentry = endecoder.EnDecoder().decode_bibdata(bibentry_raw)
     if bibentry is None:
-        raise ReferenceNotFoundException(
+        raise ReferenceNotFoundError(
             'invalid {} {} or unable to retrieve bibfile from it.'.format(id_type, id_str))
     return bibentry
 
@@ -72,7 +75,7 @@ def _get_request(url, headers=None):
     ## DOI support
 
 def doi2bibtex(doi, **kwargs):
-    """Return a bibtex string of metadata from a DOI"""
+    """Return a bibtex string from a DOI"""
 
     url = 'https://dx.doi.org/{}'.format(doi)
     headers = {'accept': 'application/x-bibtex'}
@@ -87,12 +90,15 @@ def doi2bibtex(doi, **kwargs):
 
 
 def isbn2bibtex(isbn, **kwargs):
-    """Return a bibtex string of metadata from an ISBN"""
+    """Return a bibtex string from an ISBN"""
 
     url = 'https://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
     r = _get_request(url)
     soup = BeautifulSoup(r.text, "html.parser")
     citation = soup.find("textarea").text
+
+    if len(citation) == 0:
+        raise ReferenceNotFoundError("No information could be retrieved about ISBN '{}'. ISBN databases are notoriously incomplete. If the ISBN is correct, you may have to enter information manually by invoking 'pubs add' without the '-I' argument.".format(isbn))
 
     return citation
 
@@ -106,7 +112,7 @@ _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
            'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 def _is_arxiv_oldstyle(arxiv_id):
-    return re.match(r"(arXiv\:)?[a-z\-]+\/[0-9]+(v[0-9]+)?", arxiv_id) is not None
+    return re.match(r"(arxiv\:)?[a-z\-]+\/[0-9]+(v[0-9]+)?", arxiv_id.lower()) is not None
 
 def _extract_arxiv_id(entry):
     pattern = r"http[s]?://arxiv.org/abs/(?P<entry_id>.+)"
@@ -114,7 +120,7 @@ def _extract_arxiv_id(entry):
 
 
 def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
-    """Return a bibtex string of metadata from an arXiv ID
+    """Return a bibtex string from an arXiv ID
 
     :param arxiv_id: arXiv id, with or without the `arXiv:` prefix and version
                      suffix (e.g. `v1`). Old an new style are accepted. Here are

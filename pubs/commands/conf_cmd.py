@@ -25,7 +25,7 @@ def command(conf, args):
             ui.message('The configuration file was updated.')
             break
         except AssertionError as e: # TODO better error message
-            ui.error('Error reading the modified configuration file [' + e.message + '].')
+            ui.error('Error reading the modified configuration file [' + str(e) + '].')
             options = ['edit_again', 'abort']
             choice = options[ui.input_choice(
                 options, ['e', 'a'],
