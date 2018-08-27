@@ -69,10 +69,11 @@ def execute(raw_args=sys.argv):
         uis.init_ui(conf, force_colors=top_args.force_colors)
         ui = uis.get_ui()
 
-        parser = p3.ArgumentParser(description="research papers repository",
+        desc = 'Pubs: your bibliography on the command line.\nVisit https://github.com/pubs/pubs for more information.'
+        parser = p3.ArgumentParser(description=desc,
                                    prog="pubs", add_help=True)
         parser.add_argument('--version', action='version', version=__version__)
-        subparsers = parser.add_subparsers(title="valid commands", dest="command")
+        subparsers = parser.add_subparsers(title="commands", dest="command")
 
         # Populate the parser with core commands
         for cmd_name, cmd_mod in CORE_CMDS.items():
@@ -91,7 +92,6 @@ def execute(raw_args=sys.argv):
         # if no command, print help and exit peacefully (as '--help' does)
         args = parser.parse_args(remaining_args)
         if not args.command:
-            ui.error("Too few arguments!\n")
             parser.print_help(file=sys.stderr)
             sys.exit(2)
 
