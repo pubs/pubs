@@ -669,12 +669,12 @@ class TestUsecase(DataCommandTestCase):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
                    'data/pagerank.pdf was copied to the pubs repository.\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
                    '\n',
                    '',
                    'network search\n',
                    'info: Assuming search to be a tag.\n'
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] | network,search\n',
                   ]
 
         cmds = ['pubs init -p /paper_first',

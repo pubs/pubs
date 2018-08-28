@@ -69,8 +69,8 @@ def paper_oneliner(p, citekey_only=False):
         if p.docpath is not None:
             doc_str = color.dye_out(' [{}]'.format(os.path.splitext(p.docpath)[1][1:]),
                                     'tag')
-        tags = '' if len(p.tags) == 0 else ' | {}'.format(
+        tags = '' if len(p.tags) == 0 else '| {}'.format(
             ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
-        return '[{citekey}] {descr}{doc}{tags}'.format(
+        return '[{citekey}] {descr}{doc} {tags}'.format(
             citekey=color.dye_out(p.citekey, 'citekey'),
             descr=bibdesc, tags=tags, doc=doc_str)
