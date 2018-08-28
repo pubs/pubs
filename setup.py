@@ -1,10 +1,15 @@
 #!/usr/bin/env python
+import os
 import unittest
 
 from setuptools import setup
 
 with open('pubs/version.py') as f:
     exec(f.read())  # defines __version__
+
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'readme.md'), 'r') as fd:
+    long_description = fd.read()
 
 def pubs_test_suite():
     test_loader = unittest.TestLoader()
@@ -20,6 +25,9 @@ setup(
     url='https://github.com/pubs/pubs',
 
     description='command-line scientific bibliography manager',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+
     packages=['pubs',
               'pubs.config',
               'pubs.commands',

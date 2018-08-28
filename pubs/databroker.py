@@ -48,7 +48,8 @@ class DataBroker(object):
         try:
             return self.endecoder.decode_bibdata(bibdata_raw)
         except self.endecoder.BibDecodingError as e:
-            e.message = "Unable to decode bibtex for paper {}.".format(citekey)
+            # QUESTION: do we really want to obscure a more precise error message here?
+            e.args = "Unable to decode bibtex for paper {}.".format(citekey)
             raise e
 
     def push_metadata(self, citekey, metadata):

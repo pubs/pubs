@@ -82,7 +82,7 @@ def standardize_doi(doi):
 
     match = doi_pattern.search(doi)
     if not match:
-        raise ValueError("Not a valid doi: %s", doi)
+        raise ValueError("Not a valid doi: {}".format(doi))
     new_doi = match.group(0)
 
     return new_doi

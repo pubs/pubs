@@ -984,6 +984,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_statistics(self):
         cmds = ['pubs init',
+                'pubs statistics',
                 'pubs add data/pagerank.bib',
                 'pubs add -d data/turing-mind-1950.pdf data/turing1950.bib',
                 'pubs add data/martius.bib',
@@ -993,6 +994,8 @@ class TestUsecase(DataCommandTestCase):
                 'pubs statistics',
                 ]
         out = self.execute_cmds(cmds)
+        lines = out[1].splitlines()
+        self.assertEqual(lines[0], 'Your pubs repository is empty.')
         lines = out[-1].splitlines()
         self.assertEqual(lines[0], 'Repository statistics:')
         self.assertEqual(lines[1], 'Total papers: 4, 1 (25%) have a document attached')

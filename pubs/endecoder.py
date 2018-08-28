@@ -80,7 +80,7 @@ class EnDecoder(object):
             :param error_msg: specific message about what went wrong
             :param bibdata:   the data that was unsuccessfully decoded.
             """
-            super(Exception, self).__init__(error_msg) # make `str(self)` work.
+            super(Exception, self).__init__(error_msg)  # make `str(self)` work.
             self.data = bibdata
 
     bwriter = bp.bwriter.BibTexWriter()

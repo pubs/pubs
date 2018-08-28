@@ -6,6 +6,7 @@ import shlex
 import locale
 import codecs
 import tempfile
+import traceback
 import subprocess
 
 from . import color
@@ -87,7 +88,7 @@ class PrintUI(object):
 
         if DEBUG_ALL_TRACES:  # if an exception has been raised, print the trace.
             if sys.exc_info()[0] is not None:
-                traceback.print_exception(*sys.exc_info)
+                traceback.print_exception(*sys.exc_info())
 
     def exit(self, error_code=1):
         sys.exit(error_code)
