@@ -3,7 +3,7 @@
 
 ## Current master
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.0...master)
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.1...master)
 
 ### Implemented enhancements
 
@@ -11,11 +11,20 @@
 ### Fixed bugs
 
 
+## [v0.8.1](https://github.com/pubs/pubs/compare/v0.8.0...v0.8.1) (2018-08-28)
 
-## [v0.8.0](https://github.com/pubs/pubs/compare/v0.7.0...v0.8.0) (2018-08-01)
+A hotfix release. All users of 0.8.0 are urged to upgrade.
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.7.0...v0.8.0)
+### Fixed bugs
 
+- Fix adding paper with DOIs, ISBNs or arXiv references. [(#165)](https://github.com/pubs/pubs/pull/165)
+
+- Fix statistics command when there is not yet any paper in the repository. [(#164)](https://github.com/pubs/pubs/pull/164)
+
+
+## [v0.8.0](https://github.com/pubs/pubs/compare/v0.7.0...v0.8.0) (2018-08-20)
+
+A long overdue feature release. Add supports for arXiv bibtex fetching, and many other enhancements.
 
 ### Implemented enhancements
 
