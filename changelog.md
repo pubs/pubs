@@ -7,6 +7,8 @@
 
 ### Implemented enhancements
 
+- [(#45)](https://github.com/pubs/pubs/issues/45) Doc extension visible in pubs list ([#168](https://github.com/pubs/pubs/pull/168))
+
 
 ### Fixed bugs
 

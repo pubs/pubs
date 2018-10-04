@@ -669,12 +669,12 @@ class TestUsecase(DataCommandTestCase):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
                    'data/pagerank.pdf was copied to the pubs repository.\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
                    '\n',
                    '',
                    'network search\n',
                    'info: Assuming search to be a tag.\n'
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] | network,search\n',
                   ]
 
         cmds = ['pubs init -p /paper_first',
@@ -1000,6 +1000,24 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(lines[0], 'Repository statistics:')
         self.assertEqual(lines[1], 'Total papers: 4, 1 (25%) have a document attached')
         self.assertEqual(lines[2], 'Total tags: 3, 2 (50%) of papers have at least one tag')
+
+    def test_add_no_extension(self):
+        # This tests checks that a paper which document has no
+        # extension does not raise issues when listing. This test might
+        # be removed if decided to prevent such documents. It would then need
+        # to be replaced by a check that this is prevented.
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data', 'pagerank.pdf'),
+                              target_path=os.path.join('data', 'no-ext'))
+        correct = ['Initializing pubs in /pubs\n',
+                   'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+                   'data/no-ext was copied to the pubs repository.\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [NOEXT] \n',
+                  ]
+        cmds = ['pubs init -p /pubs',
+                'pubs add -d data/no-ext data/pagerank.bib',
+                'pubs list',
+               ]
+        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
 
 
 @ddt.ddt
