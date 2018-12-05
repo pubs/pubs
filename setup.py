@@ -4,6 +4,7 @@ import unittest
 
 from setuptools import setup
 
+
 with open('pubs/version.py') as f:
     exec(f.read())  # defines __version__
 
@@ -11,10 +12,12 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'readme.md'), 'r') as fd:
     long_description = fd.read()
 
+
 def pubs_test_suite():
     test_loader = unittest.TestLoader()
     test_suite = test_loader.discover('tests', pattern='test_*.py')
     return test_suite
+
 
 setup(
     name='pubs',
@@ -40,6 +43,8 @@ setup(
             ],
         },
 
+    include_package_data=True,
+
     install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil', 'six',
                       'requests', 'configobj', 'beautifulsoup4', 'feedparser'],
     extras_require={'autocompletion': ['argcomplete'],
@@ -54,7 +59,7 @@ setup(
         'Intended Audience :: Science/Research',
     ],
 
-    test_suite= 'tests',
+    test_suite='tests',
     tests_require=['pyfakefs>=3.4', 'mock', 'ddt'],
 
     # in order to avoid 'zipimport.ZipImportError: bad local file header'
