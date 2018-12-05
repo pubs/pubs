@@ -3,7 +3,7 @@
 
 ## Current master
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.1...master)
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.2...master)
 
 ### Implemented enhancements
 
@@ -11,6 +11,15 @@
 
 
 ### Fixed bugs
+
+
+## [v0.8.2](https://github.com/pubs/pubs/compare/v0.8.1...v0.8.2) (2018-12-04)
+
+Fixes install on python2.
+
+### Fixed bugs
+
+- Fix missing readme.md for python2 pip install. [(#174)](https://github.com/pubs/pubs/pull/174)
 
 
 ## [v0.8.1](https://github.com/pubs/pubs/compare/v0.8.0...v0.8.1) (2018-08-28)
