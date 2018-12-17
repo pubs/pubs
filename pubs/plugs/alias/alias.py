@@ -55,7 +55,7 @@ class ShellAlias(Alias):
         as shell arguments.
         """
         subprocess.call(
-            'pubs_alias_fun () {{\n{}\n}}\npubs_alias_fun {}'.format(
+            'pubs_alias_fun () {{\n{} $@\n}}\npubs_alias_fun {}'.format(
                 self.definition,
                 ' '.join([shell_quote(a) for a in args.arguments])
             ), shell=True)
