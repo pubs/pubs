@@ -45,7 +45,7 @@ def git_rename(RenameEventInstance):
     # Stage the changes and commit
     GitPlugin.shell("add \*/{}.\*".format(old_key))
     GitPlugin.shell("add \*/{}.\*".format(new_key))
-    GitPlugin.shell('commit -m "Renamed {} to {}"'.format(old_key, new_key)
+    GitPlugin.shell('commit -m "Renamed {} to {}"'.format(old_key, new_key))
 
 
 @RemoveEvent.listen()
