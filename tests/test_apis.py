@@ -16,8 +16,12 @@ import mock_requests
 
 
 class APITests(unittest.TestCase):
-    pass
 
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_readme(self, reqget):
+        apis.doi2bibtex('10.1007/s00422-012-0514-6')
+        apis.isbn2bibtex('978-0822324669')
+        apis.arxiv2bibtex('math/9501234')
 
 class TestDOI2Bibtex(APITests):
 

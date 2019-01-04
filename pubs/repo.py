@@ -192,8 +192,16 @@ class Repository(object):
         p.docpath = docfile
         self.push_paper(p, overwrite=True, event=False)
 
-    def unique_citekey(self, base_key):
-        """Create a unique citekey for a given basekey."""
+    def unique_citekey(self, base_key, bibentry):
+        """Create a unique citekey for a given base key.
+
+        :param base_key:  the base key in question.
+        :param bibentry:  the bib entry to possibly generate the citekey.
+        """
+        # can't have `/` in citekeys
+        # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
+        if '/' in base_key:
+            base_key = bibstruct.generate_citekey(bibentry)
         for n in itertools.count():
             if not base_key + _base27(n) in self.citekeys:
                 return base_key + _base27(n)

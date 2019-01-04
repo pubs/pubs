@@ -72,6 +72,22 @@ def bibentry_from_editor(conf, ui):
     return bibentry
 
 
+def bibentry_from_api(args, ui, raw=False):
+    try:
+        if args.doi is not None:
+            return apis.get_bibentry_from_api(args.doi, 'doi', ui=ui, raw=raw)
+        elif args.isbn is not None:
+            return apis.get_bibentry_from_api(args.isbn, 'isbn', ui=ui, raw=raw)
+            # TODO distinguish between cases, offer to open the error page in a webbrowser.
+            # TODO offer to confirm/change citekey
+        elif args.arxiv is not None:
+            return apis.get_bibentry_from_api(args.arxiv, 'arxiv', ui=ui, raw=raw)
+    except apis.ReferenceNotFoundError as e:
+        ui.error(str(e))
+        ui.exit(1)
+
+
+
 def command(conf, args):
     """
     :param bibfile: bibtex file (in .bib, .bibml or .yaml format.
@@ -92,19 +108,7 @@ def command(conf, args):
         if args.doi is None and args.isbn is None and args.arxiv is None:
             bibentry = bibentry_from_editor(conf, ui)
         else:
-            bibentry = None
-            try:
-                if args.doi is not None:
-                    bibentry = apis.get_bibentry_from_api(args.doi, 'doi', ui=ui)
-                elif args.isbn is not None:
-                    bibentry = apis.get_bibentry_from_api(args.isbn, 'isbn', ui=ui)
-                    # TODO distinguish between cases, offer to open the error page in a webbrowser.
-                    # TODO offer to confirm/change citekey
-                elif args.arxiv is not None:
-                    bibentry = apis.get_bibentry_from_api(args.arxiv, 'arxiv', ui=ui)
-            except apis.ReferenceNotFoundError as e:
-                ui.error(str(e))
-                ui.exit(1)
+            bibentry = bibentry_from_api(args, ui)
     else:
         bibentry_raw = content.get_content(bibfile, ui=ui)
         bibentry = decoder.decode_bibdata(bibentry_raw)
@@ -116,7 +120,7 @@ def command(conf, args):
     citekey = args.citekey
     if citekey is None:
         base_key = bibstruct.extract_citekey(bibentry)
-        citekey = rp.unique_citekey(base_key)
+        citekey = rp.unique_citekey(base_key, bibentry)
     elif citekey in rp:
         ui.error('citekey already exist {}.'.format(citekey))
         ui.exit(1)

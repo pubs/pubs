@@ -15,7 +15,7 @@ class ReferenceNotFoundError(Exception):
     pass
 
 
-def get_bibentry_from_api(id_str, id_type, try_doi=True, ui=None):
+def get_bibentry_from_api(id_str, id_type, try_doi=True, ui=None, raw=False):
     """Return a bibtex string from various ID methods.
 
     This is a wrapper around functions that will return a bibtex string given
@@ -50,6 +50,9 @@ def get_bibentry_from_api(id_str, id_type, try_doi=True, ui=None):
         raise ValueError('id_type must be one of `doi`, `isbn`, or `arxiv`.')
 
     bibentry_raw = id_fns[id_type](id_str, try_doi=try_doi, ui=ui)
+    if raw:
+        return bibentry_raw
+
     bibentry = endecoder.EnDecoder().decode_bibdata(bibentry_raw)
     if bibentry is None:
         raise ReferenceNotFoundError(

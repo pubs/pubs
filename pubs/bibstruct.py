@@ -51,7 +51,7 @@ def author_last(author_str):
     return author_str.split(',')[0]
 
 
-def generate_citekey(bibdata):
+def generate_citekey(bibdata, generate=True):
     """ Generate a citekey from bib_data.
 
         :param generate:  if False, return the citekey defined in the file,

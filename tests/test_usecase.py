@@ -10,10 +10,13 @@ import mock
 
 import six
 import ddt
+import certifi
+import mock
 from pyfakefs.fake_filesystem import FakeFileOpen
 
 import dotdot
 import fake_env
+import mock_requests
 
 from pubs import pubs_cmd, color, content, uis, p3, endecoder
 from pubs.config import conf
@@ -153,9 +156,10 @@ class DataCommandTestCase(CommandTestCase):
         super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'bibexamples'), read_only=False)
+        # add certificate for web querries
+        self.fs.add_real_file(certifi.where(), read_only=True)
+        self.fs.add_real_file(mock_requests._data_filepath, read_only=False)
 
-        # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'data'), 'data')
-        # fake_env.copy_dir(self.fs, os.path.join(os.path.dirname(__file__), 'bibexamples'), 'bibexamples')
 
     def assertFileContentEqual(self, path, expected_content):
         self.assertTrue(os.path.isfile(path))
@@ -849,7 +853,7 @@ class TestUsecase(DataCommandTestCase):
                ]
 
         outs = self.execute_cmds(cmds)
-        self.assertEqual(4 + 1, len(outs[-1].split('\n')))
+        self.assertEqual(8, len(outs[-1].split('\n')))
 
     def test_import_one(self):
         cmds = ['pubs init',
@@ -1002,10 +1006,10 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(lines[2], 'Total tags: 3, 2 (50%) of papers have at least one tag')
 
     def test_add_no_extension(self):
-        # This tests checks that a paper which document has no
-        # extension does not raise issues when listing. This test might
-        # be removed if decided to prevent such documents. It would then need
-        # to be replaced by a check that this is prevented.
+        """This tests checks that a paper which document has no extension does
+        not raise issues when listing. This test might be removed if decided to
+        prevent such documents. It would then need to be replaced by a check
+        that this is prevented."""
         self.fs.add_real_file(os.path.join(self.rootpath, 'data', 'pagerank.pdf'),
                               target_path=os.path.join('data', 'no-ext'))
         correct = ['Initializing pubs in /pubs\n',
@@ -1018,6 +1022,26 @@ class TestUsecase(DataCommandTestCase):
                 'pubs list',
                ]
         self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_readme(self, reqget):
+        """Test that the readme example work."""
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Loeb_2012.pdf')
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/oyama2000the.pdf')
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Knuth1995.pdf')
+
+        cmds = ['pubs init',
+                'pubs import data/collection.bib',
+                'pubs add data/pagerank.bib -d data/pagerank.pdf',
+                #'pubs add -D 10.1007/s00422-012-0514-6 -d data/pagerank.pdf',
+                'pubs add -I 978-0822324669 -d data/oyama2000the.pdf',
+                'pubs add -X math/9501234 -d data/Knuth1995.pdf',
+                'pubs add -D 10.1007/s00422-012-0514-6',
+                'pubs doc add data/Loeb_2012.pdf Loeb_2012',
+               ]
+        self.execute_cmds(cmds, capture_output=True)
+#        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+
 
 
 @ddt.ddt
