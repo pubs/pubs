@@ -200,6 +200,7 @@ class Repository(object):
         """
         # can't have `/` in citekeys
         # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
+        # TODO:  check that the generated citekey does not have a slash too.
         if '/' in base_key:
             base_key = bibstruct.generate_citekey(bibentry)
         for n in itertools.count():
