@@ -15,10 +15,11 @@
 
 ## [v0.8.2](https://github.com/pubs/pubs/compare/v0.8.1...v0.8.2) (2018-12-04)
 
-Fixes install on python2.
+Fixes install on python2, and adding old-style arXiv references.
 
 ### Fixed bugs
 
+- Fixes adding papers with slashes in their citekeys. [(#179)](https://github.com/pubs/pubs/pull/179) (thanks [Amlesh Sivanantham](https://github.com/zamlz) for reporting.)
 - Fix missing readme.md for python2 pip install. [(#174)](https://github.com/pubs/pubs/pull/174)
 
 
