@@ -985,7 +985,7 @@ class TestUsecase(DataCommandTestCase):
         alt_conf = os.path.expanduser('~/.alt_conf')
         cmds = ['pubs -c ' + alt_conf + ' init',
                 'pubs --config ' + alt_conf + ' import data/ Page99',
-                'pubs list -c ' + alt_conf
+                'pubs list -c ' + alt_conf,
                ]
         outs = self.execute_cmds(cmds)
         # check if pubs works as expected
@@ -993,6 +993,11 @@ class TestUsecase(DataCommandTestCase):
         # check whether we actually changed the config file
         self.assertFalse(os.path.isfile(self.default_conf_path))
         self.assertTrue(os.path.isfile(alt_conf))
+
+        with open(alt_conf, 'r') as fd:
+            conf_text = fd.read()
+        outs = self.execute_cmds([('pubs conf -c ' + alt_conf, conf_text)])
+
 
     def test_statistics(self):
         cmds = ['pubs init',
