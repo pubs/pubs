@@ -98,6 +98,14 @@ class CommandTestCase(fake_env.TestFakeFs):
         3. the expected output on stdout, verified with assertEqual.
         4. the expected output on stderr, verified with assertEqual.
         """
+        def normalize(s):
+            s = color.undye(s)
+            try:
+                s = s.decode('utf-8')
+            except AttributeError:
+                pass
+            return s
+
         try:
             outs = []
             for cmd in cmds:
@@ -122,8 +130,8 @@ class CommandTestCase(fake_env.TestFakeFs):
                         capture_wrap = fake_env.capture(pubs_cmd.execute,
                                                         verbose=PRINT_OUTPUT)
                         _, stdout, stderr = capture_wrap(actual_cmd.split())
-                        actual_out = color.undye(stdout)
-                        actual_err = color.undye(stderr)
+                        actual_out = normalize(stdout)
+                        actual_err = normalize(stderr)
                         if expected_out is not None:
                             self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
                         if expected_err is not None:
