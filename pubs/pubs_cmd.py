@@ -32,7 +32,6 @@ CORE_CMDS = collections.OrderedDict([
 
     ('websearch', commands.websearch_cmd),
     ('url', commands.url_cmd),
-    #('bibtex', commands.bibtex_cmd),
 ])
 
 

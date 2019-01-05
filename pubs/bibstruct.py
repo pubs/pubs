@@ -51,6 +51,12 @@ def author_last(author_str):
     return author_str.split(',')[0]
 
 
+def valid_citekey(citekey):
+    """Return if a citekey is a valid filename or not"""
+    # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
+    return not '/' in citekey
+
+
 def generate_citekey(bibdata):
     """ Generate a citekey from bib_data.
 

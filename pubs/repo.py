@@ -198,11 +198,9 @@ class Repository(object):
         :param base_key:  the base key in question.
         :param bibentry:  the bib entry to possibly generate the citekey.
         """
-        # can't have `/` in citekeys
-        # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
-        # TODO:  check that the generated citekey does not have a slash too.
-        if '/' in base_key:
+        if not bibstruct.valid_citekey(base_key):
             base_key = bibstruct.generate_citekey(bibentry)
+            # TODO:  check that the generated citekey does not have a slash too.
         for n in itertools.count():
             if not base_key + _base27(n) in self.citekeys:
                 return base_key + _base27(n)
