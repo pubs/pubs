@@ -60,7 +60,7 @@ def execute(raw_args=sys.argv):
                 # an update happened, reload conf.
                 conf = config.load_conf(path=conf_path)
         except config.ConfigurationNotFound:
-            if len(remaining_args) == 0 or remaining_args[0] == 'init':
+            if len(remaining_args) == 0 or remaining_args[0] == 'init' or remaining_args[0][0] == '-':
                 conf = config.load_default_conf()
                 conf.filename = conf_path
             else:
