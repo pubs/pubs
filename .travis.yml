@@ -10,11 +10,6 @@ matrix:
         - TO_TEST=TEST_FULL
     - os: linux
       language: python
-      python: 3.4
-      env:
-        - TO_TEST=TEST_FULL
-    - os: linux
-      language: python
       python: 3.7
       dist: xenial
       sudo: true
@@ -44,6 +39,11 @@ matrix:
     - os: linux
       language: python
       python: 3.3
+      env:
+        - TO_TEST=TEST_MOCK
+    - os: linux
+      language: python
+      python: 3.4
       env:
         - TO_TEST=TEST_MOCK
     - os: linux
