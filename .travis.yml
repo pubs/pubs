@@ -1,42 +1,92 @@
 # list of environments to test
 matrix:
   include:
+
+    # Full tests (with online API)
     - os: linux
       language: python
       python: 2.7
-    - os: linux
-      language: python
-      python: 3.3
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=FULL
     - os: linux
       language: python
       python: 3.4
-    - os: linux
-      language: python
-      python: 3.5
-    - os: linux
-      language: python
-      python: 3.6
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=FULL
     - os: linux
       language: python
       python: 3.7
-      dist: xenial
-      sudo: true
+      # dist: xenial
+      # sudo: true
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=FULL
     - os: osx
       language: generic
       python: 2.7
-      before_install:
-        - python2 --version
-        - pip2 install -U virtualenv
-        - virtualenv env -p python2
-        - source env/bin/activate
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=FULL
+      # before_install:
+      #   - python2 --version
+      #   - pip2 install -U virtualenv
+      #   - virtualenv env -p python2
+      #   - source env/bin/activate
     - os: osx
       language: generic
       python: ">=3.6"
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=FULL
       before_install:
         - brew update
         - brew outdated python3 || brew install python3 || brew upgrade python3
         - python3 -m venv env
         - source env/bin/activate
+
+    # Mock tests (with mock API)
+    - os: linux
+      language: python
+      python: 3.3
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=MOCK
+    - os: linux
+      language: python
+      python: 3.5
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=MOCK
+    - os: linux
+      language: python
+      python: 3.6
+      env:
+        - TO_TEST=TEST
+        - TEST_MODE=MOCK
+
+    # Install tests
+    - os: linux
+      language: python
+      python: 2.7
+      env:
+        - TO_TEST=INSTALL
+    - os: linux
+      language: python
+      python: 3.7
+      env:
+        - TO_TEST=INSTALL
+    - os: osx
+      language: generic
+      python: 2.7
+      env:
+        - TO_TEST=INSTALL
+    - os: osx
+      language: generic
+      python: ">=3.6"
+      env:
+        - TO_TEST=INSTALL
 
   allow_failures:
     - python: 3.3
@@ -48,5 +98,4 @@ install:
 
 # command to run tests
 script:
-  - PUBS_TESTS_MODE=MOCK python setup.py test
-  - PUBS_TESTS_MODE=COLLECT python setup.py test
+  - ./test_script.sh
