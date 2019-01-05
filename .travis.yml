@@ -63,6 +63,7 @@ matrix:
       python: 2.7
       env:
         - TO_TEST=INSTALL
+      if: type = cron
     - os: linux
       language: python
       dist: xenial
@@ -70,16 +71,19 @@ matrix:
       python: 3.7
       env:
         - TO_TEST=INSTALL
+      if: type = cron
     - os: osx
       language: generic
       python: 2.7
       env:
         - TO_TEST=INSTALL
+      if: type = cron
     - os: osx
       language: generic
       python: ">=3.6"
       env:
         - TO_TEST=INSTALL
+      if: type = cron
 
   allow_failures:
     - python: 3.3
