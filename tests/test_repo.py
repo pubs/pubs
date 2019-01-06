@@ -29,10 +29,12 @@ class TestCitekeyGeneration(TestRepo):
 
     def test_generated_key_is_unique(self):
         self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry))
-        c = self.repo.unique_citekey('Doe2013')
+        c = self.repo.unique_citekey('Doe2013', fixtures.doe_bibentry)
         self.repo.push_paper(Paper.from_bibentry(fixtures.doe_bibentry,
                                                  citekey='Doe2013a'))
-        c = self.repo.unique_citekey('Doe2013')
+        c = self.repo.unique_citekey('Doe2013', fixtures.doe_bibentry)
+        self.assertEqual(c, 'Doe2013b')
+        c = self.repo.unique_citekey('bla/bla', fixtures.doe_bibentry)
         self.assertEqual(c, 'Doe2013b')
 
 

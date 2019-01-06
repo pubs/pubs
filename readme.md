@@ -86,7 +86,7 @@ and then add `\cite{Loeb_2012}` in your manuscript. After exporting the bibliogr
 
 You can attach a document to a reference:
   ```
-  pubs add Loeb2012_downloaded.pdf Loeb_2012
+  pubs doc add Loeb2012_downloaded.pdf Loeb_2012
   ```
 
 And open your documents automatically from the command line:

@@ -87,10 +87,14 @@ else:
             super(StdIO, self).__init__(*args, **kwargs)
 
         def write(self, s):
+            super(StdIO, self).write(s)
             if self.additional_out is not None:
+                try:
+                    s = s.decode()
+                except AttributeError:
+                    pass
                 self.additional_out.write(s)
 
-            super(StdIO, self).write(s)
 
     # Only for tests to capture std{out,err}
     def _fake_stdio(additional_out=False):
