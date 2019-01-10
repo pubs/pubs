@@ -18,3 +18,4 @@ from . import import_cmd
 # bonus
 from . import websearch_cmd
 from . import url_cmd
+from . import bibtex_cmd

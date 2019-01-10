@@ -134,28 +134,43 @@ def command(conf, args):
 
     # document file
 
-    bib_docfile = bibstruct.extract_docfile(bibentry)
-    if docfile is None:
-        docfile = bib_docfile
-    elif bib_docfile is not None:
-        ui.warning(('Skipping document file from bib file '
-                    '{}, using {} instead.').format(bib_docfile, docfile))
+    try:
+        downloaded, temp_file = False, None
+        bib_docfile = bibstruct.extract_docfile(bibentry)
+        if docfile is None:
+            docfile = bib_docfile
+        elif bib_docfile is not None:
+            ui.warning(('Skipping document file from bib file '
+                        '{}, using {} instead.').format(bib_docfile, docfile))
+        if docfile is None and args.arxiv is not None:
+            bibdata = bibstruct.get_entry(bibentry)[1]
+            if 'pdfurl' in bibdata:
+                ui.info(('arXiv reference: trying to download the pdf from {}').format(bibdata['pdfurl']))
+                temp_file = content.download_url_to_tempfile(bibdata['pdfurl'])
+                downloaded = True
+                docfile = temp_file.name
+                args.doc_copy = 'copy'
 
-    # create the paper
-    doc_add = args.doc_copy
-    if doc_add is None:
-        doc_add = conf['main']['doc_add']
+        # create the paper
+        doc_add = args.doc_copy
+        if doc_add is None:
+            doc_add = conf['main']['doc_add']
 
-    rp.push_paper(p)
-    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
-    if docfile is not None:
-        rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
-        if doc_add == 'move' and content.content_type(docfile) != 'url':
-            content.remove_file(docfile)
+        rp.push_paper(p)
+        ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
+        if docfile is not None:
+            rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
+            if doc_add == 'move' and content.content_type(docfile) != 'url':
+                content.remove_file(docfile)
 
-        if doc_add == 'move':
-            ui.message('{} was moved to the pubs repository.'.format(docfile))
-        elif doc_add == 'copy':
-                ui.message('{} was copied to the pubs repository.'.format(docfile))
+            # avoid printing a non-sensical temporary path.
+            filename = 'The downloaded file' if downloaded else docfile
+            if doc_add == 'move':
+                ui.message('{} was moved to the pubs repository.'.format(filename))
+            elif doc_add == 'copy':
+                ui.message('{} was copied to the pubs repository.'.format(filename))
+    finally:
+        if temp_file is not None:
+            temp_file.close()
 
     rp.close()
