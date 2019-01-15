@@ -288,7 +288,7 @@ class TestAdd(URLContentTestCase):
     def test_add_utf8_citekey(self):
         correct = ["",
                    ("added to pubs:\n"
-                    "[hausdorff1949grundzüge] Hausdorff, Felix \"Grundzüge der Mengenlehre\" (1949) \n"),
+                    "[hausdorff1949grundzüge] Hausdorff, Felix \"Grundzüge der Mengenlehre\" (1949) \n"),
                    "The 'hausdorff1949grundzüge' citekey has been renamed into 'アスキー'\n",
                    "The 'アスキー' citekey has been renamed into 'Ḽơᶉëᶆ_ȋṕšᶙṁ'\n"
                   ]
