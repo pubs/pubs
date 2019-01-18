@@ -141,7 +141,8 @@ class EnDecoder(object):
                 # issue: sciunto-org/python-bibtexparser/#229 is fixed too)
                 if 'editor' in entries[e]:
                     entries[e]['editor'] = [
-                        editor['name'] for editor in entries[e]['editor']]
+                        editor['name'] if isinstance(editor, dict) else editor
+                        for editor in entries[e]['editor']]
             if len(entries) > 0:
                 return entries
             else:
@@ -153,7 +154,6 @@ class EnDecoder(object):
         except bibtexparser.bibdatabase.UndefinedString as e:
             error_msg = 'parsing error: undefined string in provided data: {}'.format(e)
             raise self.BibDecodingError(error_msg, bibdata)
-
 
     @classmethod
     def _format_parsing_error(cls, e):
