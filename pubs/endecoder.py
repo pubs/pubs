@@ -122,7 +122,7 @@ class EnDecoder(object):
     def decode_bibdata(self, bibdata):
         """Decodes bibdata from string.
 
-        If the decoding fails, returns a BibParseError.
+        If the decoding fails, returns a BibDecodingError.
         """
         if len(bibdata) == 0:
             error_msg = 'parsing error: the provided string has length zero.'
@@ -131,7 +131,6 @@ class EnDecoder(object):
             entries = bp.bparser.BibTexParser(
                 bibdata, common_strings=True, customization=customizations,
                 homogenize_fields=True).get_entry_dict()
-
             # Remove id from bibtexparser attribute which is stored as citekey
             for e in entries:
                 entries[e].pop(BP_ID_KEY)
@@ -140,6 +139,9 @@ class EnDecoder(object):
                 entries[e][TYPE_KEY] = t
             if len(entries) > 0:
                 return entries
+            else:
+                raise self.BibDecodingError(('no valid entry found in the provided data: '
+                                            ' {}').format(bibdata), bibdata)
         except (pyparsing.ParseException, pyparsing.ParseSyntaxException) as e:
             error_msg = self._format_parsing_error(e)
             raise self.BibDecodingError(error_msg, bibdata)

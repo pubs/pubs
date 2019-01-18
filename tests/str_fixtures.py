@@ -84,6 +84,18 @@ not_bibtex = """@misc{this looks,
 
 """
 
+bibtex_with_latex = """@article{kjaer2018large,
+  title={A large impact crater beneath Hiawatha Glacier in northwest Greenland},
+  author={Kj{\\ae}r, Kurt H and Larsen, Nicolaj K and Binder, Tobias and Bj{\\o}rk, Anders A and Eisen, Olaf and Fahnestock, Mark A and Funder, Svend and Garde, Adam A and Haack, Henning and Helm, Veit and others},
+  journal={Science advances},
+  volume={4},
+  number={11},
+  pages={eaar8173},
+  year={2018},
+  publisher={American Association for the Advancement of Science}
+}
+"""
+
 sample_conf = """
 [main]
 

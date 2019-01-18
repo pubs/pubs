@@ -54,7 +54,6 @@ def many_from_path(ui, bibpath, ignore=False):
 
     bibpath = system_path(bibpath)
     if os.path.isdir(bibpath):
-        print([os.path.splitext(f)[-1][1:] for f in os.listdir(bibpath)])
         all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
                      if os.path.splitext(f)[-1][1:] == 'bib']
     else:

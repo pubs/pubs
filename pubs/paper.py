@@ -1,6 +1,8 @@
 import copy
 from dateutil.parser import parse as datetime_parse
 
+from bibtexparser.customization import convert_to_unicode
+
 from . import bibstruct
 from .p3 import ustr
 
@@ -101,6 +103,10 @@ class Paper(object):
     @added.setter
     def added(self, value):
         self.metadata['added'] = value
+
+    def get_unicode_bibdata(self):
+        """Converts latex in bibdata fields to unicode."""
+        return convert_to_unicode(self.bibdata)
 
     @staticmethod
     def from_bibentry(bibentry, citekey=None, metadata=None):

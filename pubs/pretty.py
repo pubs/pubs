@@ -64,7 +64,7 @@ def paper_oneliner(p, citekey_only=False):
     if citekey_only:
         return p.citekey
     else:
-        bibdesc = bib_oneliner(p.bibdata)
+        bibdesc = bib_oneliner(p.get_unicode_bibdata())
         doc_str = ''
         if p.docpath is not None:
             doc_extension = os.path.splitext(p.docpath)[1]
