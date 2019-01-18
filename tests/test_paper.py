@@ -60,8 +60,8 @@ class TestPaperUnicodeBibdata(unittest.TestCase):
         bib = EnDecoder().decode_bibdata(str_fixtures.bibtex_with_latex)
         p = Paper.from_bibentry(bib)
         ubib = p.get_unicode_bibdata()
-        self.assertEqual(ubib['author'][0], "Kjær, Kurt H")
-        self.assertEqual(ubib['author'][3], "Bjørk, Anders A")
+        self.assertEqual(ubib['author'][0], u"Kjær, Kurt H")
+        self.assertEqual(ubib['author'][3], u"Bjørk, Anders A")
 
 
 if __name__ == '__main__':
