@@ -861,7 +861,7 @@ class TestUsecase(DataCommandTestCase):
                ]
 
         outs = self.execute_cmds(cmds)
-        self.assertEqual(8, len(outs[-1].split('\n')))
+        self.assertEqual(9, len(outs[-1].split('\n')))
 
     def test_import_one(self):
         cmds = ['pubs init',
