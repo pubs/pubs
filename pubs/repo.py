@@ -102,10 +102,8 @@ class Repository(object):
 
     def remove_paper(self, citekey, remove_doc=True, event=True):
         """ Remove a paper. Is silent if nothing needs to be done."""
-        if event:
-            events.RemoveEvent(citekey).send()
         if remove_doc:
-            self.remove_doc(citekey, detach_only=True)
+            self.remove_doc(citekey, detach_only=True, event=False)
         try:
             self.databroker.remove_note(citekey, self.conf['main']['note_extension'],
                                         silent=True)
@@ -115,8 +113,10 @@ class Repository(object):
             pass
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
+        if event:
+            events.RemoveEvent(citekey).send()
 
-    def remove_doc(self, citekey, detach_only=False):
+    def remove_doc(self, citekey, detach_only=False, event=True):
         """ Remove a doc. Is silent if nothing needs to be done."""
         try:
             metadata = self.databroker.pull_metadata(citekey)
@@ -126,6 +126,8 @@ class Repository(object):
                 p = self.pull_paper(citekey)
                 p.docpath = None
                 self.push_paper(p, overwrite=True, event=False)
+            if event:
+                events.DocEvent(citekey, 'remove').send()
         except IOError:
             # FIXME: if IOError is about being unable to
             # remove the file, we need to issue an error.I

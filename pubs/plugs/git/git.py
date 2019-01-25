@@ -3,7 +3,7 @@ import subprocess
 from pipes import quote as shell_quote
 
 from ...plugins import PapersPlugin
-from ...events import RemoveEvent, RenameEvent, AddEvent
+from ...events import *
 
 
 class GitPlugin(PapersPlugin):
@@ -45,16 +45,16 @@ def git_rename(RenameEventInstance):
     # Stage the changes and commit
     GitPlugin.shell("add \*/{}.\*".format(old_key))
     GitPlugin.shell("add \*/{}.\*".format(new_key))
-    GitPlugin.shell('commit -m "Renamed {} to {}"'.format(old_key, new_key))
+    GitPlugin.shell('commit -m "Renamed citekey {} to {}"'.format(old_key, new_key))
 
 
 @RemoveEvent.listen()
 def git_remove(RemoveEventInstance):
-    citekey = RemoveEventInstance.old_citekey
+    citekey = RemoveEventInstance.citekey
 
     # Stage the changes and commit
     GitPlugin.shell("add \*/{}.\*".format(citekey))
-    GitPlugin.shell('commit -m "Removed {}"'.format(citekey))
+    GitPlugin.shell('commit -m "Removed files for {}"'.format(citekey))
 
 
 @AddEvent.listen()
@@ -63,5 +63,32 @@ def git_add(AddEventInstance):
 
     # Stage the changes and commit
     GitPlugin.shell("add \*/{}.\*".format(citekey))
-    GitPlugin.shell('commit -m "Added {}"'.format(citekey))
+    GitPlugin.shell('commit -m "Added files for {}"'.format(citekey))
+
+
+@EditEvent.listen()
+def git_edit(EditEventInstance):
+    pass
+
+
+@TagEvent.listen()
+def git_tag(TagEventInstance):
+    pass
+
+
+@DocEvent.listen()
+def git_doc(DocEventInstance):
+    citekey = DocEventInstance.citekey
+
+    # Stage the changes and commit
+    GitPlugin.shell("add \*/{}.\*".format(citekey))
+    if DocEventInstance.action == 'add':
+        GitPlugin.shell('commit -m "Added document for {}"'.format(citekey))
+    elif DocEventInstance.action == 'remove':
+        GitPlugin.shell('commit -m "Removed document for {}"'.format(citekey))
+
+
+@NoteEvent.listen()
+def git_note(NoteEventInstance):
+    pass
 

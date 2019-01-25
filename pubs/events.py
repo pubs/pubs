@@ -39,3 +39,25 @@ class RenameEvent(Event):
 class AddEvent(Event):
     def __init__(self, citekey):
         self.citekey = citekey
+
+
+class EditEvent(Event):
+    def __init__(self, citekey):
+        self.citekey = citekey
+
+
+class TagEvent(Event):
+    def __init__(self, citekey):
+        self.citekey = citekey
+
+
+class DocEvent(Event):
+    """possible actions: add, remove"""
+    def __init__(self, citekey, action):
+        self.citekey
+        self.action = action
+
+
+class NoteEvent(Event):
+    def __init__(self, citekey, action):
+        self.citekey
