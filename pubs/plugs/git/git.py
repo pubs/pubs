@@ -9,12 +9,10 @@ from ...events import *
 class GitPlugin(PapersPlugin):
 
     name = 'git'
-    pubsdir = None
+    description = "Run git commands in the pubs directory"
 
     def __init__(self, conf):
-        self.description = "Run git commands in the pubs directory"
-        # Needed for the event listening
-        GitPlugin.pubsdir = conf['main']['pubsdir']
+        self.pubsdir = conf['main']['pubsdir']
 
     def update_parser(self, subparsers, conf):
         git_parser = self.parser(subparsers)
@@ -43,9 +41,10 @@ def git_rename(RenameEventInstance):
     old_key = RenameEventInstance.old_citekey
 
     # Stage the changes and commit
-    GitPlugin.shell("add \*/{}.\*".format(old_key))
-    GitPlugin.shell("add \*/{}.\*".format(new_key))
-    GitPlugin.shell('commit -m "Renamed citekey {} to {}"'.format(old_key, new_key))
+    git = GitPlugin.get_instance()
+    git.shell("add \*/{}.\*".format(old_key))
+    git.shell("add \*/{}.\*".format(new_key))
+    git.shell('commit -m "Renamed citekey {} to {}"'.format(old_key, new_key))
 
 
 @RemoveEvent.listen()
@@ -53,8 +52,9 @@ def git_remove(RemoveEventInstance):
     citekey = RemoveEventInstance.citekey
 
     # Stage the changes and commit
-    GitPlugin.shell("add \*/{}.\*".format(citekey))
-    GitPlugin.shell('commit -m "Removed files for {}"'.format(citekey))
+    git = GitPlugin.get_instance()
+    git.shell("add \*/{}.\*".format(citekey))
+    git.shell('commit -m "Removed files for {}"'.format(citekey))
 
 
 @AddEvent.listen()
@@ -62,8 +62,9 @@ def git_add(AddEventInstance):
     citekey = AddEventInstance.citekey
 
     # Stage the changes and commit
-    GitPlugin.shell("add \*/{}.\*".format(citekey))
-    GitPlugin.shell('commit -m "Added files for {}"'.format(citekey))
+    git = GitPlugin.get_instance()
+    git.shell("add \*/{}.\*".format(citekey))
+    git.shell('commit -m "Added files for {}"'.format(citekey))
 
 
 @EditEvent.listen()
@@ -81,11 +82,12 @@ def git_doc(DocEventInstance):
     citekey = DocEventInstance.citekey
 
     # Stage the changes and commit
-    GitPlugin.shell("add \*/{}.\*".format(citekey))
+    git = GitPlugin.get_instance()
+    git.shell("add \*/{}.\*".format(citekey))
     if DocEventInstance.action == 'add':
-        GitPlugin.shell('commit -m "Added document for {}"'.format(citekey))
+        git.shell('commit -m "Added document for {}"'.format(citekey))
     elif DocEventInstance.action == 'remove':
-        GitPlugin.shell('commit -m "Removed document for {}"'.format(citekey))
+        git.shell('commit -m "Removed document for {}"'.format(citekey))
 
 
 @NoteEvent.listen()
