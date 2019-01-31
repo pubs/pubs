@@ -30,9 +30,8 @@ class GitPlugin(PapersPlugin):
             print(a)
         GitPlugin.shell(' '.join([shell_quote(a) for a in args.arguments]))
 
-    @classmethod
-    def shell(cls, cmd):
-        subprocess.call('git -C {} {}'.format(cls.pubsdir, cmd), shell=True)
+    def shell(self, cmd):
+        subprocess.call('git -C {} {}'.format(self.pubsdir, cmd), shell=True)
 
 
 @RenameEvent.listen()
