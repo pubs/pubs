@@ -15,14 +15,9 @@ class GitPlugin(PapersPlugin):
         self.pubsdir = conf['main']['pubsdir']
 
     def update_parser(self, subparsers, conf):
-        git_parser = self.parser(subparsers)
+        git_parser = subparsers.add_parser(self.name, help=self.description)
+        git_parser.add_argument('arguments', nargs='*', help="look at man git")
         git_parser.set_defaults(func=self.command)
-
-    def parser(self, parser):
-        self.parser = parser
-        p = parser.add_parser(self.name, help=self.description)
-        p.add_argument('arguments', nargs='*', help="look at man git")
-        return p
 
     def command(self, conf, args):
         """Runs the git program in a shell"""
