@@ -26,9 +26,7 @@ class GitPlugin(PapersPlugin):
 
     def command(self, conf, args):
         """Runs the git program in a shell"""
-        for a in args.arguments:
-            print(a)
-        GitPlugin.shell(' '.join([shell_quote(a) for a in args.arguments]))
+        self.shell(' '.join([shell_quote(a) for a in args.arguments]))
 
     def shell(self, cmd):
         subprocess.call('git -C {} {}'.format(self.pubsdir, cmd), shell=True)
