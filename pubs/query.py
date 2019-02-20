@@ -15,6 +15,7 @@ FIELD_ALIASES = {
     't': 'title',
     'tags': 'tag',
     'y': 'year',
+    'key': 'citekey',
 }
 
 
@@ -78,6 +79,12 @@ class AuthorFilter(QueryFilter):
                         for author in paper.bibdata['author']])
 
 
+class CitekeyFilter(QueryFilter):
+
+    def __call__(self, paper):
+        return self._is_query_in(paper.citekey)
+
+
 class TagFilter(QueryFilter):
 
     def __call__(self, paper):
@@ -137,6 +144,9 @@ def _query_block_to_filter(query_block, case_sensitive=None, strict=False):
     field, value = _get_field_value(query_block)
     if field == 'tag':
         return TagFilter(value, case_sensitive=case_sensitive, strict=strict)
+    elif field == 'citekey':
+        return CitekeyFilter(value, case_sensitive=case_sensitive,
+                            strict=strict)
     elif field == 'author':
         return AuthorFilter(value, case_sensitive=case_sensitive,
                             strict=strict)
