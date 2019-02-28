@@ -25,39 +25,37 @@ class Event(object):
         return wrap
 
 
-class RemoveEvent(Event):
+class PaperEvent(Event):
+    _format = "Unknown modification of paper {citekey}."
+
     def __init__(self, citekey):
         self.citekey = citekey
 
+    @property
+    def description(self):
+        return self._format.format(citekey=self.citekey)
 
-class RenameEvent(Event):
+
+class AddEvent(PaperEvent):
+    _format = "Added paper {citekey}."
+
+
+class RemoveEvent(PaperEvent):
+    _format = "Removes paper {citekey}."
+
+
+class ModifyEvent(PaperEvent):
+    _format = "Modifies paper {citekey}."
+
+
+class RenameEvent(PaperEvent):
+    _format = "Renames paper {old_citekey} to {citekey}."
+
     def __init__(self, paper, old_citekey):
+        super(RenameEvent, self).__init__(paper.citekey)
         self.paper = paper
         self.old_citekey = old_citekey
 
-
-class AddEvent(Event):
-    def __init__(self, citekey):
-        self.citekey = citekey
-
-
-class EditEvent(Event):
-    def __init__(self, citekey):
-        self.citekey = citekey
-
-
-class TagEvent(Event):
-    def __init__(self, citekey):
-        self.citekey = citekey
-
-
-class DocEvent(Event):
-    """possible actions: add, remove"""
-    def __init__(self, citekey, action):
-        self.citekey
-        self.action = action
-
-
-class NoteEvent(Event):
-    def __init__(self, citekey, action):
-        self.citekey
+    @property
+    def description(self):
+        return self._format.format(citekey=self.citekey, old_citekey=self.old_citekey)

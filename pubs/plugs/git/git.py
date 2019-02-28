@@ -27,62 +27,18 @@ class GitPlugin(PapersPlugin):
         subprocess.call('git -C {} {}'.format(self.pubsdir, cmd), shell=True)
 
 
-@RenameEvent.listen()
-def git_rename(RenameEventInstance):
-    new_key = RenameEventInstance.paper.citekey
-    old_key = RenameEventInstance.old_citekey
+@PaperEvent.listen()
+def git_commit_event(PaperEventInstance):
+    citekey = PaperEventInstance.citekey
+
+    if isinstance(PaperEventInstance, RenameEvent):
+        old_citekey = RenameEventInstance.old_citekey
+    else:
+        old_citekey = None
 
     # Stage the changes and commit
     git = GitPlugin.get_instance()
-    git.shell("add \*/{}.\*".format(old_key))
-    git.shell("add \*/{}.\*".format(new_key))
-    git.shell('commit -m "Renamed citekey {} to {}"'.format(old_key, new_key))
-
-
-@RemoveEvent.listen()
-def git_remove(RemoveEventInstance):
-    citekey = RemoveEventInstance.citekey
-
-    # Stage the changes and commit
-    git = GitPlugin.get_instance()
+    if old_citekey:
+        git.shell("add \*/{}.\*".format(old_citekey))
     git.shell("add \*/{}.\*".format(citekey))
-    git.shell('commit -m "Removed files for {}"'.format(citekey))
-
-
-@AddEvent.listen()
-def git_add(AddEventInstance):
-    citekey = AddEventInstance.citekey
-
-    # Stage the changes and commit
-    git = GitPlugin.get_instance()
-    git.shell("add \*/{}.\*".format(citekey))
-    git.shell('commit -m "Added files for {}"'.format(citekey))
-
-
-@EditEvent.listen()
-def git_edit(EditEventInstance):
-    pass
-
-
-@TagEvent.listen()
-def git_tag(TagEventInstance):
-    pass
-
-
-@DocEvent.listen()
-def git_doc(DocEventInstance):
-    citekey = DocEventInstance.citekey
-
-    # Stage the changes and commit
-    git = GitPlugin.get_instance()
-    git.shell("add \*/{}.\*".format(citekey))
-    if DocEventInstance.action == 'add':
-        git.shell('commit -m "Added document for {}"'.format(citekey))
-    elif DocEventInstance.action == 'remove':
-        git.shell('commit -m "Removed document for {}"'.format(citekey))
-
-
-@NoteEvent.listen()
-def git_note(NoteEventInstance):
-    pass
-
+    git.shell('commit -m "{}"'.format(PaperEventInstance.description))

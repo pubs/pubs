@@ -102,8 +102,10 @@ class Repository(object):
 
     def remove_paper(self, citekey, remove_doc=True, event=True):
         """ Remove a paper. Is silent if nothing needs to be done."""
+        if event:
+            events.RemoveEvent(citekey).send()
         if remove_doc:
-            self.remove_doc(citekey, detach_only=True, event=False)
+            self.remove_doc(citekey, detach_only=True)
         try:
             self.databroker.remove_note(citekey, self.conf['main']['note_extension'],
                                         silent=True)
@@ -113,10 +115,8 @@ class Repository(object):
             pass
         self.citekeys.remove(citekey)
         self.databroker.remove(citekey)
-        if event:
-            events.RemoveEvent(citekey).send()
 
-    def remove_doc(self, citekey, detach_only=False, event=True):
+    def remove_doc(self, citekey, detach_only=False):
         """ Remove a doc. Is silent if nothing needs to be done."""
         try:
             metadata = self.databroker.pull_metadata(citekey)
@@ -126,8 +126,6 @@ class Repository(object):
                 p = self.pull_paper(citekey)
                 p.docpath = None
                 self.push_paper(p, overwrite=True, event=False)
-            if event:
-                events.DocEvent(citekey, 'remove').send()
         except IOError:
             # FIXME: if IOError is about being unable to
             # remove the file, we need to issue an error.I
@@ -194,8 +192,15 @@ class Repository(object):
         p.docpath = docfile
         self.push_paper(p, overwrite=True, event=False)
 
-    def unique_citekey(self, base_key):
-        """Create a unique citekey for a given basekey."""
+    def unique_citekey(self, base_key, bibentry):
+        """Create a unique citekey for a given base key.
+
+        :param base_key:  the base key in question.
+        :param bibentry:  the bib entry to possibly generate the citekey.
+        """
+        if not bibstruct.valid_citekey(base_key):
+            base_key = bibstruct.generate_citekey(bibentry)
+            # TODO:  check that the generated citekey does not have a slash too.
         for n in itertools.count():
             if not base_key + _base27(n) in self.citekeys:
                 return base_key + _base27(n)
