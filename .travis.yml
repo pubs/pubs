@@ -56,6 +56,14 @@ matrix:
       python: 3.6
       env:
         - TO_TEST=TEST_MOCK
+    - os: linux
+      language: python
+      dist: xenial
+      python: 3.7
+      sudo: true
+      env:
+        - TO_TEST=TEST_MOCK
+
 
     # Install tests
     - os: linux
