@@ -37,11 +37,19 @@ class PaperEvent(Event):
 
 
 class AddEvent(PaperEvent):
-    _format = "Added paper {citekey}."
+    _format = "Adds paper {citekey}."
+
+
+class DocAddEvent(PaperEvent):
+    _format = "Adds document {citekey}."
 
 
 class RemoveEvent(PaperEvent):
     _format = "Removes paper {citekey}."
+
+
+class DocRemoveEvent(PaperEvent):
+    _format = "Removes document {citekey}."
 
 
 class ModifyEvent(PaperEvent):

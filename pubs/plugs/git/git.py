@@ -3,7 +3,7 @@ import subprocess
 from pipes import quote as shell_quote
 
 from ...plugins import PapersPlugin
-from ...events import *
+from ...events import PaperEvent, RenameEvent
 
 
 class GitPlugin(PapersPlugin):
@@ -29,16 +29,9 @@ class GitPlugin(PapersPlugin):
 
 @PaperEvent.listen()
 def git_commit_event(PaperEventInstance):
-    citekey = PaperEventInstance.citekey
-
-    if isinstance(PaperEventInstance, RenameEvent):
-        old_citekey = RenameEventInstance.old_citekey
-    else:
-        old_citekey = None
-
     # Stage the changes and commit
     git = GitPlugin.get_instance()
-    if old_citekey:
-        git.shell("add \*/{}.\*".format(old_citekey))
-    git.shell("add \*/{}.\*".format(citekey))
+    if isinstance(PaperEventInstance, RenameEvent):
+        git.shell("add \*/{}.\*".format(PaperEventInstance.old_citekey))
+    git.shell("add \*/{}.\*".format(PaperEventInstance.citekey))
     git.shell('commit -m "{}"'.format(PaperEventInstance.description))

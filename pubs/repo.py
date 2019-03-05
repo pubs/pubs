@@ -126,6 +126,7 @@ class Repository(object):
                 p = self.pull_paper(citekey)
                 p.docpath = None
                 self.push_paper(p, overwrite=True, event=False)
+                events.DocRemoveEvent(citekey).send()
         except IOError:
             # FIXME: if IOError is about being unable to
             # remove the file, we need to issue an error.I
@@ -191,6 +192,7 @@ class Repository(object):
             docfile = system_path(docfile)
         p.docpath = docfile
         self.push_paper(p, overwrite=True, event=False)
+        events.DocAddEvent(citekey).send()
 
     def unique_citekey(self, base_key, bibentry):
         """Create a unique citekey for a given base key.
