@@ -56,6 +56,14 @@ matrix:
       python: 3.6
       env:
         - TO_TEST=TEST_MOCK
+    - os: linux
+      language: python
+      dist: xenial
+      python: 3.7
+      sudo: true
+      env:
+        - TO_TEST=TEST_MOCK
+
 
     # Install tests
     - os: linux
@@ -91,7 +99,7 @@ matrix:
 # command to run tests
 script:
   - python --version
-  - if [ "$TO_TEST" = "TEST_FULL" ]; then PUBS_TESTS_MODE=MOCK    python setup.py test; fi
+  - if [ "$TO_TEST" = "TEST_MOCK" ] ||
+       [ "$TO_TEST" = "TEST_FULL" ]; then PUBS_TESTS_MODE=MOCK    python setup.py test; fi
   - if [ "$TO_TEST" = "TEST_FULL" ]; then PUBS_TESTS_MODE=COLLECT python setup.py test; fi
-  - if [ "$TO_TEST" = "TEST_MOCK" ]; then PUBS_TESTS_MODE=MOCK    python setup.py test; fi
   - if [ "$TO_TEST" = "INSTALL" ]; then pip install -U pip && pip install pubs && pubs --help && pip uninstall -y pubs; fi
