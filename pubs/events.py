@@ -67,3 +67,6 @@ class RenameEvent(PaperEvent):
     @property
     def description(self):
         return self._format.format(citekey=self.citekey, old_citekey=self.old_citekey)
+
+class NoteEvent(PaperEvent):
+    _format = "Modifies note {citekey}"
