@@ -130,4 +130,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Dennis Wilson](https://github.com/d9w)
 - [Bill Flynn](https://github.com/wflynny)
 - [ksunden](https://github.com/ksunden)
-- [Amlesh Sivanantham](http://zamlz.org)
+- [Amlesh Sivanantham](http://github.com/zamlz)
