@@ -51,6 +51,10 @@ class RemoveEvent(PaperEvent):
 class DocRemoveEvent(PaperEvent):
     _format = "Removes document for {citekey}."
 
+# Used by commands.tag_cmd.command()
+class TagEvent(PaperEvent):
+    _format = "Updates tags for {citekey}."
+
 # Used by commands.edit_cmd.command()
 class ModifyEvent(PaperEvent):
     _format = "Modifies {file_type} file of {citekey}."
@@ -78,4 +82,4 @@ class RenameEvent(PaperEvent):
 
 # Used by commands.note_cmd.command()
 class NoteEvent(PaperEvent):
-    _format = "Modifies note {citekey}"
+    _format = "Modifies note {citekey}."
