@@ -35,27 +35,35 @@ class PaperEvent(Event):
     def description(self):
         return self._format.format(citekey=self.citekey)
 
-
+# Used by repo.push_paper()
 class AddEvent(PaperEvent):
     _format = "Adds paper {citekey}."
 
-
+# Used by repo.push_doc()
 class DocAddEvent(PaperEvent):
-    _format = "Adds document {citekey}."
+    _format = "Adds document for {citekey}."
 
-
+# Used by repo.remove_paper()
 class RemoveEvent(PaperEvent):
-    _format = "Removes paper {citekey}."
+    _format = "Removes paper for {citekey}."
 
-
+# Used by repo.remove_doc()
 class DocRemoveEvent(PaperEvent):
-    _format = "Removes document {citekey}."
+    _format = "Removes document for {citekey}."
 
-
+# Used by commands.edit_cmd.command()
 class ModifyEvent(PaperEvent):
-    _format = "Modifies paper {citekey}."
+    _format = "Modifies {file_type} file of {citekey}."
 
+    def __init__(self, citekey, file_type):
+        super(ModifyEvent, self).__init__(citekey)
+        self.file_type = file_type
 
+    @property
+    def description(self):
+        return self._format.format(citekey=self.citekey, file_type=self.file_type)
+
+# Used by repo.rename_paper()
 class RenameEvent(PaperEvent):
     _format = "Renames paper {old_citekey} to {citekey}."
 
@@ -68,5 +76,6 @@ class RenameEvent(PaperEvent):
     def description(self):
         return self._format.format(citekey=self.citekey, old_citekey=self.old_citekey)
 
+# Used by commands.note_cmd.command()
 class NoteEvent(PaperEvent):
     _format = "Modifies note {citekey}"
