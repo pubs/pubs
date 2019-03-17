@@ -147,7 +147,7 @@ def _query_block_to_filter(query_block, case_sensitive=None, strict=False):
         return TagFilter(value, case_sensitive=case_sensitive, strict=strict)
     elif field == 'citekey':
         return CitekeyFilter(value, case_sensitive=case_sensitive,
-                            strict=strict)
+                             strict=strict)
     elif field == 'author':
         return AuthorFilter(value, case_sensitive=case_sensitive,
                             strict=strict)
