@@ -6,7 +6,8 @@ from . import bibstruct
 
 
 QUERY_HELP = ('Paper query ("author:Einstein", "title:learning",'
-              '"year:2000", "year:2000-2010", or "tags:math")')
+              ' "year:2000", "year:2000-2010", "citekey:Einstein_1935",'
+              ' or "tags:math")')
 
 
 FIELD_ALIASES = {
