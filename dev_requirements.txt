@@ -19,6 +19,7 @@ six
 
 # those are the additional packages required to run the tests
 pyfakefs
+certifi
 ddt
 mock
 pytest # optional (python setup.py test works without it), but possible nonetheless

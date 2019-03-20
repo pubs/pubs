@@ -17,9 +17,9 @@ def command(conf, args):
 
     while True:
         # get modif from user
-        ui.edit_file(config.get_confpath(), temporary=False)
+        ui.edit_file(conf.filename, temporary=False)
 
-        new_conf = config.load_conf()
+        new_conf = config.load_conf(path=conf.filename)
         try:
             config.check_conf(new_conf)
             ui.message('The configuration file was updated.')

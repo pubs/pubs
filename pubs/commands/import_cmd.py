@@ -14,26 +14,28 @@ from ..content import system_path, read_text_file
 from ..command_utils import add_doc_copy_arguments
 
 
-_ABORT_USE_IGNORE_MSG = "Aborting import. Use --ignore-malformed to ignore."
+_ABORT_USE_IGNORE_MSG = " Aborting import. Use --ignore-malformed to ignore."
 _IGNORING_MSG = " Ignoring it."
 
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser(
         'import',
-        help='import paper(s) to the repository')
+        help='import paper(s) to the repository.')
     parser.add_argument(
         'bibpath',
-        help='path to bibtex, bibtexml or bibyaml file (or directory)')
+        help=("path to bibtex, bibtexml or bibyaml file, or a directory "
+              "containing such files; will not recurse into subdirectories."))
     parser.add_argument(
         'keys', nargs='*',
-        help="one or several keys to import from the file")
+        help=("one or several keys to import from the file; if not provided,"
+              " all entries will be imported."))
     parser.add_argument(
         '-O', '--overwrite', action='store_true', default=False,
-        help="Overwrite keys already in the database")
+        help="overwrite keys already in the database.")
     parser.add_argument(
         '-i', '--ignore-malformed', action='store_true', default=False,
-        help="Ignore malformed and unreadable files and entries")
+        help="ignore malformed and unreadable files and entries.")
     add_doc_copy_arguments(parser, copy=False)
     return parser
 
@@ -52,7 +54,6 @@ def many_from_path(ui, bibpath, ignore=False):
 
     bibpath = system_path(bibpath)
     if os.path.isdir(bibpath):
-        print([os.path.splitext(f)[-1][1:] for f in os.listdir(bibpath)])
         all_files = [os.path.join(bibpath, f) for f in os.listdir(bibpath)
                      if os.path.splitext(f)[-1][1:] == 'bib']
     else:

@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 import unittest
 
 import dotdot
-from pubs.query import (AuthorFilter, FieldFilter, YearFilter,
-                        _query_block_to_filter, get_paper_filter,
-                        InvalidQuery)
+from pubs.query import (AuthorFilter, CitekeyFilter, FieldFilter,
+                        YearFilter, _query_block_to_filter,
+                        get_paper_filter, InvalidQuery)
 
 from pubs.paper import Paper
 
@@ -41,6 +41,49 @@ class TestAuthorFilter(unittest.TestCase):
 
     def test_do_not_match_first_name(self):
         self.assertFalse(AuthorFilter('lawrence')(page_paper))
+
+
+class TestCitekeyFilter(unittest.TestCase):
+
+    def test_fails_if_no_citekey(self):
+        no_citekey = doe_paper.deepcopy()
+        no_citekey.citekey = ''
+        self.assertFalse(CitekeyFilter('whatever')(no_citekey))
+
+    def test_match_case(self):
+        self.assertTrue(CitekeyFilter('doe201')(doe_paper))
+        self.assertTrue(CitekeyFilter('doe201', case_sensitive=False)(doe_paper))
+        self.assertTrue(CitekeyFilter('Doe201')(doe_paper))
+
+    def test_do_not_match_case(self):
+        self.assertFalse(CitekeyFilter('dOe201')(doe_paper))
+        self.assertFalse(CitekeyFilter('dOe201', case_sensitive=True)(doe_paper))
+        self.assertFalse(CitekeyFilter('doe201', case_sensitive=True)(doe_paper))
+        self.assertTrue(CitekeyFilter('dOe201', case_sensitive=False)(doe_paper))
+
+    def test_latex_enc(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.citekey = "{G}r{\\\"u}n2013"
+        self.assertTrue(CitekeyFilter('Grün')(latexenc_paper))
+        self.assertTrue(CitekeyFilter('Gr{\\\"u}n')(latexenc_paper))
+
+    def test_normalize_unicode(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.citekey = "Jalape\u00f1o2013"
+        self.assertTrue(CitekeyFilter("Jalapen\u0303o")(latexenc_paper))
+
+    def test_strict(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.citekey = "Jalape\u00f1o2013"
+        self.assertFalse(CitekeyFilter("Jalapen\u0303o", strict=True)(latexenc_paper))
+        latexenc_paper.citekey = "{G}ros2013"
+        self.assertFalse(CitekeyFilter("Gros", strict=True)(latexenc_paper))
+
+    def test_strict_implies_case(self):
+        latexenc_paper = doe_paper.deepcopy()
+        latexenc_paper.citekey = "Gros2013"
+        self.assertFalse(
+            CitekeyFilter("gros", case_sensitive=False, strict=True)(latexenc_paper))
 
 
 class TestCheckTag(unittest.TestCase):

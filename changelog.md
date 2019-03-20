@@ -3,14 +3,28 @@
 
 ## Current master
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.1...master)
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.2...master)
+
+### Implemented enhancements
+
+- Add `citekey` filter to `query` ([#193](https://github.com/pubs/pubs/pull/193) by [Shane Stone](https://github.com/shanewstone))
+
+
+### Fixed bugs
+
+
+## [v0.8.2](https://github.com/pubs/pubs/compare/v0.8.1...v0.8.2) (2019-01-06)
+
+Fixes install on python2, and adding old-style arXiv references.
+
+### Fixed bugs
+
+- Fixes adding papers with slashes in their citekeys. [(#179)](https://github.com/pubs/pubs/pull/179) (thanks [Amlesh Sivanantham](https://github.com/zamlz) for reporting.)
+- Fix missing readme.md for python2 pip install. [(#174)](https://github.com/pubs/pubs/pull/174)
 
 ### Implemented enhancements
 
 - [(#45)](https://github.com/pubs/pubs/issues/45) Doc extension visible in pubs list ([#168](https://github.com/pubs/pubs/pull/168))
-
-
-### Fixed bugs
 
 
 ## [v0.8.1](https://github.com/pubs/pubs/compare/v0.8.0...v0.8.1) (2018-08-28)

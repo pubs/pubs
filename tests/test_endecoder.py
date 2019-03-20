@@ -26,7 +26,7 @@ class TestEnDecode(unittest.TestCase):
     def test_decode_emptystring(self):
         decoder = endecoder.EnDecoder()
         with self.assertRaises(decoder.BibDecodingError):
-            entry = decoder.decode_bibdata('')
+            decoder.decode_bibdata('')
 
     def test_encode_bibtex_is_unicode(self):
         decoder = endecoder.EnDecoder()
@@ -117,11 +117,21 @@ class TestEnDecode(unittest.TestCase):
         self.assertIn('keyword', entry)
         self.assertEqual(set(keywords), set(entry['keyword']))
 
+    def test_decode_metadata(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_metadata(metadata_raw0)
+        expected = {'docfile': 'docsdir://Page99.pdf',
+                    'tags': ['search', 'network'],
+                    'added': '2013-11-14 13:14:20',
+                    }
+        self.assertEqual(entry, expected)
+
     def test_endecode_metadata(self):
         decoder = endecoder.EnDecoder()
         entry = decoder.decode_metadata(metadata_raw0)
         metadata_output0 = decoder.encode_metadata(entry)
-        self.assertEqual(set(metadata_raw0.split('\n')), set(metadata_output0.split('\n')))
+        entry_from_encode = decoder.decode_metadata(metadata_output0)
+        self.assertEqual(entry, entry_from_encode)
 
     def test_endecode_bibtex_field_order(self):
         decoder = endecoder.EnDecoder()
