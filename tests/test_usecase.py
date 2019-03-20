@@ -505,6 +505,18 @@ class TestList(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
+    def test_list_with_citekey_query(self):
+        cmds = ['pubs init',
+                'pubs import data/',
+                'pubs list citekey:Page99',
+                'pubs list key:eiNstein_1935',
+                'pubs list --ignore-case key:eiNstein_1935',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(1, len(outs[2].splitlines()))
+        self.assertEqual(0, len(outs[3].splitlines()))
+        self.assertEqual(1, len(outs[4].splitlines()))
+
 
 class TestTag(DataCommandTestCase):
 

@@ -142,3 +142,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Dennis Wilson](https://github.com/d9w)
 - [Bill Flynn](https://github.com/wflynny)
 - [ksunden](https://github.com/ksunden)
+- [Shane Stone](https://github.com/shanewstone)

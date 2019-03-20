@@ -7,6 +7,8 @@
 
 ### Implemented enhancements
 
+- Add `citekey` filter to `query` ([#193](https://github.com/pubs/pubs/pull/193) by [Shane Stone](https://github.com/shanewstone))
+
 
 ### Fixed bugs
 
