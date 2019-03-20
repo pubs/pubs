@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import shutil
-import mock
 
 import six
 import ddt
