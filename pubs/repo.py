@@ -200,7 +200,6 @@ class Repository(object):
         """
         if not bibstruct.valid_citekey(base_key):
             base_key = bibstruct.generate_citekey(bibentry)
-            # TODO:  check that the generated citekey does not have a slash too.
         for n in itertools.count():
             if not base_key + _base27(n) in self.citekeys:
                 return base_key + _base27(n)
