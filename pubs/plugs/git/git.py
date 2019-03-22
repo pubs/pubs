@@ -34,4 +34,6 @@ def git_commit_event(PaperEventInstance):
     if isinstance(PaperEventInstance, RenameEvent):
         git.shell("add \*/{}.\*".format(PaperEventInstance.old_citekey))
     git.shell("add \*/{}.\*".format(PaperEventInstance.citekey))
-    git.shell('commit -m "{}"'.format(PaperEventInstance.description))
+    cmesg = PaperEventInstance.description
+    cmesg = cmesg.replace('\\','\\\\').replace('"','\\"').replace('$','\\$').replace('`','\\`')
+    git.shell('commit -m "{}"'.format(cmesg))
