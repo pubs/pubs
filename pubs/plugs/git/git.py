@@ -35,7 +35,7 @@ class GitPlugin(PapersPlugin):
     def _gitinit(self):
         """Initialize the git repository if necessary."""
         # check that a `.git` directory is present in the pubs dir
-        git_path = os.path.join(self.pubsdir, '.git')
+        git_path = os.path.expanduser(os.path.join(self.pubsdir, '.git'))
         if not os.path.isdir(git_path):
             self.shell('init')
         # check that a `.gitignore` file is present
@@ -46,7 +46,7 @@ class GitPlugin(PapersPlugin):
                 fd.write(GITIGNORE)
 
     def update_parser(self, subparsers, conf):
-        """Allow the usage of the pubs git command"""
+        """Allow the usage of the pubs git subcommand"""
         git_parser = subparsers.add_parser(self.name, help=self.description)
         # FIXME: there may be some problems here with the -c argument being ambiguous between
         # pubs and git.
@@ -69,12 +69,13 @@ class GitPlugin(PapersPlugin):
         p.wait()
         if p.returncode != 0:
             msg = ('The git plugin encountered an error when running the git command:\n' +
-                   '{}\n{}\n'.format(git_cmd, err) + 'You may fix the state of the git ' +
-                   'repository manually.\nIf relevant, you may submit a bug report at ' +
+                   '{}\n{}\n'.format(git_cmd, err.decode('utf-8')) +
+                   'You may fix the state of the git repository {} manually.\n'.format(self.pubsdir) +
+                   'If relevant, you may submit a bug report at ' +
                    'https://github.com/pubs/pubs/issues')
             self.ui.warning(msg)
         elif not self.quiet:
-            self.ui.info(output)
+            self.ui.info(output.decode('utf-8'))
         return output, err, p.returncode
 
 
