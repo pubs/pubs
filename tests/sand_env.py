@@ -141,6 +141,7 @@ class SandboxedCommandTestCase(unittest.TestCase):
     def _preprocess_cmd(self, cmd):
         """Sandbox the pubs command into a temporary directory"""
         cmd_chunks = cmd.split(' ')
+        print(cmd, cmd_chunks[0], 'pubs')
         assert cmd_chunks[0] == 'pubs'
         prefix = ['pubs', '-c', self.default_conf_path]
         if cmd_chunks[1] == 'init':
@@ -163,17 +164,16 @@ class SandboxedCommandTestCase(unittest.TestCase):
             for cmd in cmds:
                 inputs = []
                 expected_out, expected_err = None, None
-                actual_cmd = cmd
-                if not isinstance(cmd, p3.ustr):
-                    actual_cmd = cmd[0]
-                    if len(cmd) >= 2 and cmd[1] is not None:  # Inputs provided
-                        inputs = cmd[1]
-                    if len(cmd) >= 3:  # Expected output provided
-                        capture_output = True
-                        if cmd[2] is not None:
-                            expected_out = color.undye(cmd[2])
-                    if len(cmd) >= 4 and cmd[3] is not None:  # Expected error output provided
-                            expected_err = color.undye(cmd[3])
+                assert isinstance(cmd, tuple)
+                actual_cmd = cmd[0]
+                if len(cmd) >= 2 and cmd[1] is not None:  # Inputs provided
+                    inputs = cmd[1]
+                if len(cmd) >= 3:  # Expected output provided
+                    capture_output = True
+                    if cmd[2] is not None:
+                        expected_out = color.undye(cmd[2])
+                if len(cmd) >= 4 and cmd[3] is not None:  # Expected error output provided
+                        expected_err = color.undye(cmd[3])
                 actual_cmd = self._preprocess_cmd(actual_cmd)
                 # Always set fake input: test should not ask unexpected user input
                 input = FakeInput(inputs, [content, uis, p3])
@@ -242,7 +242,7 @@ class TestSandboxedCommandTestCase(SandboxedCommandTestCase):
         """Simple init and add example"""
         correct = ("added to pubs:\n"
                    "[Page99] Page, Lawrence et al. \"The PageRank Citation Ranking: Bringing Order to the Web.\" (1999) \n")
-        cmds = ['pubs init',
+        cmds = [('pubs init',),
                 ('pubs add data/pagerank.bib', [], correct),
                 #('pubs add abc', [], '', 'error: File does not exist: /Users/self/Volumes/ResearchSync/projects/pubs/abc\n')
                ]
