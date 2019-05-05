@@ -1,10 +1,13 @@
 # PYTHON_ARGCOMPLETE_OK
 
 import sys
+import argparse
 import collections
+
 from . import uis
 from . import p3
 from . import config
+from . import events
 from . import commands
 from . import update
 from . import plugins
@@ -38,15 +41,16 @@ CORE_CMDS = collections.OrderedDict([
 def execute(raw_args=sys.argv):
 
     try:
-        conf_parser = p3.ArgumentParser(prog="pubs", add_help=False)
-        conf_parser.add_argument("-c", "--config", help="path to config file",
-                                 type=str, metavar="FILE")
-        conf_parser.add_argument('--force-colors', dest='force_colors',
-                                 action='store_true', default=False,
-                                 help='color are not disabled when piping to a file or other commands')
-        #conf_parser.add_argument("-u", "--update", help="update config if needed",
-        #                         default=False, action='store_true')
-        top_args, remaining_args = conf_parser.parse_known_args(raw_args[1:])
+        desc = 'Pubs: your bibliography on the command line.\nVisit https://github.com/pubs/pubs for more information.'
+        parser = p3.ArgumentParser(prog="pubs", add_help=False, description=desc)
+        parser.add_argument("-c", "--config", help="path to an alternate configuration file",
+                            type=str, metavar="FILE")
+        parser.add_argument('--force-colors', dest='force_colors',
+                            action='store_true', default=False,
+                            help='colors are not disabled when piping to a file or other commands')
+        #parser.add_argument("-u", "--update", help="update config if needed",
+        #                    default=False, action='store_true')
+        top_args, remaining_args = parser.parse_known_args(raw_args[1:])
 
         if top_args.config:
             conf_path = top_args.config
@@ -70,10 +74,9 @@ def execute(raw_args=sys.argv):
         uis.init_ui(conf, force_colors=top_args.force_colors)
         ui = uis.get_ui()
 
-        desc = 'Pubs: your bibliography on the command line.\nVisit https://github.com/pubs/pubs for more information.'
-        parser = p3.ArgumentParser(description=desc,
-                                   prog="pubs", add_help=True)
-        parser.add_argument('--version', action='version', version=__version__)
+        parser.add_argument('-v', '--version', action='version', version=__version__)
+        parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
+                            help='Show this help message and exit.')
         subparsers = parser.add_subparsers(title="commands", dest="command")
 
         # Populate the parser with core commands
@@ -96,9 +99,12 @@ def execute(raw_args=sys.argv):
             parser.print_help(file=sys.stderr)
             sys.exit(2)
 
+        events.PreCommandEvent().send()
         args.prog = "pubs"  # FIXME?
         args.func(conf, args)
 
     except Exception as e:
         if not uis.get_ui().handle_exception(e):
             raise
+    finally:
+        events.PostCommandEvent().send()

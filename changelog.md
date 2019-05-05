@@ -7,8 +7,11 @@
 
 ### Implemented enhancements
 
-- Add `citekey` filter to `query` ([#193](https://github.com/pubs/pubs/pull/193) by [Shane Stone](https://github.com/shanewstone))
+- New git plugin to commit changes to the repository ([#193](https://github.com/pubs/pubs/pull/193) by [Amlesh Sivanantham](http://github.com/zamlz))
 
+- Add `citekey` filter to `query` ([#191(https://github.com/pubs/pubs/pull/191) by [Shane Stone](https://github.com/shanewstone))
+
+- The `--config` and `--force-colors` command line options now appear when invoking `pubs --help`
 
 ### Fixed bugs
 

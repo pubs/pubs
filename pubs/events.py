@@ -25,8 +25,19 @@ class Event(object):
         return wrap
 
 
-class PaperEvent(Event):
-    _format = "Unknown modification of paper {citekey}."
+    # Command events
+
+class PreCommandEvent(Event):
+    description = "Triggered before the command is executed"
+
+class PostCommandEvent(Event):
+    description = "Triggered after the command is executed"
+
+
+    # Paper changes
+
+class PaperChangeEvent(Event):
+    _format = "Unspecified modification of paper {citekey}."
 
     def __init__(self, citekey):
         self.citekey = citekey
@@ -36,27 +47,27 @@ class PaperEvent(Event):
         return self._format.format(citekey=self.citekey)
 
 # Used by repo.push_paper()
-class AddEvent(PaperEvent):
+class AddEvent(PaperChangeEvent):
     _format = "Adds paper {citekey}."
 
 # Used by repo.push_doc()
-class DocAddEvent(PaperEvent):
+class DocAddEvent(PaperChangeEvent):
     _format = "Adds document for {citekey}."
 
 # Used by repo.remove_paper()
-class RemoveEvent(PaperEvent):
+class RemoveEvent(PaperChangeEvent):
     _format = "Removes paper for {citekey}."
 
 # Used by repo.remove_doc()
-class DocRemoveEvent(PaperEvent):
+class DocRemoveEvent(PaperChangeEvent):
     _format = "Removes document for {citekey}."
 
 # Used by commands.tag_cmd.command()
-class TagEvent(PaperEvent):
+class TagEvent(PaperChangeEvent):
     _format = "Updates tags for {citekey}."
 
 # Used by commands.edit_cmd.command()
-class ModifyEvent(PaperEvent):
+class ModifyEvent(PaperChangeEvent):
     _format = "Modifies {file_type} file of {citekey}."
 
     def __init__(self, citekey, file_type):
@@ -68,7 +79,7 @@ class ModifyEvent(PaperEvent):
         return self._format.format(citekey=self.citekey, file_type=self.file_type)
 
 # Used by repo.rename_paper()
-class RenameEvent(PaperEvent):
+class RenameEvent(PaperChangeEvent):
     _format = "Renames paper {old_citekey} to {citekey}."
 
     def __init__(self, paper, old_citekey):
@@ -81,5 +92,5 @@ class RenameEvent(PaperEvent):
         return self._format.format(citekey=self.citekey, old_citekey=self.old_citekey)
 
 # Used by commands.note_cmd.command()
-class NoteEvent(PaperEvent):
+class NoteEvent(PaperChangeEvent):
     _format = "Modifies note {citekey}."

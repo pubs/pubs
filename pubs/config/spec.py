@@ -95,6 +95,14 @@ active = force_list(default=list('alias'))
 # command = !pubs list -k | wc -l
 # description = lists number of pubs in repo
 
+[[git]]
+# the plugin allows to use `pubs git` and commit changes automatically
+# if False, will display git output when invoked
+quiet = boolean(default=True)
+# if True, git will not automatically commit changes
+manual = boolean(default=False)
+
+
 [internal]
 # The version of this configuration file. Do not edit.
 version = string(min=5, default='{}')

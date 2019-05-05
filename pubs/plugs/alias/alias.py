@@ -65,7 +65,7 @@ class AliasPlugin(PapersPlugin):
 
     name = 'alias'
 
-    def __init__(self, conf):
+    def __init__(self, conf, ui):
         self.aliases = []
         if 'alias' in conf['plugins']:
             for name, entry in conf['plugins']['alias'].items():
