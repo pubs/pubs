@@ -69,11 +69,11 @@ class AliasPluginTestCase(unittest.TestCase):
         self.conf['plugins']['active'] = ['alias']
 
     def testAliasPluginCreated(self):
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
 
     def testAliasPluginOneCommnand(self):
         self.conf['plugins']['alias'] = {'print': 'open -w lpppp'}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.assertEqual(len(self.plugin.aliases), 1)
         self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
         self.assertEqual(self.plugin.aliases[0].name, 'print')
@@ -81,7 +81,7 @@ class AliasPluginTestCase(unittest.TestCase):
 
     def testAliasPluginOneShell(self):
         self.conf['plugins']['alias'] = {'count': '!pubs list -k | wc -l'}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.assertEqual(len(self.plugin.aliases), 1)
         self.assertEqual(type(self.plugin.aliases[0]), ShellAlias)
         self.assertEqual(self.plugin.aliases[0].name, 'count')
@@ -91,13 +91,13 @@ class AliasPluginTestCase(unittest.TestCase):
     def testAliasPluginTwoCommnands(self):
         self.conf['plugins']['alias'] = {'print': 'open -w lpppp',
                                          'count': '!pubs list -k | wc -l'}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.assertEqual(len(self.plugin.aliases), 2)
 
     def testAliasPluginNestedDefinitionType(self):
         self.conf['plugins']['alias'] = {'print': {'description': 'print this',
                                                    'command': 'open -w lpppp'}}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.assertEqual(len(self.plugin.aliases), 1)
         self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
         self.assertEqual(self.plugin.aliases[0].name, 'print')
@@ -106,7 +106,7 @@ class AliasPluginTestCase(unittest.TestCase):
 
     def testAliasPluginNestedDefinitionNoDescription(self):
         self.conf['plugins']['alias'] = {'print': {'command': 'open -w lpppp'}}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.assertEqual(len(self.plugin.aliases), 1)
         self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
         self.assertEqual(self.plugin.aliases[0].name, 'print')
@@ -118,7 +118,7 @@ class AliasPluginTestCase(unittest.TestCase):
         self.conf['plugins']['alias'] = {'print': {'description': 'print this',
                                                    'command': 'open -w lpppp'},
                                          'count': '!pubs list -k | wc -l'}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
         self.plugin.aliases = sorted(self.plugin.aliases, key=lambda a: a.name)
 
         self.assertEqual(len(self.plugin.aliases), 2)
@@ -139,7 +139,7 @@ class AliasPluginTestCase(unittest.TestCase):
         self.conf['plugins']['alias'] = {'print': {'description': 'print this',
                                                    'command': 'open -w lpppp',
                                          'count': '!pubs list -k | wc -l'}}
-        self.plugin = AliasPlugin(self.conf)
+        self.plugin = AliasPlugin(self.conf, None)
 
         self.assertEqual(len(self.plugin.aliases), 1)
         self.assertEqual(type(self.plugin.aliases[0]), CommandAlias)
@@ -147,3 +147,8 @@ class AliasPluginTestCase(unittest.TestCase):
         self.assertEqual(self.plugin.aliases[0].name, 'print')
         self.assertEqual(self.plugin.aliases[0].description, 'print this')
         self.assertEqual(self.plugin.aliases[0].definition, 'open -w lpppp')
+
+
+
+if __name__ == '__main__':
+    unittest.main()
