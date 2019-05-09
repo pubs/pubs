@@ -811,7 +811,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_edit(self):
         bib = str_fixtures.bibtex_external0
-        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+        bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
@@ -890,11 +890,12 @@ class TestUsecase(DataCommandTestCase):
             f.write(str_fixtures.bibtex_external_alt)
         cmds = ['pubs init',
                 'pubs import data/real.bib Page99',
+                'pubs list',
                 'pubs import data/fake.bib Page99',
-                'pubs list'
+                'pubs list',
                ]
         outs = self.execute_cmds(cmds)
-        self.assertEqual("(1999)", outs[-1][-8:].strip())
+        self.assertEqual(outs[-3], outs[-1])
 
 
     def test_import_overwrites(self):
@@ -1098,7 +1099,7 @@ class TestCache(DataCommandTestCase):
         DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
 
         bib = str_fixtures.bibtex_external0
-        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+        bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
 
         line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
         line1 = re.sub('1999', '2007', line)
