@@ -884,14 +884,18 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
     def test_import_does_not_overwrite(self):
+        with FakeFileOpen(self.fs)('data/real.bib', 'w') as f:
+            f.write(str_fixtures.bibtex_external0)
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.bibtex_external_alt)
         cmds = ['pubs init',
-                'pubs import data/ Page99',
-                'pubs import data/',
+                'pubs import data/real.bib Page99',
+                'pubs import data/fake.bib Page99',
                 'pubs list'
                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual("(1999)", outs[-1][-8:].strip())
 
-        with self.assertRaises(FakeSystemExit):
-            self.execute_cmds(cmds)
 
     def test_import_overwrites(self):
         cmds = ['pubs init',

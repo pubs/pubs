@@ -17,6 +17,22 @@ institution = {Stanford InfoLab},
 }
 """
 
+bibtex_external_alt = """
+@techreport{Page99,
+     number = {1999-66},
+      month = {November},
+     author = {Lawrence Page and Sergey Brin and Rajeev Motwani and Terry Winograd},
+       note = {Previous number = SIDL-WP-1999-0120},
+      title = {The PageRank Citation Ranking: Bringing Order to the Web.},
+       type = {Technical Report},
+  publisher = {Stanford InfoLab},
+       year = {9999},
+institution = {Stanford InfoLab},
+        url = {http://ilpubs.stanford.edu:8090/422/},
+   abstract = "This is not a real entry, it is just here to test overwriting fails on import. it must have a different year than the str_fixture bibtex_external0, but must have the same citekey for the test to be valid.",
+}
+"""
+
 bibtex_raw0 = """@techreport{
     Page99,
     author = "Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry",
