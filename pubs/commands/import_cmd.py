@@ -104,7 +104,14 @@ def command(conf, args):
     keys = args.keys or papers.keys()
     for k in keys:
         p = papers[k]
-        rp.push_paper(p, overwrite=args.overwrite)
+        try:
+            rp.push_paper(p, overwrite=args.overwrite)
+        except repo.CiteKeyCollision:
+            ui.warning("{} already in repository, use '-O' to overwrite".format(
+                    color.dye_out(p.citekey, 'citekey')
+                )
+            )
+            continue
         ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
         docfile = bibstruct.extract_docfile(p.bibdata)
         if docfile is None:
