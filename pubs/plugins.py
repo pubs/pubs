@@ -27,6 +27,10 @@ class PapersPlugin(object):
         else:
             raise RuntimeError("{} instance not created".format(cls.__name__))
 
+    @classmethod
+    def is_loaded(cls):
+        return cls in _instances
+
 
 def load_plugins(conf, ui):
     """Imports the modules for a sequence of plugin names. Each name

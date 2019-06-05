@@ -8,14 +8,16 @@ import unittest
 
 import six
 
-from pubs import pubs_cmd, color, content, uis, p3
+from pubs import pubs_cmd, color, content, uis, p3, events
 from pubs.config import conf
 from pubs.p3 import _fake_stdio, _get_fake_stdio_ucontent
 
 
 # makes the tests very noisy
-PRINT_OUTPUT   = True
+PRINT_OUTPUT   = False
 CAPTURE_OUTPUT = True
+
+original_exception_handler = uis.InputUI.handle_exception
 
 
 class FakeSystemExit(Exception):
@@ -71,7 +73,6 @@ class FakeInput():
         input() returns 'no'
         input() raises IndexError
      """
-
     class UnexpectedInput(Exception):
         pass
 
@@ -87,14 +88,11 @@ class FakeInput():
                 md.InputUI.editor_input = self
                 md.InputUI.edit_file = self.input_to_file
 
-                # Do not catch UnexpectedInput
-                original_handler = md.InputUI.handle_exception
-
                 def handler(ui, exc):
                     if isinstance(exc, self.UnexpectedInput):
                         raise
                     else:
-                        original_handler(ui, exc)
+                        original_exception_handler(ui, exc)
 
                 md.InputUI.handle_exception = handler
 
@@ -141,7 +139,6 @@ class SandboxedCommandTestCase(unittest.TestCase):
     def _preprocess_cmd(self, cmd):
         """Sandbox the pubs command into a temporary directory"""
         cmd_chunks = cmd.split(' ')
-        print(cmd, cmd_chunks[0], 'pubs')
         assert cmd_chunks[0] == 'pubs'
         prefix = ['pubs', '-c', self.default_conf_path]
         if cmd_chunks[1] == 'init':

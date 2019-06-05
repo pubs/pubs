@@ -105,6 +105,19 @@ class PrintUI(object):
             self.exit()
         return True # never happens
 
+    def test_handle_exception(self, exc):
+        """Attempts to handle exception.
+
+        :returns: True if exception has been handled (currently never happens)
+        """
+        self.error(ustr(exc))
+        if DEBUG or self.debug:
+            raise
+        else:
+            self.exit()
+        return True # never happens
+
+
 
 class InputUI(PrintUI):
     """UI class. Stores configuration parameters and system information.

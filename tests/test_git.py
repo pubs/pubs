@@ -59,19 +59,31 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         self.assertEqual(hash_g, hash_h)
         self.assertNotEqual(hash_h, hash_i)
 
-        conf = config.load_conf(path=self.default_conf_path)
-        conf['plugins']['active'] = []
-        config.save_conf(conf, path=self.default_conf_path)
+        # # basically can't test that because each command is not completely independent in
+        # # SandoboxedCommands.
+        # # will work if we use subprocess.
+        # conf = config.load_conf(path=self.default_conf_path)
+        # conf['plugins']['active'] = []
+        # config.save_conf(conf, path=self.default_conf_path)
+        #
+        # self.execute_cmds([('pubs add data/pagerank.bib',)])
+        # hash_j = git_hash(self.default_pubs_dir)
+        #
+        # self.assertEqual(hash_i, hash_j)
 
-        self.execute_cmds([('pubs add data/pagerank.bib',)])
-        hash_j = git_hash(self.default_pubs_dir)
-
-        self.assertEqual(hash_i, hash_j)
-
+    def test_manual(self):
         conf = config.load_conf(path=self.default_conf_path)
         conf['plugins']['active'] = ['git']
         conf['plugins']['git']['manual'] = True
         config.save_conf(conf, path=self.default_conf_path)
+
+        # this three lines just to initialize the git HEAD
+        self.execute_cmds([('pubs add data/pagerank.bib',)])
+        self.execute_cmds([('pubs git add .',)])
+        self.execute_cmds([('pubs git commit -m "initial_commit"',)])
+
+        self.execute_cmds([('pubs add data/pagerank.bib',)])
+        hash_j = git_hash(self.default_pubs_dir)
 
         self.execute_cmds([('pubs add data/pagerank.bib',)])
         hash_k = git_hash(self.default_pubs_dir)

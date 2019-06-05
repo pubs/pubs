@@ -48,27 +48,27 @@ class PaperChangeEvent(Event):
 
 # Used by repo.push_paper()
 class AddEvent(PaperChangeEvent):
-    _format = "Adds paper {citekey}."
+    _format = "Added paper {citekey}."
 
 # Used by repo.push_doc()
 class DocAddEvent(PaperChangeEvent):
-    _format = "Adds document for {citekey}."
+    _format = "Added document for {citekey}."
 
 # Used by repo.remove_paper()
 class RemoveEvent(PaperChangeEvent):
-    _format = "Removes paper for {citekey}."
+    _format = "Removed paper for {citekey}."
 
 # Used by repo.remove_doc()
 class DocRemoveEvent(PaperChangeEvent):
-    _format = "Removes document for {citekey}."
+    _format = "Removed document for {citekey}."
 
 # Used by commands.tag_cmd.command()
 class TagEvent(PaperChangeEvent):
-    _format = "Updates tags for {citekey}."
+    _format = "Updated tags for {citekey}."
 
 # Used by commands.edit_cmd.command()
 class ModifyEvent(PaperChangeEvent):
-    _format = "Modifies {file_type} file of {citekey}."
+    _format = "Modified {file_type} file of {citekey}."
 
     def __init__(self, citekey, file_type):
         super(ModifyEvent, self).__init__(citekey)
@@ -80,7 +80,7 @@ class ModifyEvent(PaperChangeEvent):
 
 # Used by repo.rename_paper()
 class RenameEvent(PaperChangeEvent):
-    _format = "Renames paper {old_citekey} to {citekey}."
+    _format = "Renamed paper {old_citekey} to {citekey}."
 
     def __init__(self, paper, old_citekey):
         super(RenameEvent, self).__init__(paper.citekey)
@@ -93,4 +93,4 @@ class RenameEvent(PaperChangeEvent):
 
 # Used by commands.note_cmd.command()
 class NoteEvent(PaperChangeEvent):
-    _format = "Modifies note {citekey}."
+    _format = "Modified note of {citekey}."
