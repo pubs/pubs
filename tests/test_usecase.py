@@ -811,7 +811,7 @@ class TestUsecase(DataCommandTestCase):
 
     def test_edit(self):
         bib = str_fixtures.bibtex_external0
-        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+        bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
@@ -884,14 +884,19 @@ class TestUsecase(DataCommandTestCase):
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
 
     def test_import_does_not_overwrite(self):
+        with FakeFileOpen(self.fs)('data/real.bib', 'w') as f:
+            f.write(str_fixtures.bibtex_external0)
+        with FakeFileOpen(self.fs)('data/fake.bib', 'w') as f:
+            f.write(str_fixtures.bibtex_external_alt)
         cmds = ['pubs init',
-                'pubs import data/ Page99',
-                'pubs import data/',
-                'pubs list'
+                'pubs import data/real.bib Page99',
+                'pubs list',
+                'pubs import data/fake.bib Page99',
+                'pubs list',
                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(outs[-3], outs[-1])
 
-        with self.assertRaises(FakeSystemExit):
-            self.execute_cmds(cmds)
 
     def test_import_overwrites(self):
         cmds = ['pubs init',
@@ -1094,7 +1099,7 @@ class TestCache(DataCommandTestCase):
         DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
 
         bib = str_fixtures.bibtex_external0
-        bib1 = re.sub('year = \{1999\}', 'year = {2007}', bib)
+        bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
 
         line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
         line1 = re.sub('1999', '2007', line)
