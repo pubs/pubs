@@ -95,6 +95,16 @@ And open your documents automatically from the command line:
   pubs doc open --with lp Loeb_2012  # Opens the document with `lp` to actually print it.
   ```
 
+## Versioning
+
+Pubs comes with a git plugin that automatically commits your changes. You only need to activate it in your configuration:
+  ```ini
+  [plugins]
+  active = git,
+  ```
+
+You can then also conveniently interact with the git repository by using `pubs git <regular git commands>`.
+
 ## Customization
 
 Pubs is designed to interact well with your command line tool chain.

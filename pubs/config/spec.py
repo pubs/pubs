@@ -77,7 +77,7 @@ pages     = string(default='')
 
 [plugins]
 # Comma-separated list of the plugins to load.
-# The only current available plugin is alias.
+# Currently pubs comes with built-in plugins alias and git.
 active = force_list(default=list('alias'))
 
 [[alias]]
@@ -99,12 +99,12 @@ active = force_list(default=list('alias'))
 # The git plugin will commit changes to the repository in a git repository
 # created at the root of the pubs directory. All detected changes will be
 # commited every time a change is made by a pubs command.
-# The plugin also propose the `pubs git` subcommand, to directory send git
-# command to the pubs repository. Therefore, `pubs git status` is equivalent
+# The plugin also propose the `pubs git` subcommand, to directly send git
+# commands to the pubs repository. Therefore, `pubs git status` is equivalent
 # to `git -C <pubsdir> status`, with the `-C` flag instructing
 # to invoke git as if the current directory was <pubsdir>. Note that a
 # limitation of the subcommand is that you cannot use git commands with the
-#  `-c` option (pubs will interpret it first.)
+# `-c` option (pubs will interpret it first.)
 
 # if False, will display git output when automatic commit are made.
 # Invocation of `pubs git` will always have output displayed.
