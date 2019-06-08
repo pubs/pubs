@@ -27,6 +27,10 @@ class PapersPlugin(object):
         else:
             raise RuntimeError("{} instance not created".format(cls.__name__))
 
+    @classmethod
+    def is_loaded(cls):
+        return cls in _instances
+
 
 def load_plugins(conf, ui):
     """Imports the modules for a sequence of plugin names. Each name
@@ -34,6 +38,8 @@ def load_plugins(conf, ui):
     package in sys.path; the module indicated should contain the
     PapersPlugin subclasses desired.
     """
+    global _classes, _instances
+    _classes, _instances = [], {}
     for name in conf['plugins']['active']:
         if len(name) > 0:
             modname = '{}.{}.{}.{}'.format('pubs', PLUGIN_NAMESPACE, name, name)
@@ -50,7 +56,7 @@ def load_plugins(conf, ui):
                     if isinstance(obj, type) and issubclass(obj, PapersPlugin) \
                             and obj != PapersPlugin:
                         _classes.append(obj)
-                        _instances[obj] = obj(conf)
+                        _instances[obj] = obj(conf, ui)
 
 
 def get_plugins():

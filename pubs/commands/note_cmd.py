@@ -2,6 +2,7 @@ from .. import repo
 from ..uis import get_ui
 from ..utils import resolve_citekey
 from ..completion import CiteKeyCompletion
+from ..events import NoteEvent
 
 
 def parser(subparsers, conf):
@@ -19,4 +20,5 @@ def command(conf, args):
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     notepath = rp.databroker.real_notepath(citekey, rp.conf['main']['note_extension'])
     ui.edit_file(notepath, temporary=False)
+    NoteEvent(citekey).send()
     rp.close()

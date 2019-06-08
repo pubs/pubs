@@ -26,6 +26,7 @@ from .. import pretty
 from .. import color
 from ..utils import resolve_citekey
 from ..completion import CiteKeyOrTagCompletion, TagModifierCompletion
+from ..events import TagEvent
 
 
 def parser(subparsers, conf):
@@ -101,7 +102,8 @@ def command(conf, args):
                     p.add_tag(tag)
                 for tag in remove_tags:
                     p.remove_tag(tag)
-                rp.push_paper(p, overwrite=True)
+                rp.push_paper(p, overwrite=True, event=False)
+                TagEvent(citekeyOrTag).send()
         elif tags is not None:
             ui.error(ui.error('No entry found for citekey {}.'.format(citekeyOrTag)))
             ui.exit()

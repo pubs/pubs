@@ -9,7 +9,7 @@ import dotdot
 from pyfakefs import fake_filesystem, fake_filesystem_unittest
 
 from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
-from pubs import content, filebroker
+from pubs import content, filebroker, uis
 
 # code for fake fs
 
@@ -19,6 +19,8 @@ real_open    = open
 real_shutil  = shutil
 real_glob    = glob
 real_io      = io
+
+original_exception_handler = uis.InputUI.handle_exception
 
 
 # capture output
@@ -70,6 +72,7 @@ class FakeInput():
         self.inputs = list(inputs) or []
         self.module_list = module_list
         self._cursor = 0
+        self._original_handler = None
 
     def as_global(self):
         for md in self.module_list:
@@ -78,13 +81,11 @@ class FakeInput():
                 md.InputUI.editor_input = self
                 md.InputUI.edit_file = self.input_to_file
                 # Do not catch UnexpectedInput
-                original_handler = md.InputUI.handle_exception
-
                 def handler(ui, exc):
                     if isinstance(exc, self.UnexpectedInput):
                         raise
                     else:
-                        original_handler(ui, exc)
+                        original_exception_handler(ui, exc)
 
                 md.InputUI.handle_exception = handler
 

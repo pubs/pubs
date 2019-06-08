@@ -7,6 +7,7 @@ from ..uis import get_ui
 from ..endecoder import EnDecoder
 from ..utils import resolve_citekey
 from ..completion import CiteKeyCompletion
+from ..events import ModifyEvent
 
 
 def parser(subparsers, conf):
@@ -88,4 +89,8 @@ def command(conf, args):
             # else edit again
         # Also handle malformed bibtex and metadata
 
+    if meta:
+        ModifyEvent(citekey, "metadata").send()
+    else:
+        ModifyEvent(citekey, "bibtex").send()
     rp.close()

@@ -36,7 +36,8 @@ setup(
               'pubs.commands',
               'pubs.templates',
               'pubs.plugs',
-              'pubs.plugs.alias'],
+              'pubs.plugs.alias',
+              'pubs.plugs.git'],
     entry_points={
         'console_scripts': [
             'pubs=pubs.pubs_cmd:execute',

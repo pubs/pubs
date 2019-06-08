@@ -95,6 +95,27 @@ active = force_list(default=list('alias'))
 # command = !pubs list -k | wc -l
 # description = lists number of pubs in repo
 
+[[git]]
+# The git plugin will commit changes to the repository in a git repository
+# created at the root of the pubs directory. All detected changes will be
+# commited every time a change is made by a pubs command.
+# The plugin also propose the `pubs git` subcommand, to directory send git
+# command to the pubs repository. Therefore, `pubs git status` is equivalent
+# to `git -C <pubsdir> status`, with the `-C` flag instructing
+# to invoke git as if the current directory was <pubsdir>. Note that a
+# limitation of the subcommand is that you cannot use git commands with the
+#  `-c` option (pubs will interpret it first.)
+
+# if False, will display git output when automatic commit are made.
+# Invocation of `pubs git` will always have output displayed.
+quiet = boolean(default=True)
+# if True, git will not automatically commit changes
+manual = boolean(default=False)
+# if True, color will be conserved from git output (this add `-c color:always`
+# to the git invocation).
+force_color = boolean(default=True)
+
+
 [internal]
 # The version of this configuration file. Do not edit.
 version = string(min=5, default='{}')
