@@ -48,8 +48,8 @@ def command(conf, args):
         papers = [p for p in papers if p.docpath is None]
     if args.alphabetical:
         papers = sorted(papers, key=lambda p: p.citekey)
-    if args.chronological:
-        papers = sorted(papers, key=lambda p: p.bibdata['year'])
+    elif args.chronological:
+        papers = sorted(papers, key=lambda p: ('year' not in p.bibdata, p.bibdata.get('year'), p.bibdata.get('month'), date_added))
     else:
         papers = sorted(papers, key=date_added)
     if len(papers) > 0:
