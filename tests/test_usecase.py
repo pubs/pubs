@@ -530,8 +530,8 @@ class TestList(DataCommandTestCase):
                    '[Bell_1964] Bell, J. S. "On the Einstein Podolsky Rosen paradox" Physics Physique физика (1964) \n' \
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n' \
                    '[10.1371_journal.pone.0038236] Saunders, Caroline Lyon AND Chrystopher L. Nehaniv AND Joe "Interactive Language Learning by Robots: The Transition from Babbling to Word Forms" PLoS ONE (2012) \n' \
-                   '[10.1371_journal.pone.0063400] Ay, Georg Martius AND Ralf Der AND Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013) \n' \
-                   '[Cesar2013] César, Jean "An amazing title" Nice Journal (2013) \n'
+                   '[Cesar2013] César, Jean "An amazing title" Nice Journal (2013) \n' \
+                   '[10.1371_journal.pone.0063400] Ay, Georg Martius AND Ralf Der AND Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013) \n'
         correct = [ data_chrono_correct,
                    data_chrono_correct + '[Doe_noyear] Doe, John "About Assigning Timestamps to Research Articles" Journal Example \n'
                    ]
