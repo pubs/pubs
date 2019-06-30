@@ -22,6 +22,9 @@ def parser(subparsers, conf):
     parser.add_argument('-a', '--alphabetical', action='store_true',
                         dest='alphabetical', default=False,
                         help='lexicographic order on the citekeys.')
+    parser.add_argument('-C', '--chronological', action='store_true',
+                        dest='chronological', default=False,
+                        help='chronological order on the year field.')
     parser.add_argument('--no-docs', action='store_true',
                         dest='nodocs', default=False,
                         help='list only pubs without attached documents.')
@@ -45,6 +48,8 @@ def command(conf, args):
         papers = [p for p in papers if p.docpath is None]
     if args.alphabetical:
         papers = sorted(papers, key=lambda p: p.citekey)
+    elif args.chronological:
+        papers = sorted(papers, key=lambda p: ('year' not in p.bibdata, p.bibdata.get('year'), date_added))
     else:
         papers = sorted(papers, key=date_added)
     if len(papers) > 0:
