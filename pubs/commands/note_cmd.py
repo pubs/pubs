@@ -21,11 +21,11 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
-    latestnote = '{TXT}\n'.format(TXT=args.append)
     notepath = rp.databroker.real_notepath(citekey, rp.conf['main']['note_extension'])
-    if latestnote is None:
+    if args.append is None:
         ui.edit_file(notepath, temporary=False)
     else:
+        latestnote = '{TXT}\n'.format(TXT=args.append)
         write_file(notepath, latestnote, 'a')
     NoteEvent(citekey).send()
     rp.close()
