@@ -34,6 +34,11 @@ class TestNoteAppend(DataCommandTestCase):
         self.execute_cmds(cmds)
         note_lines.append('bbb')
         self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+        # Test adding Chinese characters
+        cmds = [('pubs note Page99 -a \347\350\346\345')]
+        self.execute_cmds(cmds)
+        note_lines.append('\347\350\346\345')
+        self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
         # # Test adding Japanese character
         # cmds = [('pubs note Page99 -a ソ')]
         # self.execute_cmds(cmds)
@@ -43,7 +48,7 @@ class TestNoteAppend(DataCommandTestCase):
     @staticmethod
     def _get_note_content(note_lines):
         """Given a list of note lines, return full note file content"""
-        return '{LINES}\n'.format(LINES='\n'.join(note_lines))
+        return '{lines}\n'.format(lines='\n'.join(note_lines))
 
 
 if __name__ == '__main__':

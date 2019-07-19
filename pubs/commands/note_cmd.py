@@ -25,7 +25,7 @@ def command(conf, args):
     if args.append is None:
         ui.edit_file(notepath, temporary=False)
     else:
-        latestnote = '{TXT}\n'.format(TXT=args.append)
+        latestnote = '{txt}\n'.format(txt=args.append)
         write_file(notepath, latestnote, 'a')
     NoteEvent(citekey).send()
     rp.close()
