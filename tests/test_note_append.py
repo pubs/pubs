@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """Test appending a note file from the command-line using the '-a' arg"""
 
+# If you store your pubs in a directory other than home, you may want to 
+# set this prior to running this test:
+#   export PUBSCONF=~/.pubsrc
+
 from __future__ import print_function, unicode_literals
 
 import unittest
@@ -34,11 +38,20 @@ class TestNoteAppend(DataCommandTestCase):
         self.execute_cmds(cmds)
         note_lines.append('bbb')
         self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
-        # Test adding Chinese characters
-        cmds = [('pubs note Page99 -a \347\350\346\345')]
-        self.execute_cmds(cmds)
-        note_lines.append('\347\350\346\345')
-        self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+
+        # # https://github.com/pubs/pubs/pull/201#discussion_r307499310
+        # # Test multiword line
+        # cmds = [('pubs', 'note', 'Page99', '-a',  'xxx yyy',)]
+        # self.execute_cmds(cmds)
+        # note_lines.append('xxx yyy')
+        # self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+
+        # # https://github.com/pubs/pubs/pull/201#discussion_r305274071
+        # # Test adding Chinese characters
+        # cmds = [('pubs note Page99 -a \347\350\346\345')]
+        # self.execute_cmds(cmds)
+        # note_lines.append('\347\350\346\345')
+        # self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
         # # Test adding Japanese character
         # cmds = [('pubs note Page99 -a ソ')]
         # self.execute_cmds(cmds)
