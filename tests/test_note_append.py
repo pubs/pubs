@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Test appending a note file from the command-line using the '-a' arg"""
 
-# If you store your pubs in a directory other than home, you may want to 
+# If you store your pubs in a directory other than home, you may want to
 # set this prior to running this test:
 #   export PUBSCONF=~/.pubsrc
+
+# vim -p tests/test_note_append.py tests/test_usecase.py
 
 from __future__ import print_function, unicode_literals
 
@@ -39,12 +41,15 @@ class TestNoteAppend(DataCommandTestCase):
         note_lines.append('bbb')
         self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
 
-        # # https://github.com/pubs/pubs/pull/201#discussion_r307499310
-        # # Test multiword line
-        # cmds = [('pubs', 'note', 'Page99', '-a',  'xxx yyy',)]
-        # self.execute_cmds(cmds)
-        # note_lines.append('xxx yyy')
-        # self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+        # https://github.com/pubs/pubs/pull/201#discussion_r307499310
+        # Test multiword line.
+        #   * Pass the command split into a command and its args to
+        #     execute_cmdsplit, which is called by execute_cmds:
+        #cmds = [('pubs note Page99 -a "xxx yyy"')]
+        cmd_split = ['pubs', 'note', 'Page99', '-a', 'xxx yyy']
+        self.execute_cmdsplit(cmd_split, expected_out=None, expected_err=None)
+        note_lines.append('xxx yyy')
+        self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
 
         # # https://github.com/pubs/pubs/pull/201#discussion_r305274071
         # # Test adding Chinese characters
