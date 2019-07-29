@@ -77,3 +77,38 @@ def paper_oneliner(p, citekey_only=False):
         return '[{citekey}] {descr}{doc} {tags}'.format(
             citekey=color.dye_out(p.citekey, 'citekey'),
             descr=bibdesc, tags=tags, doc=doc_str)
+
+def paper_format(p, list_format, citekey_only=False):
+    list_format = bytes(list_format, "utf-8").decode("unicode_escape")
+    if citekey_only:
+        return p.citekey
+    else:
+        bibdata = p.get_unicode_bibdata()
+
+        authors = short_authors(bibdata)
+
+        journal = ''
+        if 'journal' in bibdata:
+            journal = bibdata['journal']
+        elif bibdata[TYPE_KEY] == 'inproceedings':
+            journal = bibdata.get('booktitle', '')
+
+        if p.docpath is not None:
+            doc_extension = os.path.splitext(p.docpath)[1]
+            doc_str = color.dye_out(
+                '[{}]'.format(doc_extension[1:] if len(doc_extension) > 1
+                               else 'NOEXT'),
+                'tag')
+        tags = '' if len(p.tags) == 0 else ' | {}'.format(
+            ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
+        meta = '{doc}{tags}'.format(doc=doc_str, tags=tags)
+
+        return list_format.format(
+            citekey=color.dye_out(p.citekey, 'citekey'),
+            authors=color.dye_out(authors, 'author'),
+            title=color.dye_out(bibdata.get('title', ''), 'title'),
+            journal=color.dye_out(journal, 'publisher'),
+            year=color.dye_out(bibdata['year'], 'year')
+                if 'year' in bibdata else '',
+            meta=meta
+           )

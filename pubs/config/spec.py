@@ -42,6 +42,8 @@ italics = boolean(default=True)
 # Enable colors, if the terminal supports it.
 color = boolean(default=True)
 
+# Format the string for list command
+list_fmt = string(default='[{{citekey}}] {{authors}} "{{title}}" {{journal}} ({{year}})')
 
 [theme]
 
