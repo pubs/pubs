@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import re
+from string import Template
 
 from . import color
 from .bibstruct import TYPE_KEY
@@ -103,7 +104,7 @@ def paper_format(p, list_format, citekey_only=False):
             ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
         meta = '{doc}{tags}'.format(doc=doc_str, tags=tags)
 
-        return list_format.format(
+        return Template(list_format).safe_substitute(
             citekey=color.dye_out(p.citekey, 'citekey'),
             authors=color.dye_out(authors, 'author'),
             title=color.dye_out(bibdata.get('title', ''), 'title'),
