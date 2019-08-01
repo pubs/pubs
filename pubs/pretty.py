@@ -7,8 +7,33 @@ from string import Template
 from . import color
 from .bibstruct import TYPE_KEY
 
-
 CHARS = re.compile('[{}\n\t\r]')
+
+class FormatTemplate(Template):
+
+    regex = re.compile(r'{([^}]*)(:[^}]*?)(\?[^}]*?)?}', re.DOTALL)
+
+    def substitute(self, *args, **kwargs):
+        s = super(FormatTemplate, self).substitute(*args, **kwargs)
+        for block in FormatTemplate.regex.findall(s):
+            val = block[0]
+            fmt = block[1]
+            cnd = block[2]
+
+            if cnd == '':
+                cnd = True
+            elif cnd == '?':
+                cnd = False
+            else:
+                cnd = all(map(lambda x: x != '', cnd[1:].split(',')))
+
+            if cnd:
+                if fmt != ':':
+                    val = val
+                s = s.replace('{' + ''.join(block) + '}', val)
+            else:
+                s = s.replace('{' + ''.join(block) + '}', '')
+        return s
 
 
 def sanitize(s):
@@ -87,6 +112,7 @@ def paper_format(p, list_format, citekey_only=False):
         bibdata = p.get_unicode_bibdata()
 
         authors = short_authors(bibdata)
+        title = bibdata.get('title', '')
 
         journal = ''
         if 'journal' in bibdata:
@@ -94,22 +120,21 @@ def paper_format(p, list_format, citekey_only=False):
         elif bibdata[TYPE_KEY] == 'inproceedings':
             journal = bibdata.get('booktitle', '')
 
+        doc_ext = ''
         if p.docpath is not None:
             doc_extension = os.path.splitext(p.docpath)[1]
-            doc_str = color.dye_out(
-                '[{}]'.format(doc_extension[1:] if len(doc_extension) > 1
-                               else 'NOEXT'),
-                'tag')
-        tags = '' if len(p.tags) == 0 else ' | {}'.format(
-            ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
-        meta = '{doc}{tags}'.format(doc=doc_str, tags=tags)
+            doc_ext = doc_extension[1:] if len(doc_extension) > 1 else 'NOEXT'
 
-        return Template(list_format).safe_substitute(
-            citekey=color.dye_out(p.citekey, 'citekey'),
-            authors=color.dye_out(authors, 'author'),
-            title=color.dye_out(bibdata.get('title', ''), 'title'),
-            journal=color.dye_out(journal, 'publisher'),
-            year=color.dye_out(bibdata['year'], 'year')
-                if 'year' in bibdata else '',
-            meta=meta
-           )
+        tags = '' if len(p.tags) == 0 else  ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags))
+
+        metadata = {
+            'citekey': color.dye_out(p.citekey, 'citekey') if p.citekey else '',
+            'authors': color.dye_out(authors, 'author') if authors else '',
+            'title':   color.dye_out(title, 'title') if title else '',
+            'journal': color.dye_out(journal, 'publisher') if journal else '',
+            'year':    color.dye_out(bibdata['year'], 'year') if 'year' in bibdata else '',
+            'ext':     color.dye_out(doc_ext, 'tag') if doc_ext else '',
+            'tags':    tags
+        }
+
+        return FormatTemplate(list_format).substitute(**metadata)
