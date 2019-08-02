@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+
+from .. import p3
 from .. import repo
 from ..uis import get_ui
 from ..utils import resolve_citekey
@@ -25,7 +28,7 @@ def command(conf, args):
     if args.append is None:
         ui.edit_file(notepath, temporary=False)
     else:
-        latestnote = '{txt}\n'.format(txt=args.append)
+        latestnote = '{txt}\n'.format(txt=p3.u_maybe(args.append))
         write_file(notepath, latestnote, 'a')
     NoteEvent(citekey).send()
     rp.close()

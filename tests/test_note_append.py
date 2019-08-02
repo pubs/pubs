@@ -45,23 +45,24 @@ class TestNoteAppend(DataCommandTestCase):
         # Test multiword line.
         #   * Pass the command split into a command and its args to
         #     execute_cmdsplit, which is called by execute_cmds:
-        #cmds = [('pubs note Page99 -a "xxx yyy"')]
         cmd_split = ['pubs', 'note', 'Page99', '-a', 'xxx yyy']
         self.execute_cmdsplit(cmd_split, expected_out=None, expected_err=None)
         note_lines.append('xxx yyy')
         self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
 
-        # # https://github.com/pubs/pubs/pull/201#discussion_r305274071
-        # # Test adding Chinese characters
-        # cmds = [('pubs note Page99 -a \347\350\346\345')]
-        # self.execute_cmds(cmds)
-        # note_lines.append('\347\350\346\345')
-        # self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
-        # # Test adding Japanese character
-        # cmds = [('pubs note Page99 -a ソ')]
-        # self.execute_cmds(cmds)
-        # note_lines.append('ソ')
-        # self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+    def test_note_append_unicode(self):
+        fin_notes = os.path.join(self.note_dir, 'Page99.txt')
+        # https://github.com/pubs/pubs/pull/201#discussion_r305274071
+        # Test adding Chinese characters
+        cmds = [('pubs note Page99 -a \347\350\346\345')]
+        self.execute_cmds(cmds)
+        note_lines = ['\347\350\346\345']
+        self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
+        # Test adding Japanese character
+        cmds = [('pubs note Page99 -a ソ')]
+        self.execute_cmds(cmds)
+        note_lines.append('ソ')
+        self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
 
     @staticmethod
     def _get_note_content(note_lines):

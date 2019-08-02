@@ -7,6 +7,7 @@
 
 ### Implemented enhancements
 
+- Added append functionality to the note command ([#201](https://github.com/pubs/pubs/pull/201) by [DV Klopfenstein](http://github.com/dvklopfenstein))
 - New git plugin to commit changes to the repository ([#191](https://github.com/pubs/pubs/pull/191) by [Amlesh Sivanantham](http://github.com/zamlz))
 - The import command now warn, rather than fail on existing citekeys. ([#198](https://github.com/pubs/pubs/pull/198) by [Kyle Sunden](https://github.com/ksunden))
 - Add `citekey` filter to `query` ([#193](https://github.com/pubs/pubs/pull/193) by [Shane Stone](https://github.com/shanewstone))
