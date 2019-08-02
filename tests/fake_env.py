@@ -3,6 +3,7 @@ import io
 import os
 import shutil
 import glob
+import locale
 
 import dotdot
 
@@ -21,6 +22,11 @@ real_glob    = glob
 real_io      = io
 
 original_exception_handler = uis.InputUI.handle_exception
+
+
+# needed to get locale.getpreferredencoding(False) (invoked by pyfakefs)
+# to work properly
+locale.setlocale(locale.LC_ALL, '')
 
 
 # capture output
