@@ -97,14 +97,6 @@ class CommandTestCase(fake_env.TestFakeFs):
         3. the expected output on stdout, verified with assertEqual.
         4. the expected output on stderr, verified with assertEqual.
         """
-        def normalize(s):
-            s = color.undye(s)
-            try:
-                s = s.decode('utf-8')
-            except AttributeError:
-                pass
-            return s
-
         try:
             outs = []
             for cmd in cmds:
@@ -126,15 +118,8 @@ class CommandTestCase(fake_env.TestFakeFs):
                 input.as_global()
                 try:
                     if capture_output:
-                        capture_wrap = fake_env.capture(pubs_cmd.execute,
-                                                        verbose=PRINT_OUTPUT)
-                        _, stdout, stderr = capture_wrap(actual_cmd.split())
-                        actual_out = normalize(stdout)
-                        actual_err = normalize(stderr)
-                        if expected_out is not None:
-                            self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
-                        if expected_err is not None:
-                            self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
+                        actual_out = self.execute_cmdsplit(
+                            actual_cmd.split(), expected_out, expected_err)
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
@@ -149,6 +134,29 @@ class CommandTestCase(fake_env.TestFakeFs):
                 six.reraise(FakeSystemExit, FakeSystemExit(*exc.args), tb)
             else:
                 raise FakeSystemExit(*exc.args).with_traceback(tb)
+
+    @staticmethod
+    def normalize(s):
+        """Remove color from a string, adjusting for a decode method needed in Python2"""
+        s = color.undye(s)
+        try:
+            s = s.decode('utf-8')
+        except AttributeError:
+            pass
+        return s
+
+    def execute_cmdsplit(self, actual_cmdlist, expected_out, expected_err):
+        """Run a single command, which has been split into a list containing cmd and args"""
+        capture_wrap = fake_env.capture(pubs_cmd.execute,
+                                        verbose=PRINT_OUTPUT)
+        _, stdout, stderr = capture_wrap(actual_cmdlist)
+        actual_out = self.normalize(stdout)
+        actual_err = self.normalize(stderr)
+        if expected_out is not None:
+            self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
+        if expected_err is not None:
+            self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
+        return actual_out
 
     def tearDown(self):
         pass
