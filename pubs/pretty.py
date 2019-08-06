@@ -29,7 +29,7 @@ class FormatTemplate(Template):
 
             if cnd:
                 if fmt != ':':
-                    val = val
+                    val = ('{' + fmt + '}').format(val)
                 s = s.replace('{' + ''.join(block) + '}', val)
             else:
                 s = s.replace('{' + ''.join(block) + '}', '')
