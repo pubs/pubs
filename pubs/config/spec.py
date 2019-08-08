@@ -43,7 +43,7 @@ italics = boolean(default=True)
 color = boolean(default=True)
 
 # Format the string for list command
-list_fmt = string(default='[$citekey] $authors "$title" $journal ($year)')
+list_fmt = string(default='[$citekey] $authors "$title"{{ $journal:?$journal}}{{ ($year):?$year}}{{ [$ext]:?$ext}}{{ | $tags:?$tags}}')
 
 [theme]
 
