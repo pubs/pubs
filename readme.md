@@ -156,3 +156,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Kyle Sunden](https://github.com/ksunden)
 - [Shane Stone](https://github.com/shanewstone)
 - [Amlesh Sivanantham](http://github.com/zamlz)
+- [DV Klopfenstein](http://github.com/dvklopfenstein)
