@@ -533,14 +533,14 @@ class TestList(DataCommandTestCase):
                 'pubs import bibexamples/noyear.bib',
                 'pubs list -C',
                 ]
-        data_chrono_correct = '[Schrodinger_1935] Schrödinger, E. and Born, M. "Discussion of Probability Relations between Separated Systems" Mathematical Proceedings of the Cambridge Philosophical Society (1935) \n' \
-                   '[turing1950computing] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n' \
-                   '[Bell_1964] Bell, J. S. "On the Einstein Podolsky Rosen paradox" Physics Physique физика (1964) \n' \
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n' \
-                   '[10.1371_journal.pone.0038236] Saunders, Caroline Lyon AND Chrystopher L. Nehaniv AND Joe "Interactive Language Learning by Robots: The Transition from Babbling to Word Forms" PLoS ONE (2012) \n' \
-                   '[10.1371_journal.pone.0063400] Ay, Georg Martius AND Ralf Der AND Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013) \n'
+        data_chrono_correct = '[Schrodinger_1935] Schrödinger, E. and Born, M. "Discussion of Probability Relations between Separated Systems" Mathematical Proceedings of the Cambridge Philosophical Society (1935)\n' \
+                   '[turing1950computing] Turing, Alan M "Computing machinery and intelligence" Mind (1950)\n' \
+                   '[Bell_1964] Bell, J. S. "On the Einstein Podolsky Rosen paradox" Physics Physique физика (1964)\n' \
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)\n' \
+                   '[10.1371_journal.pone.0038236] Saunders, Caroline Lyon AND Chrystopher L. Nehaniv AND Joe "Interactive Language Learning by Robots: The Transition from Babbling to Word Forms" PLoS ONE (2012)\n' \
+                   '[10.1371_journal.pone.0063400] Ay, Georg Martius AND Ralf Der AND Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013)\n'
         correct = [ data_chrono_correct,
-                   data_chrono_correct + '[Doe_noyear] Doe, John "About Assigning Timestamps to Research Articles" Journal Example \n'
+                   data_chrono_correct + '[Doe_noyear] Doe, John "About Assigning Timestamps to Research Articles" Journal Example\n'
                    ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(outs[4], correct[0])
@@ -578,7 +578,7 @@ class TestTag(DataCommandTestCase):
                 ]
         correct = ['',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n' +
-                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950)\n',
                    ]
         out = self.execute_cmds(cmds)
         self.assertEqual(out, correct)
@@ -591,7 +591,7 @@ class TestTag(DataCommandTestCase):
         correct = ['',
                    '',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | search\n' +
-                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950)\n',
                    ]
         out = self.execute_cmds(cmds)
         self.assertEqual(out, correct)
@@ -604,7 +604,7 @@ class TestTag(DataCommandTestCase):
         correct = ['',
                    '',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | b\n' +
-                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
+                   '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950)\n',
                    ]
         out = self.execute_cmds(cmds)
         self.assertEqual(out, correct)
@@ -721,7 +721,7 @@ class TestUsecase(DataCommandTestCase):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
                    'data/pagerank.pdf was copied to the pubs repository.\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf]\n',
                    '\n',
                    '',
                    'network search\n',
@@ -811,7 +811,7 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs edit Page99', [
                     '@misc{Page99, title="TTT" author="X. YY"}', 'y',
                     '@misc{Page99, title="TTT", author="X. YY"}', '']),
-                ('pubs list', [], '[Page99] YY, X. "TTT" \n')
+                ('pubs list', [], '[Page99] YY, X. "TTT"\n')
                 ]
         self.execute_cmds(cmds)
 
@@ -827,7 +827,7 @@ class TestUsecase(DataCommandTestCase):
                 ('pubs add', [
                     '', 'y',
                     '@misc{New, title="TTT", author="X. YY"}', '']),
-                ('pubs list', [], '[New] YY, X. "TTT" \n')
+                ('pubs list', [], '[New] YY, X. "TTT"\n')
                 ]
         self.execute_cmds(cmds)
 
@@ -844,7 +844,7 @@ class TestUsecase(DataCommandTestCase):
         bib2 = re.sub('Lawrence Page', 'Lawrence Ridge', bib1)
         bib3 = re.sub('Page99', 'Ridge07', bib2)
 
-        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)\n'
         line1 = re.sub('1999', '2007', line)
         line2 = re.sub('Page,', 'Ridge,', line1)
         line3 = re.sub('Page99', 'Ridge07', line2)
@@ -864,8 +864,8 @@ class TestUsecase(DataCommandTestCase):
     def test_edit_meta(self):
         meta = str_fixtures.turing_meta
 
-        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-        line1 = re.sub('\n', '| AI,computer\n', line)
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)\n'
+        line1 = re.sub('\n', ' | AI,computer\n', line)
 
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
@@ -1073,7 +1073,7 @@ class TestUsecase(DataCommandTestCase):
         correct = ['Initializing pubs in /pubs\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
                    'data/no-ext was copied to the pubs repository.\n',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [NOEXT] \n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [NOEXT]\n',
                   ]
         cmds = ['pubs init -p /pubs',
                 'pubs add -d data/no-ext data/pagerank.bib',
@@ -1130,7 +1130,7 @@ class TestCache(DataCommandTestCase):
         bib = str_fixtures.bibtex_external0
         bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
 
-        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)\n'
         line1 = re.sub('1999', '2007', line)
 
         cmds = ['pubs init',
