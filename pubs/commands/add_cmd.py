@@ -119,7 +119,7 @@ def command(conf, args):
 
     citekey = args.citekey
     if citekey is None:
-        base_key = bibstruct.extract_citekey(bibentry)
+        base_key = bibstruct.generate_citekey(bibentry)
         citekey = rp.unique_citekey(base_key, bibentry)
     elif citekey in rp:
         ui.error('citekey already exist {}.'.format(citekey))
