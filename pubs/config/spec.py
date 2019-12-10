@@ -31,6 +31,17 @@ note_extension = string(default='txt')
 # the full python stack is printed.
 debug = boolean(default=False)
 
+# If true the citekey is normalized using the 'citekey_format' on adding new publications.
+normalize_citekey = boolean(default=False)
+
+# String specifying how to format the citekey. The following
+# substitutions are used:
+#    %a: last name of the first author in lowercase
+#    %A: last name of the first author in PascalCase
+#    %Y: four letter year of release (e.g. 2019)
+#    %y: two last letters of release year (e.g. 19)
+citekey_format = string(default='%a%Y')
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.

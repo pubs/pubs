@@ -57,7 +57,7 @@ def valid_citekey(citekey):
     return not '/' in citekey
 
 
-def generate_citekey(bibdata):
+def generate_citekey(bibdata, format_string='%A%Y'):
     """ Generate a citekey from bib_data.
 
         :raise ValueError:  if no author nor editor is defined.
@@ -72,8 +72,16 @@ def generate_citekey(bibdata):
     try:
         year = entry['year']
     except KeyError:
-        year = ''
-    citekey = '{}{}'.format(''.join(author_last(first_author)), year)
+        raise ValueError(
+            "No author or editor defined: cannot generate a citekey.")
+    try:
+        first_word = entry['title'].split(' ')[0]
+    except KeyError:
+        first_word = ''
+    author_last_name = author_last(first_author)
+    citekey = format_string.replace('%Y', year).replace('%y', year[-2:]) \
+            .replace('%A', author_last_name).replace('%a', author_last_name.lower()) \
+            .replace('%W', first_word).replace('%w', first_word.lower())
 
     return str2citekey(citekey)
 
