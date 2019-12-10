@@ -40,6 +40,8 @@ normalize_citekey = boolean(default=False)
 #    %A: last name of the first author in PascalCase
 #    %Y: four letter year of release (e.g. 2019)
 #    %y: two last letters of release year (e.g. 19)
+#    %w: first word in the title in lowercase
+#    %W: first work in the title
 citekey_format = string(default='%a%Y')
 
 [formating]
