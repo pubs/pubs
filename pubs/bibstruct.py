@@ -56,33 +56,56 @@ def valid_citekey(citekey):
     # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
     return not '/' in citekey
 
+class CitekeyFormatter(Formatter):
+    def __init__(self):
+        super().__init__()
 
-def generate_citekey(bibdata, format_string='%A%Y'):
+    def get_value(self, key, args, kwds):
+        if len(args) == 0:
+            raise ValueError('Must pass bibtex entry to the format method')
+        entry = args[0]
+        if isinstance(key, str):
+            okey = key
+            if key == 'author' and not 'author' in entry:
+                key = 'editor'
+            elif key == 'editor' and not 'editor' in entry:
+                key = 'author'
+
+            if key == 'first_word' and 'title' in entry:
+                return CitekeyFormatter._U(entry['title'].split(' ')[0])
+            if key == 'author_last_name' and 'author' in entry:
+                return CitekeyFormatter._U(author_last(entry['author'][0]))
+            else:
+                if key in entry:
+                    return CitekeyFormatter._U(entry[key])
+                else:
+                    raise ValueError(
+                        "No {} defined: cannot generate a citekey.".format(okey))
+
+    class _U(str):
+        def __init__(self, value):
+            super(value)
+
+        def __format__(self, fmt):
+            val = self
+            if fmt[0] == 'u':
+                s = val.upper()
+                fmt = fmt[1:]
+            elif fmt[0] == 'l':
+                s = val.lower()
+                fmt = fmt[1:]
+            else:
+                s = str(val)
+            return s.__format__(fmt)
+
+
+def generate_citekey(bibdata, format_string='{author_last_name:l}{year}{first_word:l}'):
     """ Generate a citekey from bib_data.
 
         :raise ValueError:  if no author nor editor is defined.
     """
     citekey, entry = get_entry(bibdata)
-    author_key = 'author' if 'author' in entry else 'editor'
-    try:
-        first_author = entry[author_key][0]
-    except KeyError:
-        raise ValueError(
-            "No author or editor defined: cannot generate a citekey.")
-    try:
-        year = entry['year']
-    except KeyError:
-        raise ValueError(
-            "No author or editor defined: cannot generate a citekey.")
-    try:
-        first_word = entry['title'].split(' ')[0]
-    except KeyError:
-        first_word = ''
-    author_last_name = author_last(first_author)
-    citekey = format_string.replace('%Y', year).replace('%y', year[-2:]) \
-            .replace('%A', author_last_name).replace('%a', author_last_name.lower()) \
-            .replace('%W', first_word).replace('%w', first_word.lower())
-
+    citekey = CitekeyFormatter(format_string).format(entry)
     return str2citekey(citekey)
 
 
