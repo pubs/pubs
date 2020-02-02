@@ -2,16 +2,20 @@
 
 Pubs brings your bibliography to the command line.
 
-Pubs organizes your bibliographic documents together with the bibliographic data associated to them and provides command line access to basic and advanced manipulation of your library.
+Pubs organizes your scientific papers together with their bibliographic data and provides command line access to basic and advanced manipulation of your library.
 
 Pubs is built with the following principles in mind:
 
  - all papers are referenced using unique citation keys,
- - bibliographic data (i.e. pure bibtex information) is kept separated from metadata (including links to pdf or tags),
+ - bibliographic data—bibtex information—is kept separated from metadata such as links to pdf or tags.
  - everything is stored in plain text so it can be manually edited or version controlled.
 
-**Notice:** pubs is still in early development; you should regularly make backups of your pubs repository.
+Pubs is currently being maintained, rather than developed aggressively. We add small features,
+correct bugs, but have no short-term plans to add major features to it. Pubs does most of what it
+is supposed to do: help us do science, so now we are mostly doing that.
 
+**Notice:** pubs is relatively stable but comes with no warranty; do keep backups of your data.
+**Notice:** pubs currently works with Python 2.7, but support will be dropped as soon as maintaining it becomes tedious.
 
 ## Installation
 
@@ -74,7 +78,7 @@ or an arXiv id (automatically downloading arXiv article is in the works):
 
 If you use latex, you can automatize references, by running `pubs export > references.bib` each time you update your library, which also fits well as a `makefile` rule.
 
-This ensures that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a doi on a webpage, you only need to do:
+This ensures that your reference file is always up-to-date; you can cite a paper in your manuscript a soon as you add it in pubs. This means that if you have, for instance, a DOI on a webpage, you only need to do:
   ```
   pubs add -D 10.1007/s00422-012-0514-6
   ```
@@ -95,6 +99,7 @@ And open your documents automatically from the command line:
   pubs doc open --with lp Loeb_2012  # Opens the document with `lp` to actually print it.
   ```
 
+
 ## Versioning
 
 Pubs comes with a git plugin that automatically commits your changes. You only need to activate it in your configuration:
@@ -104,6 +109,27 @@ Pubs comes with a git plugin that automatically commits your changes. You only n
   ```
 
 You can then also conveniently interact with the git repository by using `pubs git <regular git commands>`.
+
+
+## Multiple pubs Repository
+
+You may want to have different pubs repositories, for different projects. To create an alternate repository:
+  ```
+  pubs --config /path/to/config init --pubsdir /path/to/desired_repository_directory
+  ```
+The configuration file and repository will be automatically created.
+
+Then you can add papers to the new repository:
+  ```
+  pubs --config /path/to/config add -D 10.1007/s00422-012-0514-6
+  ```
+
+A useful thing might be to define an alias in your shell:
+  ```
+  alias pubs2="pubs --config /path/to/config"
+  ```
+and then use `pubs2` as you would use `pubs` directly.  Note that you cannot use the alias plugin below to do this.
+
 
 ## Customization
 
