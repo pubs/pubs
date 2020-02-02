@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import unicodedata
 import re
+from string import Formatter
 
 from .p3 import ustr, uchr
 
@@ -58,7 +59,7 @@ def valid_citekey(citekey):
 
 class CitekeyFormatter(Formatter):
     def __init__(self):
-        super().__init__()
+        super(CitekeyFormatter, self).__init__()
 
     def get_value(self, key, args, kwds):
         if len(args) == 0:
@@ -84,14 +85,14 @@ class CitekeyFormatter(Formatter):
 
     class _U(str):
         def __init__(self, value):
-            super(value)
+            super(CitekeyFormatter._U, self).__init__(value)
 
         def __format__(self, fmt):
             val = self
-            if fmt[0] == 'u':
+            if len(fmt) > 0 and fmt[0] == 'u':
                 s = val.upper()
                 fmt = fmt[1:]
-            elif fmt[0] == 'l':
+            elif len(fmt) > 0 and fmt[0] == 'l':
                 s = val.lower()
                 fmt = fmt[1:]
             else:
@@ -105,7 +106,7 @@ def generate_citekey(bibdata, format_string='{author_last_name:l}{year}{first_wo
         :raise ValueError:  if no author nor editor is defined.
     """
     citekey, entry = get_entry(bibdata)
-    citekey = CitekeyFormatter(format_string).format(entry)
+    citekey = CitekeyFormatter().format(format_string, entry)
     return str2citekey(citekey)
 
 
