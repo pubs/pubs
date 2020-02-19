@@ -183,6 +183,13 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
     entry_id = _extract_arxiv_id(entry)
     author_str = ' and '.join(
         [author['name'] for author in entry['authors']])
+
+    # pdf url (see https://arxiv.org/help/api/user-manual#entry_links)
+    pdf_url = None
+    for link in entry['links']:
+        if link.get('title', None) == 'pdf':
+            pdf_url = link['href']
+
     db.entries = [{
         'ENTRYTYPE': 'article',
         'ID': entry_id,
@@ -197,6 +204,9 @@ def arxiv2bibtex(arxiv_id, try_doi=True, ui=None):
         'url': entry['link'],
         'urldate': datetime.datetime.utcnow().isoformat() + 'Z' # can't hurt.
     }]
+
+    if pdf_url is not None:
+        db.entries[0]['pdfurl'] = pdf_url
     # we don't add eprintclass for old-style ids, as it is in the id already.
     if not _is_arxiv_oldstyle(entry_id):
         db.entries[0]['eprintclass'] = entry['arxiv_primary_category']['term']

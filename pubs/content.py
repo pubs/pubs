@@ -2,7 +2,9 @@ from __future__ import unicode_literals
 
 import sys
 import os
+import cgi
 import shutil
+import tempfile
 
 from .p3 import urlparse, HTTPConnection, urlopen
 
@@ -158,6 +160,20 @@ def get_content(path, ui=None):
     else:
         return read_text_file(path)
 
+def download_url_to_tempfile(url, ui=None):
+    """Download an url's content to a temporary file.
+
+    Return the temporary file. The calling function should take care to close
+    the temporary file.
+    """
+    response = urlopen(url)
+    # _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
+    # filename = params['filename']
+    url_content = response.read()
+
+    fd = tempfile.NamedTemporaryFile(suffix='.pdf')
+    fd.write(url_content)
+    return fd
 
 def move_content(source, target, overwrite=False):
     source = system_path(source)
