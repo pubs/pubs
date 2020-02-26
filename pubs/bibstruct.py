@@ -1,10 +1,18 @@
 from __future__ import unicode_literals
+try :
+    import __builtin__
+except: 
+    # Python 3.x
+    import builtins
+    if 'unicode' not in builtins.__dict__.keys():
+        unicode = str
 
 import unicodedata
 import re
 from string import Formatter
 
 from .p3 import ustr, uchr
+
 
 # Citekey stuff
 
