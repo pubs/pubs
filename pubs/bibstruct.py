@@ -61,6 +61,18 @@ class CitekeyFormatter(Formatter):
     def __init__(self):
         super(CitekeyFormatter, self).__init__()
 
+    def format_field(self, val, fmt):
+        if len(fmt) > 0 and fmt[0] == 'u':
+            s = str(val).upper()
+            fmt = fmt[1:]
+        elif len(fmt) > 0 and fmt[0] == 'l':
+            s = str(val).lower()
+            fmt = fmt[1:]
+        else:
+            s = val
+        return str2citekey(s.__format__(fmt))
+
+
     def get_value(self, key, args, kwds):
         if len(args) == 0:
             raise ValueError('Must pass bibtex entry to the format method')
@@ -73,41 +85,24 @@ class CitekeyFormatter(Formatter):
                 key = 'author'
 
             if key == 'first_word' and 'title' in entry:
-                return CitekeyFormatter._U(entry['title'].split(' ')[0])
+                return entry['title'].split(' ')[0]
             if key == 'author_last_name' and 'author' in entry:
-                return CitekeyFormatter._U(author_last(entry['author'][0]))
+                return author_last(entry['author'][0])
             else:
                 if key in entry:
-                    return CitekeyFormatter._U(entry[key])
+                    return entry[key]
                 else:
                     raise ValueError(
                         "No {} defined: cannot generate a citekey.".format(okey))
 
-    class _U(str):
-        def __init__(self, value):
-            super(CitekeyFormatter._U, self).__init__(value)
-
-        def __format__(self, fmt):
-            val = self
-            if len(fmt) > 0 and fmt[0] == 'u':
-                s = val.upper()
-                fmt = fmt[1:]
-            elif len(fmt) > 0 and fmt[0] == 'l':
-                s = val.lower()
-                fmt = fmt[1:]
-            else:
-                s = str(val)
-            return s.__format__(fmt)
-
-
-def generate_citekey(bibdata, format_string='{author_last_name:l}{year}{first_word:l}'):
+def generate_citekey(bibdata, format_string='{author_last_name}{year}'):
     """ Generate a citekey from bib_data.
 
         :raise ValueError:  if no author nor editor is defined.
     """
     citekey, entry = get_entry(bibdata)
     citekey = CitekeyFormatter().format(format_string, entry)
-    return str2citekey(citekey)
+    return citekey
 
 
 def extract_docfile(bibdata, remove=False):

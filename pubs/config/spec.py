@@ -34,15 +34,21 @@ debug = boolean(default=False)
 # If true the citekey is normalized using the 'citekey_format' on adding new publications.
 normalize_citekey = boolean(default=False)
 
-# String specifying how to format the citekey. The following
+# String specifying how to format the citekey. All strings of 
+# the form '{{substitution:modifier}}' and '{{substitution}}' will 
+# be substituted with their appropriate values. The following
 # substitutions are used:
-#    %a: last name of the first author in lowercase
-#    %A: last name of the first author in PascalCase
-#    %Y: four letter year of release (e.g. 2019)
-#    %y: two last letters of release year (e.g. 19)
-#    %w: first word in the title in lowercase
-#    %W: first work in the title
-citekey_format = string(default='%a%Y')
+#    author_last_name: last name of the first author
+#    year: year of publication
+#    first_word: first word of the title
+# modifiers:
+#    l: converts the text to lowercase
+#    u: converts the text to uppercase
+# examples:
+#   {{author_last_name:l}}{{year}} generates 'yang2020'
+#   {{author_last_name}}{{year}}{{first_word}} generates 'Yang2020Towards'
+#   {{author_last_name:u}}{{year}} generates 'YANG2020'
+citekey_format = string(default='{{author_last_name:l}}{{year}}')
 
 [formating]
 
