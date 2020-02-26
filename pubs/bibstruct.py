@@ -73,11 +73,8 @@ class CitekeyFormatter(Formatter):
         return str2citekey(s.__format__(fmt))
 
 
-    def get_value(self, key, args, kwds):
-        if len(args) == 0:
-            raise ValueError('Must pass bibtex entry to the format method')
-        entry = args[0]
-        if isinstance(key, str):
+    def get_value(self, key, args, entry):
+        if isinstance(key, (str, unicode)):
             okey = key
             if key == 'author' and not 'author' in entry:
                 key = 'editor'
@@ -94,6 +91,8 @@ class CitekeyFormatter(Formatter):
                 else:
                     raise ValueError(
                         "No {} defined: cannot generate a citekey.".format(okey))
+        else:
+            raise ValueError('Key must be a str instance')
 
 def generate_citekey(bibdata, format_string='{author_last_name}{year}'):
     """ Generate a citekey from bib_data.
@@ -101,7 +100,7 @@ def generate_citekey(bibdata, format_string='{author_last_name}{year}'):
         :raise ValueError:  if no author nor editor is defined.
     """
     citekey, entry = get_entry(bibdata)
-    citekey = CitekeyFormatter().format(format_string, entry)
+    citekey = CitekeyFormatter().format(format_string, **entry)
     return citekey
 
 
