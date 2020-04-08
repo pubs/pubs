@@ -34,7 +34,7 @@ def parser(subparsers, conf):
                             ).completer = CiteKeyCompletion(conf)
     add_exclusives = add_parser.add_mutually_exclusive_group()
     add_exclusives.add_argument(
-        '-L', '--link', action='store_false', dest='link', default=False,
+        '-L', '--link', action='store_true', dest='link', default=False,
         help='do not copy document files, just create a link')
     add_exclusives.add_argument(
         '-M', '--move', action='store_true', dest='move', default=False,

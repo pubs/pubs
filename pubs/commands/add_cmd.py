@@ -156,6 +156,6 @@ def command(conf, args):
         if doc_add == 'move':
             ui.message('{} was moved to the pubs repository.'.format(docfile))
         elif doc_add == 'copy':
-                ui.message('{} was copied to the pubs repository.'.format(docfile))
+            ui.message('{} was copied to the pubs repository.'.format(docfile))
 
     rp.close()
