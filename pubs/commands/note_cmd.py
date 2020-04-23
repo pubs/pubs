@@ -29,7 +29,6 @@ def command(conf, args):
     rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
     notepath = rp.databroker.real_notepath(citekey, rp.conf['main']['note_extension'])
-    print('NNNNNNNNNNNNN sitepath pubs note', notepath, args)
     if args.append is None and not args.echo:
         ui.edit_file(notepath, temporary=False)
     elif args.append:
