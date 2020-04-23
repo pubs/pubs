@@ -81,7 +81,7 @@ then list the citations in the bibliography:
   [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
   ```
 
-and tag publications:
+and tags to the citations:
   ```
   $ pubs tag Loeb_2012 abc
   
@@ -93,6 +93,11 @@ and tag publications:
   [Loeb_2012] Loeb, Gerald E. "Optimal isn't good enough" Biological Cybernetics (2012) | abc
   [oyama2000the] Oyama, Susan "The ontogeny of information : developmental systems and evolution" (2000) | abc,def
   [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
+
+  $ pubs list tags:abc
+  [oyama2000the] Oyama, Susan "The ontogeny of information : developmental systems and evolution" (2000) | abc,def
+  [Loeb_2012] Loeb, Gerald E. "Optimal isn't good enough" Biological Cybernetics (2012) | abc
+
   ```
 
 and remove tags using the `:` symbol:
