@@ -73,6 +73,39 @@ or an arXiv id (automatically downloading arXiv article is in the works):
   pubs add -X math/9501234 -d article.pdf
   ```
 
+then list the citations in the bibliography:
+  ```
+  $ pubs list
+  [Loeb_2012] Loeb, Gerald E. "Optimal isn't good enough" Biological Cybernetics (2012)
+  [oyama2000the] Oyama, Susan "The ontogeny of information : developmental systems and evolution" (2000)
+  [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
+  ```
+
+and tag publications:
+  ```
+  $ pubs tag Loeb_2012 abc
+  
+  $ pubs tag oyama2000the abc
+  
+  $ pubs tag oyama2000the def
+  
+  $ pubs list
+  [Loeb_2012] Loeb, Gerald E. "Optimal isn't good enough" Biological Cybernetics (2012) | abc
+  [oyama2000the] Oyama, Susan "The ontogeny of information : developmental systems and evolution" (2000) | abc,def
+  [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
+  ```
+
+and remove tags using the `:` symbol:
+  ```
+  $ pubs tag Loeb_2012 :abc
+  
+  $ pubs list
+  [Loeb_2012] Loeb, Gerald E. "Optimal isn't good enough" Biological Cybernetics (2012)
+  [oyama2000the] Oyama, Susan "The ontogeny of information : developmental systems and evolution" (2000) | abc,def
+  [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
+  ```
+
+
 
 ## References always up-to-date
 
