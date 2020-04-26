@@ -81,7 +81,7 @@ then list the citations in the bibliography:
   [Knuth1995] Knuth, Donald E. "Aztec diamonds, checkerboard graphs, and spanning trees" (1995)
   ```
 
-and tags to the citations:
+and add tags to the citations:
   ```
   $ pubs tag Loeb_2012 abc
   
