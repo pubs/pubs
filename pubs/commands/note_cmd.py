@@ -34,7 +34,7 @@ def command(conf, args):
     elif args.append:
         latestnote = '{txt}\n'.format(txt=p3.u_maybe(args.append))
         write_file(notepath, latestnote, 'a')
-    elif args.echo and os.path.exists(notepath):
+    if args.echo and os.path.exists(notepath):
         print(read_text_file(notepath, fail=False))
     NoteEvent(citekey).send()
     rp.close()
