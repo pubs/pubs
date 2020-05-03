@@ -5,26 +5,11 @@ matrix:
     # Full tests (with online API)
     - os: linux
       language: python
-      python: 2.7
-      env:
-        - TO_TEST=TEST_FULL
-    - os: linux
-      language: python
       python: 3.7
       dist: xenial
       sudo: true
       env:
         - TO_TEST=TEST_FULL
-    - os: osx
-      language: generic
-      python: 2.7
-      env:
-        - TO_TEST=TEST_FULL
-      # before_install:
-      #   - python2 --version
-      #   - pip2 install -U virtualenv
-      #   - virtualenv env -p python2
-      #   - source env/bin/activate
     - os: osx
       language: generic
       python: ">=3.6"
@@ -36,16 +21,6 @@ matrix:
         - source env/bin/activate
 
     # Mock tests (with mock API)
-    - os: linux
-      language: python
-      python: 3.3
-      env:
-        - TO_TEST=TEST_MOCK
-    - os: linux
-      language: python
-      python: 3.4
-      env:
-        - TO_TEST=TEST_MOCK
     - os: linux
       language: python
       python: 3.5
@@ -63,6 +38,13 @@ matrix:
       sudo: true
       env:
         - TO_TEST=TEST_MOCK
+    - os: linux
+      language: python
+      dist: xenial
+      python: 3.8
+      sudo: true
+      env:
+        - TO_TEST=TEST_MOCK
 
 
     # Install tests
@@ -76,7 +58,7 @@ matrix:
       language: python
       dist: xenial
       sudo: true
-      python: 3.7
+      python: 3.8
       env:
         - TO_TEST=INSTALL
       if: type = cron
@@ -94,7 +76,7 @@ matrix:
       if: type = cron
 
   allow_failures:
-    - python: 3.3
+    - python: 2.7
 
 # command to run tests
 script:

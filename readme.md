@@ -15,7 +15,7 @@ correct bugs, but have no short-term plans to add major features to it. Pubs doe
 is supposed to do: help us do science, so now we are mostly doing that.
 
 **Notice:** pubs is relatively stable but comes with no warranty; do keep backups of your data.
-**Notice:** pubs currently works with Python 2.7, but support will be dropped as soon as maintaining it becomes tedious.
+**Notice:** pubs currently works with Python 2.7, but support is being dropped (tests are not run anymore).
 
 ## Installation
 
