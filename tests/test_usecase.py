@@ -25,8 +25,8 @@ import fixtures
 
 
 # makes the tests very noisy
-PRINT_OUTPUT   = False
-CAPTURE_OUTPUT = True
+PRINT_OUTPUT   = True
+CAPTURE_OUTPUT = False
 
 
 class FakeSystemExit(Exception):
@@ -161,11 +161,19 @@ class CommandTestCase(fake_env.TestFakeFs):
     def tearDown(self):
         pass
 
+    def update_config(self, config_update, path=None):
+        """Allow to set the config parameters. Must have done a `pubs init` beforehand."""
+        if path is None:
+            path = self.default_conf_path
+        cfg = conf.load_conf(path=path)
+        for section, section_update in config_update.items():
+            cfg[section].update(section_update)
+        conf.save_conf(cfg, path=path)
+
+
 
 class DataCommandTestCase(CommandTestCase):
-    """Abstract TestCase intializing the fake filesystem and
-    copying fake data.
-    """
+    """Abstract TestCase intializing the fake filesystem and copying fake data."""
 
     def setUp(self, nsec_stat=True):
         super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
@@ -182,8 +190,7 @@ class DataCommandTestCase(CommandTestCase):
 
 
 class URLContentTestCase(DataCommandTestCase):
-    """Mocks access to online files by using files in data directory.
-    """
+    """Mocks access to online files by using files in data directory."""
 
     def setUp(self):
         super(URLContentTestCase, self).setUp()
@@ -207,6 +214,8 @@ class URLContentTestCase(DataCommandTestCase):
         super(URLContentTestCase, self).tearDown()
         content._get_byte_url_content = self._original_get_byte_url_content
         content.url_exists = self._original_url_exist
+
+
 
 
 # Actual tests
@@ -1144,6 +1153,24 @@ class TestCache(DataCommandTestCase):
         out = self.execute_cmds(cmds)
         self.assertEqual(line,  out[2])
         self.assertEqual(line1, out[4])
+
+
+class TestConfigChange(DataCommandTestCase):
+
+    def test_n_authors_default(self):
+        line_al   = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line_full = '[Page99] Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+
+        self.execute_cmds(['pubs init', 'pubs add data/pagerank.bib'])
+
+        for n_authors in [1, 2, 3]:
+            self.update_config({'main': {'n_authors': n_authors}})
+            self.execute_cmds([('pubs list', None, line_al, None)])
+
+        for n_authors in [-1, 0, 4, 5, 10]:
+            self.update_config({'main': {'n_authors': n_authors}})
+            self.execute_cmds([('pubs list', None, line_full, None)])
+
 
 
 if __name__ == '__main__':
