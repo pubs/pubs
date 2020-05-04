@@ -25,8 +25,8 @@ import fixtures
 
 
 # makes the tests very noisy
-PRINT_OUTPUT   = True
-CAPTURE_OUTPUT = False
+PRINT_OUTPUT   = False
+CAPTURE_OUTPUT = True
 
 
 class FakeSystemExit(Exception):
