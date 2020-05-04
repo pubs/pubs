@@ -27,6 +27,9 @@ edit_cmd = string(default='')
 # Which default extension to use when creating a note file.
 note_extension = string(default='txt')
 
+# How many authors to display in
+n_authors = integer(default=3)
+
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.
 debug = boolean(default=False)

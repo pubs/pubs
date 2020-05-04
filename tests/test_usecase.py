@@ -1079,7 +1079,8 @@ class TestUsecase(DataCommandTestCase):
                 'pubs add -d data/no-ext data/pagerank.bib',
                 'pubs list',
                ]
-        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+        actual = self.execute_cmds(cmds, capture_output=True)
+        self.assertEqual(correct, actual)
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_readme(self, reqget):

@@ -54,7 +54,7 @@ def command(conf, args):
         papers = sorted(papers, key=date_added)
     if len(papers) > 0:
         ui.message('\n'.join(
-            pretty.paper_oneliner(p, citekey_only=args.citekeys)
+            pretty.paper_oneliner(p, citekey_only=args.citekeys, n_authors=conf['main']['n_authors'])
             for p in papers))
 
     rp.close()
