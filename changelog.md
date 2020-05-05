@@ -5,8 +5,14 @@
 
 [Full Changelog](https://github.com/pubs/pubs/compare/v0.8.3...master)
 
+### Implemented enhancements
+
+- Added support for non-standard bibtex types, e.g. @collection, @software, etc. ([#226](https://github.com/pubs/pubs/pull/226)
+- The number of displayed authors in listings is now configurable, as the `n_authors` value in the `main` section of the configuration. ([#225](https://github.com/pubs/pubs/pull/225)
+
 ### Fixed bugs
 
+- Tests don't run on python 2.7 or <=3.4. They may still work, but support will not be tested and will eventually be dropped. ([#223](https://github.com/pubs/pubs/pull/223)
 
 ## [v0.8.3](https://github.com/pubs/pubs/compare/v0.8.2...v0.8.3) (2019-08-12)
 
