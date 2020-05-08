@@ -111,7 +111,7 @@ Pubs comes with a git plugin that automatically commits your changes. You only n
 You can then also conveniently interact with the git repository by using `pubs git <regular git commands>`.
 
 
-## Multiple pubs Repository
+## Multiple pubs Repositories
 
 You may want to have different pubs repositories, for different projects. To create an alternate repository:
   ```
