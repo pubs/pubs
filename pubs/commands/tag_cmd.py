@@ -117,7 +117,7 @@ def command(conf, args):
                     len(p.tags.intersection(excluded)) == 0):
                     papers_list.append(p)
 
-            ui.message('\n'.join(pretty.paper_oneliner(p, n_authors=conf['main']['n_authors'])
+            ui.message('\n'.join(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])
                                  for p in papers_list))
 
         rp.close()

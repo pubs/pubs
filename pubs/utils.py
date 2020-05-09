@@ -33,7 +33,7 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
                      "citekeys:".format(citekey))
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message('    {}'.format(pretty.paper_oneliner(p, n_authors=conf['main']['n_authors'])))
+                ui.message('    {}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
             if exit_on_fail:
                 ui.exit()
     return citekey

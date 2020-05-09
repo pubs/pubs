@@ -147,7 +147,7 @@ def command(conf, args):
         doc_add = conf['main']['doc_add']
 
     rp.push_paper(p)
-    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p, n_authors=conf['main']['n_authors'])))
+    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
     if docfile is not None:
         rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
         if doc_add == 'move' and content.content_type(docfile) != 'url':
