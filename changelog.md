@@ -5,6 +5,8 @@
 
 [Full Changelog](https://github.com/pubs/pubs/compare/v0.8.3...master)
 
+- Remove automated test on python versions < 3.4 ([#223](https://github.com/pubs/pubs/pull/2223))
+
 ### Fixed bugs
 
 
