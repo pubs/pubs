@@ -61,7 +61,7 @@ setup(
     ],
 
     test_suite='tests',
-    tests_require=['pyfakefs>=3.4', 'mock', 'ddt', 'certifi'],
+    tests_require=['pyfakefs>=3.4', 'mock', 'ddt==1.3.1', 'certifi'],
 
     # in order to avoid 'zipimport.ZipImportError: bad local file header'
     zip_safe=False,
