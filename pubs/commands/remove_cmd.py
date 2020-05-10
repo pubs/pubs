@@ -30,7 +30,7 @@ def command(conf, args):
 
     if force is None:
         to_remove_str = '\n'.join(pretty.paper_oneliner(rp.pull_paper(key),
-                                                        n_authors=conf['main']['n_authors'])
+                                                        max_authors=conf['main']['max_authors'])
                                   for key in keys)
         are_you_sure = (("Are you sure you want to delete the following publication{}"
             " (this will also delete associated documents)?:\n{}\n")

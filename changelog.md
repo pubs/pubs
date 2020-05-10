@@ -8,7 +8,7 @@
 ### Implemented enhancements
 
 - Added support for non-standard bibtex types, e.g. @collection, @software, etc. ([#226](https://github.com/pubs/pubs/pull/226)
-- The number of displayed authors in listings is now configurable, as the `n_authors` value in the `main` section of the configuration. ([#225](https://github.com/pubs/pubs/pull/225)
+- The number of displayed authors in listings is now configurable, as the `max_authors` value in the `main` section of the configuration. ([#225](https://github.com/pubs/pubs/pull/225)
 
 ### Fixed bugs
 
