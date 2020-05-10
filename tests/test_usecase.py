@@ -1173,18 +1173,18 @@ class TestCache(DataCommandTestCase):
 
 class TestConfigChange(DataCommandTestCase):
 
-    def test_n_authors_default(self):
+    def test_max_authors_default(self):
         line_al   = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
         line_full = '[Page99] Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
 
         self.execute_cmds(['pubs init', 'pubs add data/pagerank.bib'])
 
-        for n_authors in [1, 2, 3]:
-            self.update_config({'main': {'n_authors': n_authors}})
+        for max_authors in [1, 2, 3]:
+            self.update_config({'main': {'max_authors': max_authors}})
             self.execute_cmds([('pubs list', None, line_al, None)])
 
-        for n_authors in [-1, 0, 4, 5, 10]:
-            self.update_config({'main': {'n_authors': n_authors}})
+        for max_authors in [-1, 0, 4, 5, 10]:
+            self.update_config({'main': {'max_authors': max_authors}})
             self.execute_cmds([('pubs list', None, line_full, None)])
 
 

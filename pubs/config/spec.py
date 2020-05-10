@@ -29,7 +29,7 @@ note_extension = string(default='txt')
 
 # How many authors to display when displaying a citation. If there are more
 # authors, only the first author is diplayed followed by 'et al.'.
-n_authors = integer(default=3)
+max_authors = integer(default=3)
 
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.

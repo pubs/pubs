@@ -28,15 +28,15 @@ class TestPretty(unittest.TestCase):
         line = 'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web."'
         self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'])), line)
 
-    def test_oneliner_n_authors(self):
+    def test_oneliner_max_authors(self):
         decoder = endecoder.EnDecoder()
         bibdata = decoder.decode_bibdata(bibtex_raw0)
-        for n_authors in [1, 2, 3]:
+        for max_authors in [1, 2, 3]:
             line = 'Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999)'
-            self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'], n_authors=n_authors)), line)
-        for n_authors in [-1, 0, 4, 5, 10]:
+            self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'], max_authors=max_authors)), line)
+        for max_authors in [-1, 0, 4, 5, 10]:
             line = 'Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry "The PageRank Citation Ranking: Bringing Order to the Web." (1999)'
-            self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'], n_authors=n_authors)), line)
+            self.assertEqual(color.undye(pretty.bib_oneliner(bibdata['Page99'], max_authors=max_authors)), line)
 
 if __name__ == '__main__':
     unittest.main()
