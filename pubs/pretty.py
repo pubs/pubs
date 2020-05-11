@@ -49,19 +49,24 @@ def person_repr(p):
         ' '.join(p.lineage(abbr=True))] if s)
 
 
-def short_authors(bibdata):
+def short_authors(bibdata, max_authors=3):
+    """
+    :param max_authors:  number of authors to display completely. Additional authors will be
+                       represented by 'et al.'.
+    """
     try:
         authors = [p for p in bibdata['author']]
-        if len(authors) < 3:
-            return ' and '.join(authors)
+        if 0 < max_authors < len(authors):
+            authors_str = '{} et al.'.format(authors[0])
         else:
-            return authors[0] + (' et al.' if len(authors) > 1 else '')
+            authors_str = ' and '.join(authors)
+        return authors_str
     except KeyError:  # When no author is defined
         return ''
 
 
-def bib_oneliner(bibdata):
-    authors = short_authors(bibdata)
+def bib_oneliner(bibdata, max_authors=3):
+    authors = short_authors(bibdata, max_authors=max_authors)
     journal = ''
     if 'journal' in bibdata:
         journal = ' ' + bibdata['journal']
@@ -86,11 +91,11 @@ def bib_desc(bib_data):
     return s
 
 
-def paper_oneliner(p, citekey_only=False):
+def paper_oneliner(p, citekey_only=False, max_authors=3):
     if citekey_only:
         return p.citekey
     else:
-        bibdesc = bib_oneliner(p.get_unicode_bibdata())
+        bibdesc = bib_oneliner(p.get_unicode_bibdata(), max_authors=max_authors)
         doc_str = ''
         if p.docpath is not None:
             doc_extension = os.path.splitext(p.docpath)[1]

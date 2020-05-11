@@ -33,7 +33,7 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
                      "citekeys:".format(citekey))
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message('    {}'.format(pretty.paper_oneliner(p)))
+                ui.message('    {}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
             if exit_on_fail:
                 ui.exit()
     return citekey
@@ -73,11 +73,11 @@ def standardize_doi(doi):
     """
 
     doi_regexes = (
-        '(10\.\d{4,9}/[-._;()/:A-z0-9\>\<]+)',
-        '(10.1002/[^\s]+)',
-        '(10\.\d{4}/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d)',
-        '(10\.1021/\w\w\d+\+)',
-        '(10\.1207/[\w\d]+\&\d+_\d+)')
+        r'(10\.\d{4,9}/[-._;()/:A-z0-9\>\<]+)',
+        r'(10.1002/[^\s]+)',
+        r'(10\.\d{4}/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d)',
+        r'(10\.1021/\w\w\d+\+)',
+        r'(10\.1207/[\w\d]+\&\d+_\d+)')
     doi_pattern = re.compile('|'.join(doi_regexes))
 
     match = doi_pattern.search(doi)

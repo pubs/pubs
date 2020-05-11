@@ -56,5 +56,7 @@ def command(conf, args):
         ui.message('\n'.join(
             pretty.paper_format(p, rp.conf['formating']['list_fmt'], citekey_only=args.citekeys)
             for p in papers))
+        # Note, figure whats using this now and propagate it
+        #pretty.paper_oneliner(p, citekey_only=args.citekeys, max_authors=conf['main']['max_authors'])
 
     rp.close()
