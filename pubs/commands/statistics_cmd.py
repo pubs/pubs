@@ -22,7 +22,7 @@ def command(conf, args):
     else:
         doc_count = sum([0 if p.docpath is None else 1 for p in papers])
         tag_count = len(list(rp.get_tags()))
-        papers_with_tags = sum([0 if p.tags else 1 for p in papers])
+        papers_with_tags = sum([1 if p.tags else 0 for p in papers])
 
         ui.message(color.dye_out('Repository statistics:', 'bold'))
         ui.message('Total papers: {}, {} ({}) have a document attached'.format(
