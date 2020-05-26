@@ -7,7 +7,7 @@ from . import color
 from . import pretty
 
 
-def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
+def resolve_citekey(repo, conf, citekey, ui=None, exit_on_fail=True):
     """Check that a citekey exists, or autocompletes it if not ambiguous.
         :returns found citekey
     """
@@ -39,12 +39,12 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
     return citekey
 
 
-def resolve_citekey_list(repo, citekeys, ui=None, exit_on_fail=True):
+def resolve_citekey_list(repo, conf, citekeys, ui=None, exit_on_fail=True):
     shutdown = False
     keys = []
     for key in citekeys:
         try:
-            keys.append(resolve_citekey(repo, key, ui, exit_on_fail))
+            keys.append(resolve_citekey(repo, conf, key, ui=ui, exit_on_fail=exit_on_fail))
         except SystemExit:
             shutdown = exit_on_fail
 
