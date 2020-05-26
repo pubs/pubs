@@ -22,7 +22,7 @@ def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
 
-    for key in resolve_citekey_list(rp, args.citekey, ui=ui, exit_on_fail=False):
+    for key in resolve_citekey_list(rp, conf, args.citekey, ui=ui, exit_on_fail=False):
         try:
             paper = rp.pull_paper(key)
             url = paper.bibdata['url']

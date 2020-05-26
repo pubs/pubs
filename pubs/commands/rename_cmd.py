@@ -26,7 +26,7 @@ def command(conf, args):
     rp = repo.Repository(conf)
 
     # TODO: here should be a test whether the new citekey is valid
-    key = resolve_citekey(repo=rp, citekey=args.citekey, ui=ui, exit_on_fail=True)
+    key = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(key)
     rp.rename_paper(paper, args.new_citekey)
     ui.message("The '{}' citekey has been renamed into '{}'".format(

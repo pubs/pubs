@@ -24,7 +24,7 @@ def command(conf, args):
     force = args.force
     rp = repo.Repository(conf)
 
-    keys = resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True)
+    keys = resolve_citekey_list(rp, conf, args.citekeys, ui=ui, exit_on_fail=True)
 
     if force is None:
         are_you_sure = (("Are you sure you want to delete the publication(s) [{}]"
