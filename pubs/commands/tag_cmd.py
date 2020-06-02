@@ -89,7 +89,7 @@ def command(conf, args):
     else:
         not_citekey = False
         try:
-            citekeyOrTag = resolve_citekey(repo=rp, citekey=citekeyOrTag, ui=ui, exit_on_fail=True)
+            citekeyOrTag = resolve_citekey(rp, conf, citekeyOrTag, ui=ui, exit_on_fail=True)
         except SystemExit:
             not_citekey = True
         if not not_citekey:
