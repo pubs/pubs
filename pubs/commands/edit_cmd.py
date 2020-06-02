@@ -30,7 +30,7 @@ def command(conf, args):
     meta = args.meta
 
     rp = repo.Repository(conf)
-    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
+    citekey = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
 
     coder = EnDecoder()

@@ -25,7 +25,7 @@ def command(conf, args):
     force = args.force
     rp = repo.Repository(conf)
 
-    keys = resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True)
+    keys = resolve_citekey_list(rp, conf, args.citekeys, ui=ui, exit_on_fail=True)
     plural = 's' if len(keys) > 1 else ''
 
     if force is None:
