@@ -29,11 +29,12 @@ def resolve_citekey(repo, conf, citekey, ui=None, exit_on_fail=True):
     elif citekey not in citekeys:
         if ui is not None:
             citekeys = sorted(citekeys)
-            ui.error("Be more specific; '{}' matches multiples "
-                     "citekeys:".format(citekey))
+            msg = ["Be more specific; '{}' matches multiples citekeys:".format(citekey)]
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message('    {}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
+                paper_str = pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])
+                msg.append('    {}'.format(paper_str))
+            ui.error('\n'.join(msg))
             if exit_on_fail:
                 ui.exit()
     return citekey

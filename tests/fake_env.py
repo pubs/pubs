@@ -9,7 +9,7 @@ import dotdot
 
 from pyfakefs import fake_filesystem, fake_filesystem_unittest
 
-from pubs.p3 import input, _fake_stdio, _get_fake_stdio_ucontent
+from pubs.p3 import input
 from pubs import content, filebroker, uis
 
 # code for fake fs
@@ -27,29 +27,6 @@ original_exception_handler = uis.InputUI.handle_exception
 # needed to get locale.getpreferredencoding(False) (invoked by pyfakefs)
 # to work properly
 locale.setlocale(locale.LC_ALL, '')
-
-
-# capture output
-
-def capture(f, verbose=False):
-    """Capture the stdout and stderr output.
-
-    Useful for comparing the output with the expected one during tests.
-
-    :param f:        The function to capture output from.
-    :param verbose:  If True, print call will still display their outputs.
-                     If False, they will be silenced.
-
-    """
-    def newf(*args, **kwargs):
-        old_stderr, old_stdout = sys.stderr, sys.stdout
-        sys.stdout = _fake_stdio(additional_out=old_stdout if verbose else None)
-        sys.stderr = _fake_stdio(additional_out=old_stderr if verbose else None)
-        try:
-            return f(*args, **kwargs), _get_fake_stdio_ucontent(sys.stdout), _get_fake_stdio_ucontent(sys.stderr)
-        finally:
-            sys.stderr, sys.stdout = old_stderr, old_stdout
-    return newf
 
 
 # Test helpers

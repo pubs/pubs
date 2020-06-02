@@ -55,7 +55,9 @@ def _parse_tag_seq(s):
             if last != 0:
                 raise ValueError('could not match tag expression')
         else:
-            tags.append(s[last:(m.start())])
+            tag = s[last:(m.start())]
+            if len(tag) > 0:
+                tags.append(s[last:(m.start())])
         last = m.start()
     if last == len(s):
         raise ValueError('could not match tag expression')
