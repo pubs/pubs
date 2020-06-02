@@ -1091,6 +1091,22 @@ class TestUsecase(DataCommandTestCase):
         actual = self.execute_cmds(cmds, capture_output=True)
         self.assertEqual(correct, actual)
 
+    def test_add_non_standard(self):
+        """Test that non-standard bibtex are correctly added"""
+        self.fs.add_real_directory(os.path.join(self.rootpath, 'data_non_standard'), read_only=False)
+        correct = ['Initializing pubs in /pubs\n',
+                   'added to pubs:\n[Geometric_phases]  "Geometric phases in physics" (1989) \n',
+                   'added to pubs:\n[hadoop] Foundation, Apache Software "Hadoop" \n',
+                  ]
+        cmds = ['pubs init -p /pubs',
+                'pubs add data_non_standard/non_standard_collection.bib',
+                'pubs add data_non_standard/non_standard_software.bib',
+                # 'pubs list',
+               ]
+        actual = self.execute_cmds(cmds, capture_output=True)
+        self.assertEqual(correct, actual)
+
+
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_readme(self, reqget):
         """Test that the readme example work."""
@@ -1099,7 +1115,7 @@ class TestUsecase(DataCommandTestCase):
         self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Knuth1995.pdf')
 
         cmds = ['pubs init',
-                'pubs import data/collection.bib',
+                'pubs import data/three_articles.bib',
                 'pubs add data/pagerank.bib -d data/pagerank.pdf',
                 #'pubs add -D 10.1007/s00422-012-0514-6 -d data/pagerank.pdf',
                 'pubs add -I 978-0822324669 -d data/oyama2000the.pdf',

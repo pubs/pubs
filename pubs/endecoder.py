@@ -119,18 +119,18 @@ class EnDecoder(object):
                 keyword for keyword in entry['keyword'])
         return entry
 
-    def decode_bibdata(self, bibdata):
+    def decode_bibdata(self, bibstr):
         """Decodes bibdata from string.
 
         If the decoding fails, returns a BibDecodingError.
         """
-        if len(bibdata) == 0:
+        if len(bibstr) == 0:
             error_msg = 'parsing error: the provided string has length zero.'
-            raise self.BibDecodingError(error_msg, bibdata)
+            raise self.BibDecodingError(error_msg, bibstr)
         try:
             entries = bp.bparser.BibTexParser(
-                bibdata, common_strings=True, customization=customizations,
-                homogenize_fields=True).get_entry_dict()
+                bibstr, common_strings=True, customization=customizations,
+                homogenize_fields=True, ignore_nonstandard_types=False).get_entry_dict()
             # Remove id from bibtexparser attribute which is stored as citekey
             for e in entries:
                 entries[e].pop(BP_ID_KEY)
@@ -147,13 +147,13 @@ class EnDecoder(object):
                 return entries
             else:
                 raise self.BibDecodingError(('no valid entry found in the provided data: '
-                                            ' {}').format(bibdata), bibdata)
+                                            ' {}').format(bibstr), bibstr)
         except (pyparsing.ParseException, pyparsing.ParseSyntaxException) as e:
             error_msg = self._format_parsing_error(e)
-            raise self.BibDecodingError(error_msg, bibdata)
+            raise self.BibDecodingError(error_msg, bibstr)
         except bibtexparser.bibdatabase.UndefinedString as e:
             error_msg = 'parsing error: undefined string in provided data: {}'.format(e)
-            raise self.BibDecodingError(error_msg, bibdata)
+            raise self.BibDecodingError(error_msg, bibstr)
 
     @classmethod
     def _format_parsing_error(cls, e):

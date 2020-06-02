@@ -43,8 +43,8 @@ def capture(f, verbose=False):
     """
     def newf(*args, **kwargs):
         old_stderr, old_stdout = sys.stderr, sys.stdout
-        sys.stdout = _fake_stdio(additional_out=old_stderr if verbose else None)
-        sys.stderr = _fake_stdio(additional_out=old_stderr if False else None)
+        sys.stdout = _fake_stdio(additional_out=old_stdout if verbose else None)
+        sys.stderr = _fake_stdio(additional_out=old_stderr if verbose else None)
         try:
             return f(*args, **kwargs), _get_fake_stdio_ucontent(sys.stdout), _get_fake_stdio_ucontent(sys.stderr)
         finally:
