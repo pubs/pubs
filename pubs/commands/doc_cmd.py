@@ -92,6 +92,7 @@ def command(conf, args):
         if not args.link and args.move:
             content.remove_file(document)
 
+        # FIXME: coherence with add command, the destination location should be given when copying/moving.
         ui.message('{} added to {}'.format(
             color.dye_out(document, 'filepath'),
             color.dye_out(paper.citekey, 'citekey')))

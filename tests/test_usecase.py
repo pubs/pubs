@@ -12,6 +12,7 @@ import ddt
 import certifi
 import mock
 from pyfakefs.fake_filesystem import FakeFileOpen
+import pytest
 
 import dotdot
 import fake_env
@@ -26,7 +27,7 @@ import fixtures
 
 
 # makes the tests very noisy
-PRINT_OUTPUT   = False
+PRINT_OUTPUT   = True #False
 CAPTURE_OUTPUT = True
 
 
@@ -733,7 +734,7 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-                   'data/pagerank.pdf was copied to the pubs repository.\n',
+                   'data/pagerank.pdf was copied to /paper_first/doc/Page99.pdf inside the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
                    '\n',
                    '',
@@ -1085,7 +1086,7 @@ class TestUsecase(DataCommandTestCase):
                               target_path=os.path.join('data', 'no-ext'))
         correct = ['Initializing pubs in /pubs\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-                   'data/no-ext was copied to the pubs repository.\n',
+                   'data/no-ext was copied to /pubs/doc/Page99 inside the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [NOEXT] \n',
                   ]
         cmds = ['pubs init -p /pubs',

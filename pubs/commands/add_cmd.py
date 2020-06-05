@@ -6,6 +6,7 @@ from .. import p3
 from .. import bibstruct
 from .. import content
 from .. import repo
+from .. import color
 from .. import paper
 from .. import templates
 from .. import apis
@@ -149,13 +150,15 @@ def command(conf, args):
     rp.push_paper(p)
     ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
     if docfile is not None:
-        rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
-        if doc_add == 'move' and content.content_type(docfile) != 'url':
-            content.remove_file(docfile)
+        rp.push_doc_paper(p, docfile, copy=(doc_add in ('copy', 'move')))
 
-        if doc_add == 'move':
-            ui.message('{} was moved to the pubs repository.'.format(docfile))
-        elif doc_add == 'copy':
-            ui.message('{} was copied to the pubs repository.'.format(docfile))
+        if doc_add in ('move', 'copy'):
+            if doc_add == 'move' and content.content_type(docfile) != 'url':
+                content.remove_file(docfile)
+
+            docpath = content.system_path(rp.databroker.real_docpath(p.docpath))
+            verb = 'moved' if doc_add == 'move' else 'copied'
+            ui.message('{} was {} to {} inside the pubs repository.'.format(color.dye_out(docfile, 'filepath'), verb,
+                                                                            color.dye_out(docpath, 'filepath')))
 
     rp.close()
