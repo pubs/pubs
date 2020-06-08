@@ -28,6 +28,9 @@ def parser(subparsers, conf):
     parser.add_argument('--no-docs', action='store_true',
                         dest='nodocs', default=False,
                         help='list only pubs without attached documents.')
+    parser.add_argument('--no-tags', action='store_true',
+                        dest='notags', default=False,
+                        help='list only pubs without tags.')
     parser.add_argument('query', nargs='*',
                         help=QUERY_HELP)
     return parser
@@ -46,6 +49,8 @@ def command(conf, args):
                     rp.all_papers())
     if args.nodocs:
         papers = [p for p in papers if p.docpath is None]
+    if args.notags:
+        papers = [p for p in papers if p.tags == set()]
     if args.alphabetical:
         papers = sorted(papers, key=lambda p: p.citekey)
     elif args.chronological:
