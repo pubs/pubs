@@ -16,7 +16,7 @@ def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
         Otherwise return None
     """
-    pattern = '.*\{}$'.format(ext)
+    pattern = '.*\\{}$'.format(ext)
     if re.match(pattern, filename) is not None:
         return u_maybe(filename[:-len(ext)])
 

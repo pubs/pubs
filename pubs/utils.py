@@ -7,7 +7,7 @@ from . import color
 from . import pretty
 
 
-def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
+def resolve_citekey(repo, conf, citekey, ui=None, exit_on_fail=True):
     """Check that a citekey exists, or autocompletes it if not ambiguous.
         :returns found citekey
     """
@@ -29,22 +29,23 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
     elif citekey not in citekeys:
         if ui is not None:
             citekeys = sorted(citekeys)
-            ui.error("Be more specific; '{}' matches multiples "
-                     "citekeys:".format(citekey))
+            msg = ["Be more specific; '{}' matches multiples citekeys:".format(citekey)]
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message('    {}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
+                paper_str = pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])
+                msg.append('    {}'.format(paper_str))
+            ui.error('\n'.join(msg))
             if exit_on_fail:
                 ui.exit()
     return citekey
 
 
-def resolve_citekey_list(repo, citekeys, ui=None, exit_on_fail=True):
+def resolve_citekey_list(repo, conf, citekeys, ui=None, exit_on_fail=True):
     shutdown = False
     keys = []
     for key in citekeys:
         try:
-            keys.append(resolve_citekey(repo, key, ui, exit_on_fail))
+            keys.append(resolve_citekey(repo, conf, key, ui=ui, exit_on_fail=exit_on_fail))
         except SystemExit:
             shutdown = exit_on_fail
 
