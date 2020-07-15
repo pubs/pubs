@@ -99,6 +99,11 @@ active = force_list(default=list('alias'))
 # command = !pubs list -k | wc -l
 # description = lists number of pubs in repo
 
+# To use commas in the description, wrap them in a "" string. For example:
+# [[[hellocount]]]
+# command = !pubs list -k | wc -l; echo "hello!"
+# description = "lists number of pubs in repo, greets the user afterward"
+
 [[git]]
 # The git plugin will commit changes to the repository in a git repository
 # created at the root of the pubs directory. All detected changes will be
