@@ -1,5 +1,6 @@
 import shlex
 import subprocess
+import argparse
 from pipes import quote as shell_quote
 
 from ...plugins import PapersPlugin
@@ -19,7 +20,7 @@ class Alias(object):
     def parser(self, parser):
         self.parser = parser
         p = parser.add_parser(self.name, help=self.description)
-        p.add_argument('arguments', nargs='*',
+        p.add_argument('arguments', nargs=argparse.REMAINDER,
                        help="arguments to be passed to %s" % self.name)
         return p
 
