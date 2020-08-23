@@ -110,6 +110,9 @@ active = force_list(default=list('alias'))
 # limitation of the subcommand is that you cannot use git commands with the
 # `-c` option (pubs will interpret it first.)
 
+# if true, pubs will initialize a git repo in pubsdir if there is not .git
+# folder present. if false, git plugin will assume we are in a git repo.
+repo_init = boolean(default=True)
 # if False, will display git output when automatic commit are made.
 # Invocation of `pubs git` will always have output displayed.
 quiet = boolean(default=True)

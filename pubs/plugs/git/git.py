@@ -32,6 +32,7 @@ class GitPlugin(PapersPlugin):
         self.manual      = conf['plugins'].get('git', {}).get('manual', False)
         self.force_color = conf['plugins'].get('git', {}).get('force_color', True)
         self.quiet   = conf['plugins'].get('git', {}).get('quiet', True)
+        self.repo_init = conf['plugins'].get('git', {}).get('repo_init', True)
         self.list_of_changes = []
         self._gitinit()
 
@@ -39,7 +40,7 @@ class GitPlugin(PapersPlugin):
         """Initialize the git repository if necessary."""
         # check that a `.git` directory is present in the pubs dir
         git_path = os.path.join(self.pubsdir, '.git')
-        if not os.path.isdir(git_path):
+        if not os.path.isdir(git_path) and self.repo_init:
             try:
                 self.shell('init')
             except RuntimeError as exc:
