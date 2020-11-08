@@ -45,16 +45,15 @@ setup(
         },
 
     include_package_data=True,
-
     install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil', 'six',
                       'requests', 'configobj', 'beautifulsoup4', 'feedparser'],
     extras_require={'autocompletion': ['argcomplete'],
                     },
 
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
