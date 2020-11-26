@@ -1,7 +1,7 @@
 import shlex
 import unittest
-
 import dotdot
+import argparse
 
 import pubs
 from pubs import config
@@ -60,6 +60,19 @@ class AliasTestCase(unittest.TestCase):
         self.assertEqual(
             shlex.split(self.subprocess.called.splitlines()[-1])[1:],
             args)
+
+    def testShellAliasNamedArguments(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--test2')
+        subparsers = parser.add_subparsers(title='commands', dest='command')
+
+        alias = Alias.create_alias('test', '!echo "$@"')
+        alias.parser(subparsers)
+        args = ['test', '2', '--option', '3']
+        args = parser.parse_args(args)
+
+        self.assertEqual(args.command, 'test')
+        self.assertListEqual(args.arguments, ['2', '--option', '3'])
 
 
 class AliasPluginTestCase(unittest.TestCase):
