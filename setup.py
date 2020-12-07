@@ -45,23 +45,22 @@ setup(
         },
 
     include_package_data=True,
-
     install_requires=['pyyaml', 'bibtexparser>=1.0', 'python-dateutil', 'six',
                       'requests', 'configobj', 'beautifulsoup4', 'feedparser'],
     extras_require={'autocompletion': ['argcomplete'],
                     },
 
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
     ],
 
     test_suite='tests',
-    tests_require=['pyfakefs>=3.4', 'mock', 'ddt==1.3.1', 'certifi'],
+    tests_require=['pyfakefs>=3.4', 'mock', 'ddt==1.3.1', 'certifi', 'pytest'],
 
     # in order to avoid 'zipimport.ZipImportError: bad local file header'
     zip_safe=False,
