@@ -144,7 +144,7 @@ def setup(conf, force_colors=False):
 
 
 # undye
-undye_re = re.compile('\x1b\\[[;\d]*[A-Za-z]')
+undye_re = re.compile('\x1b\\[[;\\d]*[A-Za-z]')
 
 def undye(s):
     """Purge string s of color"""
