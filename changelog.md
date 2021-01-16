@@ -14,6 +14,7 @@
 
 ### Fixed bugs
 
+- Note path correctly expand user '~' ([#250](https://github.com/pubs/pubs/pull/250))
 - Tests don't run on python 2.7 or <=3.4. They may still work, but support will not be tested and will eventually be dropped. ([#223](https://github.com/pubs/pubs/pull/223))
 - Fixed the reported number of paper with a tag in the statistic command ([#232](https://github.com/pubs/pubs/pull/232)  by [beuerle](https://github.com/beuerle))
 - Fixed a crash when resolving citekeys introduced by [#225](https://github.com/pubs/pubs/pull/225) ([#233](https://github.com/pubs/pubs/pull/233)  by [beuerle](https://github.com/beuerle))
