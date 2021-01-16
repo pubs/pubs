@@ -184,3 +184,5 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Amlesh Sivanantham](http://github.com/zamlz)
 - [DV Klopfenstein](http://github.com/dvklopfenstein)
 - [beuerle](https://github.com/beuerle)
+- [Jonáš Kulhánek](https://github.com/jkulhanek)
+- [Dominik Stańczak](https://github.com/StanczakDominik)

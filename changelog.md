@@ -7,6 +7,7 @@
 
 ### Implemented enhancements
 
+- Allow passing named arguments to custom commands ([#241](https://github.com/pubs/pubs/pull/241) by [jkulhanek](https://github.com/jkulhanek))
 - Added support for non-standard bibtex types, e.g. @collection, @software, etc. ([#226](https://github.com/pubs/pubs/pull/226))
 - The number of displayed authors in listings is now configurable, as the `max_authors` value in the `main` section of the configuration. ([#225](https://github.com/pubs/pubs/pull/225))
 - More explicit add command dialogs when copying and moving documents.
@@ -14,6 +15,7 @@
 
 ### Fixed bugs
 
+- Note on comma in alias descriptions ([#240](https://github.com/pubs/pubs/pull/240) [StanczakDominik](https://github.com/StanczakDominik))
 - Note path correctly expand user '~' ([#250](https://github.com/pubs/pubs/pull/250))
 - Tests don't run on python 2.7 or <=3.4. They may still work, but support will not be tested and will eventually be dropped. ([#223](https://github.com/pubs/pubs/pull/223))
 - Fixed the reported number of paper with a tag in the statistic command ([#232](https://github.com/pubs/pubs/pull/232)  by [beuerle](https://github.com/beuerle))
