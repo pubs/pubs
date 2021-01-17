@@ -57,6 +57,12 @@ class TestEnDecode(unittest.TestCase):
 
         self.assertEqual(bibraw1, bibraw2)
 
+    def test_decode_bibtex_preserves_type_field(self):
+        """Test that multiple encode/decode step preserve data"""
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+        self.assertEqual(entry['Page99']['type'], "technical report")
+
     def test_endecode_bibtex_BOM(self):
         """Test that bibtexparser if fine with BOM-prefixed data"""
         decoder = endecoder.EnDecoder()
@@ -178,6 +184,14 @@ class TestEnDecode(unittest.TestCase):
         decoder = endecoder.EnDecoder()
         with self.assertRaises(decoder.BibDecodingError):
             decoder.decode_bibdata("@misc{I am not a correct bibtex{{}")
+
+    def test_endecode_preserves_type(self):
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+
+        bibraw1 = decoder.encode_bibdata(
+            entry, ignore_fields=['title', 'note', 'abstract', 'journal'])
+
 
 
 if __name__ == '__main__':
