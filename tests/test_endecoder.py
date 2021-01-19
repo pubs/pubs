@@ -185,14 +185,6 @@ class TestEnDecode(unittest.TestCase):
         with self.assertRaises(decoder.BibDecodingError):
             decoder.decode_bibdata("@misc{I am not a correct bibtex{{}")
 
-    def test_endecode_preserves_type(self):
-        decoder = endecoder.EnDecoder()
-        entry = decoder.decode_bibdata(bibtex_raw0)
-
-        bibraw1 = decoder.encode_bibdata(
-            entry, ignore_fields=['title', 'note', 'abstract', 'journal'])
-
-
 
 if __name__ == '__main__':
     unittest.main()
