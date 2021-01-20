@@ -57,6 +57,12 @@ class TestEnDecode(unittest.TestCase):
 
         self.assertEqual(bibraw1, bibraw2)
 
+    def test_decode_bibtex_preserves_type_field(self):
+        """Test that multiple encode/decode step preserve data"""
+        decoder = endecoder.EnDecoder()
+        entry = decoder.decode_bibdata(bibtex_raw0)
+        self.assertEqual(entry['Page99']['type'], "technical report")
+
     def test_endecode_bibtex_BOM(self):
         """Test that bibtexparser if fine with BOM-prefixed data"""
         decoder = endecoder.EnDecoder()
