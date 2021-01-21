@@ -147,7 +147,7 @@ The second starts with a bang: `!`, and is treated as a shell command. If other 
 
 ## Autocompletion
 
-For autocompletion to work, you need the [argcomplete](https://argcomplete.readthedocs.io) Python package, and Bash 4.2 or newer. For activating *bash* or *tsch* completion, consult the [argcomplete documentation](https://argcomplete.readthedocs.io/en/latest/#global-completion).
+For autocompletion to work, you need the [argcomplete](https://kislyuk.github.io/argcomplete) Python package, and Bash 4.2 or newer. For activating *bash* or *tsch* completion, consult the [argcomplete documentation](https://kislyuk.github.io/argcomplete/#global-completion).
 
 For *zsh* completion, the global activation is not supported but bash completion compatibility can be used for pubs. For that, add the following to your `.zshrc`:
   ```shell
