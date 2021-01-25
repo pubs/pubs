@@ -20,8 +20,6 @@ six
 # those are the additional packages required to run the tests
 pyfakefs
 certifi
-# FIXME: remove strict version when https://github.com/datadriventests/ddt/issues/83 is fixed.
-#        (also remove in setup.py)
-ddt==1.3.1
+ddt>=1.4.1
 mock
 pytest
