@@ -31,7 +31,7 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         self.execute_cmds([('pubs rename Page99a ABC',)])
         hash_c = git_hash(self.default_pubs_dir)
 
-        self.execute_cmds([('pubs remove ABC', ['y']),])
+        self.execute_cmds([('pubs remove ABC', ['y'])])
         hash_d = git_hash(self.default_pubs_dir)
 
         self.execute_cmds([('pubs doc add testrepo/doc/Page99.pdf Page99',)])
@@ -99,7 +99,6 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         hash_m = git_hash(self.default_pubs_dir)
 
         self.assertNotEqual(hash_l, hash_m)
-
 
 
 if __name__ == '__main__':
