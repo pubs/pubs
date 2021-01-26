@@ -1,9 +1,15 @@
 name: Pubs tests
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 8 * * *'
+
 
 jobs:
   unit-test:
+    name: Run unit tests
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
@@ -35,3 +41,20 @@ jobs:
         env:
           PUBS_TESTS_MODE: COLLECT
         run: pytest
+
+  install-test:
+    name: Test installation
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'cron'
+
+    steps:
+      - uses: actions/setup-python@v2
+      - name: install test
+        run: |
+          pip install -U pip
+          pip install pubs
+          pubs --help
+          pip uninstall -y pubs
