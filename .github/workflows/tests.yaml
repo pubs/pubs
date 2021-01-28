@@ -48,7 +48,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    if: github.event_name == 'cron'
+    if: github.event_name == 'schedule'
 
     steps:
       - uses: actions/setup-python@v2
