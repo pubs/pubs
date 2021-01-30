@@ -32,7 +32,6 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         os.environ = self.env_backup
 
     def test_git(self):
-        print(self.default_pubs_dir)
         self.execute_cmds([('pubs add data/pagerank.bib',)])
         hash_a = git_hash(self.default_pubs_dir)
 
