@@ -9,6 +9,7 @@ from .. import bibstruct
 from .. import color
 from .. import content
 from .. import pretty
+from .. import config
 from ..paper import Paper
 from ..uis import get_ui
 from ..content import system_path, read_text_file
@@ -40,8 +41,33 @@ def parser(subparsers, conf):
     parser.add_argument(
         '-l', '--list-only', action='store_true', default=False,
         help="only list found entries, do not import.")
+    parser.add_argument(
+        '--source', choices=['pubs', 'bibtex'],
+        help="set source type: can be pubs repository or bibtex file(s).")
     add_doc_copy_arguments(parser, copy=False)
     return parser
+
+
+def is_probably_repo(bibpath):
+    """Guess if path is pubs repository.
+
+    Uses a simple heuristic: check if contains expected subdirectories.
+    """
+    if os.path.isdir(bibpath):
+        subdirs = next(os.walk(bibpath))[1]
+        return set(subdirs).issuperset(['bib', 'meta'])
+    else:
+        return False
+
+
+def many_from_repo(bibpath):
+    default_config = config.load_default_conf()
+    # TODO: improve this (and make robust to missing doc directory)
+    default_config['main']['pubsdir'] = bibpath
+    default_config['main']['docsdir'] = os.path.join(default_config['main']['pubsdir'], 'doc')
+    rp = repo.Repository(default_config)
+    # TODO: probably disable caching?
+    return rp, rp.all_papers()
 
 
 def many_from_path(ui, bibpath, ignore=False):
@@ -103,12 +129,28 @@ def command(conf, args):
     doc_import = args.doc_copy or 'copy'
 
     rp = repo.Repository(conf)
-    # Extract papers from bib
-    papers = many_from_path(ui, bibpath, ignore=args.ignore_malformed)
+    # Extract papers from source
+    # TODO: improve logic
+    # TODO: import from pubs config
+    if (args.source == 'pubs' or (args.source is None and is_probably_repo(bibpath))):
+        source_repo, papers = many_from_repo(bibpath)
+        papers = {p.citekey: p for p in papers}
+    else:
+        source_repo = None
+        papers = many_from_path(ui, bibpath, ignore=args.ignore_malformed)
+
     keys = args.keys or papers.keys()
     for k in keys:
         p = papers[k]
-        docfile = bibstruct.extract_docfile(p.bibdata)
+
+        # Attempts to find a document
+        # TODO: use better logic
+        docfile = None
+        if source_repo is not None and p.docpath:
+            docfile = source_repo.pull_docpath(k)
+        if docfile is None:
+            docfile = bibstruct.extract_docfile(p.bibdata)
+
         if args.list_only:
             paper_str = pretty.paper_oneliner(p)
             if docfile is not None:
@@ -116,6 +158,7 @@ def command(conf, args):
             ui.message(paper_str)
         else:
             try:
+                # TODO: update "add date & time" to match original
                 rp.push_paper(p, overwrite=args.overwrite)
             except repo.CiteKeyCollision:
                 ui.warning("{} already in repository, use '-O' to overwrite".format(

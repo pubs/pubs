@@ -1210,18 +1210,18 @@ class TestConfigChange(DataCommandTestCase):
 
 class TestImport(DataCommandTestCase):
 
-    def test_import_list_only(self):
+    def test_list_only(self):
         cmds = ['pubs init',
                 'pubs list',
                 'pubs import --list-only data/',
-                'pubs list title:language author:Saunders',
+                'pubs list',
                 ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(0, len(outs[1].splitlines()))
         self.assertEqual(8, len(outs[2].splitlines()))
         self.assertEqual(0, len(outs[3].splitlines()))
 
-    def test_import_imports(self):
+    def test_simple_import(self):
         cmds = ['pubs init',
                 'pubs list',
                 'pubs import data/',
@@ -1230,6 +1230,62 @@ class TestImport(DataCommandTestCase):
         outs = self.execute_cmds(cmds)
         self.assertEqual(0, len(outs[1].splitlines()))
         self.assertEqual(8, len(outs[3].splitlines()))
+
+    def test_import_with_local_doc(self):
+        self.fs.create_file('/tmp/a/b.pdf', contents="xyz")
+        self.fs.create_file('data/with_doc.bib', contents="""
+        @article{SomeKey,
+            author="Some One",
+            title="Title",
+            year=1234,
+            file="/tmp/a/b.pdf"
+            }
+        """)
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import data/',
+                'pubs list',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(9, len(outs[3].splitlines()))
+        imported_doc_path = os.path.expanduser("~/.pubs/doc/SomeKey.pdf")
+        self.assertTrue(self.fs.exists(imported_doc_path))
+        with open(imported_doc_path) as f:
+            self.assertEqual("xyz", f.read())
+
+    @property
+    def command_setup_alt_repo(self):
+        return ['pubs --config /tmp/pubs_alt_rc init --pubsdir /tmp/pubs_alt',
+                'pubs --config /tmp/pubs_alt_rc add data/pagerank.bib -d data/pagerank.pdf',
+                'pubs --config /tmp/pubs_alt_rc add data/turing1950.bib',
+                ]
+
+    def test_import_pubs_dir(self):
+        cmds = self.command_setup_alt_repo + [
+                'pubs init', # main pubs
+                'pubs import /tmp/pubs_alt',
+                'pubs list --citekeys-only',
+                ]
+        outs = self.execute_cmds(cmds)
+        # One paper imported
+        self.assertEqual({'turing1950computing', 'Page99'}, set(outs[-1].split()))
+        # Check if document imported as well
+        doc_dir = os.path.join('/tmp/pubs_alt', 'doc')
+        self.assertEqual(set(os.listdir(doc_dir)), {'Page99.pdf'})
+
+    @pytest.mark.xfail
+    def test_import_pubs_rc(self):
+        cmds = self.command_setup_alt_repo + [
+                'pubs init', # main pubs
+                'pubs import /tmp/pubs_alt_rc',
+                'pubs list --citekeys-only',
+                ]
+        outs = self.execute_cmds(cmds)
+        # One paper imported
+        self.assertEqual({'turing1950computing', 'Page99'}, set(outs[-1].split()))
+        # Check if document imported as well
+        doc_dir = os.path.join('/tmp/pubs_alt', 'doc')
+        self.assertEqual(set(os.listdir(doc_dir)), {'Page99.pdf'})
 
 
 if __name__ == '__main__':
