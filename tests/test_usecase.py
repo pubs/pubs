@@ -1208,6 +1208,29 @@ class TestConfigChange(DataCommandTestCase):
             self.execute_cmds([('pubs list', None, line_full, None)])
 
 
+class TestImport(DataCommandTestCase):
+
+    def test_import_list_only(self):
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import --list-only data/',
+                'pubs list title:language author:Saunders',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(0, len(outs[1].splitlines()))
+        self.assertEqual(8, len(outs[2].splitlines()))
+        self.assertEqual(0, len(outs[3].splitlines()))
+
+    def test_import_imports(self):
+        cmds = ['pubs init',
+                'pubs list',
+                'pubs import data/',
+                'pubs list',
+                ]
+        outs = self.execute_cmds(cmds)
+        self.assertEqual(0, len(outs[1].splitlines()))
+        self.assertEqual(8, len(outs[3].splitlines()))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

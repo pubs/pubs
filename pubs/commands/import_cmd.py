@@ -8,6 +8,7 @@ from .. import endecoder
 from .. import bibstruct
 from .. import color
 from .. import content
+from .. import pretty
 from ..paper import Paper
 from ..uis import get_ui
 from ..content import system_path, read_text_file
@@ -36,6 +37,9 @@ def parser(subparsers, conf):
     parser.add_argument(
         '-i', '--ignore-malformed', action='store_true', default=False,
         help="ignore malformed and unreadable files and entries.")
+    parser.add_argument(
+        '-l', '--list-only', action='store_true', default=False,
+        help="only list found entries, do not import.")
     add_doc_copy_arguments(parser, copy=False)
     return parser
 
@@ -104,22 +108,28 @@ def command(conf, args):
     keys = args.keys or papers.keys()
     for k in keys:
         p = papers[k]
-        try:
-            rp.push_paper(p, overwrite=args.overwrite)
-        except repo.CiteKeyCollision:
-            ui.warning("{} already in repository, use '-O' to overwrite".format(
-                    color.dye_out(p.citekey, 'citekey')
-                )
-            )
-            continue
-        ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
         docfile = bibstruct.extract_docfile(p.bibdata)
-        if docfile is None:
-            ui.warning("No file for {}.".format(p.citekey))
+        if args.list_only:
+            paper_str = pretty.paper_oneliner(p)
+            if docfile is not None:
+                paper_str += "\n  ↳ found doc: {}".format(docfile)
+            ui.message(paper_str)
         else:
-            rp.push_doc(p.citekey, docfile,
-                        copy=(doc_import in ('copy', 'move')))
-            if doc_import == 'move' and content.content_type(docfile) != 'url':
-                content.remove_file(docfile)
+            try:
+                rp.push_paper(p, overwrite=args.overwrite)
+            except repo.CiteKeyCollision:
+                ui.warning("{} already in repository, use '-O' to overwrite".format(
+                        color.dye_out(p.citekey, 'citekey')
+                    )
+                )
+                continue
+            ui.info('{} imported.'.format(color.dye_out(p.citekey, 'citekey')))
+            if docfile is None:
+                ui.warning("No file for {}.".format(p.citekey))
+            else:
+                rp.push_doc(p.citekey, docfile,
+                            copy=(doc_import in ('copy', 'move')))
+                if doc_import == 'move' and content.content_type(docfile) != 'url':
+                    content.remove_file(docfile)
 
     rp.close()
