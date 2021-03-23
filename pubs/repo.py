@@ -182,7 +182,6 @@ class Repository(object):
             events.RenameEvent(paper, old_citekey).send()
             return True
 
-
     def push_doc(self, citekey, docfile, copy=None):
         p = self.pull_paper(citekey)
         return self.push_doc_paper(p, docfile, copy=copy)
