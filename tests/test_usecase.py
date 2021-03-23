@@ -1232,13 +1232,15 @@ class TestImport(DataCommandTestCase):
         self.assertEqual(8, len(outs[3].splitlines()))
 
     def test_import_with_local_doc(self):
-        self.fs.create_file('/tmp/a/b.pdf', contents="xyz")
+        if not self.fs.exists('/tmp'):
+            self.fs.create_dir('/tmp')
+        self.fs.create_file('/tmp/b.pdf', contents="xyz")
         self.fs.create_file('data/with_doc.bib', contents="""
         @article{SomeKey,
             author="Some One",
             title="Title",
             year=1234,
-            file="/tmp/a/b.pdf"
+            file="/tmp/b.pdf"
             }
         """)
         cmds = ['pubs init',
