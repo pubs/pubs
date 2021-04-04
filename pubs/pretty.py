@@ -78,7 +78,7 @@ def paper_oneliner(p, citekey_only=False, max_authors=3):
                                else 'NOEXT'),
                 'tag')
         tags = '' if len(p.tags) == 0 else '| {}'.format(
-            ','.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
+            ', '.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
         return '[{citekey}] {descr}{doc} {tags}'.format(
             citekey=color.dye_out(p.citekey, 'citekey'),
             descr=bibdesc, tags=tags, doc=doc_str)

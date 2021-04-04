@@ -9,6 +9,7 @@ from ..utils import resolve_citekey
 from ..completion import CiteKeyCompletion
 from ..events import ModifyEvent
 from .. import paper
+from .. import pretty
 
 
 def parser(subparsers, conf):
@@ -22,16 +23,8 @@ def parser(subparsers, conf):
 
 
 def command(conf, args):
-
     ui = get_ui()
     rp = repo.Repository(conf)
-    bibfile = args.bibfile
-    #paper = rp.pull_paper(citekey)
-    decoder = endecoder.EnDecoder()
-    citekey = args.citekey
-    bibentry_raw = content.get_content(bibfile, ui=ui)
-    bibentry = decoder.decode_bibdata(bibentry_raw)
-
-    p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
-
-    ui.message('{}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
+    citekey = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
+    paper = rp.pull_paper(citekey)
+    ui.message('{}'.format(pretty.paper_oneliner(paper, max_authors=conf['main']['max_authors'])))
