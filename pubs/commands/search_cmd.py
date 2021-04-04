@@ -10,6 +10,9 @@ from ..utils import resolve_citekey
 from ..completion import CiteKeyCompletion
 from ..events import ModifyEvent
 
+from .show_cmd import show
+from .. import pretty
+from .. import bibstruct
 
 def parser(subparsers, conf):
     parser = subparsers.add_parser(
@@ -25,33 +28,30 @@ def parser(subparsers, conf):
 
 
 def command(conf, args):
-
     ui = get_ui()
-    bibfile = args.bibfile
-
     rp = repo.Repository(conf)
-    citekey = args.citekey
-    paper = rp.pull_paper(citekey)
-
-    decoder = endecoder.EnDecoder()
-
-    if bibfile is None:
-        if args.doi is None and args.isbn is None and args.arxiv is None:
-            bibentry = bibentry_from_editor(conf, ui)
+    target_author = args.author
+    keywords = args.title
+    papers = list(rp.all_papers())
+    
+    if target_author:
+        if keywords:
+            for paper in papers:
+                if paper.bibdata and 'author' in paper.bibdata and paper.bibdata['author'] and 'title' in paper.bibdata and paper.bibdata['title']:
+                    for author in paper.bibdata['author']:
+                        if target_author in author and keywords in paper.bibdata['title']:
+                            show(ui, conf, paper)
+                            print()
         else:
-            bibentry = bibentry_from_api(args, ui)
-    else:
-        bibentry_raw = content.get_content(bibfile, ui=ui)
-        bibentry = decoder.decode_bibdata(bibentry_raw)
-        if bibentry is None:
-            ui.error('invalid bibfile {}.'.format(bibfile))
-
-    # citekey
-
-    citekey = args.citekey
-    if citekey is None:
-        citekey = rp.unique_citekey(base_key, bibentry)
-
-    p = paper.Paper.from_bibentry(bibentry, citekey=citekey)
-
-    ui.message('{}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
+            for paper in papers:
+                if paper.bibdata and 'author' in paper.bibdata and paper.bibdata['author']:
+                    for author in paper.bibdata['author']:
+                        if target_author in author:
+                            show(ui, conf, paper)
+                            print()
+    else:                    
+        if keywords:
+            for paper in papers:
+                if paper.bibdata and 'title' in paper.bibdata and paper.bibdata['title'] and keywords in paper.bibdata['title']:
+                    show(ui, conf, paper)
+                    print()

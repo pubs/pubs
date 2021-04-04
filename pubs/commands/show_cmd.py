@@ -21,10 +21,13 @@ def parser(subparsers, conf):
         help='citekey of the paper').completer = CiteKeyCompletion(conf)
     return parser
 
+def show(ui, conf, paper):
+    ui.message('{}'.format(pretty.paper_oneliner(paper, max_authors=conf['main']['max_authors'])))
 
 def command(conf, args):
     ui = get_ui()
     rp = repo.Repository(conf)
     citekey = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
-    ui.message('{}'.format(pretty.paper_oneliner(paper, max_authors=conf['main']['max_authors'])))
+    show(ui, conf, paper)
+    #ui.message('{}'.format(pretty.paper_oneliner(paper, max_authors=conf['main']['max_authors'])))
