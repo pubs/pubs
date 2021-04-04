@@ -8,6 +8,8 @@ from . import remove_cmd
 from . import list_cmd
 from . import edit_cmd
 from . import tag_cmd
+from . import search_cmd
+from . import show_cmd
 from . import statistics_cmd
 # doc
 from . import doc_cmd
