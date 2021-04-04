@@ -6,7 +6,7 @@ from .. import color
 def parser(subparsers, conf):
     parser = subparsers.add_parser(
         'statistics',
-        help="show statistics on the repository.")
+        help="show statistics on the repository")
     return parser
 
 
