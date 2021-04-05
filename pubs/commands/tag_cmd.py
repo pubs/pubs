@@ -87,7 +87,7 @@ def command(conf, args):
     rp = Repository(conf)
 
     if citekeyOrTag is None:
-        ui.message(color.dye_out(' '.join(sorted(rp.get_tags())), 'tag'))
+        ui.message(', '.join(color.dye_out(t, 'tag') for t in sorted(rp.get_tags())))
     else:
         not_citekey = False
         try:
@@ -97,7 +97,7 @@ def command(conf, args):
         if not not_citekey:
             p = rp.pull_paper(citekeyOrTag)
             if tags is None:
-                ui.message(color.dye_out(' '.join(sorted(p.tags)), 'tag'))
+                ui.message(', '.join(color.dye_out(t, 'tag') for t in sorted(p.tags)))
             else:
                 add_tags, remove_tags = _tag_groups(_parse_tag_seq(tags))
                 for tag in add_tags:

@@ -25,6 +25,8 @@ CORE_CMDS = collections.OrderedDict([
     ('list', commands.list_cmd),
     ('edit', commands.edit_cmd),
     ('tag', commands.tag_cmd),
+    ('search', commands.search_cmd),
+    ('show', commands.show_cmd),
     ('statistics', commands.statistics_cmd),
 
     ('doc', commands.doc_cmd),
