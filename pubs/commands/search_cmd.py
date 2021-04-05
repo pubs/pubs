@@ -32,13 +32,12 @@ def command(conf, args):
     rp = repo.Repository(conf)
     target_author = args.author
     keywords = args.title
-    target_author = target_author.lower()
-    keywords = keywords.lower()
     papers = list(rp.all_papers())
-
     
     if target_author:
+        target_author = target_author.lower()
         if keywords:
+            keywords = keywords.lower()
             for paper in papers:
                 if paper.bibdata and 'author' in paper.bibdata and paper.bibdata['author'] and 'title' in paper.bibdata and paper.bibdata['title']:
                     for author in paper.bibdata['author']:
@@ -54,6 +53,7 @@ def command(conf, args):
                             print()
     else:                    
         if keywords:
+            keywords = keywords.lower()
             for paper in papers:
                 if paper.bibdata and 'title' in paper.bibdata and paper.bibdata['title'] and keywords in paper.bibdata['title'].lower():
                     show(ui, conf, paper)
