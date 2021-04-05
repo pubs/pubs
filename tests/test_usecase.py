@@ -590,7 +590,7 @@ class TestTag(DataCommandTestCase):
                 'pubs list',
                 ]
         correct = ['',
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network,search\n' +
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) | network, search\n' +
                    '[Turing1950] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n',
                    ]
         out = self.execute_cmds(cmds)
@@ -738,9 +738,9 @@ class TestUsecase(DataCommandTestCase):
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
                    '\n',
                    '',
-                   'network search\n',
+                   'network, search\n',
                    'info: Assuming search to be a tag.\n'
-                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] | network,search\n',
+                   '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] | network, search\n',
                   ]
 
         cmds = ['pubs init -p /paper_first',
@@ -785,7 +785,7 @@ class TestUsecase(DataCommandTestCase):
                    '',
                    '',
                    '',
-                   'search network\n',
+                   'search, network\n',
                   ]
 
         cmds = ['pubs init -p paper_first/',
@@ -798,7 +798,7 @@ class TestUsecase(DataCommandTestCase):
         out = self.execute_cmds(cmds)
 
         def clean(s):
-            return set(s.strip().split(' '))
+            return set(s.strip().split(', '))
 
         self.assertEqual(clean(correct[2]), clean(out[2]))
         self.assertEqual(clean(correct[4]), clean(out[4]))
@@ -879,7 +879,7 @@ class TestUsecase(DataCommandTestCase):
         meta = str_fixtures.turing_meta
 
         line = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-        line1 = re.sub('\n', '| AI,computer\n', line)
+        line1 = re.sub('\n', '| AI, computer\n', line)
 
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
