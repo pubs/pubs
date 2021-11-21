@@ -114,7 +114,7 @@ def write_file(filepath, data, mode='w'):
 
 def content_type(path):
     parsed = urlparse(path)
-    if parsed.scheme == 'http':
+    if parsed.scheme in ('http', 'https'):
         return 'url'
     else:
         return 'file'
