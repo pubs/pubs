@@ -54,8 +54,7 @@ normalize_citekey = boolean(default=False)
 #   {{author_last_name:l}}{{year}}{{short_title:l}} generates 'yang2020towards'
 #   {{author_last_name:u}}{{year}} generates 'YANG2020'
 #
-# Uncomment the following line to enable automatic citekey generation
-# citekey_format = string(default='{{author_last_name:l}}{{year}}{{short_title:l}}')
+citekey_format = string(default='{{author_last_name:l}}{{year}}{{short_title:l}}')
 
 [formating]
 
