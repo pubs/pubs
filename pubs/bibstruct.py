@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
-try :
+try:
     import __builtin__
-except: 
+except Exception:
     # Python 3.x
     import builtins
     if 'unicode' not in builtins.__dict__.keys():
@@ -63,7 +63,8 @@ def author_last(author_str):
 def valid_citekey(citekey):
     """Return if a citekey is a valid filename or not"""
     # FIXME: a bit crude, but efficient for now (and allows unicode citekeys)
-    return not '/' in citekey
+    return '/' not in citekey
+
 
 class CitekeyFormatter(Formatter):
     def __init__(self):
@@ -80,19 +81,18 @@ class CitekeyFormatter(Formatter):
             s = val
         return str2citekey(s.__format__(fmt))
 
-
     def get_value(self, key, args, entry):
         if isinstance(key, (str, unicode)):
             okey = key
-            if key == 'author' and not 'author' in entry:
+            if key == 'author' and 'author' not in entry:
                 key = 'editor'
-            elif key == 'editor' and not 'editor' in entry:
+            elif key == 'editor' and 'editor' not in entry:
                 key = 'author'
 
-            if key == 'first_word' and 'title' in entry:
-                return entry['title'].split(' ')[0]
             if key == 'author_last_name' and 'author' in entry:
                 return author_last(entry['author'][0])
+            if key == 'short_title' and 'title' in entry:
+                return get_first_word(entry['title'])
             else:
                 if key in entry:
                     return entry[key]
@@ -102,7 +102,18 @@ class CitekeyFormatter(Formatter):
         else:
             raise ValueError('Key must be a str instance')
 
-def generate_citekey(bibdata, format_string='{author_last_name}{year}'):
+
+def get_first_word(title):
+    """
+    Returns the first word of the title as used in Google Scholar or Arxiv citekeys
+    """
+    title = re.split(r'[^a-zA-Z0-9]', title)
+    word_blacklist = {'and', 'on', 'in', 'of', 'the', 'a', 'an', 'at'}
+    word = next((x for x in title if x and x.lower() not in word_blacklist), None)
+    return word
+
+
+def generate_citekey(bibdata, format_string='{author_last_name}{year}{short_title}'):
     """ Generate a citekey from bib_data.
 
         :raise ValueError:  if no author nor editor is defined.
