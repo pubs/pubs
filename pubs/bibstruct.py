@@ -113,7 +113,7 @@ def get_first_word(title):
     return word
 
 
-def generate_citekey(bibdata, format_string='{author_last_name}{year}{short_title}'):
+def generate_citekey(bibdata, format_string='{author_last_name}{year}'):
     """ Generate a citekey from bib_data.
 
         :raise ValueError:  if no author nor editor is defined.

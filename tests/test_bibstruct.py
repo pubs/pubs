@@ -43,7 +43,7 @@ class TestGenerateCitekey(unittest.TestCase):
         self.assertEqual(key, 'Salinger1961')
 
     def test_all_keys(self):
-        template = '{author_last_name}-{year}-{first_word}'
+        template = '{author_last_name}-{year}-{short_title}'
         bibentry = copy.deepcopy(fixtures.doe_bibentry)
         key = bibstruct.generate_citekey(bibentry, template)
         self.assertEqual(key, 'Doe-2013-Nice')
