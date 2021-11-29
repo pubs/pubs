@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 import os
 import sys
 import shlex
+import errno
 import locale
 import codecs
 import tempfile
@@ -237,7 +238,7 @@ class InputUI(PrintUI):
         try:
             subprocess.call(cmd)
         except OSError as e:
-            if e.errno == os.errno.ENOENT:
+            if e.errno == errno.ENOENT:
                 self.error(("Error while calling editor '{}'. The editor may "
                             "not be present. You can change the text editor "
                             "that pubs uses by setting the $EDITOR environment "

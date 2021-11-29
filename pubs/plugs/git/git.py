@@ -16,11 +16,13 @@ GITIGNORE = """# files or directories for the git plugin to ignore
 
 
 class GitPlugin(PapersPlugin):
-    """The git plugin creates a git repository in the pubs directory and commit the changes
-    to the pubs repository everytime a paper is modified.
+    """Make the pubs repository also a git repository.
 
-    It also add the `pubs git` subcommand, so git commands can be executed in the git repository
-    from the command line.
+    The git plugin creates a git repository in the pubs directory
+    and commit the changes to the pubs repository.
+
+    It also add the `pubs git` subcommand, so git commands can be executed
+    in the git repository from the command line.
     """
 
     name = 'git'
@@ -28,10 +30,10 @@ class GitPlugin(PapersPlugin):
 
     def __init__(self, conf, ui):
         self.ui = ui
-        self.pubsdir     = os.path.expanduser(conf['main']['pubsdir'])
-        self.manual      = conf['plugins'].get('git', {}).get('manual', False)
+        self.pubsdir = os.path.expanduser(conf['main']['pubsdir'])
+        self.manual = conf['plugins'].get('git', {}).get('manual', False)
         self.force_color = conf['plugins'].get('git', {}).get('force_color', True)
-        self.quiet   = conf['plugins'].get('git', {}).get('quiet', True)
+        self.quiet = conf['plugins'].get('git', {}).get('quiet', True)
         self.list_of_changes = []
         self._gitinit()
 
@@ -72,17 +74,18 @@ class GitPlugin(PapersPlugin):
         """
         colorize = ' -c color.ui=always' if self.force_color else ''
         git_cmd = 'git -C {}{} {}'.format(self.pubsdir, colorize, cmd)
-        #print(git_cmd)
         p = Popen(git_cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True)
         output, err = p.communicate(input_stdin)
         p.wait()
 
         if p.returncode != 0:
-            raise RuntimeError('The git plugin encountered an error when running the git command:\n' +
-                '{}\n\nReturned output:\n{}\n'.format(git_cmd, output.decode('utf-8')) +
-                'If needed, you may fix the state of the {} git repository '.format(self.pubsdir) +
-                'manually.\nIf relevant, you may submit a bug report at ' +
-                'https://github.com/pubs/pubs/issues')
+            raise RuntimeError((
+                'The git plugin encountered an error when running the git command:\n'
+                '{}\n\n'
+                'Returned output:\n{}\n'
+                'If needed, you may fix the state of the {} git repository manually.\n'
+                'If relevant, you may submit a bug report at https://github.com/pubs/pubs/issues'
+            ).format(git_cmd, output.decode('utf-8'), self.pubsdir))
         elif command:
             self.ui.message(output.decode('utf-8'), end='')
         elif not self.quiet:
@@ -97,9 +100,10 @@ def paper_change_event(event):
         git = GitPlugin.get_instance()
         if not git.manual:
             event_desc = event.description
-            for a, b in [('\\','\\\\'), ('"','\\"'), ('$','\\$'), ('`','\\`')]:
+            for a, b in [('\\', '\\\\'), ('"', '\\"'), ('$', '\\$'), ('`', '\\`')]:
                 event_desc = event_desc.replace(a, b)
             git.list_of_changes.append(event_desc)
+
 
 @PostCommandEvent.listen()
 def git_commit(event):

@@ -182,17 +182,22 @@ class Repository(object):
             events.RenameEvent(paper, old_citekey).send()
             return True
 
+
     def push_doc(self, citekey, docfile, copy=None):
         p = self.pull_paper(citekey)
+        return self.push_doc_paper(p, docfile, copy=copy)
+
+    def push_doc_paper(self, paper, docfile, copy=None):
+        """Same as push_doc, only the Paper instance is provided rather than the citekey"""
         if copy is None:
             copy = self.conf['main']['doc_add'] in ('copy', 'move')
         if copy:
-            docfile = self.databroker.add_doc(citekey, docfile)
+            docfile = self.databroker.add_doc(paper.citekey, docfile)
         else:
             docfile = system_path(docfile)
-        p.docpath = docfile
-        self.push_paper(p, overwrite=True, event=False)
-        events.DocAddEvent(citekey).send()
+        paper.docpath = docfile
+        self.push_paper(paper, overwrite=True, event=False)
+        events.DocAddEvent(paper.citekey).send()
 
     def unique_citekey(self, base_key, bibentry):
         """Create a unique citekey for a given base key.

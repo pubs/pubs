@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 
-bibtex_external0 = """
+bibtex_external0 = r"""
 @techreport{Page99,
      number = {1999-66},
       month = {November},
@@ -17,7 +17,7 @@ institution = {Stanford InfoLab},
 }
 """
 
-bibtex_external_alt = """
+bibtex_external_alt = r"""
 @techreport{Page99,
      number = {1999-66},
       month = {November},
@@ -33,7 +33,7 @@ institution = {Stanford InfoLab},
 }
 """
 
-bibtex_raw0 = """@techreport{
+bibtex_raw0 = r"""@techreport{
     Page99,
     author = "Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry",
     publisher = "Stanford InfoLab",
@@ -50,12 +50,12 @@ bibtex_raw0 = """@techreport{
 
 """
 
-metadata_raw0 = """docfile: docsdir://Page99.pdf
+metadata_raw0 = r"""docfile: docsdir://Page99.pdf
 tags: [search, network]
 added: '2013-11-14 13:14:20'
 """
 
-turing_bib = """@article{turing1950computing,
+turing_bib = r"""@article{turing1950computing,
   title={Computing machinery and intelligence},
   author={Turing, Alan M},
   journal={Mind},
@@ -75,7 +75,7 @@ added: '2013-11-14 13:14:20'
 """
 
 # Should not parse (see #113)
-bibtex_no_citekey = """@Manual{,
+bibtex_no_citekey = r"""@Manual{,
     title = {R: A Language and Environment for Statistical Computing},
     author = {{R Core Team}},
     organization = {R Foundation for Statistical Computing},
@@ -85,7 +85,7 @@ bibtex_no_citekey = """@Manual{,
 }
 """
 
-bibtex_month = """@inproceedings{Goyal2017,
+bibtex_month = r"""@inproceedings{Goyal2017,
  author = {Goyal, Anirudh and Sordoni, Alessandro and C{\^{o}}t{\'{e}}, Marc-Alexandre and Ke, Nan Rosemary and Bengio, Yoshua},
  title = {Z-Forcing: Training Stochastic Recurrent Networks},
  year = {2017},
@@ -94,15 +94,15 @@ bibtex_month = """@inproceedings{Goyal2017,
 }
 """
 
-not_bibtex = """@misc{this looks,
+not_bibtex = r"""@misc{this looks,
   like = a = bibtex file but
     , is not a real one!
 
 """
 
-bibtex_with_latex = """@article{kjaer2018large,
+bibtex_with_latex = r"""@article{kjaer2018large,
   title={A large impact crater beneath Hiawatha Glacier in northwest Greenland},
-  author={Kj{\\ae}r, Kurt H and Larsen, Nicolaj K and Binder, Tobias and Bj{\\o}rk, Anders A and Eisen, Olaf and Fahnestock, Mark A and Funder, Svend and Garde, Adam A and Haack, Henning and Helm, Veit and others},
+  author={Kj{\ae}r, Kurt H and Larsen, Nicolaj K and Binder, Tobias and Bj{\o}rk, Anders A and Eisen, Olaf and Fahnestock, Mark A and Funder, Svend and Garde, Adam A and Haack, Henning and Helm, Veit and others},
   journal={Science advances},
   volume={4},
   number={11},

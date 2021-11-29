@@ -34,7 +34,7 @@ def parser(subparsers, conf):
                             ).completer = CiteKeyCompletion(conf)
     add_exclusives = add_parser.add_mutually_exclusive_group()
     add_exclusives.add_argument(
-        '-L', '--link', action='store_false', dest='link', default=False,
+        '-L', '--link', action='store_true', dest='link', default=False,
         help='do not copy document files, just create a link')
     add_exclusives.add_argument(
         '-M', '--move', action='store_true', dest='move', default=False,
@@ -71,7 +71,7 @@ def command(conf, args):
     # ui.exit()
 
     if args.action == 'add':
-        citekey = resolve_citekey(rp, args.citekey[0], ui=ui, exit_on_fail=True)
+        citekey = resolve_citekey(rp, conf, args.citekey[0], ui=ui, exit_on_fail=True)
         paper = rp.pull_paper(citekey)
 
         if paper.docpath is not None and not args.force:
@@ -92,13 +92,14 @@ def command(conf, args):
         if not args.link and args.move:
             content.remove_file(document)
 
+        # FIXME: coherence with add command, the destination location should be given when copying/moving.
         ui.message('{} added to {}'.format(
             color.dye_out(document, 'filepath'),
             color.dye_out(paper.citekey, 'citekey')))
 
     elif args.action == 'remove':
 
-        for key in resolve_citekey_list(rp, args.citekeys, ui=ui, exit_on_fail=True):
+        for key in resolve_citekey_list(rp, conf, args.citekeys, ui=ui, exit_on_fail=True):
             paper = rp.pull_paper(key)
 
             # if there is no document (and the user cares) -> inform + continue
@@ -126,7 +127,7 @@ def command(conf, args):
                 color.dye_err(args.path[0], 'filepath')))
             ui.exit(1)
 
-        for key in resolve_citekey_list(rp, args.citekeys, ui=ui, exit_on_fail=True):
+        for key in resolve_citekey_list(rp, conf, args.citekeys, ui=ui, exit_on_fail=True):
             try:
                 paper = rp.pull_paper(key)
                 doc = paper.docpath
@@ -143,7 +144,7 @@ def command(conf, args):
 
     elif args.action == 'open':
         with_command = args.cmd
-        citekey = resolve_citekey(rp, args.citekey[0], ui=ui, exit_on_fail=True)
+        citekey = resolve_citekey(rp, conf, args.citekey[0], ui=ui, exit_on_fail=True)
         paper = rp.pull_paper(citekey)
 
         if paper.docpath is None:

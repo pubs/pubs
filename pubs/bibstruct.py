@@ -16,7 +16,7 @@ from .p3 import ustr, uchr
 
 # Citekey stuff
 
-TYPE_KEY = 'type'
+TYPE_KEY = 'ENTRYTYPE'
 
 CONTROL_CHARS = ''.join(map(uchr, list(range(0, 32)) + list(range(127, 160))))
 CITEKEY_FORBIDDEN_CHARS = '@\'\\,#}{~%/ '  # '/' is OK for bibtex but forbidden

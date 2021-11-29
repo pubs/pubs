@@ -46,7 +46,7 @@ def command(conf, args):
     if len(args.citekeys) < 1:
         papers = rp.all_papers()
     else:
-        for key in resolve_citekey_list(repo=rp, citekeys=args.citekeys, ui=ui, exit_on_fail=True):
+        for key in resolve_citekey_list(rp, conf, args.citekeys, ui=ui, exit_on_fail=True):
             papers.append(rp.pull_paper(key))
 
     bib = {}

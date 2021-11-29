@@ -12,10 +12,12 @@ import ddt
 import certifi
 import mock
 from pyfakefs.fake_filesystem import FakeFileOpen
+import pytest
 
 import dotdot
 import fake_env
 import mock_requests
+
 
 from pubs import pubs_cmd, color, content, uis, p3, endecoder
 from pubs.config import conf
@@ -25,7 +27,7 @@ import fixtures
 
 
 # makes the tests very noisy
-PRINT_OUTPUT   = False
+PRINT_OUTPUT   = True #False
 CAPTURE_OUTPUT = True
 
 
@@ -118,14 +120,12 @@ class CommandTestCase(fake_env.TestFakeFs):
                 input.as_global()
                 try:
                     if capture_output:
-                        actual_out = self.execute_cmdsplit(
-                            actual_cmd.split(), expected_out, expected_err)
+                        actual_out = self.execute_cmd_capture(actual_cmd.split(), expected_out, expected_err)
                         outs.append(color.undye(actual_out))
                     else:
                         pubs_cmd.execute(actual_cmd.split())
                 except fake_env.FakeInput.UnexpectedInput:
-                    self.fail('Unexpected input asked by command: {}.'.format(
-                        actual_cmd))
+                    self.fail('Unexpected input asked by command: {}.'.format(actual_cmd))
             return outs
         except SystemExit as exc:
             exc_class, exc, tb = sys.exc_info()
@@ -145,27 +145,39 @@ class CommandTestCase(fake_env.TestFakeFs):
             pass
         return s
 
-    def execute_cmdsplit(self, actual_cmdlist, expected_out, expected_err):
-        """Run a single command, which has been split into a list containing cmd and args"""
-        capture_wrap = fake_env.capture(pubs_cmd.execute,
-                                        verbose=PRINT_OUTPUT)
-        _, stdout, stderr = capture_wrap(actual_cmdlist)
-        actual_out = self.normalize(stdout)
-        actual_err = self.normalize(stderr)
-        if expected_out is not None:
-            self.assertEqual(p3.u_maybe(actual_out), p3.u_maybe(expected_out))
-        if expected_err is not None:
-            self.assertEqual(p3.u_maybe(actual_err), p3.u_maybe(expected_err))
-        return actual_out
+    def execute_cmd_capture(self, cmd, expected_out, expected_err):
+        """Run a single command, captures the output and and stderr and compare it to the expected ones"""
+        sys_stdout, sys_stderr = sys.stdout, sys.stderr
+        sys.stdout = p3._fake_stdio(additional_out=sys_stdout if PRINT_OUTPUT else None)
+        sys.stderr = p3._fake_stdio(additional_out=sys_stderr if PRINT_OUTPUT else None)
 
-    def tearDown(self):
-        pass
+        try:
+            pubs_cmd.execute(cmd)
+        finally:
+            # capturing output even if exception was raised.
+            self.captured_stdout = self.normalize(p3._get_fake_stdio_ucontent(sys.stdout))
+            self.captured_stderr = self.normalize(p3._get_fake_stdio_ucontent(sys.stderr))
+            sys.stderr, sys.stdout = sys_stderr, sys_stdout
+
+        if expected_out is not None:
+            self.assertEqual(p3.u_maybe(self.captured_stdout), p3.u_maybe(expected_out))
+        if expected_err is not None:
+            self.assertEqual(p3.u_maybe(self.captured_stderr), p3.u_maybe(expected_err))
+        return self.captured_stdout
+
+    def update_config(self, config_update, path=None):
+        """Allow to set the config parameters. Must have done a `pubs init` beforehand."""
+        if path is None:
+            path = self.default_conf_path
+        cfg = conf.load_conf(path=path)
+        for section, section_update in config_update.items():
+            cfg[section].update(section_update)
+        conf.save_conf(cfg, path=path)
+
 
 
 class DataCommandTestCase(CommandTestCase):
-    """Abstract TestCase intializing the fake filesystem and
-    copying fake data.
-    """
+    """Abstract TestCase intializing the fake filesystem and copying fake data."""
 
     def setUp(self, nsec_stat=True):
         super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
@@ -182,8 +194,7 @@ class DataCommandTestCase(CommandTestCase):
 
 
 class URLContentTestCase(DataCommandTestCase):
-    """Mocks access to online files by using files in data directory.
-    """
+    """Mocks access to online files by using files in data directory."""
 
     def setUp(self):
         super(URLContentTestCase, self).setUp()
@@ -207,6 +218,8 @@ class URLContentTestCase(DataCommandTestCase):
         super(URLContentTestCase, self).tearDown()
         content._get_byte_url_content = self._original_get_byte_url_content
         content.url_exists = self._original_url_exist
+
+
 
 
 # Actual tests
@@ -615,6 +628,7 @@ class TestTag(DataCommandTestCase):
         with self.assertRaises(FakeSystemExit):
             self.execute_cmds(cmds)
 
+
 class TestURL(DataCommandTestCase):
 
     def setUp(self):
@@ -720,7 +734,7 @@ class TestUsecase(DataCommandTestCase):
     def test_first(self):
         correct = ['Initializing pubs in /paper_first\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-                   'data/pagerank.pdf was copied to the pubs repository.\n',
+                   'data/pagerank.pdf was copied to /paper_first/doc/Page99.pdf inside the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [pdf] \n',
                    '\n',
                    '',
@@ -1072,14 +1086,31 @@ class TestUsecase(DataCommandTestCase):
                               target_path=os.path.join('data', 'no-ext'))
         correct = ['Initializing pubs in /pubs\n',
                    'added to pubs:\n[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
-                   'data/no-ext was copied to the pubs repository.\n',
+                   'data/no-ext was copied to /pubs/doc/Page99 inside the pubs repository.\n',
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) [NOEXT] \n',
                   ]
         cmds = ['pubs init -p /pubs',
                 'pubs add -d data/no-ext data/pagerank.bib',
                 'pubs list',
                ]
-        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+        actual = self.execute_cmds(cmds, capture_output=True)
+        self.assertEqual(correct, actual)
+
+    def test_add_non_standard(self):
+        """Test that non-standard bibtex are correctly added"""
+        self.fs.add_real_directory(os.path.join(self.rootpath, 'data_non_standard'), read_only=False)
+        correct = ['Initializing pubs in /pubs\n',
+                   'added to pubs:\n[Geometric_phases]  "Geometric phases in physics" (1989) \n',
+                   'added to pubs:\n[hadoop] Foundation, Apache Software "Hadoop" \n',
+                  ]
+        cmds = ['pubs init -p /pubs',
+                'pubs add data_non_standard/non_standard_collection.bib',
+                'pubs add data_non_standard/non_standard_software.bib',
+                # 'pubs list',
+               ]
+        actual = self.execute_cmds(cmds, capture_output=True)
+        self.assertEqual(correct, actual)
+
 
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_readme(self, reqget):
@@ -1089,7 +1120,7 @@ class TestUsecase(DataCommandTestCase):
         self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Knuth1995.pdf')
 
         cmds = ['pubs init',
-                'pubs import data/collection.bib',
+                'pubs import data/three_articles.bib',
                 'pubs add data/pagerank.bib -d data/pagerank.pdf',
                 #'pubs add -D 10.1007/s00422-012-0514-6 -d data/pagerank.pdf',
                 'pubs add -I 978-0822324669 -d data/oyama2000the.pdf',
@@ -1099,6 +1130,21 @@ class TestUsecase(DataCommandTestCase):
                ]
         self.execute_cmds(cmds, capture_output=True)
 #        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+
+    def test_ambiguous_citekey(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                'pubs add data/pagerank.bib', # now we have Page99 and Page99a
+                'pubs edit Page',
+                ]
+        output = '\n'.join(["error: Be more specific; 'Page' matches multiples citekeys:",
+                            "    [Page99] Page, Lawrence et al. \"The PageRank Citation Ranking: Bringing Order to the Web.\" (1999) ",
+                            "    [Page99a] Page, Lawrence et al. \"The PageRank Citation Ranking: Bringing Order to the Web.\" (1999) \n"])
+
+        with self.assertRaises(FakeSystemExit):
+            self.execute_cmds(cmds)
+
+        self.assertEqual(self.captured_stderr, output)
 
 
 
@@ -1143,6 +1189,24 @@ class TestCache(DataCommandTestCase):
         out = self.execute_cmds(cmds)
         self.assertEqual(line,  out[2])
         self.assertEqual(line1, out[4])
+
+
+class TestConfigChange(DataCommandTestCase):
+
+    def test_max_authors_default(self):
+        line_al   = '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+        line_full = '[Page99] Page, Lawrence and Brin, Sergey and Motwani, Rajeev and Winograd, Terry "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n'
+
+        self.execute_cmds(['pubs init', 'pubs add data/pagerank.bib'])
+
+        for max_authors in [1, 2, 3]:
+            self.update_config({'main': {'max_authors': max_authors}})
+            self.execute_cmds([('pubs list', None, line_al, None)])
+
+        for max_authors in [-1, 0, 4, 5, 10]:
+            self.update_config({'main': {'max_authors': max_authors}})
+            self.execute_cmds([('pubs list', None, line_full, None)])
+
 
 
 if __name__ == '__main__':

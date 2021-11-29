@@ -16,7 +16,7 @@ def filter_filename(filename, ext):
     """ Return the filename without the extension if the extension matches ext.
         Otherwise return None
     """
-    pattern = '.*\{}$'.format(ext)
+    pattern = '.*\\{}$'.format(ext)
     if re.match(pattern, filename) is not None:
         return u_maybe(filename[:-len(ext)])
 
@@ -154,7 +154,7 @@ class DocBroker(object):
 
     def __init__(self, directory, scheme='docsdir', subdir='doc'):
         self.scheme = scheme
-        self.docdir = os.path.join(directory, subdir)
+        self.docdir = os.path.expanduser(os.path.join(directory, subdir))
         if not check_directory(self.docdir, fail=False):
             os.mkdir(system_path(self.docdir))
 

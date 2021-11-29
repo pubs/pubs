@@ -27,6 +27,10 @@ edit_cmd = string(default='')
 # Which default extension to use when creating a note file.
 note_extension = string(default='txt')
 
+# How many authors to display when displaying a citation. If there are more
+# authors, only the first author is diplayed followed by 'et al.'.
+max_authors = integer(default=3)
+
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.
 debug = boolean(default=False)
@@ -114,6 +118,9 @@ active = force_list(default=list('alias'))
 # [[[count]]]
 # command = !pubs list -k | wc -l
 # description = lists number of pubs in repo
+
+# To use commas in the description, wrap them in a "" string. For example:
+# description = "lists number of pubs in repo, greets the user afterward"
 
 [[git]]
 # The git plugin will commit changes to the repository in a git repository
