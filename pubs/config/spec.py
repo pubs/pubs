@@ -35,6 +35,9 @@ max_authors = integer(default=3)
 # the full python stack is printed.
 debug = boolean(default=False)
 
+# which bibliographic fields to exclude from bibtex files.
+bibtex_field_excludes = force_list(default=list())
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.
