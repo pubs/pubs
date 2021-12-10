@@ -6,7 +6,7 @@ from .. import color
 
 from ..uis import get_ui
 from ..endecoder import EnDecoder
-from ..utils import resolve_citekey
+from ..utils import resolve_citekey, remove_bibtex_fields
 from ..completion import CiteKeyCompletion
 from ..events import ModifyEvent
 
@@ -60,10 +60,7 @@ def command(conf, args):
                          "edited.".format(color.dye_out(citekey, 'citekey'))))
             else:
                 # exclude bibtex fields if specified
-                for item in content.values():
-                    for field in conf['main']['bibtex_field_excludes']:
-                        if field in item:
-                            del item[field]
+                remove_bibtex_fields(content, conf['main']['bibtex_field_excludes'])
 
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)

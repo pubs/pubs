@@ -11,6 +11,7 @@ from .. import content
 from ..paper import Paper
 from ..uis import get_ui
 from ..content import system_path, read_text_file
+from ..utils import remove_bibtex_fields
 from ..command_utils import add_doc_copy_arguments
 
 
@@ -40,7 +41,7 @@ def parser(subparsers, conf):
     return parser
 
 
-def many_from_path(ui, bibpath, bibfield_excludes=[], ignore=False):
+def many_from_path(ui, bibpath, excluded_bibtex_fields=[], ignore=False):
     """Extract list of papers found in bibliographic files in path.
 
     The behavior is to:
@@ -64,10 +65,7 @@ def many_from_path(ui, bibpath, bibfield_excludes=[], ignore=False):
         try:
             bibentry = coder.decode_bibdata(read_text_file(filepath))
             # exclude bibtex fields if specified
-            for item in bibentry.values():
-                for field in bibfield_excludes:
-                    if field in item:
-                        del item[field]
+            remove_bibtex_fields(bibentry, excluded_bibtex_fields)
             biblist.append(bibentry)
         except coder.BibDecodingError:
             error = "Could not parse bibtex at {}.".format(filepath)
@@ -107,7 +105,7 @@ def command(conf, args):
     rp = repo.Repository(conf)
     # Extract papers from bib
     papers = many_from_path(ui, bibpath,
-        bibfield_excludes=conf['main']['bibtex_field_excludes'],
+        excluded_bibtex_fields=conf['main']['bibtex_field_excludes'],
         ignore=args.ignore_malformed)
     keys = args.keys or papers.keys()
     for k in keys:

@@ -117,10 +117,7 @@ def command(conf, args):
             ui.error('invalid bibfile {}.'.format(bibfile))
 
     # exclude bibtex fields if specified
-    for item in bibentry.values():
-        for field in conf['main']['bibtex_field_excludes']:
-            if field in item:
-                del item[field]
+    utils.remove_bibtex_fields(bibentry, conf['main']['bibtex_field_excludes'])
 
     # citekey
 
