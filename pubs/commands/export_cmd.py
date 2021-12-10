@@ -53,6 +53,11 @@ def command(conf, args):
     for p in papers:
         bib[p.citekey] = p.bibdata
 
+        # exclude bibtex fields if specified
+        for field in conf['main']['bibtex_field_excludes']:
+            if field in bib[p.citekey]:
+                del bib[p.citekey][field]
+
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib, args.ignore_fields)
     ui.message(bibdata_raw)
