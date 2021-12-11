@@ -41,7 +41,7 @@ def parser(subparsers, conf):
     return parser
 
 
-def many_from_path(ui, bibpath, excluded_bibtex_fields=[], ignore=False):
+def many_from_path(ui, bibpath, bibtex_field_excludes=[], ignore=False):
     """Extract list of papers found in bibliographic files in path.
 
     The behavior is to:
@@ -65,7 +65,7 @@ def many_from_path(ui, bibpath, excluded_bibtex_fields=[], ignore=False):
         try:
             bibentry = coder.decode_bibdata(read_text_file(filepath))
             # exclude bibtex fields if specified
-            remove_bibtex_fields(bibentry, excluded_bibtex_fields)
+            remove_bibtex_fields(bibentry, bibtex_field_excludes)
             biblist.append(bibentry)
         except coder.BibDecodingError:
             error = "Could not parse bibtex at {}.".format(filepath)
@@ -105,7 +105,7 @@ def command(conf, args):
     rp = repo.Repository(conf)
     # Extract papers from bib
     papers = many_from_path(ui, bibpath,
-        excluded_bibtex_fields=conf['main']['bibtex_field_excludes'],
+        bibtex_field_excludes=conf['main']['bibtex_field_excludes'],
         ignore=args.ignore_malformed)
     keys = args.keys or papers.keys()
     for k in keys:
