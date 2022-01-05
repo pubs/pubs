@@ -187,3 +187,4 @@ You can access the self-documented configuration by using `pubs conf`, and all t
 - [Jonáš Kulhánek](https://github.com/jkulhanek)
 - [Dominik Stańczak](https://github.com/StanczakDominik)
 - [Gustavo José de Sousa](https://github.com/guludo)
+- [Mitsuhiro Nakamura](https://github.com/m15a)

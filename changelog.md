@@ -7,6 +7,7 @@
 
 ### Implemented enhancements
 
+- Possibily to exclude bibtext field when adding references ([#273](https://github.com/pubs/pubs/pull/273) by [Mitsuhiro Nakamura](https://github.com/m15a))
 - Migration from Travis CI to Github actions ([#260](https://github.com/pubs/pubs/pull/260))
 - Allow passing named arguments to custom commands ([#241](https://github.com/pubs/pubs/pull/241) by [jkulhanek](https://github.com/jkulhanek))
 - Added support for non-standard bibtex types, e.g. @collection, @software, etc. ([#226](https://github.com/pubs/pubs/pull/226))
