@@ -60,7 +60,7 @@ def command(conf, args):
                          "edited.".format(color.dye_out(citekey, 'citekey'))))
             else:
                 # exclude bibtex fields if specified
-                remove_bibtex_fields(content, conf['main']['bibtex_field_excludes'])
+                remove_bibtex_fields(content, conf['main']['exclude_bibtex_fields'])
 
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)

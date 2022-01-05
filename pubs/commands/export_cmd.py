@@ -54,7 +54,7 @@ def command(conf, args):
         bib[p.citekey] = p.bibdata
 
     # exclude bibtex fields if specified
-    remove_bibtex_fields(bib, conf['main']['bibtex_field_excludes'])
+    remove_bibtex_fields(bib, conf['main']['exclude_bibtex_fields'])
 
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib, args.ignore_fields)

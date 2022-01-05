@@ -139,7 +139,7 @@ edit_cmd = "vim"
 debug = False
 
 # which bibliographic fields to exclude from bibtex files.
-bibtex_field_excludes = 
+exclude_bibtex_fields =
 
 [formating]
 

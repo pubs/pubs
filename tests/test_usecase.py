@@ -440,7 +440,7 @@ class TestAdd(URLContentTestCase):
     def test_add_excludes_bibtex_fields(self):
         self.execute_cmds(['pubs init'])
         config = conf.load_conf()
-        config['main']['bibtex_field_excludes'] = ['abstract', 'publisher']
+        config['main']['exclude_bibtex_fields'] = ['abstract', 'publisher']
         conf.save_conf(config)
         self.execute_cmds(['pubs add data/pagerank.bib'])
         with FakeFileOpen(self.fs)(self.default_pubs_dir + '/bib/Page99.bib', 'r') as buf:
@@ -846,7 +846,7 @@ class TestUsecase(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
         config = conf.load_conf()
-        config['main']['bibtex_field_excludes'] = ['author']
+        config['main']['exclude_bibtex_fields'] = ['author']
         conf.save_conf(config)
         cmds = [('pubs edit Page99', ['@misc{Page99, title="TTT", author="auth"}', 'n'])]
         self.execute_cmds(cmds)
@@ -940,7 +940,7 @@ class TestUsecase(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
         config = conf.load_conf()
-        config['main']['bibtex_field_excludes'] = ['url']
+        config['main']['exclude_bibtex_fields'] = ['url']
         conf.save_conf(config)
         outs = self.execute_cmds(['pubs export Page99'])
         for bib in endecoder.EnDecoder().decode_bibdata(outs[0]).values():
@@ -1011,7 +1011,7 @@ class TestUsecase(DataCommandTestCase):
     def test_import_excludes_bibtex_field(self):
         self.execute_cmds(['pubs init'])
         config = conf.load_conf()
-        config['main']['bibtex_field_excludes'] = ['abstract']
+        config['main']['exclude_bibtex_fields'] = ['abstract']
         conf.save_conf(config)
         self.execute_cmds(['pubs import data/ Page99'])
         with FakeFileOpen(self.fs)(self.default_pubs_dir + '/bib/Page99.bib', 'r') as buf:
