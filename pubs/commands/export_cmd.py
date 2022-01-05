@@ -5,7 +5,7 @@ import argparse
 from .. import repo
 from ..uis import get_ui
 from .. import endecoder
-from ..utils import resolve_citekey_list
+from ..utils import resolve_citekey_list, remove_bibtex_fields
 from ..endecoder import BIBFIELD_ORDER
 from ..completion import CiteKeyCompletion, CommaSeparatedListCompletion
 
@@ -52,6 +52,9 @@ def command(conf, args):
     bib = {}
     for p in papers:
         bib[p.citekey] = p.bibdata
+
+    # exclude bibtex fields if specified
+    remove_bibtex_fields(bib, conf['main']['exclude_bibtex_fields'])
 
     exporter = endecoder.EnDecoder()
     bibdata_raw = exporter.encode_bibdata(bib, args.ignore_fields)

@@ -138,6 +138,9 @@ edit_cmd = "vim"
 # the full python stack is printed.
 debug = False
 
+# which bibliographic fields to exclude from bibtex files.
+exclude_bibtex_fields =
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.

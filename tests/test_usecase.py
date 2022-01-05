@@ -437,6 +437,18 @@ class TestAdd(URLContentTestCase):
             self.execute_cmds(cmds)
         self.assertEqual(cm.exception.code, 1)
 
+    def test_add_excludes_bibtex_fields(self):
+        self.execute_cmds(['pubs init'])
+        config = conf.load_conf()
+        config['main']['exclude_bibtex_fields'] = ['abstract', 'publisher']
+        conf.save_conf(config)
+        self.execute_cmds(['pubs add data/pagerank.bib'])
+        with FakeFileOpen(self.fs)(self.default_pubs_dir + '/bib/Page99.bib', 'r') as buf:
+            out = endecoder.EnDecoder().decode_bibdata(buf.read())
+        for bib in out.values():
+            self.assertFalse('abstract' in bib or 'publisher' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
+
 
 class TestList(DataCommandTestCase):
 
@@ -829,6 +841,22 @@ class TestUsecase(DataCommandTestCase):
                 ]
         self.execute_cmds(cmds)
 
+    def test_editor_excludes_bibtex_field(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib',
+                ]
+        self.execute_cmds(cmds)
+        config = conf.load_conf()
+        config['main']['exclude_bibtex_fields'] = ['author']
+        conf.save_conf(config)
+        cmds = [('pubs edit Page99', ['@misc{Page99, title="TTT", author="auth"}', 'n'])]
+        self.execute_cmds(cmds)
+        with FakeFileOpen(self.fs)(self.default_pubs_dir + '/bib/Page99.bib', 'r') as buf:
+            out = endecoder.EnDecoder().decode_bibdata(buf.read())
+        for bib in out.values():
+            self.assertFalse('author' in bib)
+            self.assertTrue('title' in bib)
+
     def test_add_aborts(self):
         with self.assertRaises(FakeSystemExit):
             cmds = ['pubs init',
@@ -908,6 +936,19 @@ class TestUsecase(DataCommandTestCase):
             fixtures.page_bibentry, ignore_fields=['author', 'title'])
         self.assertEqual(outs[2], expected + os.linesep)
 
+    def test_export_excludes_bibtex_field(self):
+        cmds = ['pubs init',
+                'pubs add data/pagerank.bib'
+                ]
+        self.execute_cmds(cmds)
+        config = conf.load_conf()
+        config['main']['exclude_bibtex_fields'] = ['url']
+        conf.save_conf(config)
+        outs = self.execute_cmds(['pubs export Page99'])
+        for bib in endecoder.EnDecoder().decode_bibdata(outs[0]).values():
+            self.assertFalse('url' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
+
     def test_import(self):
         cmds = ['pubs init',
                 'pubs import data/',
@@ -969,6 +1010,18 @@ class TestUsecase(DataCommandTestCase):
                 ]
         outs = self.execute_cmds(cmds)
         self.assertEqual(1 + 1, len(outs[-1].split('\n')))
+
+    def test_import_excludes_bibtex_field(self):
+        self.execute_cmds(['pubs init'])
+        config = conf.load_conf()
+        config['main']['exclude_bibtex_fields'] = ['abstract']
+        conf.save_conf(config)
+        self.execute_cmds(['pubs import data/ Page99'])
+        with FakeFileOpen(self.fs)(self.default_pubs_dir + '/bib/Page99.bib', 'r') as buf:
+            out = endecoder.EnDecoder().decode_bibdata(buf.read())
+        for bib in out.values():
+            self.assertFalse('abstract' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
 
     def test_update(self):
         cmds = ['pubs init',
