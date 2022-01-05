@@ -447,6 +447,7 @@ class TestAdd(URLContentTestCase):
             out = endecoder.EnDecoder().decode_bibdata(buf.read())
         for bib in out.values():
             self.assertFalse('abstract' in bib or 'publisher' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
 
 
 class TestList(DataCommandTestCase):
@@ -854,6 +855,7 @@ class TestUsecase(DataCommandTestCase):
             out = endecoder.EnDecoder().decode_bibdata(buf.read())
         for bib in out.values():
             self.assertFalse('author' in bib)
+            self.assertTrue('title' in bib)
 
     def test_add_aborts(self):
         with self.assertRaises(FakeSystemExit):
@@ -945,6 +947,7 @@ class TestUsecase(DataCommandTestCase):
         outs = self.execute_cmds(['pubs export Page99'])
         for bib in endecoder.EnDecoder().decode_bibdata(outs[0]).values():
             self.assertFalse('url' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
 
     def test_import(self):
         cmds = ['pubs init',
@@ -1018,6 +1021,7 @@ class TestUsecase(DataCommandTestCase):
             out = endecoder.EnDecoder().decode_bibdata(buf.read())
         for bib in out.values():
             self.assertFalse('abstract' in bib)
+            self.assertTrue('title' in bib and 'author' in bib)
 
     def test_update(self):
         cmds = ['pubs init',
