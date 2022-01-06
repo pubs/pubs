@@ -22,7 +22,7 @@ _IGNORING_MSG = " Ignoring it."
 def parser(subparsers, conf):
     parser = subparsers.add_parser(
         'import',
-        help='import paper(s) to the repository.')
+        help='import paper(s) to the repository')
     parser.add_argument(
         'bibpath',
         help=("path to bibtex, bibtexml or bibyaml file, or a directory "
