@@ -116,6 +116,9 @@ def command(conf, args):
         if bibentry is None:
             ui.error('invalid bibfile {}.'.format(bibfile))
 
+    # exclude bibtex fields if specified
+    utils.remove_bibtex_fields(bibentry, conf['main']['exclude_bibtex_fields'])
+
     # citekey
 
     citekey = args.citekey

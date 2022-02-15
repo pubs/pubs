@@ -87,3 +87,9 @@ def standardize_doi(doi):
     new_doi = match.group(0)
 
     return new_doi
+
+def remove_bibtex_fields(bibentry, fields):
+    for item in bibentry.values():
+        for field in fields:
+            if field in item:
+                del item[field]

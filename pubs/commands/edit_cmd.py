@@ -6,7 +6,7 @@ from .. import color
 
 from ..uis import get_ui
 from ..endecoder import EnDecoder
-from ..utils import resolve_citekey
+from ..utils import resolve_citekey, remove_bibtex_fields
 from ..completion import CiteKeyCompletion
 from ..events import ModifyEvent
 
@@ -59,6 +59,9 @@ def command(conf, args):
                 ui.info(("The metadata of paper '{}' was successfully "
                          "edited.".format(color.dye_out(citekey, 'citekey'))))
             else:
+                # exclude bibtex fields if specified
+                remove_bibtex_fields(content, conf['main']['exclude_bibtex_fields'])
+
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)
                 if rp.rename_paper(new_paper, old_citekey=paper.citekey):

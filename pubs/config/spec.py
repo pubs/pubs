@@ -56,6 +56,11 @@ normalize_citekey = boolean(default=False)
 #
 citekey_format = string(default='{{author_last_name:l}}{{year}}{{short_title:l}}')
 
+# which bibliographic fields to exclude from bibtex files. By default, none.
+# Please note that excluding critical fields such as `title` or `author`
+# will break many commands of pubs.
+exclude_bibtex_fields = force_list(default=list())
+
 [formating]
 
 # Enable bold formatting, if the terminal supports it.
