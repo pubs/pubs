@@ -35,6 +35,27 @@ max_authors = integer(default=3)
 # the full python stack is printed.
 debug = boolean(default=False)
 
+# If true the citekey is normalized using the 'citekey_format' on adding new publications.
+normalize_citekey = boolean(default=False)
+
+# String specifying how to format the citekey. All strings of
+# the form '{{substitution:modifier}}' and '{{substitution}}' will
+# be substituted with their appropriate values. The following
+# substitutions are used:
+#    author_last_name: last name of the first author
+#    year: year of publication
+#    short_title: first word of the title (excluding words such as "the", "an", ...)
+# modifiers:
+#    l: converts the text to lowercase
+#    u: converts the text to uppercase
+# examples:
+#   {{author_last_name:l}}{{year}} generates 'yang2020'
+#   {{author_last_name}}{{year}}{{short_title}} generates 'Yang2020Towards'
+#   {{author_last_name:l}}{{year}}{{short_title:l}} generates 'yang2020towards'
+#   {{author_last_name:u}}{{year}} generates 'YANG2020'
+#
+citekey_format = string(default='{{author_last_name:l}}{{year}}{{short_title:l}}')
+
 # which bibliographic fields to exclude from bibtex files. By default, none.
 # Please note that excluding critical fields such as `title` or `author`
 # will break many commands of pubs.
