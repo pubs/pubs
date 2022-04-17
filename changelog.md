@@ -1,9 +1,12 @@
 # Changelog
 
 
-## Current master
+## Current main
 
-[Full Changelog](https://github.com/pubs/pubs/compare/v0.8.3...master)
+[Full Changelog](https://github.com/pubs/pubs/compare/v0.9.0...master)
+
+
+## [v0.9.0](https://github.com/pubs/pubs/compare/v0.8.3...v0.9.0) (2022-04-17)
 
 ### Implemented enhancements
 
