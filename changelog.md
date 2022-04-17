@@ -7,6 +7,7 @@
 
 ### Implemented enhancements
 
+- Citekey can be automatically generated (disabled by default) ([#209](https://github.com/pubs/pubs/pull/209) by [Jonáš Kulhánek](https://github.com/jkulhanek))
 - Possibily to exclude bibtext field when adding references ([#273](https://github.com/pubs/pubs/pull/273) by [Mitsuhiro Nakamura](https://github.com/m15a))
 - Less ambiguous tag display for tags with space ([#265](https://github.com/pubs/pubs/pull/265) by [Florian Richoux](https://github.com/richoux))
 - Migration from Travis CI to Github actions ([#260](https://github.com/pubs/pubs/pull/260))
@@ -18,6 +19,7 @@
 
 ### Fixed bugs
 
+- ISBN service not available anymore; now displays an appropriate error.
 - Fixed collision when entry uses `type` field ([#252](https://github.com/pubs/pubs/pull/252))
 - Note on comma in alias descriptions ([#240](https://github.com/pubs/pubs/pull/240) [StanczakDominik](https://github.com/StanczakDominik))
 - Note path correctly expand user '~' ([#250](https://github.com/pubs/pubs/pull/250))
