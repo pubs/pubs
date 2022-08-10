@@ -18,7 +18,7 @@ from tests.test_usecase import DataCommandTestCase
 class TestNoteAppend(DataCommandTestCase):
     """Test appending a note file from the command-line using the '-a' arg"""
 
-    def setUp(self, nsec_stat=True):
+    def setUp(self):
         """Initialize a bib entry containing citation key, Page99, for testing"""
         super(TestNoteAppend, self).setUp()
         init = ['pubs init',

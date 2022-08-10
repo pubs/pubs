@@ -15,7 +15,7 @@ def git_hash(pubsdir):
 
 class TestGitPlugin(sand_env.SandboxedCommandTestCase):
 
-    def setUp(self, nsec_stat=True):
+    def setUp(self):
         super(TestGitPlugin, self).setUp()
         # Backup environment variables and set git author
         self.env_backup = os.environ.copy()
