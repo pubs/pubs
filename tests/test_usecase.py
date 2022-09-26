@@ -1175,13 +1175,26 @@ class TestUsecase(DataCommandTestCase):
                 'pubs import data/three_articles.bib',
                 'pubs add data/pagerank.bib -d data/pagerank.pdf',
                 #'pubs add -D 10.1007/s00422-012-0514-6 -d data/pagerank.pdf',
-                'pubs add -I 978-0822324669 -d data/oyama2000the.pdf',
                 'pubs add -X math/9501234 -d data/Knuth1995.pdf',
                 'pubs add -D 10.1007/s00422-012-0514-6',
                 'pubs doc add data/Loeb_2012.pdf Loeb_2012',
                ]
         self.execute_cmds(cmds, capture_output=True)
-#        self.assertEqual(correct, self.execute_cmds(cmds, capture_output=True))
+
+    @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_isbn(self, reqget):
+        """Test that the readme example work."""
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Loeb_2012.pdf')
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/oyama2000the.pdf')
+        self.fs.add_real_file(os.path.join(self.rootpath, 'data/pagerank.pdf'), target_path='data/Knuth1995.pdf')
+
+        cmds = ['pubs init',
+                #'pubs add -D 10.1007/s00422-012-0514-6 -d data/pagerank.pdf',
+                'pubs add -I 978-0822324669 -d data/oyama2000the.pdf',
+               ]
+        self.execute_cmds(cmds, capture_output=True)
+
 
     def test_ambiguous_citekey(self):
         cmds = ['pubs init',
