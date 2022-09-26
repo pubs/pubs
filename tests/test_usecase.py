@@ -562,8 +562,8 @@ class TestList(DataCommandTestCase):
                    '[turing1950computing] Turing, Alan M "Computing machinery and intelligence" Mind (1950) \n' \
                    '[Bell_1964] Bell, J. S. "On the Einstein Podolsky Rosen paradox" Physics Physique физика (1964) \n' \
                    '[Page99] Page, Lawrence et al. "The PageRank Citation Ranking: Bringing Order to the Web." (1999) \n' \
-                   '[10.1371_journal.pone.0038236] Saunders, Caroline Lyon AND Chrystopher L. Nehaniv AND Joe "Interactive Language Learning by Robots: The Transition from Babbling to Word Forms" PLoS ONE (2012) \n' \
-                   '[10.1371_journal.pone.0063400] Ay, Georg Martius AND Ralf Der AND Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013) \n'
+                   '[10.1371_journal.pone.0038236] Lyon, Caroline and Nehaniv, Chrystopher L. and Saunders, Joe "Interactive Language Learning by Robots: The Transition from Babbling to Word Forms" PLoS ONE (2012) \n' \
+                   '[10.1371_journal.pone.0063400] Martius, Georg and Der, Ralf and Ay, Nihat "Information Driven Self-Organization of Complex Robotic Behaviors" PLoS ONE (2013) \n'
         correct = [ data_chrono_correct,
                    data_chrono_correct + '[Doe_noyear] Doe, John "About Assigning Timestamps to Research Articles" Journal Example \n'
                    ]
