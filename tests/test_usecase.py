@@ -83,9 +83,8 @@ class CommandTestCase(fake_env.TestFakeFs):
 
     maxDiff = 1000000
 
-    def setUp(self, nsec_stat=True):
+    def setUp(self):
         super(CommandTestCase, self).setUp()
-        os.stat_float_times(nsec_stat)
         self.default_pubs_dir = os.path.expanduser('~/.pubs')
         self.default_conf_path = os.path.expanduser('~/.pubsrc')
 
@@ -179,8 +178,8 @@ class CommandTestCase(fake_env.TestFakeFs):
 class DataCommandTestCase(CommandTestCase):
     """Abstract TestCase intializing the fake filesystem and copying fake data."""
 
-    def setUp(self, nsec_stat=True):
-        super(DataCommandTestCase, self).setUp(nsec_stat=nsec_stat)
+    def setUp(self):
+        super(DataCommandTestCase, self).setUp()
         self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
         self.fs.add_real_directory(os.path.join(self.rootpath, 'bibexamples'), read_only=False)
         # add certificate for web querries
@@ -1211,9 +1210,8 @@ class TestCache(DataCommandTestCase):
     def setUp(self):
         pass
 
-    @ddt.data(True, False)
-    def test_remove(self, nsec_stat):
-        DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
+    def test_remove(self):
+        DataCommandTestCase.setUp(self)
         cmds = ['pubs init',
                 'pubs add data/pagerank.bib',
                 ('pubs remove Page99', ['y']),
@@ -1222,9 +1220,8 @@ class TestCache(DataCommandTestCase):
         out = self.execute_cmds(cmds)
         self.assertEqual(1, len(out[3].split('\n')))
 
-    @ddt.data(True, False)
-    def test_edit(self, nsec_stat):
-        DataCommandTestCase.setUp(self, nsec_stat=nsec_stat)
+    def test_edit(self):
+        DataCommandTestCase.setUp(self)
 
         bib = str_fixtures.bibtex_external0
         bib1 = re.sub(r'year = \{1999\}', 'year = {2007}', bib)
