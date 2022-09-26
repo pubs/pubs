@@ -39,7 +39,7 @@ jobs:
         run: pytest
 
 
-  unit-test:
+  unit-test-online:
     name: Run unit tests online
     strategy:
       matrix:
