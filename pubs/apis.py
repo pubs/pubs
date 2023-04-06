@@ -95,10 +95,14 @@ def doi2bibtex(doi, **kwargs):
 def isbn2bibtex(isbn, **kwargs):
     """Return a bibtex string from an ISBN"""
 
-    url = 'https://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
+    url = 'https://en.wikipedia.org/api/rest_v1/data/citation/bibtex/{}'.format(isbn)
+    # url = 'https://openlibrary.org/api/books?bibkeys=ISBN:{}&jscmd=details&format=json'.format(isbn)
+    # url = 'https://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
     r = _get_request(url)
+    print(r)
     soup = BeautifulSoup(r.text, "html.parser")
-    citation = soup.find("textarea").text
+    # citation = soup.find("textarea").text
+    citation = soup
 
     if len(citation) == 0:
         raise ReferenceNotFoundError("No information could be retrieved about ISBN '{}'. ISBN databases are notoriously incomplete. If the ISBN is correct, you may have to enter information manually by invoking 'pubs add' without the '-I' argument.".format(isbn))

@@ -20,7 +20,7 @@ class APITests(unittest.TestCase):
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_readme(self, reqget):
         apis.doi2bibtex('10.1007/s00422-012-0514-6')
-        # apis.isbn2bibtex('978-0822324669')  # FIXME: uncomment when ISBNs work again
+        apis.isbn2bibtex('978-0822324669')  # FIXME: uncomment when ISBNs work again
         apis.arxiv2bibtex('math/9501234')
 
 class TestDOI2Bibtex(APITests):
@@ -56,7 +56,7 @@ class TestISBN2Bibtex(APITests):
     #     self.assertIsInstance(bib, ustr)
     #     self.assertIn('Poincaré, Henri', bib)
 
-    @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
+    # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex(self, reqget):
         bib = apis.get_bibentry_from_api('9782081336742', 'ISBN')
