@@ -323,7 +323,9 @@
       "https://en.wikipedia.org/api/rest_v1/data/citation/bibtex/9782081336742"
     ],
     {
-      "headers": null
+      "headers":{
+        "accept": "application/x-bibtex; charset=utf-8" 
+      }
     },
     "@book{vuillemin_science_2014, \n\taddress = {Paris}, \n\tedition = {Nouv. éd}, \n\ttitle = {La science et l'hypothèse}, \n\tisbn = {9782081336742, 208133674X}, \n\turl = {https://www.worldcat.org/oclc/897581638}, \n\tabstract = {On aimerait que la logique de la science soit infaillible. Mais la nature et la rigueur du raisonnement scientifique reposent en grande partie sur l'importance de l'hypothèse, et celle de la convention. Qu'en est-il par exemple du nombre, autrement dit de la grandeur mathématique ? La trouvons-nous dans la nature, ou est-ce nous qui l'y introduisons ? De même pour l'espace : d'où viennent les premiers principes de la géométrie ? Nous sont-ils imposés par la logique ? L'espace nous est-il révélé par nos sens ? La géométrie dérive-t-elle de l'expérience ? Parcourant les sciences, de l'arithmétique et la géométrie jusqu'à la mécanique et la physique expérimentale, Poincaré livre ici son premier essai philosophique, écrit au début du XXe siècle et devenu un classique. (payot.ch)}, \n\turldate = {2023-04-06}, \n\tpublisher = {Flammarion}, \n\tauthor = {Poincaré, Henri}, \n\tcollaborator = {Vuillemin, Jules}, \n\tyear = {2014}, \n\t}",  
     200,
@@ -334,7 +336,9 @@
       "https://en.wikipedia.org/api/rest_v1/data/citation/bibtex/978-0822324669"
     ],
     {
-      "headers": null
+      "headers":{
+        "accept": "application/x-bibtex; charset=utf-8" 
+      }
     },
     "@book{oyama_ontogeny_2000, \n\taddress = {Durham}, \n\tedition = {2nd ed., rev. and expanded}, \n\ttitle = {The ontogeny of information : developmental systems and evolution.}, \n\tisbn = {0822380668, 9780822380665, 0822324318, 9780822324317, 9786613062031, 6613062030, 1283062038, 9781283062039}, \n\turl = {https://www.worldcat.org/oclc/52395083}, \n\tabstract = {In this work, the author attempts to complicate certain conventional dichotomies (particularly the nature/nurture split) that she belives impede scientific inquiry and thought about individual development, and to untangle the often subtle assumptions embe}, \n\turldate = {2023-04-06}, \n\tauthor = {Oyama, Susan}, \n\tyear = {2000}, \n}", 
     200,
@@ -345,7 +349,9 @@
       "https://en.wikipedia.org/api/rest_v1/data/citation/bibtex/9780141192451"
     ],
     {
-      "headers": null
+      "headers":{
+        "accept": "application/x-bibtex; charset=utf-8" 
+      }
     },
     "@book{seelye_treasure_2009, \n\taddress = {London}, \n\ttitle = {Treasure {Island}}, \n\tisbn = {9780141192451, 0141192453}, \n\turl = {https://www.worldcat.org/oclc/607911731}, \n\tabstract = {A tale told by an adventurous boy, Jim Hawkins, who gets hold of a treasure map and sets off with an adult crew in search of the buried treasure. Among the crew, however, is the treacherous Long John Silver who is determined to keep the treasure for himself}, \n\turldate = {2023-04-06}, \n\tpublisher = {Penguin Books}, \n\tauthor = {Stevenson, Robert Louis}, \n\tcollaborator = {Seelye, John D.}, \n\tyear = {2009}, \n}", 
     200,

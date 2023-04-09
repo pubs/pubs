@@ -86,23 +86,27 @@ def doi2bibtex(doi, **kwargs):
     if r.encoding is None:
         r.encoding = 'utf8'  # Do not rely on guessing from request
 
+    # print(r.text)
     return r.text
 
 
     ## ISBN support
 
-
 def isbn2bibtex(isbn, **kwargs):
     """Return a bibtex string from an ISBN"""
 
     url = 'https://en.wikipedia.org/api/rest_v1/data/citation/bibtex/{}'.format(isbn)
-    # url = 'https://openlibrary.org/api/books?bibkeys=ISBN:{}&jscmd=details&format=json'.format(isbn)
+    headers = {'accept': 'application/x-bibtex; charset=utf-8'}
     # url = 'https://www.ottobib.com/isbn/{}/bibtex'.format(isbn)
-    r = _get_request(url)
+    r = _get_request(url, headers=headers)
+    if r.encoding is None:
+        r.encoding = 'utf8'  # Do not rely on guessing from request
     print(r)
-    soup = BeautifulSoup(r.text, "html.parser")
+    print(r.text)
+    # soup = BeautifulSoup(r.text, "html.parser")
     # citation = soup.find("textarea").text
-    citation = soup
+    citation = r.text
+    # print(citation)
 
     if len(citation) == 0:
         raise ReferenceNotFoundError("No information could be retrieved about ISBN '{}'. ISBN databases are notoriously incomplete. If the ISBN is correct, you may have to enter information manually by invoking 'pubs add' without the '-I' argument.".format(isbn))

@@ -50,12 +50,21 @@ class TestDOI2Bibtex(APITests):
 class TestISBN2Bibtex(APITests):
 
     # try to avoid triggering 403 status during tests.
-    # @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
-    # def test_unicode(self, reqget):
-    #     bib = apis.isbn2bibtex('9782081336742')
-    #     self.assertIsInstance(bib, ustr)
-    #     self.assertIn('Poincaré, Henri', bib)
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_unicode(self, reqget):
+        bib = apis.isbn2bibtex('9782081336742') 
+        self.assertIsInstance(bib, ustr)
+        self.assertIn('Poincaré, Henri', bib)
 
+    # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
+    @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
+    def test_parses_to_bibtex(self, reqget):
+        bib = apis.get_bibentry_from_api('978-0822324669', 'ISBN')
+        self.assertEqual(len(bib), 1)
+        entry = bib[list(bib)[0]]
+        self.assertEqual(entry['author'][0], 'Oyama, Susan')
+        self.assertEqual(entry['title'], 'The ontogeny of information : developmental systems and evolution.')
+    
     # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_parses_to_bibtex(self, reqget):
@@ -65,6 +74,7 @@ class TestISBN2Bibtex(APITests):
         self.assertEqual(entry['author'][0], 'Poincaré, Henri')
         self.assertEqual(entry['title'], 'La science et l\'hypothèse')
 
+    # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_retrieve_fails_on_incorrect_ISBN(self, reqget):
         with self.assertRaises(apis.ReferenceNotFoundError):
