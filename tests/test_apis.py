@@ -74,7 +74,7 @@ class TestISBN2Bibtex(APITests):
         self.assertEqual(entry['author'][0], 'Poincaré, Henri')
         self.assertEqual(entry['title'], 'La science et l\'hypothèse')
 
-    # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
+    @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_retrieve_fails_on_incorrect_ISBN(self, reqget):
         with self.assertRaises(apis.ReferenceNotFoundError):
