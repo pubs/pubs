@@ -49,7 +49,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ['3.10']
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
