@@ -29,7 +29,7 @@ def short_authors(bibdata, max_authors=3):
                        represented by 'et al.'.
     """
     try:
-        authors = [p for p in bibdata['author']]
+        authors = [p for p in bibdata.persons['author']]
         if 0 < max_authors < len(authors):
             authors_str = '{} et al.'.format(authors[0])
         else:
