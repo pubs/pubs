@@ -78,10 +78,6 @@ def bibentry_from_api(args, ui, raw=False):
         if args.doi is not None:
             return apis.get_bibentry_from_api(args.doi, 'doi', ui=ui, raw=raw)
         elif args.isbn is not None:
-            ui.error('adding with ISBN relied on the OttoBib (https://www.ottobib.com/) service, that is no longer available. '
-                     'While we work on a new solution, you can manually generate bibtex from https://zbib.org/. '
-                     'If you know a good scriptable website/API, you tell us at https://github.com/pubs/pubs/issues/276.')
-            ui.exit(1)
             return apis.get_bibentry_from_api(args.isbn, 'isbn', ui=ui, raw=raw)
             # TODO distinguish between cases, offer to open the error page in a webbrowser.
         elif args.arxiv is not None:

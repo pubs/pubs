@@ -1181,7 +1181,7 @@ class TestUsecase(DataCommandTestCase):
                ]
         self.execute_cmds(cmds, capture_output=True)
 
-    @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
+    # @pytest.mark.skip(reason="isbn is not working anymore, see https://github.com/pubs/pubs/issues/276")
     @mock.patch('pubs.apis.requests.get', side_effect=mock_requests.mock_requests_get)
     def test_isbn(self, reqget):
         """Test that the readme example work."""
