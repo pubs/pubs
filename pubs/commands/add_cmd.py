@@ -6,6 +6,7 @@ from .. import p3
 from .. import bibstruct
 from .. import content
 from .. import repo
+from .. import color
 from .. import paper
 from .. import templates
 from .. import apis
@@ -77,9 +78,12 @@ def bibentry_from_api(args, ui, raw=False):
         if args.doi is not None:
             return apis.get_bibentry_from_api(args.doi, 'doi', ui=ui, raw=raw)
         elif args.isbn is not None:
+            ui.error('adding with ISBN relied on the OttoBib (https://www.ottobib.com/) service, that is no longer available. '
+                     'While we work on a new solution, you can manually generate bibtex from https://zbib.org/. '
+                     'If you know a good scriptable website/API, you tell us at https://github.com/pubs/pubs/issues/276.')
+            ui.exit(1)
             return apis.get_bibentry_from_api(args.isbn, 'isbn', ui=ui, raw=raw)
             # TODO distinguish between cases, offer to open the error page in a webbrowser.
-            # TODO offer to confirm/change citekey
         elif args.arxiv is not None:
             return apis.get_bibentry_from_api(args.arxiv, 'arxiv', ui=ui, raw=raw)
     except apis.ReferenceNotFoundError as e:
@@ -115,11 +119,17 @@ def command(conf, args):
         if bibentry is None:
             ui.error('invalid bibfile {}.'.format(bibfile))
 
+    # exclude bibtex fields if specified
+    utils.remove_bibtex_fields(bibentry, conf['main']['exclude_bibtex_fields'])
+
     # citekey
 
     citekey = args.citekey
     if citekey is None:
-        base_key = bibstruct.extract_citekey(bibentry)
+        if conf['main']['normalize_citekey']:
+            base_key = bibstruct.generate_citekey(bibentry, conf['main']['citekey_format'])
+        else:
+            base_key = bibstruct.extract_citekey(bibentry)
         citekey = rp.unique_citekey(base_key, bibentry)
     elif citekey in rp:
         ui.error('citekey already exist {}.'.format(citekey))
@@ -147,15 +157,17 @@ def command(conf, args):
         doc_add = conf['main']['doc_add']
 
     rp.push_paper(p)
-    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p)))
+    ui.message('added to pubs:\n{}'.format(pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])))
     if docfile is not None:
-        rp.push_doc(p.citekey, docfile, copy=(doc_add in ('copy', 'move')))
-        if doc_add == 'move' and content.content_type(docfile) != 'url':
-            content.remove_file(docfile)
+        rp.push_doc_paper(p, docfile, copy=(doc_add in ('copy', 'move')))
 
-        if doc_add == 'move':
-            ui.message('{} was moved to the pubs repository.'.format(docfile))
-        elif doc_add == 'copy':
-            ui.message('{} was copied to the pubs repository.'.format(docfile))
+        if doc_add in ('move', 'copy'):
+            if doc_add == 'move' and content.content_type(docfile) != 'url':
+                content.remove_file(docfile)
+
+            docpath = content.system_path(rp.databroker.real_docpath(p.docpath))
+            verb = 'moved' if doc_add == 'move' else 'copied'
+            ui.message('{} was {} to {} inside the pubs repository.'.format(color.dye_out(docfile, 'filepath'), verb,
+                                                                            color.dye_out(docpath, 'filepath')))
 
     rp.close()

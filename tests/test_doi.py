@@ -20,7 +20,7 @@ class TestDOIStandardization(unittest.TestCase):
         self.hard_dois = (
             '10.1175/1520-0485(2002)032<0870:CT>2.0.CO;2',
             '10.1002/(SICI)1522-2594(199911)42:5<952::AID-MRM16>3.0.CO;2-S',
-            '10.1579/0044-7447(2006)35\[89:RDUICP\]2.0.CO;2',
+            '10.1579/0044-7447(2006)35[89:RDUICP]2.0.CO;2',
         )
 
         self.currently_not_supported = (
@@ -78,3 +78,7 @@ class TestDOIStandardization(unittest.TestCase):
         for doi in self.currently_not_supported:
             with self.assertRaises(ValueError):
                 standardize_doi(doi)
+
+
+if __name__ == '__main__':
+    unittest.main()

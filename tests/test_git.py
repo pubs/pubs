@@ -1,5 +1,6 @@
-import unittest
+import os
 import subprocess
+import unittest
 
 import sand_env
 
@@ -14,12 +15,21 @@ def git_hash(pubsdir):
 
 class TestGitPlugin(sand_env.SandboxedCommandTestCase):
 
-    def setUp(self, nsec_stat=True):
+    def setUp(self):
         super(TestGitPlugin, self).setUp()
+        # Backup environment variables and set git author
+        self.env_backup = os.environ.copy()
+        os.environ['GIT_AUTHOR_NAME'] = "Pubs test"
+        os.environ['GIT_AUTHOR_EMAIL'] = "unittest@pubs.org"
+        # Setup pubs repository
         self.execute_cmds([('pubs init',)])
         conf = config.load_conf(path=self.default_conf_path)
         conf['plugins']['active'] = ['git']
         config.save_conf(conf, path=self.default_conf_path)
+
+    def tearDown(self):
+        super().tearDown()
+        os.environ = self.env_backup
 
     def test_git(self):
         self.execute_cmds([('pubs add data/pagerank.bib',)])
@@ -31,7 +41,7 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         self.execute_cmds([('pubs rename Page99a ABC',)])
         hash_c = git_hash(self.default_pubs_dir)
 
-        self.execute_cmds([('pubs remove ABC', ['y']),])
+        self.execute_cmds([('pubs remove ABC', ['y'])])
         hash_d = git_hash(self.default_pubs_dir)
 
         self.execute_cmds([('pubs doc add testrepo/doc/Page99.pdf Page99',)])
@@ -72,6 +82,7 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         # self.assertEqual(hash_i, hash_j)
 
     def test_manual(self):
+        print(self.default_pubs_dir)
         conf = config.load_conf(path=self.default_conf_path)
         conf['plugins']['active'] = ['git']
         conf['plugins']['git']['manual'] = True
@@ -99,7 +110,6 @@ class TestGitPlugin(sand_env.SandboxedCommandTestCase):
         hash_m = git_hash(self.default_pubs_dir)
 
         self.assertNotEqual(hash_l, hash_m)
-
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ def command(conf, args):
 
     ui = get_ui()
     rp = repo.Repository(conf)
-    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
+    citekey = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
     notepath = rp.databroker.real_notepath(citekey, rp.conf['main']['note_extension'])
     # Edit bib file in an editor
     if args.append is None and not args.echo:

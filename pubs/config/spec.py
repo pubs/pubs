@@ -27,9 +27,39 @@ edit_cmd = string(default='')
 # Which default extension to use when creating a note file.
 note_extension = string(default='txt')
 
+# How many authors to display when displaying a citation. If there are more
+# authors, only the first author is diplayed followed by 'et al.'.
+max_authors = integer(default=3)
+
 # If true debug mode is on which means exceptions are not catched and
 # the full python stack is printed.
 debug = boolean(default=False)
+
+# If true the citekey is normalized using the 'citekey_format' on adding new publications.
+normalize_citekey = boolean(default=False)
+
+# String specifying how to format the citekey. All strings of
+# the form '{{substitution:modifier}}' and '{{substitution}}' will
+# be substituted with their appropriate values. The following
+# substitutions are used:
+#    author_last_name: last name of the first author
+#    year: year of publication
+#    short_title: first word of the title (excluding words such as "the", "an", ...)
+# modifiers:
+#    l: converts the text to lowercase
+#    u: converts the text to uppercase
+# examples:
+#   {{author_last_name:l}}{{year}} generates 'yang2020'
+#   {{author_last_name}}{{year}}{{short_title}} generates 'Yang2020Towards'
+#   {{author_last_name:l}}{{year}}{{short_title:l}} generates 'yang2020towards'
+#   {{author_last_name:u}}{{year}} generates 'YANG2020'
+#
+citekey_format = string(default='{{author_last_name:l}}{{year}}{{short_title:l}}')
+
+# which bibliographic fields to exclude from bibtex files. By default, none.
+# Please note that excluding critical fields such as `title` or `author`
+# will break many commands of pubs.
+exclude_bibtex_fields = force_list(default=list())
 
 [formating]
 
@@ -94,6 +124,9 @@ active = force_list(default=list('alias'))
 # [[[count]]]
 # command = !pubs list -k | wc -l
 # description = lists number of pubs in repo
+
+# To use commas in the description, wrap them in a "" string. For example:
+# description = "lists number of pubs in repo, greets the user afterward"
 
 [[git]]
 # The git plugin will commit changes to the repository in a git repository

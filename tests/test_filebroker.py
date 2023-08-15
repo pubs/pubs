@@ -71,6 +71,16 @@ class TestFileBroker(fake_env.TestFakeFs):
 
 class TestDocBroker(fake_env.TestFakeFs):
 
+    def test_expanduser(self):
+        """Test that real_docpath expand the user ~"""
+
+        self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)
+        fb = filebroker.FileBroker('~/testrepo', create = True)
+        docb = filebroker.DocBroker('~/testrepo')
+        self.assertTrue(os.path.isabs(docb.docdir))
+        self.assertTrue(os.path.isabs(docb.real_docpath('docsdir://abc')))
+
+
     def test_doccopy(self):
 
         self.fs.add_real_directory(os.path.join(self.rootpath, 'data'), read_only=False)

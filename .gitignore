@@ -2,7 +2,8 @@
 *~
 .DS_Store
 .eggs
-
+env.sh
+.venvs
 
 *.py[cod]
 

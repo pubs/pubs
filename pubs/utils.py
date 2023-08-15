@@ -7,7 +7,7 @@ from . import color
 from . import pretty
 
 
-def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
+def resolve_citekey(repo, conf, citekey, ui=None, exit_on_fail=True):
     """Check that a citekey exists, or autocompletes it if not ambiguous.
         :returns found citekey
     """
@@ -29,22 +29,23 @@ def resolve_citekey(repo, citekey, ui=None, exit_on_fail=True):
     elif citekey not in citekeys:
         if ui is not None:
             citekeys = sorted(citekeys)
-            ui.error("Be more specific; '{}' matches multiples "
-                     "citekeys:".format(citekey))
+            msg = ["Be more specific; '{}' matches multiples citekeys:".format(citekey)]
             for c in citekeys:
                 p = repo.pull_paper(c)
-                ui.message('    {}'.format(pretty.paper_oneliner(p)))
+                paper_str = pretty.paper_oneliner(p, max_authors=conf['main']['max_authors'])
+                msg.append('    {}'.format(paper_str))
+            ui.error('\n'.join(msg))
             if exit_on_fail:
                 ui.exit()
     return citekey
 
 
-def resolve_citekey_list(repo, citekeys, ui=None, exit_on_fail=True):
+def resolve_citekey_list(repo, conf, citekeys, ui=None, exit_on_fail=True):
     shutdown = False
     keys = []
     for key in citekeys:
         try:
-            keys.append(resolve_citekey(repo, key, ui, exit_on_fail))
+            keys.append(resolve_citekey(repo, conf, key, ui=ui, exit_on_fail=exit_on_fail))
         except SystemExit:
             shutdown = exit_on_fail
 
@@ -73,11 +74,11 @@ def standardize_doi(doi):
     """
 
     doi_regexes = (
-        '(10\.\d{4,9}/[-._;()/:A-z0-9\>\<]+)',
-        '(10.1002/[^\s]+)',
-        '(10\.\d{4}/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d)',
-        '(10\.1021/\w\w\d+\+)',
-        '(10\.1207/[\w\d]+\&\d+_\d+)')
+        r'(10\.\d{4,9}/[-._;()/:A-z0-9\>\<]+)',
+        r'(10.1002/[^\s]+)',
+        r'(10\.\d{4}/\d+-\d+X?(\d+)\d+<[\d\w]+:[\d\w]*>\d+.\d+.\w+;\d)',
+        r'(10\.1021/\w\w\d+\+)',
+        r'(10\.1207/[\w\d]+\&\d+_\d+)')
     doi_pattern = re.compile('|'.join(doi_regexes))
 
     match = doi_pattern.search(doi)
@@ -86,3 +87,9 @@ def standardize_doi(doi):
     new_doi = match.group(0)
 
     return new_doi
+
+def remove_bibtex_fields(bibentry, fields):
+    for item in bibentry.values():
+        for field in fields:
+            if field in item:
+                del item[field]

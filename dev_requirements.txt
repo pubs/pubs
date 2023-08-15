@@ -20,6 +20,6 @@ six
 # those are the additional packages required to run the tests
 pyfakefs
 certifi
-ddt
+ddt>=1.4.1
 mock
-pytest # optional (python setup.py test works without it), but possible nonetheless
+pytest

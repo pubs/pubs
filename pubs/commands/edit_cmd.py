@@ -2,10 +2,11 @@ from __future__ import unicode_literals
 
 from ..paper import Paper
 from .. import repo
+from .. import color
 
 from ..uis import get_ui
 from ..endecoder import EnDecoder
-from ..utils import resolve_citekey
+from ..utils import resolve_citekey, remove_bibtex_fields
 from ..completion import CiteKeyCompletion
 from ..events import ModifyEvent
 
@@ -29,7 +30,7 @@ def command(conf, args):
     meta = args.meta
 
     rp = repo.Repository(conf)
-    citekey = resolve_citekey(rp, args.citekey, ui=ui, exit_on_fail=True)
+    citekey = resolve_citekey(rp, conf, args.citekey, ui=ui, exit_on_fail=True)
     paper = rp.pull_paper(citekey)
 
     coder = EnDecoder()
@@ -55,17 +56,21 @@ def command(conf, args):
                 new_paper = Paper(paper.citekey, paper.bibdata,
                                   metadata=content)
                 rp.push_paper(new_paper, overwrite=True, event=False)
-                ui.info(('The metadata of paper `{}`  was successfully '
-                         'edited.'.format(citekey)))
+                ui.info(("The metadata of paper '{}' was successfully "
+                         "edited.".format(color.dye_out(citekey, 'citekey'))))
             else:
+                # exclude bibtex fields if specified
+                remove_bibtex_fields(content, conf['main']['exclude_bibtex_fields'])
+
                 new_paper = Paper.from_bibentry(content,
                                                 metadata=paper.metadata)
                 if rp.rename_paper(new_paper, old_citekey=paper.citekey):
-                    ui.info(('Paper `{}` was successfully edited and renamed '
-                             'as `{}`.'.format(citekey, new_paper.citekey)))
+                    ui.info(("Paper '{}' was successfully edited and renamed "
+                             "as '{}'.".format(color.dye_out(citekey, 'citekey'),
+                                               color.dye_out(new_paper.citekey, 'citekey'))))
                 else:
-                    ui.info(('Paper `{}` was successfully edited.'.format(
-                        citekey)))
+                    ui.info(("Paper '{}' was successfully edited.".format(
+                             color.dye_out(citekey, 'citekey'))))
             break
 
         except coder.BibDecodingError:
@@ -84,7 +89,7 @@ def command(conf, args):
                 break
             elif choice == 'overwrite':
                 paper = rp.push_paper(paper, overwrite=True)
-                ui.info(('Paper `{}` was overwritten.'.format(citekey)))
+                ui.info(('Paper `{}` was overwritten.'.format(color.dye_out(citekey, 'citekey'))))
                 break
             # else edit again
         # Also handle malformed bibtex and metadata

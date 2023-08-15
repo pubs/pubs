@@ -1,0 +1,91 @@
+name: Pubs tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * MON'
+
+
+jobs:
+  unit-test:
+    name: Run unit tests with mock requests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.10']
+        include:
+          - os: ubuntu-20.04
+            python-version: '3.6'
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r dev_requirements.txt
+      - name: Configure git author (fix issue with environment variable)
+        run: |
+          # Manually sets some git user and email to avoid failure of the test
+          # (For some reason the environment variables set in the test are not
+          # taken into account by git on the runner.)
+          git config --global user.name "Pubs test"
+          git config --global user.email "unittest@pubs.org"
+      - name: Test with pytest (mock API mode)
+        env:
+          PUBS_TESTS_MODE: MOCK
+        run: pytest
+
+
+  unit-test-online:
+    name: Run unit tests online
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10']
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r dev_requirements.txt
+      - name: Configure git author (fix issue with environment variable)
+        run: |
+          # Manually sets some git user and email to avoid failure of the test
+          # (For some reason the environment variables set in the test are not
+          # taken into account by git on the runner.)
+          git config --global user.name "Pubs test"
+          git config --global user.email "unittest@pubs.org"
+      - name: Test with pytest (online API mode)
+        env:
+          PUBS_TESTS_MODE: COLLECT
+        run: pytest
+
+  install-test:
+    name: Test installation
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'schedule'
+
+    steps:
+      - uses: actions/setup-python@v3
+      - name: install test
+        run: |
+          pip install -U pip
+          pip install pubs
+          pubs --help
+          pip uninstall -y pubs

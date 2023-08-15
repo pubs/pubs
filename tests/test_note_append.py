@@ -18,7 +18,7 @@ from tests.test_usecase import DataCommandTestCase
 class TestNoteAppendEcho(DataCommandTestCase):
     """Test appending a note file using the '-a' arg. Then echo contents of note file."""
 
-    def setUp(self, nsec_stat=True):
+    def setUp(self):
         """Initialize a bib entry containing citation key, Page99, for testing"""
         super(TestNoteAppendEcho, self).setUp()
         init = ['pubs init',
@@ -59,7 +59,7 @@ class TestNoteAppendEcho(DataCommandTestCase):
         #   * Pass the command split into a command and its args to
         #     execute_cmdsplit, which is called by execute_cmds:
         cmd_split = ['pubs', 'note', 'Page99', '-a', 'xxx yyy']
-        self.execute_cmdsplit(cmd_split, expected_out=None, expected_err=None)
+        self.execute_cmd_capture(cmd_split, expected_out=None, expected_err=None)
         note_lines.append('xxx yyy')
         self.assertFileContentEqual(fin_notes, self._get_note_content(note_lines))
         # Test echoing a multiword line.
